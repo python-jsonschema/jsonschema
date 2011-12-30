@@ -1,17 +1,31 @@
-from __future__ import division, unicode_literals
+from __future__ import division, with_statement
 
-import numbers
+import operator
 import re
+import sys
 import types
 
 
+# 2.5 support
+try:
+    next
+except NameError:
+    _none = object()
+    def next(iterator, default=_none):
+        try:
+            return iterator.next()
+        except StopIteration:
+            if default is not _none:
+                return default
+            raise
+
 _PYTYPES = {
-        "array" : list, "boolean" : bool, "integer" : int,
-        "null" : types.NoneType, "number" : numbers.Number,
-        "object" : dict, "string" : basestring
+        u"array" : list, u"boolean" : bool, u"integer" : int,
+        u"null" : types.NoneType, u"number" : (int, float),
+        u"object" : dict, u"string" : basestring,
 }
 
-_PYTYPES["any"] = tuple(_PYTYPES.values())
+_PYTYPES[u"any"] = tuple(_PYTYPES.values())
 
 
 class SchemaError(Exception):
@@ -26,9 +40,9 @@ class Validator(object):
 
     # required and dependencies are handled in validate_properties
     # exclusive Minium and Maximum are handled in validate_minimum
-    SKIPPED = {
-        "dependencies", "required", "exclusiveMinimum", "exclusiveMaximum"
-    }
+    SKIPPED = set([
+        u"dependencies", u"required", u"exclusiveMinimum", u"exclusiveMaximum"
+    ])
 
     def _error(self, msg):
         raise ValidationError(msg)
@@ -45,10 +59,12 @@ class Validator(object):
             if k in self.SKIPPED:
                 continue
 
-            validator = getattr(self, "validate_%s" % (k,), None)
+            validator = getattr(self, u"validate_%s" % (k,), None)
 
             if validator is None:
-                raise SchemaError("'%s' is not a known schema property" % (k,))
+                raise SchemaError(
+                    u"'%s' is not a known schema property" % (k,)
+                )
 
             validator(v, instance, schema)
 
@@ -67,7 +83,7 @@ class Validator(object):
                 type = _PYTYPES.get(type)
 
                 if type is None:
-                    raise SchemaError("'%s' is not a known type" % (type,))
+                    raise SchemaError(u"'%s' is not a known type" % (type,))
 
                 # isinstance(a_bool, int) will make us even sadder here, so
                 # let's be even dirtier than we would otherwise be.
@@ -75,16 +91,16 @@ class Validator(object):
                 elif (
                     isinstance(instance, type) and
                     (not isinstance(instance, bool) or
-                     type is bool or types == ["any"])
+                     type is bool or types == [u"any"])
                 ):
                         return
         else:
-            self._error("'%s' is not of type %s" % (instance, types))
+            self._error(u"'%s' is not of type %s" % (instance, types))
 
     def validate_properties(self, properties, instance, schema):
         for property, subschema in properties.iteritems():
             if property in instance:
-                dependencies = _(subschema.get("dependencies", []))
+                dependencies = _(subschema.get(u"dependencies", []))
                 if isinstance(dependencies, dict):
                     self.validate(instance, dependencies)
                 else:
@@ -92,12 +108,12 @@ class Validator(object):
                     first = next(missing, None)
                     if first is not None:
                         self._error(
-                            "'%s' is a dependency of '%s'" % (first, property)
+                            u"'%s' is a dependency of '%s'" % (first, property)
                         )
 
                 self.validate(instance[property], subschema)
-            elif subschema.get("required", False):
-                self._error("'%s' is a required property" % (property,))
+            elif subschema.get(u"required", False):
+                self._error(u"'%s' is a required property" % (property,))
 
     def validate_patternProperties(self, patternProperties, instance, schema):
         for pattern, subschema in patternProperties.iteritems():
@@ -106,13 +122,14 @@ class Validator(object):
                     self.validate(v, subschema)
 
     def validate_additionalProperties(self, aP, instance, schema):
-        extras = instance.viewkeys() - schema.get("properties", {}).viewkeys()
+        # no viewkeys in <2.7, and pypy seems to fail on vk - vk anyhow, so...
+        extras = set(instance) - set(schema.get(u"properties", {}))
 
         if isinstance(aP, dict):
             for extra in extras:
                 self.validate(instance[extra], aP)
         elif not aP and extras:
-            self._error("Additional properties are not allowed")
+            self._error(u"Additional properties are not allowed")
 
     def validate_items(self, items, instance, schema):
         if isinstance(items, dict):
@@ -127,53 +144,57 @@ class Validator(object):
             for item in instance[len(schema):]:
                 self.validate(item, aI)
         elif not aI and len(instance) > len(schema):
-            self._error("Additional items are not allowed")
+            self._error(u"Additional items are not allowed")
 
     def validate_minimum(self, minimum, instance, schema):
-        if schema.get("exclusiveMinimum", False):
+        if schema.get(u"exclusiveMinimum", False):
             failed = instance <= minimum
-            cmp = "less than or equal to"
+            cmp = u"less than or equal to"
         else:
             failed = instance < minimum
-            cmp = "less than"
+            cmp = u"less than"
 
         if failed:
-            self._error("%s is %s the minimum (%s)" % (instance, cmp, minimum))
+            self._error(
+                u"%s is %s the minimum of %s" % (instance, cmp, minimum)
+            )
 
     def validate_maximum(self, maximum, instance, schema):
-        if schema.get("exclusiveMaximum", False):
+        if schema.get(u"exclusiveMaximum", False):
             failed = instance >= maximum
-            cmp = "greater than or equal to"
+            cmp = u"greater than or equal to"
         else:
             failed = instance > maximum
-            cmp = "greater than"
+            cmp = u"greater than"
 
         if failed:
-            self._error("%s is %s the maximum (%s)" % (instance, cmp, maximum))
+            self._error(
+                u"%s is %s the maximum of %s" % (instance, cmp, maximum)
+            )
 
     def validate_minItems(self, mI, instance, schema):
         if len(instance) < mI:
-            self._error("'%s' is too short" % (instance,))
+            self._error(u"'%s' is too short" % (instance,))
 
     def validate_maxItems(self, mI, instance, schema):
         if len(instance) > mI:
-            self._error("'%s' is too long" % (instance,))
+            self._error(u"'%s' is too long" % (instance,))
 
     def validate_pattern(self, pattern, instance, schema):
         if not re.match(pattern, instance):
-            self._error("'%s' does not match '%s'" % (instance, pattern))
+            self._error(u"'%s' does not match '%s'" % (instance, pattern))
 
     def validate_minLength(self, mL, instance, schema):
         if len(instance) < mL:
-            self._error("'%s' is too short" % (instance,))
+            self._error(u"'%s' is too short" % (instance,))
 
     def validate_maxLength(self, mL, instance, schema):
         if len(instance) > mL:
-            self._error("'%s' is too long" % (instance,))
+            self._error(u"'%s' is too long" % (instance,))
 
     def validate_enum(self, enums, instance, schema):
         if instance not in enums:
-            self._error("'%s' is not one of %s" % (instance, enums))
+            self._error(u"'%s' is not one of %s" % (instance, enums))
 
     def validate_divisibleBy(self, dB, instance, schema):
         if isinstance(dB, float):
@@ -182,7 +203,7 @@ class Validator(object):
             failed = instance % dB
 
         if failed:
-            self._error("%s is not divisible by %s" % (instance, dB))
+            self._error(u"%s is not divisible by %s" % (instance, dB))
 
 
 def _(thing):
