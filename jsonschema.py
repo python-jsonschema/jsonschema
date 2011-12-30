@@ -1,16 +1,15 @@
 from __future__ import division, with_statement
 
-import operator
 import re
-import sys
 import types
 
 
-# 2.5 support
-try:
+
+try:  # pragma: no cover, 2.5 support
     next
-except NameError:
+except NameError:  # pragma: no cover
     _none = object()
+
     def next(iterator, default=_none):
         try:
             return iterator.next()
@@ -19,35 +18,64 @@ except NameError:
                 return default
             raise
 
-_PYTYPES = {
-        u"array" : list, u"boolean" : bool, u"integer" : int,
-        u"null" : types.NoneType, u"number" : (int, float),
-        u"object" : dict, u"string" : basestring,
-}
-
-_PYTYPES[u"any"] = tuple(_PYTYPES.values())
-
-
 class SchemaError(Exception):
-    pass
+    """
+    The provided schema is malformed.
+
+    """
 
 
 class ValidationError(Exception):
-    pass
+    """
+    The instance didn't properly validate with the provided schema.
+
+    """
 
 
 class Validator(object):
+    """
+    A JSON Schema validator.
+
+    """
 
     # required and dependencies are handled in validate_properties
     # exclusive Minium and Maximum are handled in validate_minimum
-    SKIPPED = set([
+    _SKIPPED = set([
         u"dependencies", u"required", u"exclusiveMinimum", u"exclusiveMaximum"
     ])
 
+    _TYPES = {
+        u"array" : list, u"boolean" : bool, u"integer" : int,
+        u"null" : types.NoneType, u"object" : dict,
+    }
+
+    def __init__(
+        self, stop_on_error=True,
+        string_types=basestring, number_types=(int, float)
+    ):
+
+        self.stop_on_error = stop_on_error
+        self._types = dict(
+            self._TYPES, string=string_types, number=number_types
+        )
+        self._types[u"any"] = tuple(self._types.values())
+
     def _error(self, msg):
+        """
+        Something failed to validate. ``msg`` will have details.
+
+        """
+
         raise ValidationError(msg)
 
     def is_valid(self, instance, schema):
+        """
+        Check if the ``instance`` is valid under the ``schema``.
+
+        Returns a bool containing whether validation succeeded.
+
+        """
+
         try:
             self.validate(instance, schema)
             return True
@@ -55,8 +83,13 @@ class Validator(object):
             return False
 
     def validate(self, instance, schema):
+        """
+        Validate an ``instance`` under the given ``schema``.
+
+        """
+
         for k, v in schema.iteritems():
-            if k in self.SKIPPED:
+            if k in self._SKIPPED:
                 continue
 
             validator = getattr(self, u"validate_%s" % (k,), None)
@@ -69,7 +102,7 @@ class Validator(object):
             validator(v, instance, schema)
 
     def validate_type(self, types, instance, schema):
-        types = _(types)
+        types = _list(types)
 
         for type in types:
             if (
@@ -80,7 +113,7 @@ class Validator(object):
                 return
 
             elif isinstance(type, basestring):
-                type = _PYTYPES.get(type)
+                type = self._types.get(type)
 
                 if type is None:
                     raise SchemaError(u"'%s' is not a known type" % (type,))
@@ -100,7 +133,7 @@ class Validator(object):
     def validate_properties(self, properties, instance, schema):
         for property, subschema in properties.iteritems():
             if property in instance:
-                dependencies = _(subschema.get(u"dependencies", []))
+                dependencies = _list(subschema.get(u"dependencies", []))
                 if isinstance(dependencies, dict):
                     self.validate(instance, dependencies)
                 else:
@@ -206,11 +239,32 @@ class Validator(object):
             self._error(u"%s is not divisible by %s" % (instance, dB))
 
 
-def _(thing):
+def _list(thing):
+    """
+    Wrap ``thing`` in a list if it's a single str.
+
+    Otherwise, return it unchanged.
+
+    """
+
     if isinstance(thing, basestring):
         return [thing]
     return thing
 
 
-_default_validator = Validator()
-validate = _default_validator.validate
+def validate(instance, schema, cls=Validator, *args, **kwargs):
+    """
+    Validate an ``instance`` under the given ``schema``.
+
+    By default, the :class:`Validator` class from this module is used to
+    perform the validation. To use another validator, pass it into the ``cls``
+    argument.
+
+    Any other provided positional and keyword arguments will be provided to the
+    ``cls``. See the :class:`Validator` class' docstring for details on the
+    arguments it accepts.
+
+    """
+
+    validator = cls(*args, **kwargs)
+    validator.validate(instance, schema)
