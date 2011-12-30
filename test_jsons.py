@@ -24,7 +24,7 @@ class TestValidate(unittest.TestCase):
         self.type_test("number", [1, 1.1], ["foo", {}, [], True, None])
 
     def test_type_string(self):
-        self.type_test("string", ["foo"], [1, 1.1, {}, [], True, None])
+        self.type_test("string", ["foo", b"foo"], [1, 1.1, {}, [], True, None])
 
     def test_type_object(self):
         self.type_test("object", [{}], [1, 1.1, "foo", [], True, None])
@@ -215,10 +215,27 @@ class TestValidate(unittest.TestCase):
     def test_uniqueItems(self):
         pass
 
+    def test_pattern(self):
+        self.validate_test(["aaa"], ["ab"], pattern="^a*$")
+
     def test_minLength(self):
         self.validate_test(["foo"], ["f"], minLength=2)
 
     def test_maxLength(self):
         self.validate_test(["f"], ["foo"], maxLength=2)
+
+    def test_enum(self):
+        self.validate_test([1], [5], enum=[1, 2, 3])
+        self.validate_test(["foo"], ["quux"], enum=["foo", "bar"])
+        self.validate_test([True], [False], enum=[True])
+        self.validate_test(
+            [{"foo" : "bar"}], [{"foo" : "baz"}], enum=[{"foo" : "bar"}]
+        )
+
+    def test_divisibleBy(self):
+        self.validate_test([10], [7], divisibleBy=2)
+        self.validate_test([10.0], [7.0], divisibleBy=2)
+        self.validate_test([.75], [.751], divisibleBy=.01)
+        self.validate_test([3.3], [3.5], divisibleBy=1.1)
 
     # Test that only the types that are json-loaded validate (e.g. bytestrings)

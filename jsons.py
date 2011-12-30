@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
 
 import numbers
 import re
@@ -8,7 +8,7 @@ import types
 _PYTYPES = {
         "array" : list, "boolean" : bool, "integer" : int,
         "null" : types.NoneType, "number" : numbers.Number,
-        "object" : dict, "string" : unicode
+        "object" : dict, "string" : basestring
 }
 
 _PYTYPES["any"] = tuple(_PYTYPES.values())
@@ -30,6 +30,9 @@ class Validator(object):
         "dependencies", "required", "exclusiveMinimum", "exclusiveMaximum"
     }
 
+    def _error(self, msg):
+        raise ValidationError(msg)
+
     def is_valid(self, instance, schema):
         try:
             self.validate(instance, schema)
@@ -42,10 +45,10 @@ class Validator(object):
             if k in self.SKIPPED:
                 continue
 
-            validator = getattr(self, "validate_%s" % k, None)
+            validator = getattr(self, "validate_%s" % (k,), None)
 
             if validator is None:
-                raise SchemaError("'%s' is not a known schema property" % k)
+                raise SchemaError("'%s' is not a known schema property" % (k,))
 
             validator(v, instance, schema)
 
@@ -60,11 +63,11 @@ class Validator(object):
             ):
                 return
 
-            elif isinstance(type, unicode):
+            elif isinstance(type, basestring):
                 type = _PYTYPES.get(type)
 
                 if type is None:
-                    raise SchemaError("'%s' is not a known type" % type)
+                    raise SchemaError("'%s' is not a known type" % (type,))
 
                 # isinstance(a_bool, int) will make us even sadder here, so
                 # let's be even dirtier than we would otherwise be.
@@ -76,7 +79,7 @@ class Validator(object):
                 ):
                         return
         else:
-            raise ValidationError("'%s' is not of type %s" % (instance, types))
+            self._error("'%s' is not of type %s" % (instance, types))
 
     def validate_properties(self, properties, instance, schema):
         for property, subschema in properties.iteritems():
@@ -88,13 +91,13 @@ class Validator(object):
                     missing = (d for d in dependencies if d not in instance)
                     first = next(missing, None)
                     if first is not None:
-                        raise ValidationError(
+                        self._error(
                             "'%s' is a dependency of '%s'" % (first, property)
                         )
 
                 self.validate(instance[property], subschema)
             elif subschema.get("required", False):
-                raise ValidationError("'%s' is a required property" % property)
+                self._error("'%s' is a required property" % (property,))
 
     def validate_patternProperties(self, patternProperties, instance, schema):
         for pattern, subschema in patternProperties.iteritems():
@@ -109,7 +112,7 @@ class Validator(object):
             for extra in extras:
                 self.validate(instance[extra], aP)
         elif not aP and extras:
-            raise ValidationError("Additional properties are not allowed")
+            self._error("Additional properties are not allowed")
 
     def validate_items(self, items, instance, schema):
         if isinstance(items, dict):
@@ -124,7 +127,7 @@ class Validator(object):
             for item in instance[len(schema):]:
                 self.validate(item, aI)
         elif not aI and len(instance) > len(schema):
-            raise ValidationError("Additional items are not allowed")
+            self._error("Additional items are not allowed")
 
     def validate_minimum(self, minimum, instance, schema):
         if schema.get("exclusiveMinimum", False):
@@ -135,9 +138,7 @@ class Validator(object):
             cmp = "less than"
 
         if failed:
-            raise ValidationError(
-                "%s is %s the minimum (%s)" % (instance, cmp, minimum)
-            )
+            self._error("%s is %s the minimum (%s)" % (instance, cmp, minimum))
 
     def validate_maximum(self, maximum, instance, schema):
         if schema.get("exclusiveMaximum", False):
@@ -148,29 +149,44 @@ class Validator(object):
             cmp = "greater than"
 
         if failed:
-            raise ValidationError(
-                "%s is %s the maximum (%s)" % (instance, cmp, maximum)
-            )
+            self._error("%s is %s the maximum (%s)" % (instance, cmp, maximum))
 
     def validate_minItems(self, mI, instance, schema):
         if len(instance) < mI:
-            raise ValidationError("'%s' is too short" % (instance,))
+            self._error("'%s' is too short" % (instance,))
 
     def validate_maxItems(self, mI, instance, schema):
         if len(instance) > mI:
-            raise ValidationError("'%s' is too long" % (instance,))
+            self._error("'%s' is too long" % (instance,))
+
+    def validate_pattern(self, pattern, instance, schema):
+        if not re.match(pattern, instance):
+            self._error("'%s' does not match '%s'" % (instance, pattern))
 
     def validate_minLength(self, mL, instance, schema):
         if len(instance) < mL:
-            raise ValidationError("'%s' is too short" % (instance,))
+            self._error("'%s' is too short" % (instance,))
 
     def validate_maxLength(self, mL, instance, schema):
         if len(instance) > mL:
-            raise ValidationError("'%s' is too long" % (instance,))
+            self._error("'%s' is too long" % (instance,))
+
+    def validate_enum(self, enums, instance, schema):
+        if instance not in enums:
+            self._error("'%s' is not one of %s" % (instance, enums))
+
+    def validate_divisibleBy(self, dB, instance, schema):
+        if isinstance(dB, float):
+            failed = dB - instance % dB > .0000000001
+        else:
+            failed = instance % dB
+
+        if failed:
+            self._error("%s is not divisible by %s" % (instance, dB))
 
 
 def _(thing):
-    if isinstance(thing, unicode):
+    if isinstance(thing, basestring):
         return [thing]
     return thing
 
