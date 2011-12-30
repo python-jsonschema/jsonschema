@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-from jsons import ValidationError, validate
+from jsonschema import ValidationError, validate
 
 
 class TestValidate(unittest.TestCase):
