@@ -38,10 +38,10 @@ class Validator(object):
 
     """
 
-    # required and dependencies are handled in validate_properties
-    # exclusive Minium and Maximum are handled in validate_minimum
-    _SKIPPED = set([
-        u"dependencies", u"required", u"exclusiveMinimum", u"exclusiveMaximum"
+    _SKIPPED = set([                                              # handled in:
+        u"dependencies", u"required",                             # properties
+        u"exclusiveMinimum", u"exclusiveMaximum",                 # min/max
+        u"default", u"description", u"links", u"name", u"title",  # none needed
     ])
 
     _TYPES = {
@@ -237,6 +237,12 @@ class Validator(object):
 
         if failed:
             self._error(u"%s is not divisible by %s" % (instance, dB))
+
+    def validate_disallow(self, disallow, instance, schema):
+        disallow = _list(disallow)
+
+        if any(self.is_valid(instance, {"type" : [d]}) for d in disallow):
+            self._error(u"'%s' is disallowed for '%s'" % (disallow, instance))
 
 
 def _list(thing):

@@ -256,4 +256,27 @@ class TestValidate(unittest.TestCase):
         self.validate_test([.75], [.751], divisibleBy=.01)
         self.validate_test([3.3], [3.5], divisibleBy=1.1)
 
+    def test_disallow(self):
+        self.validate_test([u"foo"], [1], disallow=u"integer")
+
+    def test_multiple_disallow(self):
+        self.validate_test(
+            [u"foo"],
+            [1, True],
+            disallow=[u"integer", u"boolean"]
+        )
+
+    def test_multiple_disallow_subschema(self):
+        schema = {
+            "disallow" : [
+                u"string", {"properties" : {u"foo" : {u"type" : u"string"}}}
+            ],
+        }
+
+        self.validate_test(
+            [1, {u"foo" : 1}],
+            [u"string", {u"foo" : u"string"}],
+            **schema
+        )
+
     # Test that only the types that are json-loaded validate (e.g. bytestrings)
