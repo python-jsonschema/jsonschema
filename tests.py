@@ -279,4 +279,22 @@ class TestValidate(unittest.TestCase):
             **schema
         )
 
+    def test_stop_on_error(self):
+        instance = [1, 2]
+
+        schema = {
+            u"disallow" : u"array",
+            u"enum" : [[u"a", u"b", u"c"], [u"d", u"e", u"f"]],
+            u"minItems" : 3
+        }
+
+        with self.assertRaises(ValidationError) as e:
+            validate(instance, schema, stop_on_error=False)
+
+        self.assertEqual(sorted(e.exception.errors), sorted([
+            u"u'array' is disallowed for [1, 2]",
+            u"[1, 2] is too short",
+            u"[1, 2] is not one of [[u'a', u'b', u'c'], [u'd', u'e', u'f']]",
+        ]))
+
     # Test that only the types that are json-loaded validate (e.g. bytestrings)
