@@ -1,8 +1,29 @@
+"""
+An implementation of JSON Schema for Python
+
+The main functionality is provided by the :class:`Validator` class, with the
+:function:`validate` function being the most common way to quickly create a
+:class:`Validator` object and validate an instance with a given schema.
+
+The :class:`Validator` class generally attempts to be as strict as possible
+under the JSON Schema specification. See its docstring for details.
+
+What's Missing
+--------------
+
+* ``uniqueItems``
+* ``format``
+* ``extends``
+* ``$ref``
+* ``$schema``
+
+"""
+
 from __future__ import division, with_statement
 
 import re
 import types
-
+import warnings
 
 
 try:  # pragma: no cover, 2.5 support
@@ -54,11 +75,15 @@ class Validator(object):
     }
 
     def __init__(
-        self, stop_on_error=True,
-        string_types=basestring, number_types=(int, float)
+        self, stop_on_error=True, unknown_type="error",
+        unknown_property="error", string_types=basestring,
+        number_types=(int, float)
     ):
 
         self.stop_on_error = stop_on_error
+        self._unknown_type = unknown_type
+        self._unknown_property = unknown_property
+
         self._types = dict(
             self._TYPES, string=string_types, number=number_types
         )
@@ -74,6 +99,14 @@ class Validator(object):
             raise ValidationError(msg)
         else:
             self._errors.append(msg)
+
+    def _schema_error(self, level, msg):
+        if level == "skip":
+            return
+        elif level == "warn":
+            warnings.warn(msg)
+        else:
+            raise SchemaError(msg)
 
     def is_valid(self, instance, schema):
         """
@@ -113,9 +146,11 @@ class Validator(object):
             validator = getattr(self, u"validate_%s" % (k,), None)
 
             if validator is None:
-                raise SchemaError(
+                self._schema_error(
+                    self._unknown_property,
                     u"%r is not a known schema property" % (k,)
                 )
+                return
 
             validator(v, instance, schema)
 
@@ -140,18 +175,21 @@ class Validator(object):
                 return
 
             elif isinstance(type, basestring):
-                type = self._types.get(type)
+                py_type = self._types.get(type)
 
-                if type is None:
-                    raise SchemaError(u"%r is not a known type" % (type,))
+                if py_type is None:
+                    self._schema_error(
+                        self._unknown_type, u"%r is not a known type" % (type,)
+                    )
+                    return
 
                 # isinstance(a_bool, int) will make us even sadder here, so
                 # let's be even dirtier than we would otherwise be.
 
                 elif (
-                    isinstance(instance, type) and
+                    isinstance(instance, py_type) and
                     (not isinstance(instance, bool) or
-                     type is bool or types == [u"any"])
+                     py_type is bool or types == [u"any"])
                 ):
                         return
         else:

@@ -1,14 +1,15 @@
 from __future__ import with_statement
-from functools import wraps
+import functools
+import warnings
 
 import sys
 
-if (sys.version_info[0], sys.version_info[1]) < (2, 7):
+if (sys.version_info[0], sys.version_info[1]) < (2, 7):  # pragma: no cover
     import unittest2 as unittest
 else:
     import unittest
 
-from jsonschema import ValidationError, validate
+from jsonschema import SchemaError, ValidationError, validate
 
 
 class ParametrizedTestCase(type):
@@ -53,7 +54,7 @@ def partial(fn, *args, **kwargs):
 
     """
 
-    @wraps(fn)
+    @functools.wraps(fn)
     def _partial(self):
         return fn(self, *args, **kwargs)
     return _partial
@@ -68,36 +69,15 @@ def validation_test(schema=(), **kwschema):
         elif expected == "invalid":
             with self.assertRaises(ValidationError):
                 validate(instance, schema)
-        else:
+        else:  # pragma: no cover
             raise ValueError("You spelled something wrong.")
 
     return _validation_test
 
 
-def valid(schema=(), **kwschema):
-    def _valid(self, instance):
-        validate(instance, dict(schema, **kwschema))
-    return _valid
-
-
-def invalid(schema=(), **kwschema):
-    def _invalid(self, instance):
-        with self.assertRaises(ValidationError):
-            validate(instance, dict(schema, **kwschema))
-    return _invalid
-
-
 class TestValidate(unittest.TestCase):
 
     __metaclass__ = ParametrizedTestCase
-
-    def validate_test(self, valids=(), invalids=(), **schema):
-        for valid in valids:
-            validate(valid, schema)
-
-        for invalid in invalids:
-            with self.assertRaises(ValidationError):
-                validate(invalid, schema)
 
     integer = parametrized(
         ("integer", "valid", 1),
@@ -467,5 +447,35 @@ class TestValidate(unittest.TestCase):
             u"[1, 2] is too short",
             u"[1, 2] is not one of [[u'a', u'b', u'c'], [u'd', u'e', u'f']]",
         ]))
+
+    def test_unknown_type_error(self):
+        with self.assertRaises(SchemaError):
+            validate(1, {u"type" : u"foo"})
+
+    def test_unknown_type_warn(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate(1, {u"type" : u"foo"}, unknown_type="warn")
+        self.assertEqual(len(w), 1)
+
+    def test_unknown_type_skip(self):
+        validate(1, {u"type" : u"foo"}, unknown_type="skip")
+
+    def test_unknown_property_error(self):
+        with self.assertRaises(SchemaError):
+            validate(1, {u"foo" : u"bar"})
+
+    def test_unknown_property_warn(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate(1, {u"foo" : u"bar"}, unknown_property="warn")
+        self.assertEqual(len(w), 1)
+
+    def test_unknown_property_skip(self):
+        validate(
+            1,
+            {u"foo" : u"foo", u"type" : u"integer"},
+            unknown_property="skip"
+        )
 
     # Test that only the types that are json-loaded validate (e.g. bytestrings)
