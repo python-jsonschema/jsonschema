@@ -452,6 +452,10 @@ class TestValidate(unittest.TestCase):
         with self.assertRaises(SchemaError):
             validate(1, {u"type" : u"foo"})
 
+    @unittest.skipIf(
+        sys.version_info[:2] == (2, 5),
+        "Python 2.5 lacks catch_warnings, and I am lazy."
+    )
     def test_unknown_type_warn(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -465,6 +469,10 @@ class TestValidate(unittest.TestCase):
         with self.assertRaises(SchemaError):
             validate(1, {u"foo" : u"bar"})
 
+    @unittest.skipIf(
+        sys.version_info[:2] == (2, 5),
+        "Python 2.5 lacks catch_warnings, and I am lazy."
+    )
     def test_unknown_property_warn(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
