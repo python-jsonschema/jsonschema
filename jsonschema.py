@@ -26,6 +26,8 @@ import types
 import warnings
 
 
+__version__ = "0.1a"
+
 try:  # pragma: no cover, 2.5 support
     next
 except NameError:  # pragma: no cover
@@ -38,6 +40,7 @@ except NameError:  # pragma: no cover
             if default is not _none:
                 return default
             raise
+
 
 class SchemaError(Exception):
     """
@@ -323,6 +326,7 @@ def _list(thing):
     if isinstance(thing, basestring):
         return [thing]
     return thing
+
 
 def _delist(thing):
     """
