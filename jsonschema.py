@@ -237,7 +237,7 @@ class Validator(object):
             )):
                 return
         else:
-            self._error(u"%r is not of type %s" % (instance, _delist(types)))
+            self._error(u"%r is not of type %r" % (instance, _delist(types)))
 
     def validate_properties(self, properties, instance, schema):
         for property, subschema in properties.iteritems():
@@ -298,7 +298,7 @@ class Validator(object):
 
         if failed:
             self._error(
-                u"%s is %s the minimum of %s" % (instance, cmp, minimum)
+                u"%r is %s the minimum of %r" % (instance, cmp, minimum)
             )
 
     def validate_maximum(self, maximum, instance, schema):
@@ -311,7 +311,7 @@ class Validator(object):
 
         if failed:
             self._error(
-                u"%s is %s the maximum of %s" % (instance, cmp, maximum)
+                u"%r is %s the maximum of %r" % (instance, cmp, maximum)
             )
 
     def validate_minItems(self, mI, instance, schema):
@@ -345,7 +345,7 @@ class Validator(object):
             failed = instance % dB
 
         if failed:
-            self._error(u"%s is not divisible by %s" % (instance, dB))
+            self._error(u"%r is not divisible by %r" % (instance, dB))
 
     def validate_disallow(self, disallow, instance, schema):
         disallow = _list(disallow)
