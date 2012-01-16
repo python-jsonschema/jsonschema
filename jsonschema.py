@@ -26,7 +26,7 @@ import types
 import warnings
 
 
-__version__ = "0.1a"
+__version__ = "0.2"
 
 try:  # pragma: no cover, 2.5 support
     next
