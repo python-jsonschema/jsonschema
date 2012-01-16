@@ -1,5 +1,6 @@
 from __future__ import with_statement
-import functools
+from decimal import Decimal
+from functools import wraps
 import warnings
 
 import sys
@@ -54,21 +55,22 @@ def partial(fn, *args, **kwargs):
 
     """
 
-    @functools.wraps(fn)
+    @wraps(fn)
     def _partial(self):
         return fn(self, *args, **kwargs)
     return _partial
 
 
-def validation_test(schema=(), **kwschema):
+def validation_test(schema=(), initkwargs=(), **kwschema):
     schema = dict(schema, **kwschema)
+    initkwargs = dict(initkwargs)
 
     def _validation_test(self, expected, instance):
         if expected == "valid":
-            validate(instance, schema)
+            validate(instance, schema, **initkwargs)
         elif expected == "invalid":
             with self.assertRaises(ValidationError):
-                validate(instance, schema)
+                validate(instance, schema, **initkwargs)
         else:  # pragma: no cover
             raise ValueError("You spelled something wrong.")
 
@@ -490,5 +492,19 @@ class TestValidate(unittest.TestCase):
             {u"foo" : u"foo", u"type" : u"integer"},
             unknown_property="skip"
         )
+
+    decimal = parametrized(
+        ("integer", "valid", 1),
+        ("number", "valid", 1.1),
+        ("decimal", "valid", Decimal(1) / Decimal(8)),
+        ("string", "invalid", u"foo"),
+        ("object", "invalid", {}),
+        ("array", "invalid", []),
+        ("boolean", "invalid", True),
+        ("null", "invalid", None),
+    )(validation_test(
+        initkwargs={"number_types" : (int, float, Decimal)},
+        type=u"number")
+    )
 
     # Test that only the types that are json-loaded validate (e.g. bytestrings)
