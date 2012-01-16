@@ -360,6 +360,7 @@ class TestValidate(unittest.TestCase):
         ("exact", "valid", [1]),
         ("longer", "valid", [1, 2]),
         ("too_short", "invalid", []),
+        ("ignores_strings", "valid", "a"),
     )(validation_test(minItems=1))
 
     maxItems = parametrized(
@@ -367,21 +368,25 @@ class TestValidate(unittest.TestCase):
         ("shorter", "valid", [1]),
         ("empty", "valid", []),
         ("too_long", "invalid", [1, 2, 3]),
+        ("ignores_strings", "valid", "aaaa"),
     )(validation_test(maxItems=2))
 
     pattern = parametrized(
         ("match", "valid", u"aaa"),
         ("mismatch", "invalid", u"ab"),
+        ("ignores_other_stuff", "valid", True),
     )(validation_test(pattern=u"^a*$"))
 
     minLength = parametrized(
         ("", "valid", u"foo"),
         ("too_short", "invalid", u"f"),
+        ("ignores_arrays", "valid", [1]),
     )(validation_test(minLength=2))
 
     maxLength = parametrized(
         ("", "valid", u"f"),
         ("too_long", "invalid", u"foo"),
+        ("ignores_arrays", "valid", [1, 2, 3]),
     )(validation_test(maxLength=2))
 
     @parametrized(
