@@ -82,6 +82,27 @@ class Validator(object):
         unknown_property="error", string_types=basestring,
         number_types=(int, float)
     ):
+        """
+        Initialize a Validator.
+
+        If ``stop_on_error`` is ``True`` (default), immediately stop validation
+        when an error occurs. Otherwise, wait until validation is completed,
+        then display all validation errors at once.
+
+        ``unknown_type`` and ``unknown_property`` control what to do when an
+        unknown type (resp. property) is encountered. By default an error is
+        raised (``"error"``). Other valid inputs are ``"warn"``, raising a
+        warning, and ``"skip"`` to ignore.
+
+        ``string_types`` and ``number_types`` control which Python types are
+        considered to be JSON ``String``s and ``Number``s respectively. By
+        default, ``basestring`` (which means, ``str`` + ``unicode``) is used
+        for ``string_types``, and ``int`` and ``float`` are the number_types.
+        To override this behavior (e.g. for ``decimal.Decimal``), provide a
+        type or tuple of types to use (*including* the default types if so
+        desired).
+
+        """
 
         self.stop_on_error = stop_on_error
         self._unknown_type = unknown_type
