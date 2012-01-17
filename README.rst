@@ -5,7 +5,7 @@ jsonschema
 ``jsonschema`` is an implementation of JSON Schema (currently in `Draft 3
 <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_) for Python.
 
-.. code:: python
+::
 
     >>> from jsonschema import validate
 
