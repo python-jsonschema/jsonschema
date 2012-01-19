@@ -1,14 +1,19 @@
 from __future__ import with_statement
 from decimal import Decimal
 from functools import wraps
+import sys
 import warnings
 
-import sys
-
-if (sys.version_info[0], sys.version_info[1]) < (2, 7):  # pragma: no cover
+if sys.version_info[:2] < (2, 7):  # pragma: no cover
     import unittest2 as unittest
 else:
     import unittest
+
+try:
+    securedict = None
+    from securetypes import securedict
+except ImportError:
+    pass
 
 from jsonschema import SchemaError, ValidationError, validate
 
@@ -372,6 +377,61 @@ class TestValidate(unittest.TestCase):
         ("too_long", "invalid", [1, 2, 3]),
         ("ignores_strings", "valid", "aaaa"),
     )(validation_test(maxItems=2))
+
+    @parametrized(
+        ("unique", "valid", [1, 2]),
+        ("not_unique", "invalid", [1, 1]),
+        ("object_unique", "valid", [{"foo" : "bar"}, {"foo" : "baz"}]),
+        ("object_not_unique", "invalid", [{"foo" : "bar"}, {"foo" : "bar"}]),
+        ("array_unique", "valid", [["foo"], ["bar"]]),
+        ("array_not_unique", "invalid", [["foo"], ["foo"]]),
+        ("nested", "valid", [
+            {"foo" : {"bar" : {"baz" : "quux"}}},
+            {"foo" : {"bar" : {"baz" : "spam"}}},
+        ]),
+        ("nested_not_unique", "invalid", [
+            {"foo" : {"bar" : {"baz" : "quux"}}},
+            {"foo" : {"bar" : {"baz" : "quux"}}},
+        ])
+    )
+    def uniqueItems(self, expect, instance):
+        import jsonschema
+        jsonschema.unique
+
+        try:
+            old, jsonschema.unique = jsonschema.unique, set
+            test = validation_test(uniqueItems=True)
+            test(self, expect, instance)
+        finally:
+            jsonschema.unique = old
+
+    if securedict:
+        @parametrized(
+            ("unique", "valid", [1, 2]),
+            ("not_unique", "invalid", [1, 1]),
+            ("object_unique", "valid", [{"foo" : "bar"}, {"foo" : "baz"}]),
+            ("object_not_unique", "invalid", [{"foo" : "bar"}, {"foo" : "bar"}]),
+            ("array_unique", "valid", [["foo"], ["bar"]]),
+            ("array_not_unique", "invalid", [["foo"], ["foo"]]),
+            ("nested", "valid", [
+                {"foo" : {"bar" : {"baz" : "quux"}}},
+                {"foo" : {"bar" : {"baz" : "spam"}}},
+            ]),
+            ("nested_not_unique", "invalid", [
+                {"foo" : {"bar" : {"baz" : "quux"}}},
+                {"foo" : {"bar" : {"baz" : "quux"}}},
+            ])
+        )
+        def uniqueItems_securedict(self, expect, instance):
+            import jsonschema
+            jsonschema.unique
+
+            try:
+                old, jsonschema.unique = jsonschema.unique, securedict.fromkeys
+                test = validation_test(uniqueItems=True)
+                test(self, expect, instance)
+            finally:
+                jsonschema.unique = old
 
     pattern = parametrized(
         ("match", "valid", u"aaa"),

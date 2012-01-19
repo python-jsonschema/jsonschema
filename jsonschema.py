@@ -11,7 +11,6 @@ under the JSON Schema specification. See its docstring for details.
 What's Missing
 --------------
 
-* ``uniqueItems``
 * ``format``
 * ``extends``
 * ``$ref``
@@ -21,9 +20,35 @@ What's Missing
 
 from __future__ import division, with_statement
 
+import itertools
 import re
 import types
 import warnings
+
+try:
+    from securetypes import securedict
+    unique = securedict.fromkeys
+except ImportError:
+    unique = set
+    securedict = False
+finally:
+    def all_unique(container):
+        try:
+            return len(unique(container)) == len(container)
+        except TypeError:
+            try:
+                sort = sorted(container)
+                sliced = itertools.islice(container, 1, None)
+                for i, j in itertools.izip(container, sliced):
+                    if i == j:
+                        return False
+            except (NotImplementedError, TypeError):
+                seen = []
+                for e in container:
+                    if e in seen:
+                        return False
+                    seen.append(e)
+        return True
 
 
 __version__ = "0.2"
@@ -321,6 +346,24 @@ class Validator(object):
     def validate_maxItems(self, mI, instance, schema):
         if self._is_type(instance, "array") and len(instance) > mI:
             self._error(u"%r is too long" % (instance,))
+
+    def validate_uniqueItems(self, uI, instance, schema):
+        if not securedict:
+            warnings.warn(  # I hate seeing the warning line in the output
+                ""
+                "\nIf you're validating schemas with the 'uniqueItems' "
+                "property, the 'securetypes' module is highly recommended.\n"
+                "Without it, you're vulnerable to algorithmic complexity "
+                "attacks.\n\nProceeding anyway. "
+                "See https://github.com/ludios/Securetypes for details."
+            )
+
+        if uI:
+            if self._is_type(instance, "array"):
+                if not all_unique(instance):
+                    self._error(u"%r has non-unique elements" % instance)
+            elif self._is_type(instance, "object"):
+                pass
 
     def validate_pattern(self, patrn, instance, schema):
         if self._is_type(instance, "string") and not re.match(patrn, instance):
