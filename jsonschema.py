@@ -27,14 +27,23 @@ import warnings
 
 try:
     from securetypes import securedict
-    unique = securedict.fromkeys
+    _uniq = securedict.fromkeys
 except ImportError:
-    unique = set
+    _uniq = set
     securedict = False
 finally:
-    def all_unique(container):
+    def _all_uniq(container, _uniq=_uniq):
+        """
+        Check if all of a container's elements are unique.
+
+        Successively tries first to rely that the elements are hashable, then
+        falls back on them being sortable, and finally falls back on brute
+        force.
+
+        """
+
         try:
-            return len(unique(container)) == len(container)
+            return len(_uniq(container)) == len(container)
         except TypeError:
             try:
                 sort = sorted(container)
@@ -358,12 +367,8 @@ class Validator(object):
                 "See https://github.com/ludios/Securetypes for details."
             )
 
-        if uI:
-            if self._is_type(instance, "array"):
-                if not all_unique(instance):
-                    self._error(u"%r has non-unique elements" % instance)
-            elif self._is_type(instance, "object"):
-                pass
+        if uI and self._is_type(instance, "array") and not _all_uniq(instance):
+            self._error(u"%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):
         if self._is_type(instance, "string") and not re.match(patrn, instance):

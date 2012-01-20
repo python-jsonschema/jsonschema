@@ -396,14 +396,14 @@ class TestValidate(unittest.TestCase):
     )
     def uniqueItems(self, expect, instance):
         import jsonschema
-        jsonschema.unique
+        jsonschema._uniq
 
         try:
-            old, jsonschema.unique = jsonschema.unique, set
+            old, jsonschema._uniq = jsonschema._uniq, set
             test = validation_test(uniqueItems=True)
             test(self, expect, instance)
         finally:
-            jsonschema.unique = old
+            jsonschema._uniq = old
 
     if securedict:
         @parametrized(
@@ -424,14 +424,14 @@ class TestValidate(unittest.TestCase):
         )
         def uniqueItems_securedict(self, expect, instance):
             import jsonschema
-            jsonschema.unique
+            jsonschema._uniq
 
             try:
-                old, jsonschema.unique = jsonschema.unique, securedict.fromkeys
+                old, jsonschema._uniq = jsonschema._uniq, securedict.fromkeys
                 test = validation_test(uniqueItems=True)
                 test(self, expect, instance)
             finally:
-                jsonschema.unique = old
+                jsonschema._uniq = old
 
     pattern = parametrized(
         ("match", "valid", u"aaa"),
