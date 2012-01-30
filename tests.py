@@ -255,6 +255,9 @@ class TestValidate(unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate({u"foo" : 1, u"bar" : u"baz", u"quux" : u"boom"}, schema)
 
+    def test_additionalProperties_ignores_nonobjects(self):
+        validate(None, {"additionalProperties" : False})
+
     items = parametrized(
         ("", "valid", [1, 2, 3]),
         ("wrong_type", "invalid", [1, u"x"]),
@@ -286,6 +289,9 @@ class TestValidate(unittest.TestCase):
         "items" : [{u"type" : u"integer"}, {u"type" : u"string"}],
         "additionalItems" : {u"type" : u"integer"},
     }))
+
+    def test_additionalItems_ignores_nonarrays(self):
+        validate(None, {"additionalItems" : False})
 
     @parametrized(
         ("false_by_default", "valid", {}, {}),
@@ -566,5 +572,3 @@ class TestValidate(unittest.TestCase):
         initkwargs={"number_types" : (int, float, Decimal)},
         type=u"number")
     )
-
-    # Test that only the types that are json-loaded validate (e.g. bytestrings)

@@ -298,6 +298,9 @@ class Validator(object):
                     self._validate(v, subschema)
 
     def validate_additionalProperties(self, aP, instance, schema):
+        if not self._is_type(instance, "object"):
+            return
+
         # no viewkeys in <2.7, and pypy seems to fail on vk - vk anyhow, so...
         extras = set(instance) - set(schema.get(u"properties", {}))
 
@@ -316,6 +319,9 @@ class Validator(object):
                 self._validate(item, subschema)
 
     def validate_additionalItems(self, aI, instance, schema):
+        if not self._is_type(instance, "array"):
+            return
+
         if self._is_type(aI, "object"):
             for item in instance[len(schema):]:
                 self._validate(item, aI)
