@@ -258,6 +258,21 @@ class TestValidate(unittest.TestCase):
     def test_additionalProperties_ignores_nonobjects(self):
         validate(None, {"additionalProperties" : False})
 
+    @parametrized(
+        ("single_extra", {"foo" : 2}, ["('foo' was unexpected)"]),
+        ("multiple_extras",
+         dict.fromkeys(["foo", "bar", "quux"]),
+         ["'bar'", "'foo'", "'quux'", "were unexpected)"],
+        ),
+    )
+    def additionalProperties_errorMessage(self, instance, errs):
+        schema = {"additionalProperties" : False}
+
+        with self.assertRaises(ValidationError) as error:
+            validate(instance, schema)
+
+        self.assertTrue(all(err in error.exception.message for err in errs))
+
     items = parametrized(
         ("", "valid", [1, 2, 3]),
         ("wrong_type", "invalid", [1, u"x"]),
@@ -292,6 +307,16 @@ class TestValidate(unittest.TestCase):
 
     def test_additionalItems_ignores_nonarrays(self):
         validate(None, {"additionalItems" : False})
+
+    @parametrized(
+        ("single_extra", [2], "(2 was unexpected)"),
+        ("multiple_extras", [1, 2, 3], "(1, 2, 3 were unexpected)"),
+    )
+    def additionalItems_errorMessage(self, instance, err):
+        schema = {"additionalItems" : False}
+        self.assertRaisesRegexp(
+            ValidationError, err, validate, instance, schema
+        )
 
     @parametrized(
         ("false_by_default", "valid", {}, {}),

@@ -308,7 +308,8 @@ class Validator(object):
             for extra in extras:
                 self._validate(instance[extra], aP)
         elif not aP and extras:
-            self._error(u"Additional properties are not allowed")
+            error = u"Additional properties are not allowed (%s %s unexpected)"
+            self._error(error % _extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
         if self._is_type(items, "object"):
@@ -325,8 +326,9 @@ class Validator(object):
         if self._is_type(aI, "object"):
             for item in instance[len(schema):]:
                 self._validate(item, aI)
-        elif not aI and len(instance) > len(schema):
-            self._error(u"Additional items are not allowed")
+        elif not aI and len(instance) > len(schema.get("items", [])):
+            error = u"Additional items are not allowed (%s %s unexpected)"
+            self._error(error % _extras_msg(instance[len(schema) - 1:]))
 
     def validate_minimum(self, minimum, instance, schema):
         if schema.get(u"exclusiveMinimum", False):
@@ -408,6 +410,19 @@ class Validator(object):
             self._error(
                 u"%r is disallowed for %r" % (_delist(disallow), instance)
             )
+
+
+def _extras_msg(extras):
+    """
+    Create an error message for extra items or properties.
+
+    """
+
+    if len(extras) == 1:
+        verb = u"was"
+    else:
+        verb = u"were"
+    return u", ".join(repr(extra) for extra in extras), verb
 
 
 def _list(thing):
