@@ -12,8 +12,7 @@ What's Missing
 --------------
 
 * ``format``
-* ``extends``
-* ``$ref``
+* ``$ref`` (and, ergo, using ``extends`` with a ``$ref``)
 * ``$schema``
 
 """
@@ -410,6 +409,12 @@ class Validator(object):
             self._error(
                 u"%r is disallowed for %r" % (_delist(disallow), instance)
             )
+
+    def validate_extends(self, extends, instance, schema):
+        if self._is_type(extends, "object"):
+            extends = [extends]
+        for subschema in extends:
+            self._validate(instance, subschema)
 
 
 def _extras_msg(extras):

@@ -528,6 +528,56 @@ class TestValidate(unittest.TestCase):
         disallow=[u"string", {"properties" : {u"foo" : {u"type" : u"string"}}}]
     ))
 
+    @parametrized(
+        ("", "valid", {"foo" : "baz", "bar" : 2}),
+        ("mismatch_extends", "invalid", {"foo" : "baz"}),
+        ("mismatch_extended", "invalid", {"bar" : 2}),
+        ("wrong_type", "invalid", {"foo" : "baz", "bar" : "quux"}),
+    )
+    def extends(self, expect, instance):
+        schema = {
+            "properties" : {"bar" : {"type" : "integer", "required" : True}},
+            "extends" : {
+                "properties" : {
+                    "foo" : {"type" : "string", "required" : True},
+                }
+            },
+        }
+
+        test = validation_test(**schema)
+        test(self, expect, instance)
+
+    @parametrized(
+        ("", "valid", {"foo" : "quux", "bar" : 2, "baz" : None}),
+        ("mismatch_first_extends", "invalid", {"bar" : 2, "baz" : None}),
+        ("mismatch_second_extends", "invalid", {"foo" : "quux", "bar" : 2}),
+        ("mismatch_both", "invalid", {"bar" : 2}),
+    )
+    def multiple_extends(self, expect, instance):
+        schema = {
+            "properties" : {"bar" : {"type" : "integer", "required" : True}},
+            "extends" : [
+                {
+                    "properties" : {
+                    "foo" : {"type" : "string", "required" : True},
+                    }
+                },
+                {
+                    "properties" : {
+                    "baz" : {"type" : "null", "required" : True},
+                    }
+                },
+            ],
+        }
+
+        test = validation_test(**schema)
+        test(self, expect, instance)
+
+    extends_simple_types = parametrized(
+        ("", "valid", 25),
+        ("mismatch_extends", "invalid", 35)
+    )(validation_test(minimum=20, extends={"maximum" : 30}))
+
     def test_stop_on_error(self):
         instance = [1, 2]
 
