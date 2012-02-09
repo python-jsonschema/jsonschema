@@ -198,7 +198,7 @@ class Validator(object):
         """
         Check if the ``instance`` is valid under the ``schema``.
 
-        Returns a bool containing whether validation succeeded.
+        Returns a bool indicating whether validation succeeded.
 
         """
 
