@@ -322,9 +322,7 @@ class Validator(object):
         except ValidationError:
             return False
         else:
-            if self._errors:
-                return False
-            return True
+            return not self._errors
         finally:
             self._errors = current_errors
 
