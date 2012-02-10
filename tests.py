@@ -647,3 +647,8 @@ class TestValidate(unittest.TestCase):
         initkwargs={"number_types" : (int, float, Decimal)},
         type=u"number")
     )
+
+    # TODO: we're in need of more meta schema tests
+    def test_minItems_invalid_string(self):
+        with self.assertRaises(SchemaError):
+            validate([1], {"minItems" : "1"})  # needs to be an integer

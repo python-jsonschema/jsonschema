@@ -75,6 +75,90 @@ except NameError:  # pragma: no cover
             raise
 
 
+DRAFT_3 = {
+    u"$schema" : u"http://json-schema.org/draft-03/schema#",
+    u"id" : u"http://json-schema.org/draft-03/schema#",
+    u"type" : u"object",
+
+    u"properties" : {
+        u"type" : {
+            u"type" : [u"string", u"array"],
+            u"items" : {u"type" : [u"string", {u"$ref" : u"#"}]},
+            u"uniqueItems" : True,
+            u"default" : u"any"
+        },
+        u"properties" : {
+            u"type" : u"object",
+            u"additionalProperties" : {u"$ref" : u"#"},
+            u"default" : {}
+        },
+        u"patternProperties" : {
+            u"type" : u"object",
+            u"additionalProperties" : {u"$ref" : u"#"},
+            u"default" : {}
+        },
+        u"additionalProperties" : {
+            u"type" : [{u"$ref" : u"#"}, u"boolean"], u"default" : {}
+        },
+        u"items" : {
+            u"type" : [{u"$ref" : u"#"}, u"array"],
+            u"items" : {u"$ref" : u"#"},
+            u"default" : {}
+        },
+        u"additionalItems" : {
+            u"type" : [{u"$ref" : u"#"}, u"boolean"], u"default" : {}
+        },
+        u"required" : {u"type" : u"boolean", u"default" : False},
+        u"dependencies" : {
+            u"type" : u"object",
+            u"additionalProperties" : {
+                u"type" : [u"string", u"array", {u"$ref" : u"#"}],
+                u"items" : {u"type" : "string"}
+            },
+            u"default" : {}
+        },
+        u"minimum" : {u"type" : u"number"},
+        u"maximum" : {u"type" : u"number"},
+        u"exclusiveMinimum" : {u"type" : u"boolean", u"default" : False},
+        u"exclusiveMaximum" : {u"type" : u"boolean", u"default" : False},
+        u"minItems" : {u"type" : u"integer", u"minimum" : 0, u"default" : 0},
+        u"maxItems" : {u"type" : u"integer", u"minimum" : 0},
+        u"uniqueItems" : {u"type" : u"boolean", u"default" : False},
+        u"pattern" : {u"type" : u"string", u"format" : u"regex"},
+        u"minLength" : {u"type" : u"integer", u"minimum" : 0, u"default" : 0},
+        u"maxLength" : {u"type" : u"integer"},
+        u"enum" : {u"type" : u"array", u"minItems" : 1, u"uniqueItems" : True},
+        u"default" : {u"type" : u"any"},
+        u"title" : {u"type" : u"string"},
+        u"description" : {u"type" : u"string"},
+        u"format" : {u"type" : u"string"},
+        u"maxDecimal" : {u"type" : u"number", u"minimum" : 0},
+        u"divisibleBy" : {
+            u"type" : u"number",
+            u"minimum" : 0,
+            u"exclusiveMinimum" : True,
+            u"default" : 1
+        },
+        u"disallow" : {
+            u"type" : [u"string", u"array"],
+            u"items" : {u"type" : [u"string", {u"$ref" : u"#"}]},
+            u"uniqueItems" : True
+        },
+        u"extends" : {
+            u"type" : [{u"$ref" : u"#"}, u"array"],
+            u"items" : {u"$ref" : u"#"},
+            u"default" : {}
+        },
+        u"id" : {u"type" : u"string", u"format" : u"uri"},
+        u"$ref" : {u"type" : u"string", u"format" : u"uri"},
+        u"$schema" : {u"type" : u"string", u"format" : u"uri"},
+    },
+    u"dependencies" : {
+        u"exclusiveMinimum" : u"minimum", u"exclusiveMaximum" : u"maximum"
+    },
+}
+
+
 class SchemaError(Exception):
     """
     The provided schema is malformed.
@@ -99,10 +183,12 @@ class Validator(object):
 
     """
 
-    _SKIPPED = set([                                              # handled in:
-        u"dependencies", u"required",                             # properties
-        u"exclusiveMinimum", u"exclusiveMaximum",                 # min/max
-        u"default", u"description", u"links", u"name", u"title",  # none needed
+    _SKIPPED = set([                               # handled in:
+        u"dependencies", u"required",              # properties
+        u"exclusiveMinimum", u"exclusiveMaximum",  # min*/max*
+        u"default", u"description", u"id",         # no validation needed
+        u"links", u"name", u"title",
+        u"$ref", u"$schema", "format",             # not yet supported
     ])
 
     _TYPES = {
@@ -110,10 +196,12 @@ class Validator(object):
         u"null" : types.NoneType, u"object" : dict,
     }
 
+    _meta_validator = None
+
     def __init__(
-        self, stop_on_error=True, unknown_type="error",
-        unknown_property="error", string_types=basestring,
-        number_types=(int, float)
+        self, stop_on_error=True, version=DRAFT_3, meta_validate=True,
+        unknown_type="error", unknown_property="error",
+        string_types=basestring, number_types=(int, float)
     ):
         """
         Initialize a Validator.
@@ -121,6 +209,18 @@ class Validator(object):
         If ``stop_on_error`` is ``True`` (default), immediately stop validation
         when an error occurs. Otherwise, wait until validation is completed,
         then display all validation errors at once.
+
+        ``version`` specifies which version of the JSON Schema specification to
+        validate with. Currently only draft-03 is supported (and is the
+        default).
+
+        If you are unsure whether your schema itself is valid,
+        ``meta_validate`` will first validate that the schema is valid before
+        attempting to validate the instance. ``meta_validate`` is ``True`` by
+        default, since setting it to ``False`` can lead to confusing error
+        messages with an invalid schema. If you're sure your schema is in fact
+        valid, or don't care, feel free to set this to ``False``. The meta
+        validation will be done using the appropriate ``version``.
 
         ``unknown_type`` and ``unknown_property`` control what to do when an
         unknown type (resp. property) is encountered. By default an error is
@@ -137,9 +237,18 @@ class Validator(object):
 
         """
 
-        self.stop_on_error = stop_on_error
+        self._stop_on_error = stop_on_error
         self._unknown_type = unknown_type
         self._unknown_property = unknown_property
+        self._version = version
+
+        if meta_validate:
+            self._meta_validator = self.__class__(
+                stop_on_error=stop_on_error, version=version,
+                meta_validate=False, unknown_type=unknown_type,
+                unknown_property=unknown_property, string_types=string_types,
+                number_types=number_types,
+            )
 
         self._types = dict(
             self._TYPES, string=string_types, number=number_types
@@ -181,7 +290,7 @@ class Validator(object):
 
         """
 
-        if self.stop_on_error:
+        if self._stop_on_error:
             raise ValidationError(msg)
         else:
             self._errors.append(msg)
@@ -229,7 +338,7 @@ class Validator(object):
             if k in self._SKIPPED:
                 continue
 
-            validator = getattr(self, u"validate_%s" % (k,), None)
+            validator = getattr(self, u"validate_%s" % (k.lstrip("$"),), None)
 
             if validator is None:
                 self._schema_error(
@@ -241,6 +350,12 @@ class Validator(object):
             validator(v, instance, schema)
 
     def validate(self, instance, schema):
+        if self._meta_validator is not None:
+            try:
+                self._meta_validator.validate(schema, self._version)
+            except ValidationError, e:
+                raise SchemaError(str(e))
+
         self._errors = []
         self._validate(instance, schema)
         if self._errors:
