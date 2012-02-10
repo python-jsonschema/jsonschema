@@ -329,11 +329,6 @@ class Validator(object):
             self._errors = current_errors
 
     def _validate(self, instance, schema):
-        """
-        Validate an ``instance`` under the given ``schema``.
-
-        """
-
         for k, v in schema.iteritems():
             if k in self._SKIPPED:
                 continue
@@ -350,6 +345,11 @@ class Validator(object):
             validator(v, instance, schema)
 
     def validate(self, instance, schema):
+        """
+        Validate an ``instance`` under the given ``schema``.
+
+        """
+
         if self._meta_validator is not None:
             try:
                 self._meta_validator.validate(schema, self._version)
