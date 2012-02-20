@@ -21,6 +21,7 @@ from __future__ import division, with_statement
 
 import itertools
 import re
+import sys
 import types
 import warnings
 
@@ -157,6 +158,8 @@ DRAFT_3 = {
         u"exclusiveMinimum" : u"minimum", u"exclusiveMaximum" : u"maximum"
     },
 }
+
+EPSILON = 10 ** -15
 
 
 class SchemaError(Exception):
@@ -508,7 +511,8 @@ class Validator(object):
 
     def validate_divisibleBy(self, dB, instance, schema):
         if isinstance(dB, float):
-            failed = dB - instance % dB > .0000000001
+            mod = instance % dB
+            failed = (mod > EPSILON) and (dB - mod) > EPSILON
         else:
             failed = instance % dB
 

@@ -503,6 +503,8 @@ class TestValidate(unittest.TestCase):
         ("number_by_number_fail", "invalid", 3.5, 1.1),
         ("number_by_number_small", "valid", .0075, .0001),
         ("number_by_number_small_fail", "invalid", .00751, .0001),
+        ("number_by_number_again", "valid", 1.09, .01),
+        ("number_by_number_again_2", "valid", 1.89, .01),
     )
     def divisibleBy(self, expect, instance, dB):
         test = validation_test(divisibleBy=dB)
