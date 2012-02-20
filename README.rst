@@ -70,7 +70,9 @@ preparations for draft 04 underway. The current plan is likely to have
 the validators in this module take a ``version`` argument, which will allow
 support for future versions. Whether draft 03 will remain the default version
 used or not is undecided, so to be safe, *explicitly* declare which version of
-the schema you will be validating with.
+the schema you will be validating with. You can do so by passing
+``version=jsonschema.DRAFT_3`` into ``jsonschema.Validator`` (and similarly
+``validate``).
 
 
 A Quick Word on uniqueItems
@@ -78,7 +80,7 @@ A Quick Word on uniqueItems
 
 Validating schemas with the ``uniqueItems`` property can leave you open to
 algorithmic complexity attacks. This may change in the future. For now,
-``jsonschema`` will warn you if you use ``uniqueitems`` without using the
+``jsonschema`` will warn you if you use ``uniqueItems`` without using the
 `Securetypes <http://github.com/ludios/Securetypes>`_ module, but will proceed
 anyhow if it couldn't be imported.
 
