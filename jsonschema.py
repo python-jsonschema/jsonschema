@@ -8,20 +8,12 @@ The main functionality is provided by the :class:`Validator` class, with the
 The :class:`Validator` class generally attempts to be as strict as possible
 under the JSON Schema specification. See its docstring for details.
 
-What's Missing
---------------
-
-* ``format``
-* ``$ref`` (and, ergo, using ``extends`` with a ``$ref``)
-* ``$schema``
-
 """
 
 from __future__ import division, with_statement
 
 import itertools
 import re
-import sys
 import types
 import warnings
 
