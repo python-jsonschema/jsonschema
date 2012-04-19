@@ -321,14 +321,8 @@ class Validator(object):
 
             validator = getattr(self, u"validate_%s" % (k.lstrip("$"),), None)
 
-            if validator is None:
-                self.schema_error(
-                    self._unknown_property,
-                    u"%r is not a known schema property" % (k,)
-                )
-                return
-
-            validator(v, instance, schema)
+            if validator is not None:
+                validator(v, instance, schema)
 
     def validate(self, instance, schema):
         """
