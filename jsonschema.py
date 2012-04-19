@@ -195,7 +195,7 @@ class Validator(object):
 
     def __init__(
         self, stop_on_error=True, version=DRAFT_3, meta_validate=True,
-        unknown_type="error", unknown_property="error",
+        unknown_type="skip", unknown_property="skip",
         string_types=basestring, number_types=(int, float)
     ):
         """

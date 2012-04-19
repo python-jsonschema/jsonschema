@@ -600,7 +600,7 @@ class TestValidate(unittest.TestCase):
 
     def test_unknown_type_error(self):
         with self.assertRaises(SchemaError):
-            validate(1, {u"type" : u"foo"})
+            validate(1, {u"type" : u"foo"}, unknown_type="error")
 
     @unittest.skipIf(
         sys.version_info[:2] == (2, 5),
@@ -617,7 +617,7 @@ class TestValidate(unittest.TestCase):
 
     def test_unknown_property_error(self):
         with self.assertRaises(SchemaError):
-            validate(1, {u"foo" : u"bar"})
+            validate(1, {u"foo" : u"bar"}, unknown_property="error")
 
     @unittest.skipIf(
         sys.version_info[:2] == (2, 5),
