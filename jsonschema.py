@@ -17,39 +17,32 @@ import re
 import types
 import warnings
 
-try:
-    from securetypes import securedict
-    _uniq = securedict.fromkeys
-except ImportError:
-    _uniq = set
-    securedict = False
-finally:
-    def _all_uniq(container, _uniq=_uniq):
-        """
-        Check if all of a container's elements are unique.
+def _uniq(container):
+    """
+    Check if all of a container's elements are unique.
 
-        Successively tries first to rely that the elements are hashable, then
-        falls back on them being sortable, and finally falls back on brute
-        force.
+    Successively tries first to rely that the elements are hashable, then
+    falls back on them being sortable, and finally falls back on brute
+    force.
 
-        """
+    """
 
+    try:
+        return len(set(container)) == len(container)
+    except TypeError:
         try:
-            return len(_uniq(container)) == len(container)
-        except TypeError:
-            try:
-                sort = sorted(container)
-                sliced = itertools.islice(container, 1, None)
-                for i, j in itertools.izip(container, sliced):
-                    if i == j:
-                        return False
-            except (NotImplementedError, TypeError):
-                seen = []
-                for e in container:
-                    if e in seen:
-                        return False
-                    seen.append(e)
-        return True
+            sort = sorted(container)
+            sliced = itertools.islice(container, 1, None)
+            for i, j in itertools.izip(container, sliced):
+                if i == j:
+                    return False
+        except (NotImplementedError, TypeError):
+            seen = []
+            for e in container:
+                if e in seen:
+                    return False
+                seen.append(e)
+    return True
 
 
 __version__ = "0.2"
@@ -472,17 +465,7 @@ class Validator(object):
             self.error(u"%r is too long" % (instance,))
 
     def validate_uniqueItems(self, uI, instance, schema):
-        if not securedict:
-            warnings.warn(  # I hate seeing the warning line in the output
-                ""
-                "\nIf you're validating schemas with the 'uniqueItems' "
-                "property, the 'securetypes' module is highly recommended.\n"
-                "Without it, you're vulnerable to algorithmic complexity "
-                "attacks.\n\nProceeding anyway. "
-                "See https://github.com/ludios/Securetypes for details."
-            )
-
-        if uI and self.is_type(instance, "array") and not _all_uniq(instance):
+        if uI and self.is_type(instance, "array") and not _uniq(instance):
             self.error(u"%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):

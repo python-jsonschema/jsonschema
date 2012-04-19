@@ -73,18 +73,6 @@ version in the future when it is superceeded is undecided, so if you want to be
 safe, *explicitly* declare which version to use when validating.
 
 
-A Quick Word on uniqueItems
----------------------------
-
-Validating schemas with the ``uniqueItems`` property can leave you open to
-algorithmic complexity attacks. This may change in the future. For now,
-``jsonschema`` will warn you if you use ``uniqueItems`` without using the
-`Securetypes <http://github.com/ludios/Securetypes>`_ module, but will proceed
-anyhow if it couldn't be imported.
-
-You can also keep tabs on `http://bugs.python.org/issue13703`_.
-
-
 Contributing and Contact Info
 -----------------------------
 
