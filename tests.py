@@ -10,11 +10,10 @@ else:
     import unittest
 
 
-from jsonschema import SchemaError, ValidationError, validate, iteritems
-# For Python 3
-try:
-    unicode
-except NameError:
+from jsonschema import PY3, SchemaError, ValidationError, iteritems, validate
+
+
+if PY3:
     basestring = unicode = str
 
 
@@ -40,21 +39,24 @@ class ParametrizedTestCase(type):
                         names.append(parametrized_name)
 
                     fn_name = "_".join(names)
-                    if sys.version_info[0] < 3:
+                    if not PY3:
                         fn_name = fn_name.encode('utf8')
                     fn.__name__ = fn_name
                     attr[fn.__name__] = fn
             else:
                 attr[k] = v
 
-        if sys.version_info[0] < 3:
+        if not PY3:
             name = name.encode('utf8')
+
         return super(ParametrizedTestCase, cls).__new__(cls, name, bases, attr)
+
 
 # Inscrutable way to create metaclasses in a Python 2/3 compatible way
 # See: http://mikewatkins.ca/2008/11/29/python-2-and-3-metaclasses/
 ParameterizedTestCase = ParametrizedTestCase(
-    'ParameterizedTestCase', (object,), {})
+    'ParameterizedTestCase', (object,), {}
+)
 
 
 def parametrized(*runs):
@@ -561,7 +563,7 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         with self.assertRaises(ValidationError) as e:
             validate(instance, schema, stop_on_error=False)
 
-        if sys.version_info[0] >= 3:
+        if PY3:
             self.assertEqual(sorted(e.exception.errors), sorted([
                 "'array' is disallowed for [1, 2]",
                 "[1, 2] is too short",

@@ -13,23 +13,21 @@ under the JSON Schema specification. See its docstring for details.
 from __future__ import division, with_statement, unicode_literals
 
 import itertools
+import operator
 import re
 import sys
 import warnings
 
-# For Python 3
-try:
-    unicode
-except NameError:
-    basestring = unicode = str
 
-if sys.version_info[0] >= 3:
-    def iteritems(d):
-        return d.items()
+PY3 = sys.version_info[0] >= 3
+
+if PY3:
+    basestring = unicode = str
+    iteritems = operator.methodcaller("items")
 else:
-    def iteritems(d):
-        return d.iteritems()
     from itertools import izip as zip
+    iteritems = operator.methodcaller("iteritems")
+
 
 def _uniq(container):
     """
