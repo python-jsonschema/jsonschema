@@ -10,12 +10,26 @@ under the JSON Schema specification. See its docstring for details.
 
 """
 
-from __future__ import division, with_statement
+from __future__ import division, with_statement, unicode_literals
 
 import itertools
 import re
-import types
+import sys
 import warnings
+
+# For Python 3
+try:
+    unicode
+except NameError:
+    basestring = unicode = str
+
+if sys.version_info[0] >= 3:
+    def iteritems(d):
+        return d.items()
+else:
+    def iteritems(d):
+        return d.iteritems()
+    from itertools import izip as zip
 
 def _uniq(container):
     """
@@ -33,7 +47,7 @@ def _uniq(container):
         try:
             sort = sorted(container)
             sliced = itertools.islice(container, 1, None)
-            for i, j in itertools.izip(container, sliced):
+            for i, j in zip(container, sliced):
                 if i == j:
                     return False
         except (NotImplementedError, TypeError):
@@ -62,85 +76,85 @@ except NameError:  # pragma: no cover
 
 
 DRAFT_3 = {
-    u"$schema" : u"http://json-schema.org/draft-03/schema#",
-    u"id" : u"http://json-schema.org/draft-03/schema#",
-    u"type" : u"object",
+    "$schema" : "http://json-schema.org/draft-03/schema#",
+    "id" : "http://json-schema.org/draft-03/schema#",
+    "type" : "object",
 
-    u"properties" : {
-        u"type" : {
-            u"type" : [u"string", u"array"],
-            u"items" : {u"type" : [u"string", {u"$ref" : u"#"}]},
-            u"uniqueItems" : True,
-            u"default" : u"any"
+    "properties" : {
+        "type" : {
+            "type" : ["string", "array"],
+            "items" : {"type" : ["string", {"$ref" : "#"}]},
+            "uniqueItems" : True,
+            "default" : "any"
         },
-        u"properties" : {
-            u"type" : u"object",
-            u"additionalProperties" : {u"$ref" : u"#"},
-            u"default" : {}
+        "properties" : {
+            "type" : "object",
+            "additionalProperties" : {"$ref" : "#"},
+            "default" : {}
         },
-        u"patternProperties" : {
-            u"type" : u"object",
-            u"additionalProperties" : {u"$ref" : u"#"},
-            u"default" : {}
+        "patternProperties" : {
+            "type" : "object",
+            "additionalProperties" : {"$ref" : "#"},
+            "default" : {}
         },
-        u"additionalProperties" : {
-            u"type" : [{u"$ref" : u"#"}, u"boolean"], u"default" : {}
+        "additionalProperties" : {
+            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
         },
-        u"items" : {
-            u"type" : [{u"$ref" : u"#"}, u"array"],
-            u"items" : {u"$ref" : u"#"},
-            u"default" : {}
+        "items" : {
+            "type" : [{"$ref" : "#"}, "array"],
+            "items" : {"$ref" : "#"},
+            "default" : {}
         },
-        u"additionalItems" : {
-            u"type" : [{u"$ref" : u"#"}, u"boolean"], u"default" : {}
+        "additionalItems" : {
+            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
         },
-        u"required" : {u"type" : u"boolean", u"default" : False},
-        u"dependencies" : {
-            u"type" : u"object",
-            u"additionalProperties" : {
-                u"type" : [u"string", u"array", {u"$ref" : u"#"}],
-                u"items" : {u"type" : "string"}
+        "required" : {"type" : "boolean", "default" : False},
+        "dependencies" : {
+            "type" : "object",
+            "additionalProperties" : {
+                "type" : ["string", "array", {"$ref" : "#"}],
+                "items" : {"type" : "string"}
             },
-            u"default" : {}
+            "default" : {}
         },
-        u"minimum" : {u"type" : u"number"},
-        u"maximum" : {u"type" : u"number"},
-        u"exclusiveMinimum" : {u"type" : u"boolean", u"default" : False},
-        u"exclusiveMaximum" : {u"type" : u"boolean", u"default" : False},
-        u"minItems" : {u"type" : u"integer", u"minimum" : 0, u"default" : 0},
-        u"maxItems" : {u"type" : u"integer", u"minimum" : 0},
-        u"uniqueItems" : {u"type" : u"boolean", u"default" : False},
-        u"pattern" : {u"type" : u"string", u"format" : u"regex"},
-        u"minLength" : {u"type" : u"integer", u"minimum" : 0, u"default" : 0},
-        u"maxLength" : {u"type" : u"integer"},
-        u"enum" : {u"type" : u"array", u"minItems" : 1, u"uniqueItems" : True},
-        u"default" : {u"type" : u"any"},
-        u"title" : {u"type" : u"string"},
-        u"description" : {u"type" : u"string"},
-        u"format" : {u"type" : u"string"},
-        u"maxDecimal" : {u"type" : u"number", u"minimum" : 0},
-        u"divisibleBy" : {
-            u"type" : u"number",
-            u"minimum" : 0,
-            u"exclusiveMinimum" : True,
-            u"default" : 1
+        "minimum" : {"type" : "number"},
+        "maximum" : {"type" : "number"},
+        "exclusiveMinimum" : {"type" : "boolean", "default" : False},
+        "exclusiveMaximum" : {"type" : "boolean", "default" : False},
+        "minItems" : {"type" : "integer", "minimum" : 0, "default" : 0},
+        "maxItems" : {"type" : "integer", "minimum" : 0},
+        "uniqueItems" : {"type" : "boolean", "default" : False},
+        "pattern" : {"type" : "string", "format" : "regex"},
+        "minLength" : {"type" : "integer", "minimum" : 0, "default" : 0},
+        "maxLength" : {"type" : "integer"},
+        "enum" : {"type" : "array", "minItems" : 1, "uniqueItems" : True},
+        "default" : {"type" : "any"},
+        "title" : {"type" : "string"},
+        "description" : {"type" : "string"},
+        "format" : {"type" : "string"},
+        "maxDecimal" : {"type" : "number", "minimum" : 0},
+        "divisibleBy" : {
+            "type" : "number",
+            "minimum" : 0,
+            "exclusiveMinimum" : True,
+            "default" : 1
         },
-        u"disallow" : {
-            u"type" : [u"string", u"array"],
-            u"items" : {u"type" : [u"string", {u"$ref" : u"#"}]},
-            u"uniqueItems" : True
+        "disallow" : {
+            "type" : ["string", "array"],
+            "items" : {"type" : ["string", {"$ref" : "#"}]},
+            "uniqueItems" : True
         },
-        u"extends" : {
-            u"type" : [{u"$ref" : u"#"}, u"array"],
-            u"items" : {u"$ref" : u"#"},
-            u"default" : {}
+        "extends" : {
+            "type" : [{"$ref" : "#"}, "array"],
+            "items" : {"$ref" : "#"},
+            "default" : {}
         },
-        u"id" : {u"type" : u"string", u"format" : u"uri"},
-        u"$ref" : {u"type" : u"string", u"format" : u"uri"},
-        u"$schema" : {u"type" : u"string", u"format" : u"uri"},
+        "id" : {"type" : "string", "format" : "uri"},
+        "$ref" : {"type" : "string", "format" : "uri"},
+        "$schema" : {"type" : "string", "format" : "uri"},
     },
-    u"dependencies" : {
-        u"exclusiveMinimum" : u"minimum", u"exclusiveMaximum" : u"maximum"
+    "dependencies" : {
+        "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
     },
 }
 
@@ -172,16 +186,16 @@ class Validator(object):
     """
 
     _SKIPPED = set([                               # handled in:
-        u"dependencies", u"required",              # properties
-        u"exclusiveMinimum", u"exclusiveMaximum",  # min*/max*
-        u"default", u"description", u"id",         # no validation needed
-        u"links", u"name", u"title",
-        u"$ref", u"$schema", "format",             # not yet supported
+        "dependencies", "required",              # properties
+        "exclusiveMinimum", "exclusiveMaximum",  # min*/max*
+        "default", "description", "id",         # no validation needed
+        "links", "name", "title",
+        "$ref", "$schema", "format",             # not yet supported
     ])
 
     _TYPES = {
-        u"array" : list, u"boolean" : bool, u"integer" : int,
-        u"null" : types.NoneType, u"object" : dict,
+        "array" : list, "boolean" : bool, "integer" : int,
+        "null" : type(None), "object" : dict,
     }
 
     _meta_validator = None
@@ -241,7 +255,7 @@ class Validator(object):
         self._types = dict(
             self._TYPES, string=string_types, number=number_types
         )
-        self._types[u"any"] = tuple(self._types.values())
+        self._types["any"] = tuple(self._types.values())
 
     def is_type(self, instance, type):
         """
@@ -253,7 +267,7 @@ class Validator(object):
 
         if py_type is None:
             return self.schema_error(
-                self._unknown_type, u"%r is not a known type" % (type,)
+                self._unknown_type, "%r is not a known type" % (type,)
             )
 
         # the only thing we're careful about here is evading bool inheriting
@@ -315,16 +329,16 @@ class Validator(object):
             self._errors = current_errors
 
     def _validate(self, instance, schema):
-        for k, v in schema.iteritems():
+        for k, v in iteritems(schema):
             if k in self._SKIPPED:
                 continue
 
-            validator = getattr(self, u"validate_%s" % (k.lstrip("$"),), None)
+            validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
 
             if validator is None:
                 self.schema_error(
                     self._unknown_property,
-                    u"%r is not a known schema property" % (k,)
+                    "%r is not a known schema property" % (k,)
                 )
                 return
 
@@ -339,14 +353,14 @@ class Validator(object):
         if self._meta_validator is not None:
             try:
                 self._meta_validator.validate(schema, self._version)
-            except ValidationError, e:
+            except ValidationError as e:
                 raise SchemaError(str(e))
 
         self._errors = []
         self._validate(instance, schema)
         if self._errors:
             raise ValidationError(
-                u"Validation failed with errors (see .errors for details)",
+                "Validation failed with errors (see .errors for details)",
                 errors=list(self._errors)
             )
 
@@ -371,12 +385,12 @@ class Validator(object):
             )):
                 return
         else:
-            self.error(u"%r is not of type %r" % (instance, _delist(types)))
+            self.error("%r is not of type %r" % (instance, _delist(types)))
 
     def validate_properties(self, properties, instance, schema):
-        for property, subschema in properties.iteritems():
+        for property, subschema in iteritems(properties):
             if property in instance:
-                dependencies = _list(subschema.get(u"dependencies", []))
+                dependencies = _list(subschema.get("dependencies", []))
                 if self.is_type(dependencies, "object"):
                     self._validate(instance, dependencies)
                 else:
@@ -384,16 +398,16 @@ class Validator(object):
                     first = next(missing, None)
                     if first is not None:
                         self.error(
-                            u"%r is a dependency of %r" % (first, property)
+                            "%r is a dependency of %r" % (first, property)
                         )
 
                 self._validate(instance[property], subschema)
-            elif subschema.get(u"required", False):
-                self.error(u"%r is a required property" % (property,))
+            elif subschema.get("required", False):
+                self.error("%r is a required property" % (property,))
 
     def validate_patternProperties(self, patternProperties, instance, schema):
-        for pattern, subschema in patternProperties.iteritems():
-            for k, v in instance.iteritems():
+        for pattern, subschema in iteritems(patternProperties):
+            for k, v in iteritems(instance):
                 if re.match(pattern, k):
                     self._validate(v, subschema)
 
@@ -402,13 +416,13 @@ class Validator(object):
             return
 
         # no viewkeys in <2.7, and pypy seems to fail on vk - vk anyhow, so...
-        extras = set(instance) - set(schema.get(u"properties", {}))
+        extras = set(instance) - set(schema.get("properties", {}))
 
         if self.is_type(aP, "object"):
             for extra in extras:
                 self._validate(instance[extra], aP)
         elif not aP and extras:
-            error = u"Additional properties are not allowed (%s %s unexpected)"
+            error = "Additional properties are not allowed (%s %s unexpected)"
             self.error(error % _extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
@@ -427,62 +441,64 @@ class Validator(object):
             for item in instance[len(schema):]:
                 self._validate(item, aI)
         elif not aI and len(instance) > len(schema.get("items", [])):
-            error = u"Additional items are not allowed (%s %s unexpected)"
+            error = "Additional items are not allowed (%s %s unexpected)"
             self.error(error % _extras_msg(instance[len(schema) - 1:]))
 
     def validate_minimum(self, minimum, instance, schema):
-        if schema.get(u"exclusiveMinimum", False):
+        instance = float(instance)
+        if schema.get("exclusiveMinimum", False):
             failed = instance <= minimum
-            cmp = u"less than or equal to"
+            cmp = "less than or equal to"
         else:
             failed = instance < minimum
-            cmp = u"less than"
+            cmp = "less than"
 
         if failed:
             self.error(
-                u"%r is %s the minimum of %r" % (instance, cmp, minimum)
+                "%r is %s the minimum of %r" % (instance, cmp, minimum)
             )
 
     def validate_maximum(self, maximum, instance, schema):
-        if schema.get(u"exclusiveMaximum", False):
+        instance = float(instance)
+        if schema.get("exclusiveMaximum", False):
             failed = instance >= maximum
-            cmp = u"greater than or equal to"
+            cmp = "greater than or equal to"
         else:
             failed = instance > maximum
-            cmp = u"greater than"
+            cmp = "greater than"
 
         if failed:
             self.error(
-                u"%r is %s the maximum of %r" % (instance, cmp, maximum)
+                "%r is %s the maximum of %r" % (instance, cmp, maximum)
             )
 
     def validate_minItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) < mI:
-            self.error(u"%r is too short" % (instance,))
+            self.error("%r is too short" % (instance,))
 
     def validate_maxItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) > mI:
-            self.error(u"%r is too long" % (instance,))
+            self.error("%r is too long" % (instance,))
 
     def validate_uniqueItems(self, uI, instance, schema):
         if uI and self.is_type(instance, "array") and not _uniq(instance):
-            self.error(u"%r has non-unique elements" % instance)
+            self.error("%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):
         if self.is_type(instance, "string") and not re.match(patrn, instance):
-            self.error(u"%r does not match %r" % (instance, patrn))
+            self.error("%r does not match %r" % (instance, patrn))
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
-            self.error(u"%r is too short" % (instance,))
+            self.error("%r is too short" % (instance,))
 
     def validate_maxLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) > mL:
-            self.error(u"%r is too long" % (instance,))
+            self.error("%r is too long" % (instance,))
 
     def validate_enum(self, enums, instance, schema):
         if instance not in enums:
-            self.error(u"%r is not one of %r" % (instance, enums))
+            self.error("%r is not one of %r" % (instance, enums))
 
     def validate_divisibleBy(self, dB, instance, schema):
         if isinstance(dB, float):
@@ -492,14 +508,14 @@ class Validator(object):
             failed = instance % dB
 
         if failed:
-            self.error(u"%r is not divisible by %r" % (instance, dB))
+            self.error("%r is not divisible by %r" % (instance, dB))
 
     def validate_disallow(self, disallow, instance, schema):
         disallow = _list(disallow)
 
         if any(self.is_valid(instance, {"type" : [d]}) for d in disallow):
             self.error(
-                u"%r is disallowed for %r" % (_delist(disallow), instance)
+                "%r is disallowed for %r" % (_delist(disallow), instance)
             )
 
     def validate_extends(self, extends, instance, schema):
@@ -516,10 +532,10 @@ def _extras_msg(extras):
     """
 
     if len(extras) == 1:
-        verb = u"was"
+        verb = "was"
     else:
-        verb = u"were"
-    return u", ".join(repr(extra) for extra in extras), verb
+        verb = "were"
+    return ", ".join(repr(extra) for extra in extras), verb
 
 
 def _list(thing):

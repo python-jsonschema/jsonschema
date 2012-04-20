@@ -46,9 +46,9 @@ Features
     >>> try:
     ...     validate([2, 3, 4], schema, stop_on_error=False)
     ... except ValidationError as e:
-    ...     print "Validation failed with errors:"
+    ...     print("Validation failed with errors:")
     ...     for error in sorted(e.errors):
-    ...         print "    * " + error
+    ...         print("    * " + error)
     Validation failed with errors:
         * 4 is not one of [1, 2, 3]
         * [2, 3, 4] is too long
