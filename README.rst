@@ -21,7 +21,9 @@ jsonschema
     >>> # If no exception is raised by validate(), the instance is valid.
     >>> validate({"name" : "Eggs", "price" : 34.99}, schema)
 
-    >>> validate({"name" : "Eggs", "price" : "Invalid"}, schema)
+    >>> validate(
+    ...     {"name" : "Eggs", "price" : "Invalid"}, schema
+    ... )                                   # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...
     ValidationError: 'Invalid' is not of type 'number'
