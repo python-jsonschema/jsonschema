@@ -59,19 +59,6 @@ def _uniq(container):
 
 __version__ = "0.2"
 
-try:  # pragma: no cover, 2.5 support
-    next
-except NameError:  # pragma: no cover
-    _none = object()
-
-    def next(iterator, default=_none):
-        try:
-            return iterator.next()
-        except StopIteration:
-            if default is not _none:
-                return default
-            raise
-
 
 DRAFT_3 = {
     "$schema" : "http://json-schema.org/draft-03/schema#",
