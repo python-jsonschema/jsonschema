@@ -633,3 +633,60 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
+    format_date_time = parametrized(
+        ("isodatetime", "valid", "2012-04-23T16:07:00Z"),
+        ("missing_z", "invalid", "2012-04-23T16:07:00"),
+        ("y2k", "invalid", "12-04-23T16:07:00"),
+        ("overflow", "invalid", "2012-13-23T16:07:00"),
+        ("extra", "invalid", "2012-13-23T16:07:00ZB"),
+        ("date_only", "invalid", "2012-13-23")
+    )(validation_test(format="date-time"))
+
+    format_date = parametrized(
+        ("isodate", "valid", "2012-04-23"),
+        ("y2k", "invalid", "12-04-23"),
+        ("overflow", "invalid", "2012-13-23"),
+        ("extra", "invalid", "2012-04-23T16:07:00Z")
+    )(validation_test(format="date"))
+
+    format_time = parametrized(
+        ("isotime", "valid", "16:07:00"),
+        ("overflow", "invalid", "25:00:32"),
+        ("extra", "invalid", "16:07:00.43")
+    )(validation_test(format="time"))
+
+    format_utc_millisec = parametrized(
+        ("string", "valid", "52.0"),
+        ("float", "valid", 1.2e64),
+        ("integer", "valid", 1 << 70),
+        ("not_number", "invalid", "FOO")
+    )(validation_test(format="utc-millisec"))
+
+    format_regex = parametrized(
+        ("valid", "valid", r"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@)"),
+        ("unbalanced", "invalid", r"^(([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@")
+    )(validation_test(format="regex"))
+
+    format_phone = parametrized(
+        ("valid", "valid", "+31 42 123 4567"),
+        ("north_american", "invalid", "(800)555-1234")
+    )(validation_test(format="phone"))
+
+    format_ip_address = parametrized(
+        ("valid", "valid", "127.0.0.1"),
+        ("hostname", "invalid", "www.google.com"),
+        ("valid_short", "valid", "127"),
+        ("valid_numerical", "valid", str(0xffffffff))
+    )(validation_test(format="ip-address"))
+
+    format_ipv6 = parametrized(
+        ("valid", "valid", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
+        ("leading_zeros", "valid", "2001:db8:85a3:0:0:8a2e:370:7334"),
+        ("dotted", "valid", "2001:db8:85a3::8a2e:370:7334"),
+        ("hostname", "invalid", "www.google.com")
+    )(validation_test(format="ipv6"))
+
+    format_host_name = parametrized(
+        ("valid", "valid", "www.google.com"),
+        ("numerical", "invalid", "127.0.0.1")
+    )(validation_test(format="host-name"))
