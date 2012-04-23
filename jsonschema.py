@@ -59,19 +59,6 @@ def _uniq(container):
 
 __version__ = "0.2"
 
-try:  # pragma: no cover, 2.5 support
-    next
-except NameError:  # pragma: no cover
-    _none = object()
-
-    def next(iterator, default=_none):
-        try:
-            return iterator.next()
-        except StopIteration:
-            if default is not _none:
-                return default
-            raise
-
 
 DRAFT_3 = {
     "$schema" : "http://json-schema.org/draft-03/schema#",
@@ -228,11 +215,13 @@ class Validator(object):
         warning, and ``"skip"`` to ignore.
 
         ``string_types`` and ``number_types`` control which Python types are
-        considered to be JSON ``String``s and ``Number``s respectively. By
-        default, ``basestring`` (which means, ``str`` + ``unicode``) is used
-        for ``string_types``, and ``int`` and ``float`` are the number_types.
-        To override this behavior (e.g. for ``decimal.Decimal``), provide a
-        type or tuple of types to use (*including* the default types if so
+        considered to be JSON ``String``s and ``Number``s respectively.  The
+        default for ``string_types`` is different on Python 2.x and Python
+        3.x.  On Python 2.x, it is ``basestring``, which means ``str`` or
+        ``unicode``.  On Python 3.x, it is ``str``, meaning a Unicode string.
+        The default for ``number_types`` is ``int`` and ``float``.  To
+        override this behavior (e.g. for ``decimal.Decimal``), provide a type
+        or tuple of types to use (*including* the default types if so
         desired).
 
         """
