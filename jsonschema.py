@@ -12,6 +12,7 @@ under the JSON Schema specification. See its docstring for details.
 
 from __future__ import division, unicode_literals
 
+import datetime
 import itertools
 import operator
 import re
@@ -164,6 +165,68 @@ class ValidationError(Exception):
         super(ValidationError, self).__init__(*args, **kwargs)
 
 
+class Formats(object):
+    def date_time(value):
+        # ISO 8601 format in UTC time
+        datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+
+    def date(value):
+        datetime.datetime.strptime(value, "%Y-%m-%d")
+
+    def time(value):
+        datetime.datetime.strptime(value, "%H:%M:%S")
+
+    def utc_millisec(value):
+        float(value)
+
+    def regex(value):
+        # TODO: This is not be strictly correct as the JSON spec
+        # defines it as a JavaScript regular expression, which is
+        # different from a Python regular expression in some ways.
+        try:
+            re.compile(value)
+        except re.error as e:
+            raise ValueError(e)
+
+    def phone(value):
+        # Validate an E.123 phone number.
+        if not re.match(r"^\+(?:[0-9] ?){6,14}[0-9]$", value):
+            raise ValueError("%r does not conform to E.123" % value)
+
+    def ip_address(value):
+        import socket
+        try:
+            socket.inet_aton(value)
+        except socket.error:
+            raise ValueError("%r is not a valid IP address" % value)
+
+    def ipv6(value):
+        import socket
+        try:
+            socket.inet_pton(socket.AF_INET6, value)
+        except socket.error:
+            raise ValueError("%r is not a valid IP address" % value)
+
+    def host_name(value):
+        if not re.match(
+            r"^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*"
+            r"([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$",
+            value):
+            raise ValueError("%r is not a valid hostname" % value)
+
+    # TODO: Not implemented
+
+    # color  This is a CSS color (like "#FF0000" or "red"), based on CSS
+    #    2.1 [W3C.CR-CSS21-20070719].
+
+    # style  This is a CSS style definition (like "color: red; background-
+    #    color:#FFF"), based on CSS 2.1 [W3C.CR-CSS21-20070719].
+
+    # uri  This value SHOULD be a URI.
+
+    # email  This SHOULD be an email address.
+
+
 class Validator(object):
     """
     A JSON Schema validator.
@@ -175,7 +238,7 @@ class Validator(object):
         "exclusiveMinimum", "exclusiveMaximum",  # min*/max*
         "default", "description", "id",         # no validation needed
         "links", "name", "title",
-        "$ref", "$schema", "format",             # not yet supported
+        "$ref", "$schema",                      # not yet supported
     ])
 
     _TYPES = {
@@ -188,7 +251,8 @@ class Validator(object):
     def __init__(
         self, stop_on_error=True, version=DRAFT_3, meta_validate=True,
         unknown_type="skip", unknown_property="skip",
-        string_types=basestring, number_types=(int, float)
+        string_types=basestring, number_types=(int, float),
+        formats={}, validate_format=True
     ):
         """
         Initialize a Validator.
@@ -224,6 +288,13 @@ class Validator(object):
         or tuple of types to use (*including* the default types if so
         desired).
 
+        ``formats`` allows for adding support for more format types.
+        It is a dictionary where the keys are a format name and the
+        values are a Python callable.  The callable should take a
+        single parameter, ``value``, and raise a ``ValueError`` or
+        ``TypeError`` if the value is not valid against the format.
+        ``validate_format`` may be set to ``False`` to disable format
+        validation.
         """
 
         self._stop_on_error = stop_on_error
@@ -243,6 +314,16 @@ class Validator(object):
             self._TYPES, string=string_types, number=number_types
         )
         self._types["any"] = tuple(self._types.values())
+
+        self._formats = {}
+        for key, val in Formats.__dict__.items():
+            if callable(val):
+                self._formats[key.replace('_', '-')] = val
+        for key, val in formats.items():
+            if not callable(val):
+                raise ValueError("formats[%r] is not callable" % key)
+        self._formats.update(formats)
+        self._validate_format = validate_format
 
     def is_type(self, instance, type):
         """
@@ -510,6 +591,20 @@ class Validator(object):
             extends = [extends]
         for subschema in extends:
             self._validate(instance, subschema)
+
+    def validate_format(self, format, instance, schema):
+        if self._validate_format:
+            format_validator = self._formats.get(format)
+            if format_validator is not None:
+                try:
+                    format_validator(instance)
+                except (ValueError, TypeError) as e:
+                    self.error(
+                        "%r is invalid for format %r: %s" %
+                        (instance, format, e))
+            else:
+                self.error(
+                    "Unknown format %r" % format)
 
 
 def _extras_msg(extras):
