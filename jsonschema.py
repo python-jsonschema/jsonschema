@@ -10,7 +10,7 @@ under the JSON Schema specification. See its docstring for details.
 
 """
 
-from __future__ import division, with_statement, unicode_literals
+from __future__ import division, unicode_literals
 
 import itertools
 import operator
