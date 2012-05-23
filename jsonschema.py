@@ -210,9 +210,11 @@ class Validator(object):
         validation will be done using the appropriate ``version``.
 
         ``unknown_type`` and ``unknown_property`` control what to do when an
-        unknown type (resp. property) is encountered. By default an error is
-        raised (``"error"``). Other valid inputs are ``"warn"``, raising a
-        warning, and ``"skip"`` to ignore.
+        unknown type (resp. property) is encountered. By default, the
+        metaschema is respected (which e.g. for draft 3 allows a schema to have
+        additional properties), but if for some reason you want to modify this
+        behavior, you can do so without needing to modify the metaschema by
+        passing ``"error"`` or ``"warn"`` to these arguments.
 
         ``string_types`` and ``number_types`` control which Python types are
         considered to be JSON ``String``s and ``Number``s respectively.  The
