@@ -377,6 +377,10 @@ class Validator(object):
             self.error("%r is not of type %r" % (instance, _delist(types)))
 
     def validate_properties(self, properties, instance, schema):
+        if not self.is_type(instance, "object"):
+            # 'properties' is only relevant if the instance is actually an object.
+            return
+
         for property, subschema in iteritems(properties):
             if property in instance:
                 dependencies = _list(subschema.get("dependencies", []))

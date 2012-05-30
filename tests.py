@@ -187,6 +187,17 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("null", "invalid", None),
     )(validation_test(type=["integer", "string"]))
 
+    multiple_types_with_properties = parametrized(
+        ("integer", "valid", 1),
+        ("string", "invalid", "foo"),
+        ("number", "invalid", 1.1),
+        ("object", "invalid", {}),
+        ("array", "invalid", []),
+        ("object", "valid", {'x': 10}),
+        ("boolean", "invalid", True),
+        ("null", "invalid", None),
+    )(validation_test(type=["integer", "object"], properties={'x': {}}))
+
     multiple_types_schema = parametrized(
         ("match", "valid", [1, 2]),
         ("other_match", "valid", {"foo" : "bar"}),
