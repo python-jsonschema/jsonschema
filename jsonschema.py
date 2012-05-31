@@ -504,6 +504,9 @@ class Validator(object):
             self.error("%r is not one of %r" % (instance, enums))
 
     def validate_divisibleBy(self, dB, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
         if isinstance(dB, float):
             mod = instance % dB
             failed = (mod > EPSILON) and (dB - mod) > EPSILON
