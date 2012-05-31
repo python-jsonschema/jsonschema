@@ -260,6 +260,9 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         }
     ))
 
+    validate("x", {"type": ["string", "number"], "minimum": 10})
+    validate("x", {"type": ["string", "number"], "maximum": 10})
+
     def test_additionalProperties_allowed_by_default(self):
         schema = {
             "properties" : {

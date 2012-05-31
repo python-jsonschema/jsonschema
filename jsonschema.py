@@ -442,6 +442,9 @@ class Validator(object):
             self.error(error % _extras_msg(instance[len(schema) - 1:]))
 
     def validate_minimum(self, minimum, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
         instance = float(instance)
         if schema.get("exclusiveMinimum", False):
             failed = instance <= minimum
@@ -456,6 +459,9 @@ class Validator(object):
             )
 
     def validate_maximum(self, maximum, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
         instance = float(instance)
         if schema.get("exclusiveMaximum", False):
             failed = instance >= maximum
