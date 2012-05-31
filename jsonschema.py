@@ -343,7 +343,7 @@ class Validator(object):
             try:
                 self._meta_validator.validate(schema, self._version)
             except ValidationError as e:
-                raise SchemaError(str(e))
+                raise SchemaError(str(e)), None, sys.exc_info()[2]
 
         self._errors = []
         self._validate(instance, schema)
@@ -377,6 +377,10 @@ class Validator(object):
             self.error("%r is not of type %r" % (instance, _delist(types)))
 
     def validate_properties(self, properties, instance, schema):
+        if not self.is_type(instance, "object"):
+            # 'properties' is only relevant if the instance is actually an object.
+            return
+
         for property, subschema in iteritems(properties):
             if property in instance:
                 dependencies = _list(subschema.get("dependencies", []))
@@ -415,6 +419,10 @@ class Validator(object):
             self.error(error % _extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
+        if not self.is_type(instance, "array"):
+            # 'items' is only relevant if the instance is actually an array.
+            return
+
         if self.is_type(items, "object"):
             for item in instance:
                 self._validate(item, items)
@@ -434,6 +442,9 @@ class Validator(object):
             self.error(error % _extras_msg(instance[len(schema) - 1:]))
 
     def validate_minimum(self, minimum, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
         instance = float(instance)
         if schema.get("exclusiveMinimum", False):
             failed = instance <= minimum
@@ -448,6 +459,9 @@ class Validator(object):
             )
 
     def validate_maximum(self, maximum, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
         instance = float(instance)
         if schema.get("exclusiveMaximum", False):
             failed = instance >= maximum
@@ -490,6 +504,9 @@ class Validator(object):
             self.error("%r is not one of %r" % (instance, enums))
 
     def validate_divisibleBy(self, dB, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
         if isinstance(dB, float):
             mod = instance % dB
             failed = (mod > EPSILON) and (dB - mod) > EPSILON

@@ -238,6 +238,12 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         }
     ))
 
+    validate("x", {"type": ["string", "number"], "minimum": 10})
+    validate("x", {"type": ["string", "number"], "maximum": 10})
+    validate(1, {"type": ["integer", "object"], "properties": {"x": {}}})
+    validate(1, {"type": ["integer", "array"], "items": {"type": "string"}})
+    validate("x", {"type": ["integer", "string"], "divisibleBy": 10})
+
     def test_additionalProperties_allowed_by_default(self):
         schema = {
             "properties" : {
