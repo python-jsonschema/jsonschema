@@ -419,6 +419,10 @@ class Validator(object):
             self.error(error % _extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
+        if not self.is_type(instance, "array"):
+            # 'items' is only relevant if the instance is actually an array.
+            return
+
         if self.is_type(items, "object"):
             for item in instance:
                 self._validate(item, items)
