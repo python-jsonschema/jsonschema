@@ -170,12 +170,12 @@ class Validator(object):
 
     """
 
-    _SKIPPED = set([                               # handled in:
-        "dependencies", "required",              # properties
-        "exclusiveMinimum", "exclusiveMaximum",  # min*/max*
-        "default", "description", "id",         # no validation needed
+    _SKIPPED = set([                                # handled in:
+        "dependencies", "required",                 # properties
+        "exclusiveMinimum", "exclusiveMaximum",     # min*/max*
+        "default", "description", "format", "id",   # no validation needed
         "links", "name", "title",
-        "$ref", "$schema", "format",             # not yet supported
+        "$ref", "$schema",                          # not yet supported
     ])
 
     _TYPES = {
@@ -378,7 +378,6 @@ class Validator(object):
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
-            # 'properties' is only relevant if the instance is actually an object.
             return
 
         for property, subschema in iteritems(properties):
@@ -420,7 +419,6 @@ class Validator(object):
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
-            # 'items' is only relevant if the instance is actually an array.
             return
 
         if self.is_type(items, "object"):
