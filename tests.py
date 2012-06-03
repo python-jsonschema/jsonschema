@@ -238,12 +238,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         }
     ))
 
-    validate("x", {"type": ["string", "number"], "minimum": 10})
-    validate("x", {"type": ["string", "number"], "maximum": 10})
-    validate(1, {"type": ["integer", "object"], "properties": {"x": {}}})
-    validate(1, {"type": ["integer", "array"], "items": {"type": "string"}})
-    validate("x", {"type": ["integer", "string"], "divisibleBy": 10})
-
     def test_additionalProperties_allowed_by_default(self):
         schema = {
             "properties" : {
@@ -639,3 +633,21 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
+
+class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
+    def test_minimum(self):
+        validate("x", {"type": ["string", "number"], "minimum": 10})
+
+    def test_maximum(self):
+        validate("x", {"type": ["string", "number"], "maximum": 10})
+
+    def test_properties(self):
+        validate(1, {"type": ["integer", "object"], "properties": {"x": {}}})
+
+    def test_items(self):
+        validate(
+            1, {"type": ["integer", "array"], "items": {"type": "string"}}
+        )
+
+    def test_divisibleBy(self):
+        validate("x", {"type": ["integer", "string"], "divisibleBy": 10})
