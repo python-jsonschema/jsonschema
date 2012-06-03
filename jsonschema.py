@@ -343,7 +343,7 @@ class Validator(object):
             try:
                 self._meta_validator.validate(schema, self._version)
             except ValidationError as e:
-                raise SchemaError(str(e)), None, sys.exc_info()[2]
+                raise SchemaError(str(e))
 
         self._errors = []
         self._validate(instance, schema)
