@@ -57,7 +57,7 @@ def _uniq(container):
     return True
 
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 
 DRAFT_3 = {

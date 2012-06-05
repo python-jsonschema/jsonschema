@@ -3,7 +3,8 @@ jsonschema
 ==========
 
 ``jsonschema`` is an implementation of JSON Schema (currently in `Draft 3
-<http://tools.ietf.org/html/draft-zyp-json-schema-03>`_) for Python.
+<http://tools.ietf.org/html/draft-zyp-json-schema-03>`_) for Python (supporting
+2.6+ including Python 3).
 
 ::
 
@@ -57,9 +58,6 @@ Features
 
 * Small and extensible
 
-Note: the API is still considered *unstable*, though no major changes are
-expected.
-
 
 Schema Versioning
 -----------------
@@ -75,12 +73,23 @@ version in the future when it is superceeded is undecided, so if you want to be
 safe, *explicitly* declare which version to use when validating.
 
 
-Contributing and Contact Info
------------------------------
+Release Notes
+-------------
+
+* Default for unknown types and properties is now to *not* error (consistent
+  with the schema).
+* Python 3 support
+* Removed dependency on SecureTypes now that the hash bug has been resolved.
+* "Numerous bug fixes" -- most notably, a divisibleBy error for floats and a
+  bunch of missing typechecks for irrelevant properties.
+
+
+Contributing
+------------
 
 I'm Julian Berman.
 
-``jsonschema`` is on `Github <http://github.com/Julian/jsonschema>`_.
+``jsonschema`` is on `GitHub <http://github.com/Julian/jsonschema>`_.
 
 Get in touch, via GitHub or otherwise, if you've got something to contribute,
 it'd be most welcome!
