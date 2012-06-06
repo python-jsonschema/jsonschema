@@ -616,7 +616,7 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("boolean", "invalid", True),
         ("null", "invalid", None),
     )(validation_test(
-        initkwargs={"number_types" : (int, float, Decimal)},
+        initkwargs={"types" : {"number" : (int, float, Decimal)}},
         type="number")
     )
 
@@ -624,6 +624,20 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
+
+    # XXX: RemoveMe in 0.5
+    def test_number_types_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate(1, {"type" : "number"}, number_types=(int,))
+        self.assertEqual(len(w), 1)
+
+    # XXX: RemoveMe in 0.5
+    def test_string_types_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate("foo", {"type" : "string"}, string_types=(unicode,))
+        self.assertEqual(len(w), 1)
 
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):

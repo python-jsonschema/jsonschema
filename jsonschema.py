@@ -178,16 +178,16 @@ class Validator(object):
         "$ref", "$schema",                          # not yet supported
     ])
 
-    _TYPES = {
-        "array" : list, "boolean" : bool, "integer" : int,
-        "null" : type(None), "object" : dict,
+    DEFAULT_TYPES = {
+        "array" : list, "boolean" : bool, "integer" : int, "null" : type(None),
+        "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
     _meta_validator = None
 
     def __init__(
         self, stop_on_error=True, version=DRAFT_3, meta_validate=True,
-        unknown_type="skip", unknown_property="skip",
+        unknown_type="skip", unknown_property="skip", types=(),
         string_types=basestring, number_types=(int, float)
     ):
         """
@@ -216,15 +216,17 @@ class Validator(object):
         behavior, you can do so without needing to modify the metaschema by
         passing ``"error"`` or ``"warn"`` to these arguments.
 
-        ``string_types`` and ``number_types`` control which Python types are
-        considered to be JSON ``String``s and ``Number``s respectively.  The
-        default for ``string_types`` is different on Python 2.x and Python
-        3.x.  On Python 2.x, it is ``basestring``, which means ``str`` or
-        ``unicode``.  On Python 3.x, it is ``str``, meaning a Unicode string.
-        The default for ``number_types`` is ``int`` and ``float``.  To
-        override this behavior (e.g. for ``decimal.Decimal``), provide a type
-        or tuple of types to use (*including* the default types if so
-        desired).
+        ``types`` is a mapping (or iterable of 2-tuples) containing additional
+        types or alternate types to verify via the 'type' property. For
+        instance, the default types for the 'number' JSON Schema type are
+        ``int`` and ``float``.  To override this behavior (e.g. for also
+        allowing ``decimal.Decimal``), pass ``types={"number" : (int, float,
+        decimal.Decimal)} *including* the default types if so desired, which
+        are fairly obvious but can be accessed via ``Validator.DEFAULT_TYPES``
+        if necessary.
+
+        ``string_types`` and ``number_types`` are both deprecated. Please use
+        ``types`` instead.
 
         """
 
@@ -233,18 +235,34 @@ class Validator(object):
         self._unknown_property = unknown_property
         self._version = version
 
+        self._types = dict(self.DEFAULT_TYPES)
+        self._types.update(types)
+
+        if string_types != self.DEFAULT_TYPES["string"]:
+            warnings.warn(
+                "string_types is deprecated. "
+                "Please use types={'string' : %s} instead." % (string_types,),
+                DeprecationWarning,
+                stacklevel=2
+            )
+            self._types["string"] = string_types
+        if number_types != self.DEFAULT_TYPES["number"]:
+            warnings.warn(
+                "number_types is deprecated. "
+                "Please use types={'number' : %s} instead." % (number_types,),
+                DeprecationWarning,
+                stacklevel=2
+            )
+            self._types["number"] = number_types
+
+        self._types["any"] = tuple(self._types.values())
+
         if meta_validate:
             self._meta_validator = self.__class__(
                 stop_on_error=stop_on_error, version=version,
                 meta_validate=False, unknown_type=unknown_type,
-                unknown_property=unknown_property, string_types=string_types,
-                number_types=number_types,
+                unknown_property=unknown_property, types=self._types,
             )
-
-        self._types = dict(
-            self._TYPES, string=string_types, number=number_types
-        )
-        self._types["any"] = tuple(self._types.values())
 
     def is_type(self, instance, type):
         """
