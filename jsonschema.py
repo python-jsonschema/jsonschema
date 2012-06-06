@@ -74,7 +74,7 @@ DRAFT_3 = {
         },
         "properties" : {
             "type" : "object",
-            "additionalProperties" : {"$ref" : "#"},
+            "additionalProperties" : {"$ref" : "#", "type": "object"},
             "default" : {}
         },
         "patternProperties" : {

@@ -620,6 +620,9 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         type="number")
     )
 
+    def test_invalid_properties(self):
+        self.assertRaises(SchemaError, validate, {}, {"properties": {"test": True}})
+
     # TODO: we're in need of more meta schema tests
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
