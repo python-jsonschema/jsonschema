@@ -157,6 +157,9 @@ class SchemaError(Exception):
 
     """
 
+    def __init__(self, *args, **kwargs):
+        self.errors = kwargs.pop("errors", [])
+        super(SchemaError, self).__init__(*args, **kwargs)
 
 class ValidationError(Exception):
     """
@@ -366,7 +369,7 @@ class Validator(object):
             try:
                 self._meta_validator.validate(schema, self._version)
             except ValidationError as e:
-                raise_exception_from(SchemaError(str(e)), e)
+                raise_exception_from(SchemaError(str(e), errors=e.errors), e)
 
         self._errors = []
         self._validate(instance, schema)
