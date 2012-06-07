@@ -199,14 +199,6 @@ class Validator(object):
 
     """
 
-    _SKIPPED = set([                                # handled in:
-        "dependencies", "required",                 # properties
-        "exclusiveMinimum", "exclusiveMaximum",     # min*/max*
-        "default", "description", "format", "id",   # no validation needed
-        "links", "name", "title",
-        "$ref", "$schema",                          # not yet supported
-    ])
-
     DEFAULT_TYPES = {
         "array" : list, "boolean" : bool, "integer" : int, "null" : type(None),
         "number" : (int, float), "object" : dict, "string" : basestring,
@@ -366,18 +358,9 @@ class Validator(object):
 
     def _validate(self, instance, schema):
         for k, v in iteritems(schema):
-            if k in self._SKIPPED:
-                continue
-
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
-
             if validator is None:
-                self.schema_error(
-                    self._unknown_property,
-                    "%r is not a known schema property" % (k,)
-                )
-                return
-
+                return self.unknown_property(k, instance, schema)
             validator(v, instance, schema)
 
     def validate(self, instance, schema):
@@ -401,6 +384,12 @@ class Validator(object):
                 "Validation failed with errors (see .errors for details)",
                 errors=list(self._errors)
             )
+
+    def unknown_property(self, property, instance, schema):
+        self.schema_error(
+            self._unknown_property,
+            "%r is not a known schema property" % (property,)
+        )
 
     def validate_type(self, types, instance, schema):
         types = _list(types)
@@ -576,6 +565,16 @@ class Validator(object):
             extends = [extends]
         for subschema in extends:
             self._validate(instance, subschema)
+
+
+for no_op in [                                  # handled in:
+    "dependencies", "required",                 # properties
+    "exclusiveMinimum", "exclusiveMaximum",     # min*/max*
+    "default", "description", "format", "id",   # no validation needed
+    "links", "name", "title",
+    "ref", "schema",                            # not yet supported
+]:
+    setattr(Validator, "validate_" + no_op, lambda *args, **kwargs : None)
 
 
 def _extras_msg(extras):
