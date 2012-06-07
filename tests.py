@@ -642,6 +642,13 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
             validate("foo", {"type" : "string"}, string_types=(unicode,))
         self.assertEqual(len(w), 1)
 
+    def test_schema_error_errors(self):
+        try:
+            validate({}, { "properties": { "additionalProperties": False } }, stop_on_error=False)
+        except SchemaError as e:
+            self.assertGreater(len(e.errors), 0)
+        else:
+            raise AssertionError("Expected SchemaError, got nothing")
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
     def test_minimum(self):
