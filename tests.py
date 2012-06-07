@@ -644,7 +644,7 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
 
     def test_schema_error_errors(self):
         try:
-            validate({}, { "properties": { "additionalProperties": False } }, stop_on_error=False)
+            validate({}, { "properties": { "test": False } }, stop_on_error=False)
         except SchemaError as e:
             self.assertGreater(len(e.errors), 0)
         else:
