@@ -22,6 +22,11 @@ import warnings
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
+    from raise_exception_3 import raise_exception_from
+else:
+    from raise_exception_2 import raise_exception_from
+
+if PY3:
     basestring = unicode = str
     iteritems = operator.methodcaller("items")
 else:
@@ -74,7 +79,7 @@ DRAFT_3 = {
         },
         "properties" : {
             "type" : "object",
-            "additionalProperties" : {"$ref" : "#"},
+            "additionalProperties" : {"$ref" : "#", "type": "object"},
             "default" : {}
         },
         "patternProperties" : {
@@ -152,6 +157,9 @@ class SchemaError(Exception):
 
     """
 
+    def __init__(self, *args, **kwargs):
+        self.errors = kwargs.pop("errors", [])
+        super(SchemaError, self).__init__(*args, **kwargs)
 
 class ValidationError(Exception):
     """
@@ -361,7 +369,7 @@ class Validator(object):
             try:
                 self._meta_validator.validate(schema, self._version)
             except ValidationError as e:
-                raise SchemaError(str(e))
+                raise_exception_from(SchemaError(str(e), errors=e.errors), e)
 
         self._errors = []
         self._validate(instance, schema)
