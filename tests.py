@@ -553,28 +553,28 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
 
     def test_stop_on_error(self):
         instance = [1, 2]
-
         schema = {
             "disallow" : "array",
             "enum" : [["a", "b", "c"], ["d", "e", "f"]],
             "minItems" : 3
         }
 
-        with self.assertRaises(ValidationError) as e:
-            validate(instance, schema, stop_on_error=False)
-
         if PY3:
-            self.assertEqual(sorted(e.exception.errors), sorted([
-                "'array' is disallowed for [1, 2]",
-                "[1, 2] is too short",
-                "[1, 2] is not one of [['a', 'b', 'c'], ['d', 'e', 'f']]",
-                ]))
-        else:
-            self.assertEqual(sorted(e.exception.errors), sorted([
+            errors = sorted([
                 "u'array' is disallowed for [1, 2]",
                 "[1, 2] is too short",
                 "[1, 2] is not one of [[u'a', u'b', u'c'], [u'd', u'e', u'f']]",
-                ]))
+            ])
+        else:
+            errors = sorted([
+                "'array' is disallowed for [1, 2]",
+                "[1, 2] is too short",
+                "[1, 2] is not one of [['a', 'b', 'c'], ['d', 'e', 'f']]",
+            ])
+
+        with self.assertRaises(ValidationError) as e:
+            validate(instance, schema, stop_on_error=False)
+            self.assertEqual(sorted(e.exception.errors), errors)
 
     def test_unknown_type_error(self):
         with self.assertRaises(SchemaError):
@@ -620,10 +620,11 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         type="number")
     )
 
-    def test_invalid_properties(self):
-        self.assertRaises(SchemaError, validate, {}, {"properties": {"test": True}})
-
     # TODO: we're in need of more meta schema tests
+    def test_invalid_properties(self):
+        with self.assertRaises(SchemaError):
+            validate({}, {"properties": {"test": True}})
+
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
@@ -642,13 +643,11 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
             validate("foo", {"type" : "string"}, string_types=(unicode,))
         self.assertEqual(len(w), 1)
 
-    def test_schema_error_errors(self):
-        try:
-            validate({}, { "properties": { "test": False } }, stop_on_error=False)
-        except SchemaError as e:
-            self.assertGreater(len(e.errors), 0)
-        else:
-            raise AssertionError("Expected SchemaError, got nothing")
+    def test_schema_error_propagated_with_errors(self):
+        with self.assertRaises(SchemaError) as e:
+            validate({}, {"properties" : {"test": False}})
+            self.assertTrue(e.exception.errors)
+
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
     def test_minimum(self):
