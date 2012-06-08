@@ -121,7 +121,7 @@ DRAFT_3 = {
         },
         "required" : {"type" : "boolean", "default" : False},
         "dependencies" : {
-            "type" : "object",
+            "type" : ["string", "array", "object"],
             "additionalProperties" : {
                 "type" : ["string", "array", {"$ref" : "#"}],
                 "items" : {"type" : "string"}
@@ -178,19 +178,11 @@ class SchemaError(Exception):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        self.errors = kwargs.pop("errors", [])
-        super(SchemaError, self).__init__(*args, **kwargs)
-
 class ValidationError(Exception):
     """
     The instance didn't properly validate with the provided schema.
 
     """
-
-    def __init__(self, *args, **kwargs):
-        self.errors = kwargs.pop("errors", [])
-        super(ValidationError, self).__init__(*args, **kwargs)
 
 
 class Validator(object):
@@ -214,9 +206,9 @@ class Validator(object):
         """
         Initialize a Validator.
 
-        If ``stop_on_error`` is ``True`` (default), immediately stop validation
-        when an error occurs. Otherwise, wait until validation is completed,
-        then display all validation errors at once.
+        ``stop_on_error`` is now deprecated. Instead, just iterate over
+        ``self.iter_errors()``, which takes the same signature as
+        ``self.validate`` but will yield each error as it occurs.
 
         ``version`` specifies which version of the JSON Schema specification to
         validate with. Currently only draft-03 is supported (and is the
@@ -252,6 +244,13 @@ class Validator(object):
         """
 
         self._stop_on_error = stop_on_error
+        if not stop_on_error:
+            warnings.warn(
+                "stop_on_error is deprecated. Please use iter_errors instead.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+
         self._unknown_type = unknown_type
         self._unknown_property = unknown_property
         self._version = version
@@ -280,9 +279,8 @@ class Validator(object):
 
         if meta_validate:
             self._meta_validator = self.__class__(
-                stop_on_error=stop_on_error, version=version,
-                meta_validate=False, unknown_type=unknown_type,
-                unknown_property=unknown_property, types=self._types,
+                version=version, meta_validate=False, types=self._types,
+                unknown_type=unknown_type, unknown_property=unknown_property,
             )
 
     def is_type(self, instance, type):
@@ -320,10 +318,13 @@ class Validator(object):
 
         """
 
-        if self._stop_on_error:
-            raise ValidationError(msg)
-        else:
-            self._errors.append(msg)
+        warnings.warn(
+            "error() is deprecated. Please just use raise instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+        raise ValidationError(msg)
 
     def schema_error(self, level, msg):
         if level == "skip":
@@ -341,27 +342,27 @@ class Validator(object):
 
         """
 
-        # HACK: Temporarily patches self._errors, just in case we're not
-        #       stopping on errors, so that errors raised during the validity
-        #       check don't pollute self._errors as part of a subroutine
+        return next(self.iter_errors(instance, schema), None) is None
 
-        current_errors = self._errors
-
-        try:
-            self.validate(instance, schema)
-        except ValidationError:
-            return False
-        else:
-            return not self._errors
-        finally:
-            self._errors = current_errors
-
-    def _validate(self, instance, schema):
+    def iter_errors(self, instance, schema):
         for k, v in iteritems(schema):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
-            if validator is None:
-                return self.unknown_property(k, instance, schema)
-            validator(v, instance, schema)
+
+            try:
+                if validator is None:
+                    self.unknown_property(k, instance, schema)
+                else:
+                    validator(v, instance, schema)
+            except ValidationError as e:
+                yield e
+
+    def _validate(self, instance, schema):
+        warnings.warn(
+            "stop_on_error is deprecated. Please just use validate instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        self.validate(instance, schema)
 
     def validate(self, instance, schema):
         """
@@ -373,17 +374,10 @@ class Validator(object):
             try:
                 self._meta_validator.validate(schema, self._version)
             except ValidationError as e:
-                reraise(
-                    SchemaError(str(e), errors=e.errors), tb=sys.exc_info()[2],
-                )
+                reraise(SchemaError(str(e)), tb=sys.exc_info()[2])
 
-        self._errors = []
-        self._validate(instance, schema)
-        if self._errors:
-            raise ValidationError(
-                "Validation failed with errors (see .errors for details)",
-                errors=list(self._errors)
-            )
+        for error in self.iter_errors(instance, schema):
+            raise error
 
     def unknown_property(self, property, instance, schema):
         self.schema_error(
@@ -412,7 +406,9 @@ class Validator(object):
             )):
                 return
         else:
-            self.error("%r is not of type %r" % (instance, _delist(types)))
+            raise ValidationError(
+                "%r is not of type %r" % (instance, _delist(types))
+            )
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -422,24 +418,26 @@ class Validator(object):
             if property in instance:
                 dependencies = _list(subschema.get("dependencies", []))
                 if self.is_type(dependencies, "object"):
-                    self._validate(instance, dependencies)
+                    self.validate(instance, dependencies)
                 else:
                     missing = (d for d in dependencies if d not in instance)
                     first = next(missing, None)
                     if first is not None:
-                        self.error(
+                        raise ValidationError(
                             "%r is a dependency of %r" % (first, property)
                         )
 
-                self._validate(instance[property], subschema)
+                self.validate(instance[property], subschema)
             elif subschema.get("required", False):
-                self.error("%r is a required property" % (property,))
+                raise ValidationError(
+                    "%r is a required property" % (property,)
+                )
 
     def validate_patternProperties(self, patternProperties, instance, schema):
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
                 if re.match(pattern, k):
-                    self._validate(v, subschema)
+                    self.validate(v, subschema)
 
     def validate_additionalProperties(self, aP, instance, schema):
         if not self.is_type(instance, "object"):
@@ -450,10 +448,10 @@ class Validator(object):
 
         if self.is_type(aP, "object"):
             for extra in extras:
-                self._validate(instance[extra], aP)
+                self.validate(instance[extra], aP)
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
-            self.error(error % _extras_msg(extras))
+            raise ValidationError(error % _extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
@@ -461,10 +459,10 @@ class Validator(object):
 
         if self.is_type(items, "object"):
             for item in instance:
-                self._validate(item, items)
+                self.validate(item, items)
         else:
             for item, subschema in zip(instance, items):
-                self._validate(item, subschema)
+                self.validate(item, subschema)
 
     def validate_additionalItems(self, aI, instance, schema):
         if not self.is_type(instance, "array"):
@@ -472,10 +470,12 @@ class Validator(object):
 
         if self.is_type(aI, "object"):
             for item in instance[len(schema):]:
-                self._validate(item, aI)
+                self.validate(item, aI)
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
-            self.error(error % _extras_msg(instance[len(schema) - 1:]))
+            raise ValidationError(
+                error % _extras_msg(instance[len(schema) - 1:])
+            )
 
     def validate_minimum(self, minimum, instance, schema):
         if not self.is_type(instance, "number"):
@@ -490,7 +490,7 @@ class Validator(object):
             cmp = "less than"
 
         if failed:
-            self.error(
+            raise ValidationError(
                 "%r is %s the minimum of %r" % (instance, cmp, minimum)
             )
 
@@ -507,37 +507,37 @@ class Validator(object):
             cmp = "greater than"
 
         if failed:
-            self.error(
+            raise ValidationError(
                 "%r is %s the maximum of %r" % (instance, cmp, maximum)
             )
 
     def validate_minItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) < mI:
-            self.error("%r is too short" % (instance,))
+            raise ValidationError("%r is too short" % (instance,))
 
     def validate_maxItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) > mI:
-            self.error("%r is too long" % (instance,))
+            raise ValidationError("%r is too long" % (instance,))
 
     def validate_uniqueItems(self, uI, instance, schema):
         if uI and self.is_type(instance, "array") and not _uniq(instance):
-            self.error("%r has non-unique elements" % instance)
+            raise ValidationError("%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):
         if self.is_type(instance, "string") and not re.match(patrn, instance):
-            self.error("%r does not match %r" % (instance, patrn))
+            raise ValidationError("%r does not match %r" % (instance, patrn))
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
-            self.error("%r is too short" % (instance,))
+            raise ValidationError("%r is too short" % (instance,))
 
     def validate_maxLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) > mL:
-            self.error("%r is too long" % (instance,))
+            raise ValidationError("%r is too long" % (instance,))
 
     def validate_enum(self, enums, instance, schema):
         if instance not in enums:
-            self.error("%r is not one of %r" % (instance, enums))
+            raise ValidationError("%r is not one of %r" % (instance, enums))
 
     def validate_divisibleBy(self, dB, instance, schema):
         if not self.is_type(instance, "number"):
@@ -550,13 +550,13 @@ class Validator(object):
             failed = instance % dB
 
         if failed:
-            self.error("%r is not divisible by %r" % (instance, dB))
+            raise ValidationError("%r is not divisible by %r" % (instance, dB))
 
     def validate_disallow(self, disallow, instance, schema):
         disallow = _list(disallow)
 
         if any(self.is_valid(instance, {"type" : [d]}) for d in disallow):
-            self.error(
+            raise ValidationError(
                 "%r is disallowed for %r" % (_delist(disallow), instance)
             )
 
@@ -564,7 +564,7 @@ class Validator(object):
         if self.is_type(extends, "object"):
             extends = [extends]
         for subschema in extends:
-            self._validate(instance, subschema)
+            self.validate(instance, subschema)
 
 
 for no_op in [                                  # handled in:

@@ -10,7 +10,9 @@ else:
     import unittest
 
 
-from jsonschema import PY3, SchemaError, ValidationError, iteritems, validate
+from jsonschema import (
+    PY3, SchemaError, ValidationError, Validator, iteritems, validate
+)
 
 
 if PY3:
@@ -551,7 +553,7 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("mismatch_extends", "invalid", 35)
     )(validation_test(minimum=20, extends={"maximum" : 30}))
 
-    def test_stop_on_error(self):
+    def test_iter_errors(self):
         instance = [1, 2]
         schema = {
             "disallow" : "array",
@@ -561,20 +563,21 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
 
         if PY3:
             errors = sorted([
-                "u'array' is disallowed for [1, 2]",
-                "[1, 2] is too short",
-                "[1, 2] is not one of [[u'a', u'b', u'c'], [u'd', u'e', u'f']]",
-            ])
-        else:
-            errors = sorted([
                 "'array' is disallowed for [1, 2]",
                 "[1, 2] is too short",
                 "[1, 2] is not one of [['a', 'b', 'c'], ['d', 'e', 'f']]",
             ])
+        else:
+            errors = sorted([
+                "u'array' is disallowed for [1, 2]",
+                "[1, 2] is too short",
+                "[1, 2] is not one of [[u'a', u'b', u'c'], [u'd', u'e', u'f']]",
+            ])
 
-        with self.assertRaises(ValidationError) as e:
-            validate(instance, schema, stop_on_error=False)
-            self.assertEqual(sorted(e.exception.errors), errors)
+        self.assertEqual(
+            sorted(str(e) for e in Validator().iter_errors(instance, schema)),
+            errors,
+        )
 
     def test_unknown_type_error(self):
         with self.assertRaises(SchemaError):
@@ -643,10 +646,20 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
             validate("foo", {"type" : "string"}, string_types=(unicode,))
         self.assertEqual(len(w), 1)
 
-    def test_schema_error_propagated_with_errors(self):
-        with self.assertRaises(SchemaError) as e:
-            validate({}, {"properties" : {"test": False}})
-            self.assertTrue(e.exception.errors)
+    # XXX: RemoveMe in 0.5
+    def test__validate_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            Validator()._validate("", {})
+        self.assertEqual(len(w), 1)
+
+    # XXX: RemoveMe in 0.5
+    def test_error_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            with self.assertRaises(ValidationError):
+                Validator(stop_on_error=False).error("foo")
+        self.assertEqual(len(w), 2)
 
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):

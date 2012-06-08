@@ -40,21 +40,17 @@ Features
 * Validation that reports *all* errors, rather than short-circuiting on the
   first validation error (toggleable, off by default)::
 
-    >>> from jsonschema import ValidationError, validate
+    >>> from jsonschema import Validator
     >>> schema = {
     ...     "type" : "array",
     ...     "items" : {"enum" : [1, 2, 3]},
     ...     "maxItems" : 2,
     ... }
-    >>> try:
-    ...     validate([2, 3, 4], schema, stop_on_error=False)
-    ... except ValidationError as e:
-    ...     print("Validation failed with errors:")
-    ...     for error in sorted(e.errors):
-    ...         print("    * " + error)
-    Validation failed with errors:
-        * 4 is not one of [1, 2, 3]
-        * [2, 3, 4] is too long
+    >>> v = Validator()
+    >>> for error in sorted(v.iter_errors([2, 3, 4], schema), key=str):
+    ...     print(error)
+    4 is not one of [1, 2, 3]
+    [2, 3, 4] is too long
 
 * Small and extensible
 
