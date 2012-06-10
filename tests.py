@@ -632,6 +632,7 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
+class TestDeprecations(unittest.TestCase):
     # XXX: RemoveMe in 0.5
     def test_number_types_deprecated(self):
         with warnings.catch_warnings(record=True) as w:
