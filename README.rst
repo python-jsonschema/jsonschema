@@ -37,8 +37,7 @@ Features
 
     * ``$ref``, and ``extends`` that use ``$ref``\s
 
-* Validation that reports *all* errors, rather than short-circuiting on the
-  first validation error (toggleable, off by default)::
+* Lazy validation that can iteratively report *all* validation errors.
 
     >>> from jsonschema import Validator
     >>> schema = {
