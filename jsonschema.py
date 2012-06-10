@@ -376,6 +376,17 @@ class Validator(object):
             except ValidationError as e:
                 reraise(SchemaError(str(e)), tb=sys.exc_info()[2])
 
+        if not self._stop_on_error:
+            errors = []
+            for error in self.iter_errors(instance, schema):
+                errs = getattr(error, "errors", [str(error)])
+                errors.extend(errs)
+            if errors:
+                err = ValidationError("Validation failed with errors")
+                err.errors = errors
+                raise err
+            return
+
         for error in self.iter_errors(instance, schema):
             raise error
 
