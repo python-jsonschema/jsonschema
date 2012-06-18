@@ -176,13 +176,41 @@ class SchemaError(Exception):
     """
     The provided schema is malformed.
 
+    The same attributes exist for ``SchemaError``s as for ``ValidationError``s.
+
     """
+
+    validator = None
+
+    def __init__(self, message):
+        super(SchemaError, self).__init__(message)
+        self.message = message
+        self.path = []
+
 
 class ValidationError(Exception):
     """
     The instance didn't properly validate with the provided schema.
 
+    Relevant attributes are:
+        * ``message`` : a human readable message explaining the error
+        * ``path`` : a list containing the path to the offending element (or []
+                     if the error happened globally) in *reverse* order (i.e.
+                     deepest index first).
+
     """
+
+    # the failing validator will be set externally at whatever recursion level
+    # is immediately above the validation failure
+    validator = None
+
+    def __init__(self, message):
+        super(ValidationError, self).__init__(message)
+        self.message = message
+
+        # Any validator that recurses must append to the ValidationError's
+        # path (e.g., properties and items)
+        self.path = []
 
 
 class Validator(object):
@@ -350,11 +378,23 @@ class Validator(object):
 
             try:
                 if validator is None:
-                    self.unknown_property(k, instance, schema)
+                    errors = self.unknown_property(k, instance, schema)
                 else:
-                    validator(v, instance, schema)
-            except ValidationError as e:
-                yield e
+                    errors = validator(v, instance, schema)
+            except ValidationError as error:
+                warnings.warn(
+                    "Raising errors from validators is deprecated. "
+                    "Please yield them instead.",
+                    DeprecationWarning,
+                    stacklevel=2
+                )
+                errors = [error]
+
+            for error in errors or ():
+                # if the validator hasn't already been set (due to recursion)
+                # make sure to set it
+                error.validator = error.validator or k
+                yield error
 
     def _validate(self, instance, schema):
         warnings.warn(
@@ -417,7 +457,7 @@ class Validator(object):
             )):
                 return
         else:
-            raise ValidationError(
+            yield ValidationError(
                 "%r is not of type %r" % (instance, _delist(types))
             )
 
@@ -429,26 +469,31 @@ class Validator(object):
             if property in instance:
                 dependencies = _list(subschema.get("dependencies", []))
                 if self.is_type(dependencies, "object"):
-                    self.validate(instance, dependencies)
+                    for error in self.iter_errors(instance, dependencies):
+                        yield error
                 else:
-                    missing = (d for d in dependencies if d not in instance)
-                    first = next(missing, None)
-                    if first is not None:
-                        raise ValidationError(
-                            "%r is a dependency of %r" % (first, property)
-                        )
+                    for dependency in dependencies:
+                        if dependency not in instance:
+                            yield ValidationError(
+                            "%r is a dependency of %r" % (dependency, property)
+                            )
 
-                self.validate(instance[property], subschema)
+                for error in self.iter_errors(instance[property], subschema):
+                    error.path.append(property)
+                    yield error
             elif subschema.get("required", False):
-                raise ValidationError(
+                error = ValidationError(
                     "%r is a required property" % (property,)
                 )
+                error.validator = "required"
+                yield error
 
     def validate_patternProperties(self, patternProperties, instance, schema):
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
                 if re.match(pattern, k):
-                    self.validate(v, subschema)
+                    for error in self.iter_errors(v, subschema):
+                        yield error
 
     def validate_additionalProperties(self, aP, instance, schema):
         if not self.is_type(instance, "object"):
@@ -459,21 +504,26 @@ class Validator(object):
 
         if self.is_type(aP, "object"):
             for extra in extras:
-                self.validate(instance[extra], aP)
+                for error in self.iter_errors(instance[extra], aP):
+                    yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
-            raise ValidationError(error % _extras_msg(extras))
+            yield ValidationError(error % _extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
             return
 
         if self.is_type(items, "object"):
-            for item in instance:
-                self.validate(item, items)
+            for index, item in enumerate(instance):
+                for error in self.iter_errors(item, items):
+                    error.path.append(index)
+                    yield error
         else:
-            for item, subschema in zip(instance, items):
-                self.validate(item, subschema)
+            for (index, item), subschema in zip(enumerate(instance), items):
+                for error in self.iter_errors(item, subschema):
+                    error.path.append(index)
+                    yield error
 
     def validate_additionalItems(self, aI, instance, schema):
         if not self.is_type(instance, "array"):
@@ -481,10 +531,11 @@ class Validator(object):
 
         if self.is_type(aI, "object"):
             for item in instance[len(schema):]:
-                self.validate(item, aI)
+                for error in self.iter_errors(item, aI):
+                    yield error
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
-            raise ValidationError(
+            yield ValidationError(
                 error % _extras_msg(instance[len(schema) - 1:])
             )
 
@@ -501,7 +552,7 @@ class Validator(object):
             cmp = "less than"
 
         if failed:
-            raise ValidationError(
+            yield ValidationError(
                 "%r is %s the minimum of %r" % (instance, cmp, minimum)
             )
 
@@ -518,37 +569,37 @@ class Validator(object):
             cmp = "greater than"
 
         if failed:
-            raise ValidationError(
+            yield ValidationError(
                 "%r is %s the maximum of %r" % (instance, cmp, maximum)
             )
 
     def validate_minItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) < mI:
-            raise ValidationError("%r is too short" % (instance,))
+            yield ValidationError("%r is too short" % (instance,))
 
     def validate_maxItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) > mI:
-            raise ValidationError("%r is too long" % (instance,))
+            yield ValidationError("%r is too long" % (instance,))
 
     def validate_uniqueItems(self, uI, instance, schema):
         if uI and self.is_type(instance, "array") and not _uniq(instance):
-            raise ValidationError("%r has non-unique elements" % instance)
+            yield ValidationError("%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):
         if self.is_type(instance, "string") and not re.match(patrn, instance):
-            raise ValidationError("%r does not match %r" % (instance, patrn))
+            yield ValidationError("%r does not match %r" % (instance, patrn))
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
-            raise ValidationError("%r is too short" % (instance,))
+            yield ValidationError("%r is too short" % (instance,))
 
     def validate_maxLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) > mL:
-            raise ValidationError("%r is too long" % (instance,))
+            yield ValidationError("%r is too long" % (instance,))
 
     def validate_enum(self, enums, instance, schema):
         if instance not in enums:
-            raise ValidationError("%r is not one of %r" % (instance, enums))
+            yield ValidationError("%r is not one of %r" % (instance, enums))
 
     def validate_divisibleBy(self, dB, instance, schema):
         if not self.is_type(instance, "number"):
@@ -561,21 +612,21 @@ class Validator(object):
             failed = instance % dB
 
         if failed:
-            raise ValidationError("%r is not divisible by %r" % (instance, dB))
+            yield ValidationError("%r is not divisible by %r" % (instance, dB))
 
     def validate_disallow(self, disallow, instance, schema):
-        disallow = _list(disallow)
-
-        if any(self.is_valid(instance, {"type" : [d]}) for d in disallow):
-            raise ValidationError(
-                "%r is disallowed for %r" % (_delist(disallow), instance)
-            )
+        for disallowed in _list(disallow):
+            if self.is_valid(instance, {"type" : [disallowed]}):
+                yield ValidationError(
+                    "%r is disallowed for %r" % (disallowed, instance)
+                )
 
     def validate_extends(self, extends, instance, schema):
         if self.is_type(extends, "object"):
             extends = [extends]
         for subschema in extends:
-            self.validate(instance, subschema)
+            for error in self.iter_errors(instance, subschema):
+                yield error
 
 
 for no_op in [                                  # handled in:

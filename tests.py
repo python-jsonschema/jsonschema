@@ -632,6 +632,20 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
+    def test_iter_errors_multiple_failures_one_validator(self):
+        instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
+        schema = {
+            "properties" : {
+                "foo" : {"type" : "string"},
+                "bar" : {"minItems" : 2},
+                "baz" : {"maximum" : 10, "enum" : [2, 4, 6, 8]},
+            }
+        }
+
+        errors = list(Validator().iter_errors(instance, schema))
+        self.assertEqual(len(errors), 4)
+
+
 class TestDeprecations(unittest.TestCase):
     # XXX: RemoveMe in 0.5
     def test_number_types_deprecated(self):
@@ -661,6 +675,73 @@ class TestDeprecations(unittest.TestCase):
             with self.assertRaises(ValidationError):
                 Validator(stop_on_error=False).error("foo")
         self.assertEqual(len(w), 2)
+
+
+class TestValidationErrorDetails(unittest.TestCase):
+
+    def sorted_errors(self, errors):
+        return sorted(errors, key=lambda e : [str(err) for err in e.path])
+
+    # TODO: These really need unit tests for each individual validator, rather
+    #       than just these higher level tests.
+    def test_single_nesting(self):
+        instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
+        schema = {
+            "properties" : {
+                "foo" : {"type" : "string"},
+                "bar" : {"minItems" : 2},
+                "baz" : {"maximum" : 10, "enum" : [2, 4, 6, 8]},
+            }
+        }
+
+        errors = Validator().iter_errors(instance, schema)
+        e1, e2, e3, e4 = self.sorted_errors(errors)
+
+        self.assertEqual(e1.path, ["bar"])
+        self.assertEqual(e2.path, ["baz"])
+        self.assertEqual(e3.path, ["baz"])
+        self.assertEqual(e4.path, ["foo"])
+
+        self.assertEqual(e1.validator, "minItems")
+        self.assertEqual(e2.validator, "enum")
+        self.assertEqual(e3.validator, "maximum")
+        self.assertEqual(e4.validator, "type")
+
+    def test_multiple_nesting(self):
+        instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
+        schema = {
+            "type" : "string",
+            "items" : {
+                "type" : ["string", "object"],
+                "properties" : {
+                    "foo" : {"enum" : [1, 3]},
+                    "bar" : {
+                        "type" : "array",
+                        "properties" : {
+                            "bar" : {"required" : True},
+                            "baz" : {"minItems" : 2},
+                        }
+                    }
+                }
+            }
+        }
+
+        errors = Validator().iter_errors(instance, schema)
+        e1, e2, e3, e4, e5, e6 = self.sorted_errors(errors)
+
+        self.assertEqual(e1.path, [])
+        self.assertEqual(e2.path, [0])
+        self.assertEqual(e3.path, ["bar", 1])
+        self.assertEqual(e4.path, ["bar", 1])
+        self.assertEqual(e5.path, ["baz", "bar", 1])
+        self.assertEqual(e6.path, ["foo", 1])
+
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "type")
+        self.assertEqual(e3.validator, "type")
+        self.assertEqual(e4.validator, "required")
+        self.assertEqual(e5.validator, "minItems")
+        self.assertEqual(e6.validator, "enum")
 
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
