@@ -24,35 +24,9 @@ PY3 = sys.version_info[0] >= 3
 if PY3:
     basestring = unicode = str
     iteritems = operator.methodcaller("items")
-
-    # Copied with slight modification from six.py
-    import builtins
-    exec_ = getattr(builtins, "exec")
-    del builtins
-
-    def reraise(tp, value=None, tb=None):
-        if tp.__traceback__ is not tb:
-            raise tp.with_traceback(tb)
-        raise value
 else:
     from itertools import izip as zip
     iteritems = operator.methodcaller("iteritems")
-
-    def exec_(code, globs=None, locs=None):
-        """Execute code in a namespace."""
-        if globs is None:
-            frame = sys._getframe(1)
-            globs = frame.f_globals
-            if locs is None:
-                locs = frame.f_locals
-            del frame
-        elif locs is None:
-            locs = globs
-        exec("""exec code in globs, locs""")
-
-    exec_("""def reraise(tp, value=None, tb=None):
-    raise tp, value, tb
-""")
 
 
 def _uniq(container):
@@ -414,7 +388,10 @@ class Validator(object):
             try:
                 self._meta_validator.validate(schema, self._version)
             except ValidationError as e:
-                reraise(SchemaError(str(e)), tb=sys.exc_info()[2])
+                s = SchemaError(e.message)
+                s.path = e.path
+                s.validator = e.validator
+                raise s
 
         if not self._stop_on_error:
             errors = []
