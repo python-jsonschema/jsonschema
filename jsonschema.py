@@ -398,7 +398,7 @@ class Validator(object):
 
     def _validate(self, instance, schema):
         warnings.warn(
-            "stop_on_error is deprecated. Please just use validate instead.",
+            "_validate is deprecated. Please just use validate instead.",
             DeprecationWarning,
             stacklevel=2
         )
