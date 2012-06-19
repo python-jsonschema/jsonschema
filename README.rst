@@ -39,6 +39,8 @@ Features
 
 * Lazy validation that can iteratively report *all* validation errors.
 
+::
+
     >>> from jsonschema import Validator
     >>> schema = {
     ...     "type" : "array",
@@ -54,6 +56,8 @@ Features
 * Small and extensible
 
 * Programmatic querying of which properties or items failed validation.
+
+::
 
     >>> from jsonschema import ErrorTree, Validator
     >>> schema = {
@@ -104,6 +108,7 @@ Release Notes
 
     In order to make this happen (and also to clean things up a bit), a number
     of deprecations are necessary:
+
         * ``stop_on_error`` is deprecated in ``Validator.__init__``. Use 
           ``Validator.iter_errors()`` instead.
         * ``number_types`` and ``string_types`` are deprecated there as well.
