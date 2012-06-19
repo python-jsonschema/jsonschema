@@ -649,6 +649,9 @@ class ErrorTree(object):
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
 
+    def __repr__(self):
+        return "<%s (%s errors)>" % (self.__class__.__name__, len(self))
+
 
 def _extras_msg(extras):
     """
