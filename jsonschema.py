@@ -199,12 +199,9 @@ class Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    _meta_validator = None
-
     def __init__(
-        self, stop_on_error=True, version=DRAFT_3, meta_validate=None,
-        unknown_type="skip", unknown_property="skip", types=(),
-        string_types=basestring, number_types=(int, float)
+        self, version=DRAFT_3, unknown_type="skip",
+        unknown_property="skip", types=(),
     ):
         """
         Initialize a Validator.
