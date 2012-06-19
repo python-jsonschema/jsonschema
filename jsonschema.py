@@ -391,7 +391,8 @@ class Validator(object):
 
     def _validate(self, instance, schema):
         warnings.warn(
-            "_validate is deprecated. Please just use validate instead.",
+            "_validate is deprecated. Please use validate instead, making sure"
+            " you pass meta_validate=False if you're writing a validator.",
             DeprecationWarning,
             stacklevel=2
         )
