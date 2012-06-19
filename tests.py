@@ -647,44 +647,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         self.assertEqual(len(errors), 4)
 
 
-class TestDeprecations(unittest.TestCase):
-    # XXX: RemoveMe in 0.5
-    def test_meta_validate_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            Validator(meta_validate=False).validate(1, {"type" : "number"})
-        self.assertEqual(len(w), 1)
-
-    # XXX: RemoveMe in 0.5
-    def test_number_types_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            validate(1, {"type" : "number"}, number_types=(int,))
-        self.assertEqual(len(w), 1)
-
-    # XXX: RemoveMe in 0.5
-    def test_string_types_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            validate("foo", {"type" : "string"}, string_types=(unicode,))
-        self.assertEqual(len(w), 1)
-
-    # XXX: RemoveMe in 0.5
-    def test__validate_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            Validator()._validate("", {})
-        self.assertEqual(len(w), 1)
-
-    # XXX: RemoveMe in 0.5
-    def test_error_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            with self.assertRaises(ValidationError):
-                Validator(stop_on_error=False).error("foo")
-        self.assertEqual(len(w), 2)
-
-
 class TestValidationErrorDetails(unittest.TestCase):
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.

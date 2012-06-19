@@ -58,7 +58,7 @@ def _uniq(container):
     return True
 
 
-__version__ = "0.4"
+__version__ = "0.5dev"
 
 
 DRAFT_3 = {
@@ -209,21 +209,9 @@ class Validator(object):
         """
         Initialize a Validator.
 
-        ``stop_on_error`` is now deprecated. Instead, just iterate over
-        ``self.iter_errors()``, which takes the same signature as
-        ``self.validate`` but will yield each error as it occurs.
-
         ``version`` specifies which version of the JSON Schema specification to
         validate with. Currently only draft-03 is supported (and is the
         default).
-
-        If you are unsure whether your schema itself is valid,
-        ``meta_validate`` will first validate that the schema is valid before
-        attempting to validate the instance. ``meta_validate`` is ``True`` by
-        default, since setting it to ``False`` can lead to confusing error
-        messages with an invalid schema. If you're sure your schema is in fact
-        valid, or don't care, feel free to set this to ``False``. The meta
-        validation will be done using the appropriate ``version``.
 
         ``unknown_type`` and ``unknown_property`` control what to do when an
         unknown type (resp. property) is encountered. By default, the
@@ -241,18 +229,7 @@ class Validator(object):
         are fairly obvious but can be accessed via ``Validator.DEFAULT_TYPES``
         if necessary.
 
-        ``string_types`` and ``number_types`` are both deprecated. Please use
-        ``types`` instead.
-
         """
-
-        self._stop_on_error = stop_on_error
-        if not stop_on_error:
-            warnings.warn(
-                "stop_on_error is deprecated. Please use iter_errors instead.",
-                DeprecationWarning,
-                stacklevel=2
-            )
 
         self._unknown_type = unknown_type
         self._unknown_property = unknown_property
@@ -260,34 +237,7 @@ class Validator(object):
 
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
-
-        if string_types != self.DEFAULT_TYPES["string"]:
-            warnings.warn(
-                "string_types is deprecated. "
-                "Please use types={'string' : %s} instead." % (string_types,),
-                DeprecationWarning,
-                stacklevel=2
-            )
-            self._types["string"] = string_types
-        if number_types != self.DEFAULT_TYPES["number"]:
-            warnings.warn(
-                "number_types is deprecated. "
-                "Please use types={'number' : %s} instead." % (number_types,),
-                DeprecationWarning,
-                stacklevel=2
-            )
-            self._types["number"] = number_types
-
         self._types["any"] = tuple(self._types.values())
-
-        self._meta_validate = meta_validate
-        if meta_validate is not None:
-            warnings.warn(
-                "meta_validate is deprecated. Please pass meta_validate=True "
-                "when calling iter_errors or validate instead.",
-                DeprecationWarning,
-                stacklevel=2
-            )
 
     def is_type(self, instance, type):
         """
@@ -318,20 +268,6 @@ class Validator(object):
         ):
             return isinstance(instance, py_type)
 
-    def error(self, msg):
-        """
-        Something failed to validate. ``msg`` will have details.
-
-        """
-
-        warnings.warn(
-            "error() is deprecated. Please just use raise instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        raise ValidationError(msg)
-
     def schema_error(self, level, msg):
         if level == "skip":
             return
@@ -352,9 +288,18 @@ class Validator(object):
         return error is None
 
     def iter_errors(self, instance, schema, meta_validate=True):
-        # XXX: Deprecate
-        if self._meta_validate is not None and not self._meta_validate:
-            meta_validate = False
+        """
+        Lazily yield each of the errors in the given ``instance``.
+
+        If you are unsure whether your schema itself is valid,
+        ``meta_validate`` will first validate that the schema is valid before
+        attempting to validate the instance. ``meta_validate`` is ``True`` by
+        default, since setting it to ``False`` can lead to confusing error
+        messages with an invalid schema. If you're sure your schema is in fact
+        valid, or don't care, feel free to set this to ``False``. The meta
+        validation will be done using the appropriate ``version``.
+
+        """
 
         if meta_validate:
             for error in self.iter_errors(
@@ -369,19 +314,10 @@ class Validator(object):
         for k, v in iteritems(schema):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
 
-            try:
-                if validator is None:
-                    errors = self.unknown_property(k, instance, schema)
-                else:
-                    errors = validator(v, instance, schema)
-            except ValidationError as error:
-                warnings.warn(
-                    "Raising errors from validators is deprecated. "
-                    "Please yield them instead.",
-                    DeprecationWarning,
-                    stacklevel=2
-                )
-                errors = [error]
+            if validator is None:
+                errors = self.unknown_property(k, instance, schema)
+            else:
+                errors = validator(v, instance, schema)
 
             for error in errors or ():
                 # if the validator hasn't already been set (due to recursion)
@@ -389,31 +325,11 @@ class Validator(object):
                 error.validator = error.validator or k
                 yield error
 
-    def _validate(self, instance, schema):
-        warnings.warn(
-            "_validate is deprecated. Please use validate instead, making sure"
-            " you pass meta_validate=False if you're writing a validator.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        self.validate(instance, schema)
-
     def validate(self, *args, **kwargs):
         """
         Validate an ``instance`` under the given ``schema``.
 
         """
-
-        if not self._stop_on_error:
-            errors = []
-            for error in self.iter_errors(*args, **kwargs):
-                errs = getattr(error, "errors", [str(error)])
-                errors.extend(errs)
-            if errors:
-                err = ValidationError("Validation failed with errors")
-                err.errors = errors
-                raise err
-            return
 
         for error in self.iter_errors(*args, **kwargs):
             raise error
