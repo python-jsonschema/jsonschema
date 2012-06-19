@@ -11,7 +11,8 @@ else:
 
 
 from jsonschema import (
-    PY3, SchemaError, ValidationError, Validator, iteritems, validate
+    PY3, SchemaError, ValidationError,ErrorTree, Validator,
+    iteritems, validate
 )
 
 
@@ -678,10 +679,6 @@ class TestDeprecations(unittest.TestCase):
 
 
 class TestValidationErrorDetails(unittest.TestCase):
-
-    def sorted_errors(self, errors):
-        return sorted(errors, key=lambda e : [str(err) for err in e.path])
-
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
     def test_single_nesting(self):
@@ -695,7 +692,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         }
 
         errors = Validator().iter_errors(instance, schema)
-        e1, e2, e3, e4 = self.sorted_errors(errors)
+        e1, e2, e3, e4 = sorted_errors(errors)
 
         self.assertEqual(e1.path, ["bar"])
         self.assertEqual(e2.path, ["baz"])
@@ -727,7 +724,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         }
 
         errors = Validator().iter_errors(instance, schema)
-        e1, e2, e3, e4, e5, e6 = self.sorted_errors(errors)
+        e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
         self.assertEqual(e1.path, [])
         self.assertEqual(e2.path, [0])
@@ -742,6 +739,46 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e4.validator, "required")
         self.assertEqual(e5.validator, "minItems")
         self.assertEqual(e6.validator, "enum")
+
+
+class TestErrorTree(unittest.TestCase):
+    def test_tree(self):
+        instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
+        schema = {
+            "type" : "string",
+            "items" : {
+                "type" : ["string", "object"],
+                "properties" : {
+                    "foo" : {"enum" : [1, 3]},
+                    "bar" : {
+                        "type" : "array",
+                        "properties" : {
+                            "bar" : {"required" : True},
+                            "baz" : {"minItems" : 2},
+                        }
+                    }
+                }
+            }
+        }
+
+        errors = sorted_errors(Validator().iter_errors(instance, schema))
+        e1, e2, e3, e4, e5, e6 = errors
+        tree = ErrorTree(errors)
+
+        self.assertEqual(len(tree), 6)
+
+        self.assertIn(0, tree)
+        self.assertIn(1, tree)
+        self.assertIn("bar", tree[1])
+        self.assertIn("foo", tree[1])
+        self.assertIn("baz", tree[1]["bar"])
+
+        self.assertEqual(tree.errors["type"], e1)
+        self.assertEqual(tree[0].errors["type"], e2)
+        self.assertEqual(tree[1]["bar"].errors["type"], e3)
+        self.assertEqual(tree[1]["bar"].errors["required"], e4)
+        self.assertEqual(tree[1]["bar"]["baz"].errors["minItems"], e5)
+        self.assertEqual(tree[1]["foo"].errors["enum"], e6)
 
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
@@ -761,3 +798,7 @@ class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
 
     def test_divisibleBy(self):
         validate("x", {"type": ["integer", "string"], "divisibleBy": 10})
+
+
+def sorted_errors(errors):
+    return sorted(errors, key=lambda e : [str(err) for err in e.path])

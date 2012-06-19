@@ -12,6 +12,7 @@ under the JSON Schema specification. See its docstring for details.
 
 from __future__ import division, unicode_literals
 
+import collections
 import itertools
 import operator
 import re
@@ -614,6 +615,39 @@ for no_op in [                                  # handled in:
     "ref", "schema",                            # not yet supported
 ]:
     setattr(Validator, "validate_" + no_op, lambda *args, **kwargs : None)
+
+
+class ErrorTree(object):
+    """
+    ErrorTrees make it easier to check which validations failed.
+
+    """
+
+    def __init__(self, errors=()):
+        self.errors = {}
+        self._contents = collections.defaultdict(self.__class__)
+
+        for error in errors:
+            container = self
+            for element in reversed(error.path):
+                container = container[element]
+            container.errors[error.validator] = error
+
+    def __contains__(self, k):
+        return k in self._contents
+
+    def __getitem__(self, k):
+        return self._contents[k]
+
+    def __setitem__(self, k, v):
+        self._contents[k] = v
+
+    def __iter__(self):
+        return iter(self._contents)
+
+    def __len__(self):
+        child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
+        return len(self.errors) + child_errors
 
 
 def _extras_msg(extras):
