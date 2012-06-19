@@ -53,6 +53,33 @@ Features
 
 * Small and extensible
 
+* Programmatic querying of which properties or items failed validation.
+
+    >>> from jsonschema import ErrorTree, Validator
+    >>> schema = {
+    ...     "type" : "array",
+    ...     "items" : {"type" : "number", "enum" : [1, 2, 3]},
+    ...     "minItems" : 3,
+    ... }
+    >>> instance = ["spam", 2]
+    >>> v = Validator()
+    >>> tree = ErrorTree(v.iter_errors(instance, schema))
+
+    >>> sorted(tree.errors)
+    ['minItems']
+
+    >>> 0 in tree
+    True
+
+    >>> 1 in tree
+    False
+
+    >>> sorted(tree[0].errors)
+    ['enum', 'type']
+
+    >>> print(tree[0].errors["type"].message)
+    'spam' is not of type 'number'
+
 
 Schema Versioning
 -----------------
