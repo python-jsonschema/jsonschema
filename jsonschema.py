@@ -202,7 +202,7 @@ class Validator(object):
     _meta_validator = None
 
     def __init__(
-        self, stop_on_error=True, version=DRAFT_3, meta_validate=True,
+        self, stop_on_error=True, version=DRAFT_3, meta_validate=None,
         unknown_type="skip", unknown_property="skip", types=(),
         string_types=basestring, number_types=(int, float)
     ):
@@ -280,10 +280,13 @@ class Validator(object):
 
         self._types["any"] = tuple(self._types.values())
 
-        if meta_validate:
-            self._meta_validator = self.__class__(
-                version=version, meta_validate=False, types=self._types,
-                unknown_type=unknown_type, unknown_property=unknown_property,
+        self._meta_validate = meta_validate
+        if meta_validate is not None:
+            warnings.warn(
+                "meta_validate is deprecated. Please pass meta_validate=True "
+                "when calling iter_errors or validate instead.",
+                DeprecationWarning,
+                stacklevel=2
             )
 
     def is_type(self, instance, type):
@@ -337,7 +340,7 @@ class Validator(object):
         else:
             raise SchemaError(msg)
 
-    def is_valid(self, instance, schema):
+    def is_valid(self, instance, schema, meta_validate=True):
         """
         Check if the ``instance`` is valid under the ``schema``.
 
@@ -345,9 +348,24 @@ class Validator(object):
 
         """
 
-        return next(self.iter_errors(instance, schema), None) is None
+        error = next(self.iter_errors(instance, schema, meta_validate), None)
+        return error is None
 
-    def iter_errors(self, instance, schema):
+    def iter_errors(self, instance, schema, meta_validate=True):
+        # XXX: Deprecate
+        if self._meta_validate is not None and not self._meta_validate:
+            meta_validate = False
+
+        if meta_validate:
+            for error in self.iter_errors(
+                schema, self._version, meta_validate=False
+            ):
+                s = SchemaError(error.message)
+                s.path = error.path
+                s.validator = error.validator
+                # I think we're safer raising these always, not yielding them
+                raise s
+
         for k, v in iteritems(schema):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
 
@@ -379,24 +397,15 @@ class Validator(object):
         )
         self.validate(instance, schema)
 
-    def validate(self, instance, schema):
+    def validate(self, *args, **kwargs):
         """
         Validate an ``instance`` under the given ``schema``.
 
         """
 
-        if self._meta_validator is not None:
-            try:
-                self._meta_validator.validate(schema, self._version)
-            except ValidationError as e:
-                s = SchemaError(e.message)
-                s.path = e.path
-                s.validator = e.validator
-                raise s
-
         if not self._stop_on_error:
             errors = []
-            for error in self.iter_errors(instance, schema):
+            for error in self.iter_errors(*args, **kwargs):
                 errs = getattr(error, "errors", [str(error)])
                 errors.extend(errs)
             if errors:
@@ -405,7 +414,7 @@ class Validator(object):
                 raise err
             return
 
-        for error in self.iter_errors(instance, schema):
+        for error in self.iter_errors(*args, **kwargs):
             raise error
 
     def unknown_property(self, property, instance, schema):
@@ -447,7 +456,9 @@ class Validator(object):
             if property in instance:
                 dependencies = _list(subschema.get("dependencies", []))
                 if self.is_type(dependencies, "object"):
-                    for error in self.iter_errors(instance, dependencies):
+                    for error in self.iter_errors(
+                        instance, dependencies, meta_validate=False
+                    ):
                         yield error
                 else:
                     for dependency in dependencies:
@@ -456,7 +467,9 @@ class Validator(object):
                             "%r is a dependency of %r" % (dependency, property)
                             )
 
-                for error in self.iter_errors(instance[property], subschema):
+                for error in self.iter_errors(
+                    instance[property], subschema, meta_validate=False
+                ):
                     error.path.append(property)
                     yield error
             elif subschema.get("required", False):
@@ -470,7 +483,9 @@ class Validator(object):
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
                 if re.match(pattern, k):
-                    for error in self.iter_errors(v, subschema):
+                    for error in self.iter_errors(
+                        v, subschema, meta_validate=False
+                    ):
                         yield error
 
     def validate_additionalProperties(self, aP, instance, schema):
@@ -482,7 +497,9 @@ class Validator(object):
 
         if self.is_type(aP, "object"):
             for extra in extras:
-                for error in self.iter_errors(instance[extra], aP):
+                for error in self.iter_errors(
+                    instance[extra], aP, meta_validate=False
+                ):
                     yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
@@ -494,12 +511,16 @@ class Validator(object):
 
         if self.is_type(items, "object"):
             for index, item in enumerate(instance):
-                for error in self.iter_errors(item, items):
+                for error in self.iter_errors(
+                    item, items, meta_validate=False
+                ):
                     error.path.append(index)
                     yield error
         else:
             for (index, item), subschema in zip(enumerate(instance), items):
-                for error in self.iter_errors(item, subschema):
+                for error in self.iter_errors(
+                    item, subschema, meta_validate=False
+                ):
                     error.path.append(index)
                     yield error
 
@@ -509,7 +530,7 @@ class Validator(object):
 
         if self.is_type(aI, "object"):
             for item in instance[len(schema):]:
-                for error in self.iter_errors(item, aI):
+                for error in self.iter_errors(item, aI, meta_validate=False):
                     yield error
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
@@ -603,7 +624,9 @@ class Validator(object):
         if self.is_type(extends, "object"):
             extends = [extends]
         for subschema in extends:
-            for error in self.iter_errors(instance, subschema):
+            for error in self.iter_errors(
+                instance, subschema, meta_validate=False
+            ):
                 yield error
 
 
@@ -696,7 +719,9 @@ def _delist(thing):
     return thing
 
 
-def validate(instance, schema, cls=Validator, *args, **kwargs):
+def validate(
+    instance, schema, meta_validate=True, cls=Validator, *args, **kwargs
+):
     """
     Validate an ``instance`` under the given ``schema``.
 
@@ -711,4 +736,4 @@ def validate(instance, schema, cls=Validator, *args, **kwargs):
     """
 
     validator = cls(*args, **kwargs)
-    validator.validate(instance, schema)
+    validator.validate(instance, schema, meta_validate=meta_validate)

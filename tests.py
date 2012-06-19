@@ -649,6 +649,13 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
 
 class TestDeprecations(unittest.TestCase):
     # XXX: RemoveMe in 0.5
+    def test_meta_validate_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            Validator(meta_validate=False).validate(1, {"type" : "number"})
+        self.assertEqual(len(w), 1)
+
+    # XXX: RemoveMe in 0.5
     def test_number_types_deprecated(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
