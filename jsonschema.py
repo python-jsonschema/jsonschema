@@ -390,6 +390,7 @@ class Validator(object):
                 error = ValidationError(
                     "%r is a required property" % (property,)
                 )
+                error.path.append(property)
                 error.validator = "required"
                 yield error
 
