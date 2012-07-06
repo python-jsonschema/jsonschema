@@ -698,7 +698,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e1.path, [])
         self.assertEqual(e2.path, [0])
         self.assertEqual(e3.path, ["bar", 1])
-        self.assertEqual(e4.path, ["bar", 1])
+        self.assertEqual(e4.path, ["bar", "bar", 1])
         self.assertEqual(e5.path, ["baz", "bar", 1])
         self.assertEqual(e6.path, ["foo", 1])
 
@@ -745,7 +745,7 @@ class TestErrorTree(unittest.TestCase):
         self.assertEqual(tree.errors["type"], e1)
         self.assertEqual(tree[0].errors["type"], e2)
         self.assertEqual(tree[1]["bar"].errors["type"], e3)
-        self.assertEqual(tree[1]["bar"].errors["required"], e4)
+        self.assertEqual(tree[1]["bar"]["bar"].errors["required"], e4)
         self.assertEqual(tree[1]["bar"]["baz"].errors["minItems"], e5)
         self.assertEqual(tree[1]["foo"].errors["enum"], e6)
 
