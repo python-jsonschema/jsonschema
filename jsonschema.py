@@ -345,7 +345,6 @@ class Validator(object):
             # check if the instance is valid under it
             if ((
                 self.is_type(type, "object") and
-                self.is_type(instance, "object") and
                 self.is_valid(instance, type)
 
             # Or we have a type as a string, just check if the instance is that

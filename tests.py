@@ -207,6 +207,17 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         type=["integer", {"properties" : {"foo" : {"type" : "null"}}}]
     ))
 
+    def test_multiple_types_nonobject(self):
+        """
+        Regression test for issue #18.
+
+        """
+        validate(
+            [1, 2, 3],
+            {"type" : [{"type" : ["string"]}, {"type" : ["array", "null"]}]}
+        )
+
+
     properties = parametrized(
         ("", "valid", {"foo" : 1, "bar" : "baz"}),
         ("extra_property", "valid",
@@ -501,7 +512,10 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("mismatch", "invalid", "foo"),
         ("other_mismatch", "invalid", {"foo" : "bar"}),
     )(validation_test(
-        disallow=["string", {"properties" : {"foo" : {"type" : "string"}}}]
+        disallow=[
+            "string",
+            {"type" : "object", "properties" : {"foo" : {"type" : "string"}}},
+        ]
     ))
 
     @parametrized(
