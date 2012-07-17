@@ -1,3 +1,11 @@
+v0.5
+----
+
+* Bugfixes
+  * Issue #17 - require path for error objects
+  * Issue #18 - multiple type validation for non-objects
+
+
 v0.4
 ----
 

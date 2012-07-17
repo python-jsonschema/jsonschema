@@ -102,22 +102,12 @@ safe, *explicitly* declare which version to use when validating.
 Release Notes
 -------------
 
-* Preliminary support for programmatic access to error details (Issue #5).
-  There are certainly some corner cases that don't do the right thing yet, but
-  this works mostly.
+v0.5 is mostly just a bugfix release to fix a lingering bug for error objects'
+``reqired`` properties (Issue #17) and for multiple types' validation for
+non-objects (Issue #18).
 
-    In order to make this happen (and also to clean things up a bit), a number
-    of deprecations are necessary:
-
-        * ``stop_on_error`` is deprecated in ``Validator.__init__``. Use 
-          ``Validator.iter_errors()`` instead.
-        * ``number_types`` and ``string_types`` are deprecated there as well.
-          Use ``types={"number" : ..., "string" : ...}`` instead.
-        * ``meta_validate`` is also deprecated, and instead is now accepted as
-          an argument to ``validate``, ``iter_errors`` and ``is_valid``.
-
-* A bugfix or two
-
+All of the deprecated parameters from v0.4 have also been removed in this
+release.
 
 Contributing
 ------------
