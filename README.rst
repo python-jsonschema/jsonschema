@@ -113,7 +113,7 @@ release.
 Running the Test Suite
 ----------------------
 
-``jsonschema`` uses the wonderful `Tox <http://tox.readthedocs.org>` for its
+``jsonschema`` uses the wonderful `Tox <http://tox.readthedocs.org>`_ for its
 test suite. (It really is wonderful, if for some reason you haven't heard of
 it, you really should use it for your projects).
 
