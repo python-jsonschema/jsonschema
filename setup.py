@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 from distutils.core import setup
 
 from jsonschema import __version__

@@ -1,3 +1,6 @@
+from __future__ import with_statement
+
+
 """
 An implementation of JSON Schema for Python
 
@@ -9,8 +12,6 @@ The :class:`Validator` class generally attempts to be as strict as possible
 under the JSON Schema specification. See its docstring for details.
 
 """
-
-from __future__ import division, unicode_literals
 
 import collections
 import itertools
@@ -27,7 +28,7 @@ if PY3:
     iteritems = operator.methodcaller("items")
 else:
     from itertools import izip as zip
-    iteritems = operator.methodcaller("iteritems")
+    iteritems = lambda x: x.iteritems()
 
 
 def _uniq(container):
@@ -281,7 +282,11 @@ class Validator(object):
 
         """
 
-        error = next(self.iter_errors(instance, schema, meta_validate), None)
+        #error = next(self.iter_errors(instance, schema, meta_validate), None)
+        try:
+            error = self.iter_errors(instance, schema, meta_validate).next()
+        except StopIteration:
+            error = None
         return error is None
 
     def iter_errors(self, instance, schema, meta_validate=True):
