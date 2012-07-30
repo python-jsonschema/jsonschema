@@ -118,16 +118,21 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("null", "invalid", None),
     )(validation_test(type="number"))
 
-    string = parametrized(
+    _string = [
         ("integer", "invalid", 1),
         ("number", "invalid", 1.1),
         ("unicode", "valid", "foo"),
-        ("str", "valid", "foo"),
         ("object", "invalid", {}),
         ("array", "invalid", []),
         ("boolean", "invalid", True),
         ("null", "invalid", None),
-    )(validation_test(type="string"))
+    ]
+
+    if not PY3:
+        # The JSON module in Python2 does not always produce unicode objects :/
+        _string.append(("bytestring", "valid", b"foo"))
+
+    string = parametrized(*_string)(validation_test(type="string"))
 
     object = parametrized(
         ("integer", "invalid", 1),
