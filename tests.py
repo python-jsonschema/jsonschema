@@ -11,7 +11,7 @@ else:
 
 
 from jsonschema import (
-    PY3, SchemaError, ValidationError,ErrorTree, Validator,
+    PY3, SchemaError, ValidationError, ErrorTree, Validator,
     iteritems, validate
 )
 
@@ -221,7 +221,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
             [1, 2, 3],
             {"type" : [{"type" : ["string"]}, {"type" : ["array", "null"]}]}
         )
-
 
     properties = parametrized(
         ("", "valid", {"foo" : 1, "bar" : "baz"}),
