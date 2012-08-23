@@ -1,4 +1,5 @@
-from __future__ import unicode_literals
+from __future__ import with_statement
+
 from decimal import Decimal
 from functools import wraps
 import sys
@@ -15,6 +16,12 @@ from jsonschema import (
     iteritems, validate
 )
 
+
+try:
+    warnings.catch_warnings
+except AttributeError:
+    import catch_warnings25
+    warnings.catch_warnings = catch_warnings25.catch_warnings
 
 if PY3:
     basestring = unicode = str
@@ -580,18 +587,11 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
             "minItems" : 3
         }
 
-        if PY3:
-            errors = sorted([
-                "'array' is disallowed for [1, 2]",
-                "[1, 2] is too short",
-                "[1, 2] is not one of [['a', 'b', 'c'], ['d', 'e', 'f']]",
-            ])
-        else:
-            errors = sorted([
-                "u'array' is disallowed for [1, 2]",
-                "[1, 2] is too short",
-                "[1, 2] is not one of [[u'a', u'b', u'c'], [u'd', u'e', u'f']]",
-            ])
+        errors = sorted([
+            "'array' is disallowed for [1, 2]",
+            "[1, 2] is too short",
+            "[1, 2] is not one of [['a', 'b', 'c'], ['d', 'e', 'f']]",
+        ])
 
         self.assertEqual(
             sorted(str(e) for e in Validator().iter_errors(instance, schema)),
