@@ -357,9 +357,11 @@ class Validator(object):
             )):
                 return
         else:
-            yield ValidationError(
-                "%r is not of type %r" % (instance, _delist(types))
-            )
+            msg = "%r is not of type " % instance
+            if len(types) > 1:
+                msg = "%r is not one of types " % instance
+            msg += ", ".join(map(_type_repr, types))
+            yield ValidationError(msg)
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -631,6 +633,21 @@ def _delist(thing):
     ):
         return thing[0]
     return thing
+
+
+def _type_repr(type):
+    """
+    Return the repr of the given type.
+
+    If type is a schema, the repr will be its 'title' attribute.
+    If schema does not have 'title' it will be the whole schema.
+    If it is a simple type, this is the same as repr.
+
+    """
+
+    if isinstance(type, dict):
+        return repr(type.get("title", type))
+    return repr(type)
 
 
 def validate(
