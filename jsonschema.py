@@ -367,19 +367,6 @@ class Validator(object):
 
         for property, subschema in iteritems(properties):
             if property in instance:
-                dependencies = _list(subschema.get("dependencies", []))
-                if self.is_type(dependencies, "object"):
-                    for error in self.iter_errors(
-                        instance, dependencies, meta_validate=False
-                    ):
-                        yield error
-                else:
-                    for dependency in dependencies:
-                        if dependency not in instance:
-                            yield ValidationError(
-                            "%r is a dependency of %r" % (dependency, property)
-                            )
-
                 for error in self.iter_errors(
                     instance[property], subschema, meta_validate=False
                 ):
@@ -418,6 +405,22 @@ class Validator(object):
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
             yield ValidationError(error % _extras_msg(extras))
+
+    def validate_dependencies(self, dependencies, instance, schema):
+        for property, dependency in dependencies.iteritems():
+            if property in instance:
+                if self.is_type(dependency, "object"):
+                    for error in self.iter_errors(
+                        instance, dependency, meta_validate=False
+                    ):
+                        yield error
+                else:
+                    dependency = _list(dependency)
+                    for dep in dependency:
+                        if dep not in instance:
+                            yield ValidationError(
+                                "%r is a dependency of %r" % (dependency, property)
+                            )
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
@@ -545,7 +548,7 @@ class Validator(object):
 
 
 for no_op in [                                  # handled in:
-    "dependencies", "required",                 # properties
+    "required",                                 # properties
     "exclusiveMinimum", "exclusiveMaximum",     # min*/max*
     "default", "description", "format", "id",   # no validation needed
     "links", "name", "title",
