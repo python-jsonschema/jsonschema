@@ -417,9 +417,9 @@ class Validator(object):
                 ):
                     yield error
             else:
-                dependency = _list(dependency)
-                for dep in dependency:
-                    if dep not in instance:
+                dependencies = _list(dependency)
+                for dependency in dependencies:
+                    if dependency not in instance:
                         yield ValidationError(
                             "%r is a dependency of %r" % (dependency, property)
                         )

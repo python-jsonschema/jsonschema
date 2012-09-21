@@ -396,6 +396,12 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
                 "bar" : {"type" : "integer"},
         }}}))
 
+    def test_dependencies_error_message_has_single_element_not_list(self):
+        with self.assertRaises(ValidationError) as e:
+            validate({"bar" : 2}, {"dependencies" : {"bar" : "foo"}})
+        self.assertNotIn("'foo']", e.exception.message)
+        self.assertIn("'foo'", e.exception.message)
+
     @parametrized(
         ("", "valid", {}, 2.6),
         ("fail", "invalid", {}, .6),
