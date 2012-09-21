@@ -1,3 +1,10 @@
+v0.6
+----
+
+* Bugfixes
+  * Issue #30 - Wrong behavior for the dependencies property validation
+  * Fix a miswritten test
+
 v0.5
 ----
 

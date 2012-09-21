@@ -102,12 +102,8 @@ safe, *explicitly* declare which version to use when validating.
 Release Notes
 -------------
 
-v0.5 is mostly just a bugfix release to fix a lingering bug for error objects'
-``reqired`` properties (Issue #17) and for multiple types' validation for
-non-objects (Issue #18).
-
-All of the deprecated parameters from v0.4 have also been removed in this
-release.
+``0.6`` fixes the behavior for the ``dependencies`` property, which was
+mis-implemented.
 
 
 Running the Test Suite
