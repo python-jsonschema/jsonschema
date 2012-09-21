@@ -371,7 +371,7 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("nondependant", "valid", {"foo" : 1}),
         ("with_dependency", "valid", {"foo" : 1, "bar" : 2}),
         ("missing_dependency", "invalid", {"bar" : 2}),
-    )(validation_test(properties={"bar" : {"dependencies" : "foo"}}))
+    )(validation_test(dependencies={"bar": "foo"}))
 
     multiple_dependencies = parametrized(
         ("neither", "valid", {}),
@@ -381,7 +381,7 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("missing_other_dependency", "invalid", {"bar" : 1, "quux" : 2}),
         ("missing_both_dependencies", "invalid", {"quux" : 1}),
     )(validation_test(
-        properties={"quux" : {"dependencies" : ["foo", "bar"]}}
+        dependencies={"quux" : ["foo", "bar"]}
     ))
 
     multiple_dependencies_subschema = parametrized(
@@ -389,13 +389,12 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("wrong_type", "invalid", {"foo" : "quux", "bar" : 2}),
         ("wrong_type_other", "invalid", {"foo" : 2, "bar" : "quux"}),
         ("wrong_type_both", "invalid", {"foo" : "quux", "bar" : "quux"}),
-    )(validation_test(properties={
+    )(validation_test(dependencies={
         "bar" : {
-            "dependencies" : {
-                "properties" : {
-                    "foo" : {"type" : "integer"},
-                    "bar" : {"type" : "integer"},
-        }}}}))
+            "properties" : {
+                "foo" : {"type" : "integer"},
+                "bar" : {"type" : "integer"},
+        }}}))
 
     @parametrized(
         ("", "valid", {}, 2.6),
