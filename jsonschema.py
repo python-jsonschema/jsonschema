@@ -408,19 +408,21 @@ class Validator(object):
 
     def validate_dependencies(self, dependencies, instance, schema):
         for property, dependency in iteritems(dependencies):
-            if property in instance:
-                if self.is_type(dependency, "object"):
-                    for error in self.iter_errors(
-                        instance, dependency, meta_validate=False
-                    ):
-                        yield error
-                else:
-                    dependency = _list(dependency)
-                    for dep in dependency:
-                        if dep not in instance:
-                            yield ValidationError(
-                                "%r is a dependency of %r" % (dependency, property)
-                            )
+            if property not in instance:
+                continue
+
+            if self.is_type(dependency, "object"):
+                for error in self.iter_errors(
+                    instance, dependency, meta_validate=False
+                ):
+                    yield error
+            else:
+                dependency = _list(dependency)
+                for dep in dependency:
+                    if dep not in instance:
+                        yield ValidationError(
+                            "%r is a dependency of %r" % (dependency, property)
+                        )
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
