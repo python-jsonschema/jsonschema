@@ -670,6 +670,37 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         self.assertEqual(len(errors), 4)
 
 
+class TestValidationErrorMessages(unittest.TestCase):
+    def message_for(self, instance, schema):
+        with self.assertRaises(ValidationError) as e:
+            validate(instance, schema)
+        return e.exception.message
+
+    def test_single_type_failure(self):
+        message = self.message_for(instance=1, schema={"type" : "string"})
+        self.assertEqual(message, "1 is not of type %r" % "string")
+
+    def test_single_type_list_failure(self):
+        message = self.message_for(instance=1, schema={"type" : ["string"]})
+        self.assertEqual(message, "1 is not of type %r" % "string")
+
+    def test_multiple_type_failure(self):
+        types = ("string", "object")
+        message = self.message_for(instance=1, schema={"type" : list(types)})
+        self.assertEqual(message, "1 is not of type %r, %r" % types)
+
+    def test_object_without_title_type_failure(self):
+        type = {"type" : [{"minimum" : 3}]}
+        message = self.message_for(instance=1, schema={"type" : [type]})
+        self.assertEqual(message, "1 is not of type %r" % (type,))
+
+    def test_object_with_name_type_failure(self):
+        name = "Foo"
+        schema = {"type" : [{"name" : name, "minimum" : 3}]}
+        message = self.message_for(instance=1, schema=schema)
+        self.assertEqual(message, "1 is not of type %r" % (name,))
+
+
 class TestValidationErrorDetails(unittest.TestCase):
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
