@@ -409,6 +409,7 @@ class Validator(object):
     def validate_dependencies(self, dependencies, instance, schema):
         if not self.is_type(instance, "object"):
             return
+
         for property, dependency in iteritems(dependencies):
             if property not in instance:
                 continue
