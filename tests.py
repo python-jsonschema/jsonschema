@@ -402,11 +402,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         self.assertNotIn("'foo']", e.exception.message)
         self.assertIn("'foo'", e.exception.message)
 
-    dependencies_not_object = parametrized(
-        ("object", "valid", {"foo": 1, "bar": 1},),
-        ("not_object", "valid", True)
-    )(validation_test(dependencies={"foo": "bar"}))
-
     @parametrized(
         ("", "valid", {}, 2.6),
         ("fail", "invalid", {}, .6),
@@ -795,6 +790,9 @@ class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
 
     def test_divisibleBy(self):
         validate("x", {"type": ["integer", "string"], "divisibleBy": 10})
+
+    def test_dependencies(self):
+        validate("foo", {"dependencies" : {"foo": "bar"}})
 
 
 def sorted_errors(errors):
