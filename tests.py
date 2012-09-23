@@ -402,6 +402,11 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         self.assertNotIn("'foo']", e.exception.message)
         self.assertIn("'foo'", e.exception.message)
 
+    dependencies_not_object = parametrized(
+        ("object", "valid", {"foo": 1, "bar": 1},),
+        ("not_object", "valid", True)
+    )(validation_test(dependencies={"foo": "bar"}))
+
     @parametrized(
         ("", "valid", {}, 2.6),
         ("fail", "invalid", {}, .6),
