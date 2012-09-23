@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+"""
+A *very* basic performance test.
+
+"""
+
+import timeit
+
+from jsonschema import DRAFT_3, validate
+
+
+instance = schema = DRAFT_3
+number = 1000
+
+results = timeit.timeit(
+    # Validate the Draft 3 meta-schema against itself without meta-validating
+    stmt="validate(instance, schema, meta_validate=False)",
+    setup="from __main__ import instance, schema, validate",
+    number=number,
+)
+
+print("Validated %s times. Finished in %s seconds." % (number, results))
