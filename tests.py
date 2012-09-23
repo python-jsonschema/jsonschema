@@ -285,21 +285,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
     def test_additionalProperties_ignores_nonobjects(self):
         validate(None, {"additionalProperties" : False})
 
-    @parametrized(
-        ("single_extra", {"foo" : 2}, ["'foo' was unexpected)"]),
-        ("multiple_extras",
-         dict.fromkeys(["foo", "bar", "quux"]),
-         ["'bar'", "'foo'", "'quux'", "were unexpected)"],
-        ),
-    )
-    def additionalProperties_errorMessage(self, instance, errs):
-        schema = {"additionalProperties" : False}
-
-        with self.assertRaises(ValidationError) as error:
-            validate(instance, schema)
-
-        self.assertTrue(all(err in unicode(error.exception) for err in errs))
-
     items = parametrized(
         ("", "valid", [1, 2, 3]),
         ("wrong_type", "invalid", [1, "x"]),
@@ -334,16 +319,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
 
     def test_additionalItems_ignores_nonarrays(self):
         validate(None, {"additionalItems" : False})
-
-    @parametrized(
-        ("single_extra", [2], "(2 was unexpected)"),
-        ("multiple_extras", [1, 2, 3], "(1, 2, 3 were unexpected)"),
-    )
-    def additionalItems_errorMessage(self, instance, err):
-        schema = {"additionalItems" : False}
-        self.assertRaisesRegexp(
-            ValidationError, err, validate, instance, schema
-        )
 
     @parametrized(
         ("false_by_default", "valid", {}, {}),
@@ -395,12 +370,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
                 "foo" : {"type" : "integer"},
                 "bar" : {"type" : "integer"},
         }}}))
-
-    def test_dependencies_error_message_has_single_element_not_list(self):
-        with self.assertRaises(ValidationError) as e:
-            validate({"bar" : 2}, {"dependencies" : {"bar" : "foo"}})
-        self.assertNotIn("'foo']", e.exception.message)
-        self.assertIn("'foo'", e.exception.message)
 
     @parametrized(
         ("", "valid", {}, 2.6),
@@ -699,6 +668,34 @@ class TestValidationErrorMessages(unittest.TestCase):
         schema = {"type" : [{"name" : name, "minimum" : 3}]}
         message = self.message_for(instance=1, schema=schema)
         self.assertEqual(message, "1 is not of type %r" % (name,))
+
+    def test_dependencies_failure_has_single_element_not_list(self):
+        depend, on = "bar", "foo"
+        schema = {"dependencies" : {depend : on}}
+        message = self.message_for({"bar" : 2}, schema)
+        self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
+
+    def test_additionalItems_single_failure(self):
+        message = self.message_for([2], {"additionalItems" : False})
+        self.assertIn("(2 was unexpected)", message)
+
+    def test_additionalItems_multiple_failures(self):
+        message = self.message_for([1, 2, 3], {"additionalItems" : False})
+        self.assertIn("(1, 2, 3 were unexpected)", message)
+
+    def test_additionalProperties_single_failure(self):
+        additional = "foo"
+        schema = {"additionalProperties" : False}
+        message = self.message_for({additional : 2}, schema)
+        self.assertIn("(%r was unexpected)" % (additional,), message)
+
+    def test_additionalProperties_multiple_failures(self):
+        schema = {"additionalProperties" : False}
+        message = self.message_for(dict.fromkeys(["foo", "bar"]), schema)
+
+        self.assertIn(repr("foo"), message)
+        self.assertIn(repr("bar"), message)
+        self.assertIn("were unexpected)", message)
 
 
 class TestValidationErrorDetails(unittest.TestCase):
