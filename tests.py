@@ -256,6 +256,22 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         }
     ))
 
+    patternProperties_plus_additionalProperties = parametrized(
+            ("should_know_about_additionalProperties1", "valid", {"foo" : 123}),
+            ("should_know_about_additionalProperties2", "invalid", {"bar" : 123}),
+            ("should_know_about_additionalProperties3", "valid", {"bar" : '123'}),
+            )(validation_test(schema={
+            "type": "object",
+            "patternProperties": {
+                    "^f.o$": {
+                            "type": "integer",
+                            },
+                    },
+            "additionalProperties": {
+                            "type": "string"
+                            }
+    }))
+
     def test_additionalProperties_allowed_by_default(self):
         schema = {
             "properties" : {
