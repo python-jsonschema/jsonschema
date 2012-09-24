@@ -391,8 +391,10 @@ class Validator(object):
         if not self.is_type(instance, "object"):
             return
 
-        # no viewkeys in <2.7, and pypy seems to fail on vk - vk anyhow, so...
         extras = set(instance) - set(schema.get("properties", {}))
+
+        for regex in set(schema.get("patternProperties", {})):
+            map(extras.remove, filter(lambda possible_extra: re.match(regex, possible_extra), extras))
 
         if self.is_type(aP, "object"):
             for extra in extras:
