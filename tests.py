@@ -282,6 +282,26 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate({"foo" : 1, "bar" : "baz", "quux" : "boom"}, schema)
 
+    # A horrible name and horrible test. I will repent.
+    # See https://groups.google.com/d/msg/json-schema/Q5F30CZtMb4/yk_niLnsdQ0J
+    p_pP_aP = parametrized(
+        ("property_validates_property", "valid", {"foo" : [1, 2]}),
+        ("property_invalidates_property", "invalid", {"foo" : [1, 2, 3, 4]}),
+        ("patternProperty_invalidates_property", "invalid", {"foo" : []}),
+        ("patternProperty_validates_nonproperty", "valid", {"fxo" : [1, 2]}),
+        ("patternProperty_invalidates_nonproperty", "invalid", {"fxo" : []}),
+        ("additionalProperty_ignores_property", "valid", {"bar" : []}),
+        ("additionalProperty_validates_others", "valid", {"quux" : 3}),
+        ("additionalProperty_invalidates_others", "invalid", {"quux" : "foo"}),
+    )(validation_test(
+        properties={
+            "foo" : {"type" : "array", "maxItems" : 3},
+            "bar" : {"type" : "array"}
+        },
+        patternProperties={"f.o" : {"minItems" : 2}},
+        additionalProperties={"type" : "integer"},
+    ))
+
     items = parametrized(
         ("", "valid", [1, 2, 3]),
         ("wrong_type", "invalid", [1, "x"]),
