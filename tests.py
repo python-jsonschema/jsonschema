@@ -282,9 +282,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         with self.assertRaises(ValidationError):
             validate({"foo" : 1, "bar" : "baz", "quux" : "boom"}, schema)
 
-    def test_additionalProperties_ignores_nonobjects(self):
-        validate(None, {"additionalProperties" : False})
-
     items = parametrized(
         ("", "valid", [1, 2, 3]),
         ("wrong_type", "invalid", [1, "x"]),
@@ -316,9 +313,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         "items" : [{"type" : "integer"}, {"type" : "string"}],
         "additionalItems" : {"type" : "integer"},
     }))
-
-    def test_additionalItems_ignores_nonarrays(self):
-        validate(None, {"additionalItems" : False})
 
     @parametrized(
         ("false_by_default", "valid", {}, {}),
@@ -399,7 +393,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("exact", "valid", [1]),
         ("longer", "valid", [1, 2]),
         ("too_short", "invalid", []),
-        ("ignores_strings", "valid", "a"),
     )(validation_test(minItems=1))
 
     maxItems = parametrized(
@@ -407,7 +400,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ("shorter", "valid", [1]),
         ("empty", "valid", []),
         ("too_long", "invalid", [1, 2, 3]),
-        ("ignores_strings", "valid", "aaaa"),
     )(validation_test(maxItems=2))
 
     uniqueItems = parametrized(
@@ -430,19 +422,16 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
     pattern = parametrized(
         ("match", "valid", "aaa"),
         ("mismatch", "invalid", "ab"),
-        ("ignores_other_stuff", "valid", True),
     )(validation_test(pattern="^a*$"))
 
     minLength = parametrized(
         ("", "valid", "foo"),
         ("too_short", "invalid", "f"),
-        ("ignores_arrays", "valid", [1]),
     )(validation_test(minLength=2))
 
     maxLength = parametrized(
         ("", "valid", "f"),
         ("too_long", "invalid", "foo"),
-        ("ignores_arrays", "valid", [1, 2, 3]),
     )(validation_test(maxLength=2))
 
     @parametrized(
@@ -802,24 +791,45 @@ class TestErrorTree(unittest.TestCase):
 
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
-    def test_minimum(self):
+    def test_minimum_ignores_nonnumbers(self):
         validate("x", {"type": ["string", "number"], "minimum": 10})
 
-    def test_maximum(self):
+    def test_maximum_ignores_nonnumbers(self):
         validate("x", {"type": ["string", "number"], "maximum": 10})
 
-    def test_properties(self):
+    def test_properties_ignores_nonobjects(self):
         validate(1, {"type": ["integer", "object"], "properties": {"x": {}}})
 
-    def test_items(self):
+    def test_additionalProperties_ignores_nonobjects(self):
+        validate(None, {"additionalProperties" : False})
+
+    def test_minLength_ignores_nonstrings(self):
+        validate([1], {"minLength" : 3})
+
+    def test_maxLength_ignores_nonstrings(self):
+        validate([1, 2, 3], {"minLength" : 2})
+
+    def test_pattern_ignores_non_strings(self):
+        validate(True, {"pattern" : "^a*$"})
+
+    def test_items_ignores_nonarrays(self):
         validate(
             1, {"type": ["integer", "array"], "items": {"type": "string"}}
         )
 
-    def test_divisibleBy(self):
+    def test_minItems_ignores_nonarrays(self):
+        validate("x", {"minItems" : 3})
+
+    def test_maxItems_ignores_nonarrays(self):
+        validate("xxxx", {"maxItems" : 3})
+
+    def test_additionalItems_ignores_nonarrays(self):
+        validate(None, {"additionalItems" : False})
+
+    def test_divisibleBy_ignores_nonnumbers(self):
         validate("x", {"type": ["integer", "string"], "divisibleBy": 10})
 
-    def test_dependencies(self):
+    def test_dependencies_ignores_nonobjects(self):
         validate("foo", {"dependencies" : {"foo": "bar"}})
 
 
