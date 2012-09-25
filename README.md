@@ -68,3 +68,7 @@ There are also other JSON Schema test suites for various other validators, and
 it would certainly be nice to merge all of them as well. In particular, [this
 validator](https://github.com/fge/json-schema-validator/tree/master/src/test/resources/keyword)
 contains a set of tests already written in JSON which will be useful.
+
+I'm perfectly fine with contributions either porting from one of those, or
+being written from scratch, so feel free to do what you're comfortable with as
+long as the tests are easy to understand and correct :).
