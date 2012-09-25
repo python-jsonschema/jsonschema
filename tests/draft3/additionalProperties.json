@@ -16,7 +16,7 @@
                 "description": "an additional property is invalid",
                 "data": {"foo" : 1, "bar" : 2, "quux" : "boom"},
                 "valid": false
-            },
+            }
         ]
     },
     {
@@ -24,7 +24,7 @@
             "additionalProperties allows a schema which should validate",
         "schema": {
             "properties": {"foo": {}, "bar": {}},
-            "additionalProperties": {"type": "boolean"},
+            "additionalProperties": {"type": "boolean"}
         },
         "tests": [
             {
@@ -43,7 +43,7 @@
                 "valid": false
             }
         ]
-    }
+    },
     {
         "description": "additionalProperties are allowed by default",
         "schema": {"properties": {"foo": {}, "bar": {}}},

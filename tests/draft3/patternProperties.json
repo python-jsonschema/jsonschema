@@ -20,14 +20,14 @@
             },
             {
                 "description": "a single invalid match is invalid",
-                "data": {"foo": "bar", "fooooo", 2},
+                "data": {"foo": "bar", "fooooo": 2},
                 "valid": false
             },
             {
                 "description": "multiple invalid matches is invalid",
                 "data": {"foo": "bar", "foooooo" : "baz"},
                 "valid": false
-            },
+            }
         ]
     },
     {

@@ -442,7 +442,7 @@
                 "description": "an object is invalid otherwise",
                 "data": {"foo": "bar"},
                 "valid": false
-            },
+            }
         ]
     },
     {
@@ -450,7 +450,7 @@
         "schema": {
             "type": [
                 {"type": ["string"]},
-                {"type": ["array", "null"]},
+                {"type": ["array", "null"]}
             ]
         },
         "tests": [
