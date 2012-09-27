@@ -5,9 +5,9 @@ import sys
 import warnings
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
-    import unittest2 as unittest
+    from unittest2 import TestCase
 else:
-    import unittest
+    from unittest import TestCase
 
 
 from jsonschema import (
@@ -97,7 +97,7 @@ def validation_test(schema=(), initkwargs=(), **kwschema):
     return _validation_test
 
 
-class TestValidate(ParameterizedTestCase, unittest.TestCase):
+class TestValidate(ParameterizedTestCase, TestCase):
     integer = parametrized(
         ("integer", "valid", 1),
         ("number", "invalid", 1.1),
@@ -611,7 +611,11 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         self.assertEqual(len(errors), 4)
 
 
-class TestValidationErrorMessages(unittest.TestCase):
+class TestIterErrors(TestCase):
+    pass
+
+
+class TestValidationErrorMessages(TestCase):
     def message_for(self, instance, schema):
         with self.assertRaises(ValidationError) as e:
             validate(instance, schema)
@@ -674,7 +678,7 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertIn("were unexpected)", message)
 
 
-class TestValidationErrorDetails(unittest.TestCase):
+class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
     def test_single_nesting(self):
@@ -737,7 +741,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e6.validator, "enum")
 
 
-class TestErrorTree(unittest.TestCase):
+class TestErrorTree(TestCase):
     def test_tree(self):
         instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
         schema = {
@@ -777,7 +781,7 @@ class TestErrorTree(unittest.TestCase):
         self.assertEqual(tree[1]["foo"].errors["enum"], e6)
 
 
-class TestUnknownType(unittest.TestCase):
+class TestUnknownType(TestCase):
     def test_unknown_type_error(self):
         with self.assertRaises(SchemaError):
             validate(1, {"type" : "foo"}, unknown_type="error")
@@ -792,7 +796,7 @@ class TestUnknownType(unittest.TestCase):
         validate(1, {"type" : "foo"}, unknown_type="skip")
 
 
-class TestUnknownProperty(unittest.TestCase):
+class TestUnknownProperty(TestCase):
     def test_unknown_property_error(self):
         with self.assertRaises(SchemaError):
             validate(1, {"foo" : "bar"}, unknown_property="error")
@@ -811,7 +815,7 @@ class TestUnknownProperty(unittest.TestCase):
         )
 
 
-class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
+class TestIgnorePropertiesForIrrelevantTypes(TestCase):
     def test_minimum_ignores_nonnumbers(self):
         validate("x", {"type": ["string", "number"], "minimum": 10})
 
