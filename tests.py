@@ -334,6 +334,9 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         "additionalItems" : {"type" : "integer"},
     }))
 
+    def test_additionalItems_ignored_when_items_is_not_tuple(self):
+        validate([1, 2], {"additionalItems" : False})
+
     @parametrized(
         ("false_by_default", "valid", {}, {}),
         ("false_explicit", "valid", {"required" : False}, {}),
@@ -685,11 +688,13 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
 
     def test_additionalItems_single_failure(self):
-        message = self.message_for([2], {"additionalItems" : False})
+        message = self.message_for([2],
+            {"items" : [], "additionalItems" : False})
         self.assertIn("(2 was unexpected)", message)
 
     def test_additionalItems_multiple_failures(self):
-        message = self.message_for([1, 2, 3], {"additionalItems" : False})
+        message = self.message_for([1, 2, 3],
+            {"items" : [], "additionalItems" : False})
         self.assertIn("(1, 2, 3 were unexpected)", message)
 
     def test_additionalProperties_single_failure(self):

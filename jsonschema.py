@@ -446,6 +446,8 @@ class Validator(object):
     def validate_additionalItems(self, aI, instance, schema):
         if not self.is_type(instance, "array"):
             return
+        if not self.is_type(schema.get("items"), "array"):
+            return
 
         if self.is_type(aI, "object"):
             for item in instance[len(schema):]:
@@ -454,7 +456,7 @@ class Validator(object):
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
             yield ValidationError(
-                error % _extras_msg(instance[len(schema) - 1:])
+                error % _extras_msg(instance[len(schema.get("items", [])):])
             )
 
     def validate_minimum(self, minimum, instance, schema):
