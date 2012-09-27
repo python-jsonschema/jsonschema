@@ -566,23 +566,13 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
             "minItems" : 3
         }
 
-        if PY3:
-            errors = sorted([
-                "'array' is disallowed for [1, 2]",
-                "[1, 2] is too short",
-                "[1, 2] is not one of [['a', 'b', 'c'], ['d', 'e', 'f']]",
-            ])
-        else:
-            errors = sorted([
-                "u'array' is disallowed for [1, 2]",
-                "[1, 2] is too short",
-                "[1, 2] is not one of [[u'a', u'b', u'c'], [u'd', u'e', u'f']]",
-            ])
-
-        self.assertEqual(
-            sorted(str(e) for e in Validator().iter_errors(instance, schema)),
-            errors,
-        )
+        got = (str(e) for e in Validator().iter_errors(instance, schema))
+        expected = [
+            "%r is disallowed for [1, 2]" % (schema["disallow"],),
+            "[1, 2] is too short",
+            "[1, 2] is not one of %r" % (schema["enum"],),
+        ]
+        self.assertEqual(sorted(got), sorted(expected))
 
     def test_unknown_type_error(self):
         with self.assertRaises(SchemaError):
