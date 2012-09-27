@@ -558,22 +558,6 @@ class TestValidate(ParameterizedTestCase, TestCase):
         ("mismatch_extends", "invalid", 35)
     )(validation_test(minimum=20, extends={"maximum" : 30}))
 
-    def test_iter_errors(self):
-        instance = [1, 2]
-        schema = {
-            "disallow" : "array",
-            "enum" : [["a", "b", "c"], ["d", "e", "f"]],
-            "minItems" : 3
-        }
-
-        got = (str(e) for e in Validator().iter_errors(instance, schema))
-        expected = [
-            "%r is disallowed for [1, 2]" % (schema["disallow"],),
-            "[1, 2] is too short",
-            "[1, 2] is not one of %r" % (schema["enum"],),
-        ]
-        self.assertEqual(sorted(got), sorted(expected))
-
     decimal = parametrized(
         ("integer", "valid", 1),
         ("number", "valid", 1.1),
@@ -597,6 +581,27 @@ class TestValidate(ParameterizedTestCase, TestCase):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
+
+class TestIterErrors(TestCase):
+    def setUp(self):
+        self.validator = Validator()
+
+    def test_iter_errors(self):
+        instance = [1, 2]
+        schema = {
+            "disallow" : "array",
+            "enum" : [["a", "b", "c"], ["d", "e", "f"]],
+            "minItems" : 3
+        }
+
+        got = (str(e) for e in self.validator.iter_errors(instance, schema))
+        expected = [
+            "%r is disallowed for [1, 2]" % (schema["disallow"],),
+            "[1, 2] is too short",
+            "[1, 2] is not one of %r" % (schema["enum"],),
+        ]
+        self.assertEqual(sorted(got), sorted(expected))
+
     def test_iter_errors_multiple_failures_one_validator(self):
         instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
         schema = {
@@ -607,12 +612,8 @@ class TestValidate(ParameterizedTestCase, TestCase):
             }
         }
 
-        errors = list(Validator().iter_errors(instance, schema))
+        errors = list(self.validator.iter_errors(instance, schema))
         self.assertEqual(len(errors), 4)
-
-
-class TestIterErrors(TestCase):
-    pass
 
 
 class TestValidationErrorMessages(TestCase):
