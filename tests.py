@@ -334,9 +334,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         "additionalItems" : {"type" : "integer"},
     }))
 
-    def test_additionalItems_ignores_nonarrays(self):
-        validate(None, {"additionalItems" : False})
-
     def test_additionalItems_ignored_when_items_is_not_tuple(self):
         validate([1, 2], {"additionalItems" : False})
 
