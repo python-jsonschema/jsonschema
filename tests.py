@@ -680,6 +680,9 @@ class TestValidationErrorMessages(TestCase):
 
 
 class TestValidationErrorDetails(TestCase):
+    def setUp(self):
+        self.validator = Validator()
+
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
     def test_single_nesting(self):
@@ -692,7 +695,7 @@ class TestValidationErrorDetails(TestCase):
             }
         }
 
-        errors = Validator().iter_errors(instance, schema)
+        errors = self.validator.iter_errors(instance, schema)
         e1, e2, e3, e4 = sorted_errors(errors)
 
         self.assertEqual(e1.path, ["bar"])
@@ -724,7 +727,7 @@ class TestValidationErrorDetails(TestCase):
             }
         }
 
-        errors = Validator().iter_errors(instance, schema)
+        errors = self.validator.iter_errors(instance, schema)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
         self.assertEqual(e1.path, [])
@@ -743,6 +746,9 @@ class TestValidationErrorDetails(TestCase):
 
 
 class TestErrorTree(TestCase):
+    def setUp(self):
+        self.validator = Validator()
+
     def test_tree(self):
         instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
         schema = {
@@ -762,7 +768,7 @@ class TestErrorTree(TestCase):
             }
         }
 
-        errors = sorted_errors(Validator().iter_errors(instance, schema))
+        errors = sorted_errors(self.validator.iter_errors(instance, schema))
         e1, e2, e3, e4, e5, e6 = errors
         tree = ErrorTree(errors)
 
