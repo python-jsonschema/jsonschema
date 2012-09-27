@@ -688,13 +688,15 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
 
     def test_additionalItems_single_failure(self):
-        message = self.message_for([2],
-            {"items" : [], "additionalItems" : False})
+        message = self.message_for(
+            [2], {"items" : [], "additionalItems" : False},
+        )
         self.assertIn("(2 was unexpected)", message)
 
     def test_additionalItems_multiple_failures(self):
-        message = self.message_for([1, 2, 3],
-            {"items" : [], "additionalItems" : False})
+        message = self.message_for(
+            [1, 2, 3], {"items" : [], "additionalItems" : False}
+        )
         self.assertIn("(1, 2, 3 were unexpected)", message)
 
     def test_additionalProperties_single_failure(self):
