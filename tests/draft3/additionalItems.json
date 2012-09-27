@@ -7,13 +7,8 @@
         "tests": [
             {
                 "description": "all items match schema",
-                "data": [ 1, 2, 3, 4, 5 ],
+                "data": [ 1, 2, 3, 4.5, 5 ],
                 "valid": true
-            },
-            {
-                "description": "not all items match schema",
-                "data": [ 1, 2, 3, 4.4 ],
-                "valid": false
             }
         ]
     }, 
