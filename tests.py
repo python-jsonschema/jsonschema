@@ -574,36 +574,6 @@ class TestValidate(ParameterizedTestCase, unittest.TestCase):
         ]
         self.assertEqual(sorted(got), sorted(expected))
 
-    def test_unknown_type_error(self):
-        with self.assertRaises(SchemaError):
-            validate(1, {"type" : "foo"}, unknown_type="error")
-
-    def test_unknown_type_warn(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            validate(1, {"type" : "foo"}, unknown_type="warn")
-        self.assertEqual(len(w), 1)
-
-    def test_unknown_type_skip(self):
-        validate(1, {"type" : "foo"}, unknown_type="skip")
-
-    def test_unknown_property_error(self):
-        with self.assertRaises(SchemaError):
-            validate(1, {"foo" : "bar"}, unknown_property="error")
-
-    def test_unknown_property_warn(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            validate(1, {"foo" : "bar"}, unknown_property="warn")
-        self.assertEqual(len(w), 1)
-
-    def test_unknown_property_skip(self):
-        validate(
-            1,
-            {"foo" : "foo", "type" : "integer"},
-            unknown_property="skip"
-        )
-
     decimal = parametrized(
         ("integer", "valid", 1),
         ("number", "valid", 1.1),
@@ -805,6 +775,40 @@ class TestErrorTree(unittest.TestCase):
         self.assertEqual(tree[1]["bar"]["bar"].errors["required"], e4)
         self.assertEqual(tree[1]["bar"]["baz"].errors["minItems"], e5)
         self.assertEqual(tree[1]["foo"].errors["enum"], e6)
+
+
+class TestUnknownType(unittest.TestCase):
+    def test_unknown_type_error(self):
+        with self.assertRaises(SchemaError):
+            validate(1, {"type" : "foo"}, unknown_type="error")
+
+    def test_unknown_type_warn(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate(1, {"type" : "foo"}, unknown_type="warn")
+        self.assertEqual(len(w), 1)
+
+    def test_unknown_type_skip(self):
+        validate(1, {"type" : "foo"}, unknown_type="skip")
+
+
+class TestUnknownProperty(unittest.TestCase):
+    def test_unknown_property_error(self):
+        with self.assertRaises(SchemaError):
+            validate(1, {"foo" : "bar"}, unknown_property="error")
+
+    def test_unknown_property_warn(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate(1, {"foo" : "bar"}, unknown_property="warn")
+        self.assertEqual(len(w), 1)
+
+    def test_unknown_property_skip(self):
+        validate(
+            1,
+            {"foo" : "foo", "type" : "integer"},
+            unknown_property="skip"
+        )
 
 
 class TestIgnorePropertiesForIrrelevantTypes(unittest.TestCase):
