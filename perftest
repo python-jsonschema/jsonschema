@@ -4,19 +4,26 @@ A *very* basic performance test.
 
 """
 
+from __future__ import print_function
+import argparse
 import timeit
 
 from jsonschema import DRAFT_3, validate
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-n", "--number", type=int, default=1000)
+arguments = parser.parse_args()
+
 instance = schema = DRAFT_3
-number = 1000
 
 results = timeit.timeit(
     # Validate the Draft 3 meta-schema against itself without meta-validating
     stmt="validate(instance, schema, meta_validate=False)",
     setup="from __main__ import instance, schema, validate",
-    number=number,
+    number=arguments.number,
 )
 
-print("Validated %s times. Finished in %s seconds." % (number, results))
+print(
+    "Validated %s times. Finished in %s seconds." % (arguments.number, results)
+)
