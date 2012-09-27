@@ -89,15 +89,9 @@ Schema Versioning
 -----------------
 
 JSON Schema is, at the time of this writing, seemingly at Draft 3, with
-preparations for Draft 4 underway. The ``Validator`` class and ``validate``
-function take a ``version`` argument that you can use to specify what version
-of the Schema you are validating under.
-
-As of right now, Draft 3 (``jsonschema.DRAFT_3``) is the only supported
-version, and the default when validating. Whether it will remain the default
-version in the future when it is superceeded is undecided, so if you want to be
-safe, *explicitly* declare which version to use when validating.
-
+preparations for Draft 4 underway. As of right now, Draft 3 is the only
+supported version, and the default when validating. Preparations for
+implementing some Draft 4 support are in progress.
 
 Release Notes
 -------------

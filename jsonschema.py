@@ -391,8 +391,7 @@ class Validator(object):
         if not self.is_type(instance, "object"):
             return
 
-        # no viewkeys in <2.7, and pypy seems to fail on vk - vk anyhow, so...
-        extras = set(instance) - set(schema.get("properties", {}))
+        extras = set(_find_additional_properties(instance, schema))
 
         if self.is_type(aP, "object"):
             for extra in extras:
@@ -596,6 +595,26 @@ class ErrorTree(object):
 
     def __repr__(self):
         return "<%s (%s errors)>" % (self.__class__.__name__, len(self))
+
+
+def _find_additional_properties(instance, schema):
+    """
+    Return the set of additional properties for the given ``instance``.
+
+    Weeds out properties that should have been validated by ``properties`` and
+    / or ``patternProperties``.
+
+    Assumes ``instance`` is dict-like already.
+
+    """
+
+    properties = schema.get("properties", {})
+    patterns = "|".join(schema.get("patternProperties", {}))
+    for property in instance:
+        if property not in properties:
+            if patterns and re.search(patterns, property):
+                continue
+            yield property
 
 
 def _extras_msg(extras):
