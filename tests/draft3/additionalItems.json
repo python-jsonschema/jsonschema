@@ -1,0 +1,61 @@
+[
+    {
+        "description": "additionalItems as schema",
+        "schema": {
+            "additionalItems": {"type": "integer"}
+        }, 
+        "tests": [
+            {
+                "description": "all items match schema",
+                "data": [ 1, 2, 3, 4.5, 5 ],
+                "valid": true
+            }
+        ]
+    }, 
+    {
+        "description": "items is schema, no additionalItems",
+        "schema": {
+            "items": {},
+            "additionalItems": false
+        }, 
+        "tests": [
+            {
+                "description": "all items match schema",
+                "data": [ 1, 2, 3, 4, 5 ],
+                "valid": true
+            }
+        ]
+    }, 
+    {
+        "description": "array of items with no additionalItems",
+        "schema": {
+            "items": [{}, {}, {}],
+            "additionalItems": false
+        }, 
+        "tests": [
+            {
+                "description": "no additional items present",
+                "data": [ 1, 2, 3 ],
+                "valid": true
+            }, 
+            {
+                "description": "additional items are not permitted",
+                "data": [ 1, 2, 3, 4 ],
+                "valid": false
+            }
+        ]
+    }, 
+    {
+        "description": "additionalItems as false without items",
+        "schema": {
+            "additionalItems": false
+        }, 
+        "tests": [
+            {
+                "description": "items should allow anything",
+                "data": [ 1, 2, 3, 4, 5 ],
+                "valid": true
+            }
+        ]
+    }
+]
