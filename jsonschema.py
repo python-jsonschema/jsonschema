@@ -1,12 +1,11 @@
 """
 An implementation of JSON Schema for Python
 
-The main functionality is provided by the :class:`Validator` class, with the
-:function:`validate` function being the most common way to quickly create a
-:class:`Validator` object and validate an instance with a given schema.
+The main functionality is provided by the Validator classes for each of the
+supported JSON Schema versions.
 
-The :class:`Validator` class generally attempts to be as strict as possible
-under the JSON Schema specification. See its docstring for details.
+Most commonly, the :function:`validate` function is the quickest way to simply
+validate a given instance under a schema, and will create a Validator for you.
 
 """
 
