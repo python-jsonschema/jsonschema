@@ -244,9 +244,10 @@ class Validator(object):
         py_type = self._types.get(type)
 
         if py_type is None:
-            return self.schema_error(
+            self.schema_error(
                 self._unknown_type, "%r is not a known type" % (type,)
             )
+            return False
 
         # the only thing we're careful about here is evading bool inheriting
         # from int, so let's be even dirtier than usual
