@@ -41,14 +41,14 @@ Features
 
 ::
 
-    >>> from jsonschema import Validator
+    >>> from jsonschema import Draft3Validator
     >>> schema = {
     ...     "type" : "array",
     ...     "items" : {"enum" : [1, 2, 3]},
     ...     "maxItems" : 2,
     ... }
-    >>> v = Validator()
-    >>> for error in sorted(v.iter_errors([2, 3, 4], schema), key=str):
+    >>> v = Draft3Validator(schema)
+    >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
     ...     print(error)
     4 is not one of [1, 2, 3]
     [2, 3, 4] is too long
@@ -59,15 +59,15 @@ Features
 
 ::
 
-    >>> from jsonschema import ErrorTree, Validator
+    >>> from jsonschema import ErrorTree, Draft3Validator
     >>> schema = {
     ...     "type" : "array",
     ...     "items" : {"type" : "number", "enum" : [1, 2, 3]},
     ...     "minItems" : 3,
     ... }
     >>> instance = ["spam", 2]
-    >>> v = Validator()
-    >>> tree = ErrorTree(v.iter_errors(instance, schema))
+    >>> v = Draft3Validator(schema)
+    >>> tree = ErrorTree(v.iter_errors(instance))
 
     >>> sorted(tree.errors)
     ['minItems']
