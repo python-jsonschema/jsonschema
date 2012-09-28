@@ -193,10 +193,9 @@ class Draft3Validator(object):
 
             if validator is None:
                 continue
-            else:
-                errors = validator(v, instance, schema)
 
-            for error in errors or ():
+            errors = validator(v, instance, schema) or ()
+            for error in errors:
                 # if the validator hasn't already been set (due to recursion)
                 # make sure to set it
                 error.validator = error.validator or k
@@ -409,16 +408,6 @@ class Draft3Validator(object):
         for subschema in extends:
             for error in self.iter_errors(instance, subschema):
                 yield error
-
-
-for no_op in [                                  # handled in:
-    "required",                                 # properties
-    "exclusiveMinimum", "exclusiveMaximum",     # min*/max*
-    "default", "description", "format", "id",   # no validation needed
-    "links", "name", "title",
-    "ref", "schema",                            # not yet supported
-]:
-    setattr(Draft3Validator, "validate_" + no_op, lambda *args, **kw : None)
 
 
 Draft3Validator.META_SCHEMA = {
