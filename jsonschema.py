@@ -19,6 +19,9 @@ import sys
 import warnings
 
 
+__version__ = "0.7dev"
+
+FLOAT_TOLERANCE = 10 ** -15
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
@@ -27,40 +30,6 @@ if PY3:
 else:
     from itertools import izip as zip
     iteritems = operator.methodcaller("iteritems")
-
-
-def _uniq(container):
-    """
-    Check if all of a container's elements are unique.
-
-    Successively tries first to rely that the elements are hashable, then
-    falls back on them being sortable, and finally falls back on brute
-    force.
-
-    """
-
-    try:
-        return len(set(container)) == len(container)
-    except TypeError:
-        try:
-            sort = sorted(container)
-            sliced = itertools.islice(container, 1, None)
-            for i, j in zip(container, sliced):
-                if i == j:
-                    return False
-        except (NotImplementedError, TypeError):
-            seen = []
-            for e in container:
-                if e in seen:
-                    return False
-                seen.append(e)
-    return True
-
-
-__version__ = "0.7dev"
-
-
-EPSILON = 10 ** -15
 
 
 class UnknownType(Exception):
@@ -388,7 +357,7 @@ class Draft3Validator(object):
 
         if isinstance(dB, float):
             mod = instance % dB
-            failed = (mod > EPSILON) and (dB - mod) > EPSILON
+            failed = (mod > FLOAT_TOLERANCE) and (dB - mod) > FLOAT_TOLERANCE
         else:
             failed = instance % dB
 
@@ -647,6 +616,34 @@ def _delist(thing):
     ):
         return thing[0]
     return thing
+
+
+def _uniq(container):
+    """
+    Check if all of a container's elements are unique.
+
+    Successively tries first to rely that the elements are hashable, then
+    falls back on them being sortable, and finally falls back on brute
+    force.
+
+    """
+
+    try:
+        return len(set(container)) == len(container)
+    except TypeError:
+        try:
+            sort = sorted(container)
+            sliced = itertools.islice(container, 1, None)
+            for i, j in zip(container, sliced):
+                if i == j:
+                    return False
+        except (NotImplementedError, TypeError):
+            seen = []
+            for e in container:
+                if e in seen:
+                    return False
+                seen.append(e)
+    return True
 
 
 def validate(
