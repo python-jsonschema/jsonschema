@@ -8,14 +8,14 @@ from __future__ import print_function
 import argparse
 import timeit
 
-from jsonschema import DRAFT_3, validate
+from jsonschema import Draft3Validator, validate
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--number", type=int, default=1000)
 arguments = parser.parse_args()
 
-instance = schema = DRAFT_3
+instance = schema = Draft3Validator.META_SCHEMA
 
 results = timeit.timeit(
     # Validate the Draft 3 meta-schema against itself without meta-validating
