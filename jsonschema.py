@@ -91,7 +91,7 @@ class Draft3Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(self, types=()):
+    def __init__(self, schema, types=()):
         """
         Initialize a validator.
 
@@ -110,6 +110,17 @@ class Draft3Validator(object):
         self._types.update(types)
         self._types["any"] = tuple(self._types.values())
 
+        self.schema = schema
+
+    @property
+    def schema(self):
+        return self._schema
+
+    @schema.setter
+    def schema(self, schema):
+        self.check_schema(schema)
+        self._schema = schema
+
     def is_type(self, instance, type):
         """
         Check if an ``instance`` is of the provided ``type``.
@@ -127,7 +138,7 @@ class Draft3Validator(object):
                 return False
         return isinstance(instance, type)
 
-    def is_valid(self, instance, schema):
+    def is_valid(self, instance, schema=None):
         """
         Check if the ``instance`` is valid under the ``schema``.
 
@@ -151,11 +162,14 @@ class Draft3Validator(object):
             # I think we're safer raising these always, not yielding them
             raise s
 
-    def iter_errors(self, instance, schema):
+    def iter_errors(self, instance, schema=None):
         """
         Lazily yield each of the errors in the given ``instance``.
 
         """
+
+        if schema is None:
+            schema = self.schema
 
         for k, v in iteritems(schema):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
@@ -473,7 +487,7 @@ class Validator(Draft3Validator):
         self, version=None, unknown_type="skip", unknown_property="skip",
         *args, **kwargs
     ):
-        super(Validator, self).__init__(*args, **kwargs)
+        super(Validator, self).__init__({}, *args, **kwargs)
         warnings.warn(
             "Validator is deprecated and will be removed. "
             "Use Draft3Validator instead.",
@@ -651,9 +665,7 @@ def _uniq(container):
     return True
 
 
-def validate(
-    instance, schema, meta_validate=True, cls=Draft3Validator, *args, **kwargs
-):
+def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
     """
     Validate an ``instance`` under the given ``schema``.
 
@@ -672,7 +684,5 @@ def validate(
 
     """
 
-    validator = cls(*args, **kwargs)
-    if meta_validate:
-        validator.check_schema(schema)
-    validator.validate(instance, schema)
+    validator = cls(schema, *args, **kwargs)
+    validator.validate(instance)

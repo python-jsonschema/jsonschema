@@ -588,7 +588,7 @@ class TestValidate(ParameterizedTestCase, TestCase):
 
 class TestIterErrors(TestCase):
     def setUp(self):
-        self.validator = Draft3Validator()
+        self.validator = Draft3Validator({})
 
     def test_iter_errors(self):
         instance = [1, 2]
@@ -685,7 +685,7 @@ class TestValidationErrorMessages(TestCase):
 
 class TestValidationErrorDetails(TestCase):
     def setUp(self):
-        self.validator = Draft3Validator()
+        self.validator = Draft3Validator({})
 
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
@@ -751,7 +751,7 @@ class TestValidationErrorDetails(TestCase):
 
 class TestErrorTree(TestCase):
     def setUp(self):
-        self.validator = Draft3Validator()
+        self.validator = Draft3Validator({})
 
     def test_tree(self):
         instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
@@ -795,29 +795,44 @@ class TestErrorTree(TestCase):
 class TestDraft3Validator(TestCase):
     def setUp(self):
         self.instance = mock.Mock()
-        self.validator = Draft3Validator()
+        self.schema = {}
+        self.validator = Draft3Validator(self.schema)
+
+    def test_init(self):
+        with mock.patch.object(Draft3Validator, "check_schema"):
+            self.assertIs(self.validator.schema, self.schema)
+
+    def test_schemas_are_validated_when_assigned(self):
+        schema = mock.Mock()
+        with mock.patch.object(self.validator, "check_schema") as check_schema:
+            self.validator.schema = schema
+
+        check_schema.assert_called_once_with(schema)
+        self.assertEqual(self.validator.schema, schema)
+
+    def test_valid_instances_are_valid(self):
+        errors = iter([])
+
+        with mock.patch.object(
+            self.validator, "iter_errors", return_value=errors,
+        ):
+            self.assertTrue(
+                self.validator.is_valid(self.instance, self.schema)
+            )
+
+    def test_invalid_instances_are_not_valid(self):
+        errors = iter([mock.Mock()])
+
+        with mock.patch.object(
+            self.validator, "iter_errors", return_value=errors,
+        ):
+            self.assertFalse(
+                self.validator.is_valid(self.instance, self.schema)
+            )
 
     def test_non_existent_properties_are_ignored(self):
         instance, my_property, my_value = mock.Mock(), mock.Mock(), mock.Mock()
         validate(instance=instance, schema={my_property : my_value})
-
-    def test_valid_instances_are_valid(self):
-        errors = iter([])
-        schema = mock.Mock()
-
-        with mock.patch.object(
-            self.validator, "iter_errors", return_value=errors,
-        ):
-            self.assertTrue(self.validator.is_valid(self.instance, schema))
-
-    def test_invalid_instances_are_not_valid(self):
-        errors = iter([mock.Mock()])
-        schema = mock.Mock()
-
-        with mock.patch.object(
-            self.validator, "iter_errors", return_value=errors,
-        ):
-            self.assertFalse(self.validator.is_valid(self.instance, schema))
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
