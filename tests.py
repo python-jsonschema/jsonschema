@@ -908,6 +908,14 @@ class TestValidator(TestCase):
             self.assertEqual(len(w), 1)
 
 
+class TestValidateFunction(TestCase):
+    def test_meta_validate_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate("foo", {}, meta_validate=False)
+            self.assertEqual(len(w), 1)
+
+
 class TestValidatorIterErrors(TestIterErrors):
     def setUp(self):
         self.validator = Validator()

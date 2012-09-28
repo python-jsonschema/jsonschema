@@ -684,5 +684,13 @@ def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
 
     """
 
+    meta_validate = kwargs.pop("meta_validate", None)
+    if meta_validate is not None:
+        warnings.warn(
+            "meta_validate is deprecated and will be removed. If you want to "
+            "validate a schema, use Draft3Validator.check_schema instead.",
+            DeprecationWarning, stacklevel=2,
+        )
+
     validator = cls(schema, *args, **kwargs)
     validator.validate(instance)
