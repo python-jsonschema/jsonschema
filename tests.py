@@ -885,6 +885,14 @@ def sorted_errors(errors):
     return sorted(errors, key=lambda e : [str(err) for err in e.path])
 
 
+class TestValidator(TestCase):
+    def test_is_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            Validator()
+            self.assertEqual(len(w), 1)
+
+
 class TestValidatorIterErrors(TestIterErrors):
     def setUp(self):
         self.validator = Validator()

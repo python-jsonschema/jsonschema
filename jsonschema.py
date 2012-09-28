@@ -474,6 +474,11 @@ class Validator(Draft3Validator):
         *args, **kwargs
     ):
         super(Validator, self).__init__(*args, **kwargs)
+        warnings.warn(
+            "Validator is deprecated and will be removed. "
+            "Use Draft3Validator instead.",
+            DeprecationWarning, stacklevel=2,
+        )
 
 
 class ErrorTree(object):
