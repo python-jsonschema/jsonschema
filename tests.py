@@ -797,6 +797,10 @@ class TestDraft3Validator(TestCase):
         self.instance = mock.Mock()
         self.validator = Draft3Validator()
 
+    def test_non_existent_properties_are_ignored(self):
+        instance, my_property, my_value = mock.Mock(), mock.Mock(), mock.Mock()
+        validate(instance=instance, schema={my_property : my_value})
+
     def test_valid_instances_are_valid(self):
         errors = iter([])
         schema = mock.Mock()

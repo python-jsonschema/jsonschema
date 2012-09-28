@@ -192,7 +192,7 @@ class Draft3Validator(object):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
 
             if validator is None:
-                errors = self.unknown_property(k, instance, schema)
+                continue
             else:
                 errors = validator(v, instance, schema)
 
