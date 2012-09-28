@@ -11,8 +11,8 @@ else:
 
 
 from jsonschema import (
-    PY3, SchemaError, ValidationError, ErrorTree, Validator,
-    iteritems, validate
+    PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
+    Draft3Validator, Validator, iteritems, validate
 )
 
 
@@ -584,7 +584,7 @@ class TestValidate(ParameterizedTestCase, TestCase):
 
 class TestIterErrors(TestCase):
     def setUp(self):
-        self.validator = Validator()
+        self.validator = Draft3Validator()
 
     def test_iter_errors(self):
         instance = [1, 2]
@@ -681,7 +681,7 @@ class TestValidationErrorMessages(TestCase):
 
 class TestValidationErrorDetails(TestCase):
     def setUp(self):
-        self.validator = Validator()
+        self.validator = Draft3Validator()
 
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
@@ -747,7 +747,7 @@ class TestValidationErrorDetails(TestCase):
 
 class TestErrorTree(TestCase):
     def setUp(self):
-        self.validator = Validator()
+        self.validator = Draft3Validator()
 
     def test_tree(self):
         instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
@@ -788,38 +788,15 @@ class TestErrorTree(TestCase):
         self.assertEqual(tree[1]["foo"].errors["enum"], e6)
 
 
-class TestUnknownType(TestCase):
-    def test_unknown_type_error(self):
-        with self.assertRaises(SchemaError):
-            validate(1, {"type" : "foo"}, unknown_type="error")
+class TestDraft3Validator(TestCase):
+    def test_is_type(self):
+        v = Draft3Validator()
+        self.assertTrue(v.is_type("foo", "string"))
 
-    def test_unknown_type_warn(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            validate(1, {"type" : "foo"}, unknown_type="warn")
-        self.assertEqual(len(w), 1)
-
-    def test_unknown_type_skip(self):
-        validate(1, {"type" : "foo"}, unknown_type="skip")
-
-
-class TestUnknownProperty(TestCase):
-    def test_unknown_property_error(self):
-        with self.assertRaises(SchemaError):
-            validate(1, {"foo" : "bar"}, unknown_property="error")
-
-    def test_unknown_property_warn(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            validate(1, {"foo" : "bar"}, unknown_property="warn")
-        self.assertEqual(len(w), 1)
-
-    def test_unknown_property_skip(self):
-        validate(
-            1,
-            {"foo" : "foo", "type" : "integer"},
-            unknown_property="skip"
-        )
+    def test_is_type_invalid_type(self):
+        v = Draft3Validator()
+        with self.assertRaises(UnknownType):
+            v.is_type("foo", object())
 
 
 class TestIgnorePropertiesForIrrelevantTypes(TestCase):
@@ -867,3 +844,18 @@ class TestIgnorePropertiesForIrrelevantTypes(TestCase):
 
 def sorted_errors(errors):
     return sorted(errors, key=lambda e : [str(err) for err in e.path])
+
+
+class TestValidatorIterErrors(TestIterErrors):
+    def setUp(self):
+        self.validator = Validator()
+
+
+class TestValidatorErrorTree(TestErrorTree):
+    def setUp(self):
+        self.validator = Validator()
+
+
+class TestValidatorValidationErrorDetails(TestValidationErrorDetails):
+    def setUp(self):
+        self.validator = Validator()

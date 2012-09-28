@@ -60,90 +60,14 @@ def _uniq(container):
 __version__ = "0.7dev"
 
 
-DRAFT_3 = {
-    "$schema" : "http://json-schema.org/draft-03/schema#",
-    "id" : "http://json-schema.org/draft-03/schema#",
-    "type" : "object",
-
-    "properties" : {
-        "type" : {
-            "type" : ["string", "array"],
-            "items" : {"type" : ["string", {"$ref" : "#"}]},
-            "uniqueItems" : True,
-            "default" : "any"
-        },
-        "properties" : {
-            "type" : "object",
-            "additionalProperties" : {"$ref" : "#", "type": "object"},
-            "default" : {}
-        },
-        "patternProperties" : {
-            "type" : "object",
-            "additionalProperties" : {"$ref" : "#"},
-            "default" : {}
-        },
-        "additionalProperties" : {
-            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
-        },
-        "items" : {
-            "type" : [{"$ref" : "#"}, "array"],
-            "items" : {"$ref" : "#"},
-            "default" : {}
-        },
-        "additionalItems" : {
-            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
-        },
-        "required" : {"type" : "boolean", "default" : False},
-        "dependencies" : {
-            "type" : ["string", "array", "object"],
-            "additionalProperties" : {
-                "type" : ["string", "array", {"$ref" : "#"}],
-                "items" : {"type" : "string"}
-            },
-            "default" : {}
-        },
-        "minimum" : {"type" : "number"},
-        "maximum" : {"type" : "number"},
-        "exclusiveMinimum" : {"type" : "boolean", "default" : False},
-        "exclusiveMaximum" : {"type" : "boolean", "default" : False},
-        "minItems" : {"type" : "integer", "minimum" : 0, "default" : 0},
-        "maxItems" : {"type" : "integer", "minimum" : 0},
-        "uniqueItems" : {"type" : "boolean", "default" : False},
-        "pattern" : {"type" : "string", "format" : "regex"},
-        "minLength" : {"type" : "integer", "minimum" : 0, "default" : 0},
-        "maxLength" : {"type" : "integer"},
-        "enum" : {"type" : "array", "minItems" : 1, "uniqueItems" : True},
-        "default" : {"type" : "any"},
-        "title" : {"type" : "string"},
-        "description" : {"type" : "string"},
-        "format" : {"type" : "string"},
-        "maxDecimal" : {"type" : "number", "minimum" : 0},
-        "divisibleBy" : {
-            "type" : "number",
-            "minimum" : 0,
-            "exclusiveMinimum" : True,
-            "default" : 1
-        },
-        "disallow" : {
-            "type" : ["string", "array"],
-            "items" : {"type" : ["string", {"$ref" : "#"}]},
-            "uniqueItems" : True
-        },
-        "extends" : {
-            "type" : [{"$ref" : "#"}, "array"],
-            "items" : {"$ref" : "#"},
-            "default" : {}
-        },
-        "id" : {"type" : "string", "format" : "uri"},
-        "$ref" : {"type" : "string", "format" : "uri"},
-        "$schema" : {"type" : "string", "format" : "uri"},
-    },
-    "dependencies" : {
-        "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
-    },
-}
-
 EPSILON = 10 ** -15
+
+
+class UnknownType(Exception):
+    """
+    An unknown type was given.
+
+    """
 
 
 class SchemaError(Exception):
@@ -187,9 +111,9 @@ class ValidationError(Exception):
         self.path = []
 
 
-class Validator(object):
+class Draft3Validator(object):
     """
-    A JSON Schema validator.
+    A validator for JSON Schema draft 3.
 
     """
 
@@ -198,23 +122,9 @@ class Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(
-        self, version=DRAFT_3, unknown_type="skip",
-        unknown_property="skip", types=(),
-    ):
+    def __init__(self, types=()):
         """
-        Initialize a Validator.
-
-        ``version`` specifies which version of the JSON Schema specification to
-        validate with. Currently only draft-03 is supported (and is the
-        default).
-
-        ``unknown_type`` and ``unknown_property`` control what to do when an
-        unknown type (resp. property) is encountered. By default, the
-        metaschema is respected (which e.g. for draft 3 allows a schema to have
-        additional properties), but if for some reason you want to modify this
-        behavior, you can do so without needing to modify the metaschema by
-        passing ``"error"`` or ``"warn"`` to these arguments.
+        Initialize a validator.
 
         ``types`` is a mapping (or iterable of 2-tuples) containing additional
         types or alternate types to verify via the 'type' property. For
@@ -227,10 +137,6 @@ class Validator(object):
 
         """
 
-        self._unknown_type = unknown_type
-        self._unknown_property = unknown_property
-        self._version = version
-
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
         self._types["any"] = tuple(self._types.values())
@@ -241,18 +147,14 @@ class Validator(object):
 
         """
 
-        py_type = self._types.get(type)
-
-        if py_type is None:
-            self.schema_error(
-                self._unknown_type, "%r is not a known type" % (type,)
-            )
-            return False
+        if type not in self._types:
+            raise UnknownType(type)
+        py_type = self._types[type]
 
         # the only thing we're careful about here is evading bool inheriting
         # from int, so let's be even dirtier than usual
 
-        elif (
+        if (
             # it's not a bool, so no worries
             not isinstance(instance, bool) or
 
@@ -264,14 +166,6 @@ class Validator(object):
 
         ):
             return isinstance(instance, py_type)
-
-    def schema_error(self, level, msg):
-        if level == "skip":
-            return
-        elif level == "warn":
-            warnings.warn(msg)
-        else:
-            raise SchemaError(msg)
 
     def is_valid(self, instance, schema, meta_validate=True):
         """
@@ -300,7 +194,7 @@ class Validator(object):
 
         if meta_validate:
             for error in self.iter_errors(
-                schema, self._version, meta_validate=False
+                schema, self.META_SCHEMA, meta_validate=False
             ):
                 s = SchemaError(error.message)
                 s.path = error.path
@@ -330,12 +224,6 @@ class Validator(object):
 
         for error in self.iter_errors(*args, **kwargs):
             raise error
-
-    def unknown_property(self, property, instance, schema):
-        self.schema_error(
-            self._unknown_property,
-            "%r is not a known schema property" % (property,)
-        )
 
     def validate_type(self, types, instance, schema):
         types = _list(types)
@@ -558,7 +446,104 @@ for no_op in [                                  # handled in:
     "links", "name", "title",
     "ref", "schema",                            # not yet supported
 ]:
-    setattr(Validator, "validate_" + no_op, lambda *args, **kwargs : None)
+    setattr(Draft3Validator, "validate_" + no_op, lambda *args, **kw : None)
+
+
+Draft3Validator.META_SCHEMA = {
+    "$schema" : "http://json-schema.org/draft-03/schema#",
+    "id" : "http://json-schema.org/draft-03/schema#",
+    "type" : "object",
+
+    "properties" : {
+        "type" : {
+            "type" : ["string", "array"],
+            "items" : {"type" : ["string", {"$ref" : "#"}]},
+            "uniqueItems" : True,
+            "default" : "any"
+        },
+        "properties" : {
+            "type" : "object",
+            "additionalProperties" : {"$ref" : "#", "type": "object"},
+            "default" : {}
+        },
+        "patternProperties" : {
+            "type" : "object",
+            "additionalProperties" : {"$ref" : "#"},
+            "default" : {}
+        },
+        "additionalProperties" : {
+            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
+        },
+        "items" : {
+            "type" : [{"$ref" : "#"}, "array"],
+            "items" : {"$ref" : "#"},
+            "default" : {}
+        },
+        "additionalItems" : {
+            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
+        },
+        "required" : {"type" : "boolean", "default" : False},
+        "dependencies" : {
+            "type" : ["string", "array", "object"],
+            "additionalProperties" : {
+                "type" : ["string", "array", {"$ref" : "#"}],
+                "items" : {"type" : "string"}
+            },
+            "default" : {}
+        },
+        "minimum" : {"type" : "number"},
+        "maximum" : {"type" : "number"},
+        "exclusiveMinimum" : {"type" : "boolean", "default" : False},
+        "exclusiveMaximum" : {"type" : "boolean", "default" : False},
+        "minItems" : {"type" : "integer", "minimum" : 0, "default" : 0},
+        "maxItems" : {"type" : "integer", "minimum" : 0},
+        "uniqueItems" : {"type" : "boolean", "default" : False},
+        "pattern" : {"type" : "string", "format" : "regex"},
+        "minLength" : {"type" : "integer", "minimum" : 0, "default" : 0},
+        "maxLength" : {"type" : "integer"},
+        "enum" : {"type" : "array", "minItems" : 1, "uniqueItems" : True},
+        "default" : {"type" : "any"},
+        "title" : {"type" : "string"},
+        "description" : {"type" : "string"},
+        "format" : {"type" : "string"},
+        "maxDecimal" : {"type" : "number", "minimum" : 0},
+        "divisibleBy" : {
+            "type" : "number",
+            "minimum" : 0,
+            "exclusiveMinimum" : True,
+            "default" : 1
+        },
+        "disallow" : {
+            "type" : ["string", "array"],
+            "items" : {"type" : ["string", {"$ref" : "#"}]},
+            "uniqueItems" : True
+        },
+        "extends" : {
+            "type" : [{"$ref" : "#"}, "array"],
+            "items" : {"$ref" : "#"},
+            "default" : {}
+        },
+        "id" : {"type" : "string", "format" : "uri"},
+        "$ref" : {"type" : "string", "format" : "uri"},
+        "$schema" : {"type" : "string", "format" : "uri"},
+    },
+    "dependencies" : {
+        "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
+    },
+}
+
+
+class Validator(Draft3Validator):
+    """
+    Deprecated: Use :class:`Draft3Validator` instead.
+
+    """
+
+    def __init__(
+        self, version=None, unknown_type="skip", unknown_property="skip",
+        *args, **kwargs
+    ):
+        super(Validator, self).__init__(*args, **kwargs)
 
 
 class ErrorTree(object):
@@ -681,7 +666,7 @@ def _delist(thing):
 
 
 def validate(
-    instance, schema, meta_validate=True, cls=Validator, *args, **kwargs
+    instance, schema, meta_validate=True, cls=Draft3Validator, *args, **kwargs
 ):
     """
     Validate an ``instance`` under the given ``schema``.
