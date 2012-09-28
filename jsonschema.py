@@ -149,23 +149,14 @@ class Draft3Validator(object):
 
         if type not in self._types:
             raise UnknownType(type)
-        py_type = self._types[type]
+        type = self._types[type]
 
-        # the only thing we're careful about here is evading bool inheriting
-        # from int, so let's be even dirtier than usual
-
-        if (
-            # it's not a bool, so no worries
-            not isinstance(instance, bool) or
-
-            # it is a bool, but we're checking for a bool, so no worries
-            (
-                py_type is bool or
-                isinstance(py_type, tuple) and bool in py_type
-            )
-
-        ):
-            return isinstance(instance, py_type)
+        # bool inherits from int, so ensure bools aren't reported as integers
+        if isinstance(instance, bool):
+            type = _flatten(type)
+            if int in type and bool not in type:
+                return False
+        return isinstance(instance, type)
 
     def is_valid(self, instance, schema, meta_validate=True):
         """
@@ -633,6 +624,29 @@ def _types_msg(instance, types):
         except Exception:
             reprs.append(repr(type))
     return "%r is not of type %s" % (instance, ", ".join(reprs))
+
+
+def _flatten(suitable_for_isinstance):
+    """
+    isinstance() can accept a bunch of really annoying different types:
+        * a single type
+        * a tuple of types
+        * an arbitrary nested tree of tuples
+
+    Return a flattened tuple of the given argument.
+
+    """
+
+    types = set()
+
+    if not isinstance(suitable_for_isinstance, tuple):
+        suitable_for_isinstance = (suitable_for_isinstance,)
+    for thing in suitable_for_isinstance:
+        if isinstance(thing, tuple):
+            types.update(_flatten(thing))
+        else:
+            types.add(thing)
+    return tuple(types)
 
 
 def _list(thing):

@@ -9,6 +9,10 @@ if sys.version_info[:2] < (2, 7):  # pragma: no cover
 else:
     from unittest import TestCase
 
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
@@ -789,14 +793,26 @@ class TestErrorTree(TestCase):
 
 
 class TestDraft3Validator(TestCase):
-    def test_is_type(self):
-        v = Draft3Validator()
-        self.assertTrue(v.is_type("foo", "string"))
+    def setUp(self):
+        self.validator = Draft3Validator()
 
-    def test_is_type_invalid_type(self):
-        v = Draft3Validator()
+    def test_is_type_returns_true_for_valid_type(self):
+        self.assertTrue(self.validator.is_type("foo", "string"))
+
+    def test_is_type_returns_false_for_invalid_type(self):
+        self.assertFalse(self.validator.is_type("foo", "array"))
+
+    def test_is_type_evades_bool_inheriting_from_int(self):
+        self.assertFalse(self.validator.is_type(True, "integer"))
+        self.assertFalse(self.validator.is_type(True, "number"))
+
+    def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
+        self.assertTrue(self.validator.is_type(True, "boolean"))
+        self.assertTrue(self.validator.is_type(True, "any"))
+
+    def test_is_type_raises_exception_for_unknown_type(self):
         with self.assertRaises(UnknownType):
-            v.is_type("foo", object())
+            self.validator.is_type("foo", object())
 
 
 class TestIgnorePropertiesForIrrelevantTypes(TestCase):
