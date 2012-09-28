@@ -794,12 +794,31 @@ class TestErrorTree(TestCase):
 
 class TestDraft3Validator(TestCase):
     def setUp(self):
+        self.instance = mock.Mock()
         self.validator = Draft3Validator()
 
-    def test_is_type_returns_true_for_valid_type(self):
+    def test_valid_instances_are_valid(self):
+        errors = iter([])
+        schema = mock.Mock()
+
+        with mock.patch.object(
+            self.validator, "iter_errors", return_value=errors,
+        ):
+            self.assertTrue(self.validator.is_valid(self.instance, schema))
+
+    def test_invalid_instances_are_not_valid(self):
+        errors = iter([mock.Mock()])
+        schema = mock.Mock()
+
+        with mock.patch.object(
+            self.validator, "iter_errors", return_value=errors,
+        ):
+            self.assertFalse(self.validator.is_valid(self.instance, schema))
+
+    def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
 
-    def test_is_type_returns_false_for_invalid_type(self):
+    def test_is_type_is_false_for_invalid_type(self):
         self.assertFalse(self.validator.is_type("foo", "array"))
 
     def test_is_type_evades_bool_inheriting_from_int(self):
