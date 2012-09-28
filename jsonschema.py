@@ -158,7 +158,7 @@ class Draft3Validator(object):
                 return False
         return isinstance(instance, type)
 
-    def is_valid(self, instance, schema, meta_validate=True):
+    def is_valid(self, instance, schema):
         """
         Check if the ``instance`` is valid under the ``schema``.
 
@@ -166,32 +166,27 @@ class Draft3Validator(object):
 
         """
 
-        error = next(self.iter_errors(instance, schema, meta_validate), None)
+        error = next(self.iter_errors(instance, schema), None)
         return error is None
 
-    def iter_errors(self, instance, schema, meta_validate=True):
+    def check_schema(self, schema):
+        """
+        Validate a schema against the meta-schema.
+
+        """
+
+        for error in self.iter_errors(schema, self.META_SCHEMA):
+            s = SchemaError(error.message)
+            s.path = error.path
+            s.validator = error.validator
+            # I think we're safer raising these always, not yielding them
+            raise s
+
+    def iter_errors(self, instance, schema):
         """
         Lazily yield each of the errors in the given ``instance``.
 
-        If you are unsure whether your schema itself is valid,
-        ``meta_validate`` will first validate that the schema is valid before
-        attempting to validate the instance. ``meta_validate`` is ``True`` by
-        default, since setting it to ``False`` can lead to confusing error
-        messages with an invalid schema. If you're sure your schema is in fact
-        valid, or don't care, feel free to set this to ``False``. The meta
-        validation will be done using the appropriate ``version``.
-
         """
-
-        if meta_validate:
-            for error in self.iter_errors(
-                schema, self.META_SCHEMA, meta_validate=False
-            ):
-                s = SchemaError(error.message)
-                s.path = error.path
-                s.validator = error.validator
-                # I think we're safer raising these always, not yielding them
-                raise s
 
         for k, v in iteritems(schema):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
@@ -244,9 +239,7 @@ class Draft3Validator(object):
 
         for property, subschema in iteritems(properties):
             if property in instance:
-                for error in self.iter_errors(
-                    instance[property], subschema, meta_validate=False
-                ):
+                for error in self.iter_errors(instance[property], subschema):
                     error.path.append(property)
                     yield error
             elif subschema.get("required", False):
@@ -261,9 +254,7 @@ class Draft3Validator(object):
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
                 if re.match(pattern, k):
-                    for error in self.iter_errors(
-                        v, subschema, meta_validate=False
-                    ):
+                    for error in self.iter_errors(v, subschema):
                         yield error
 
     def validate_additionalProperties(self, aP, instance, schema):
@@ -274,9 +265,7 @@ class Draft3Validator(object):
 
         if self.is_type(aP, "object"):
             for extra in extras:
-                for error in self.iter_errors(
-                    instance[extra], aP, meta_validate=False
-                ):
+                for error in self.iter_errors(instance[extra], aP):
                     yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
@@ -291,9 +280,7 @@ class Draft3Validator(object):
                 continue
 
             if self.is_type(dependency, "object"):
-                for error in self.iter_errors(
-                    instance, dependency, meta_validate=False
-                ):
+                for error in self.iter_errors(instance, dependency):
                     yield error
             else:
                 dependencies = _list(dependency)
@@ -309,16 +296,12 @@ class Draft3Validator(object):
 
         if self.is_type(items, "object"):
             for index, item in enumerate(instance):
-                for error in self.iter_errors(
-                    item, items, meta_validate=False
-                ):
+                for error in self.iter_errors(item, items):
                     error.path.append(index)
                     yield error
         else:
             for (index, item), subschema in zip(enumerate(instance), items):
-                for error in self.iter_errors(
-                    item, subschema, meta_validate=False
-                ):
+                for error in self.iter_errors(item, subschema):
                     error.path.append(index)
                     yield error
 
@@ -330,7 +313,7 @@ class Draft3Validator(object):
 
         if self.is_type(aI, "object"):
             for item in instance[len(schema):]:
-                for error in self.iter_errors(item, aI, meta_validate=False):
+                for error in self.iter_errors(item, aI):
                     yield error
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
@@ -424,9 +407,7 @@ class Draft3Validator(object):
         if self.is_type(extends, "object"):
             extends = [extends]
         for subschema in extends:
-            for error in self.iter_errors(
-                instance, subschema, meta_validate=False
-            ):
+            for error in self.iter_errors(instance, subschema):
                 yield error
 
 
@@ -685,6 +666,14 @@ def validate(
     """
     Validate an ``instance`` under the given ``schema``.
 
+    If you are unsure whether your schema itself is valid, ``meta_validate``
+    will first validate that the schema is valid before attempting to validate
+    the instance. ``meta_validate`` is ``True`` by default, since setting it to
+    ``False`` can lead to confusing error messages with an invalid schema. If
+    you're sure your schema is in fact valid, or don't care, feel free to set
+    this to ``False``. The meta validation will be done using the appropriate
+    ``version``.
+
     By default, the :class:`Validator` class from this module is used to
     perform the validation. To use another validator, pass it into the ``cls``
     argument.
@@ -696,4 +685,6 @@ def validate(
     """
 
     validator = cls(*args, **kwargs)
-    validator.validate(instance, schema, meta_validate=meta_validate)
+    if meta_validate:
+        validator.check_schema(schema)
+    validator.validate(instance, schema)
