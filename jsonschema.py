@@ -1,11 +1,11 @@
 """
 An implementation of JSON Schema for Python
 
-The main functionality is provided by the Validator classes for each of the
+The main functionality is provided by the validator classes for each of the
 supported JSON Schema versions.
 
 Most commonly, the :function:`validate` function is the quickest way to simply
-validate a given instance under a schema, and will create a Validator for you.
+validate a given instance under a schema, and will create a validator for you.
 
 """
 
@@ -101,8 +101,8 @@ class Draft3Validator(object):
         ``int`` and ``float``.  To override this behavior (e.g. for also
         allowing ``decimal.Decimal``), pass ``types={"number" : (int, float,
         decimal.Decimal)} *including* the default types if so desired, which
-        are fairly obvious but can be accessed via ``Validator.DEFAULT_TYPES``
-        if necessary.
+        are fairly obvious but can be accessed via the ``DEFAULT_TYPES``
+        attribute on this class if necessary.
 
         """
 
@@ -665,13 +665,10 @@ def validate(
     this to ``False``. The meta validation will be done using the appropriate
     ``version``.
 
-    By default, the :class:`Validator` class from this module is used to
-    perform the validation. To use another validator, pass it into the ``cls``
-    argument.
-
-    Any other provided positional and keyword arguments will be provided to the
-    ``cls``. See the :class:`Validator` class' docstring for details on the
-    arguments it accepts.
+    ``cls`` is a validator class that will be used to validate the instance.
+    By default this is a draft 3 validator.  Any other provided positional and
+    keyword arguments will be provided to this class when constructing a
+    validator.
 
     """
 
