@@ -6,7 +6,7 @@ jsonschema
 <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_) for Python (supporting
 2.6+ including Python 3).
 
-::
+.. code:: python
 
     >>> from jsonschema import validate
 
@@ -39,7 +39,7 @@ Features
 
 * Lazy validation that can iteratively report *all* validation errors.
 
-::
+.. code:: python
 
     >>> from jsonschema import Draft3Validator
     >>> schema = {
@@ -57,7 +57,7 @@ Features
 
 * Programmatic querying of which properties or items failed validation.
 
-::
+.. code:: python
 
     >>> from jsonschema import ErrorTree, Draft3Validator
     >>> schema = {
