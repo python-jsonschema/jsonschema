@@ -1,0 +1,18 @@
+[
+    {
+        "description": "pattern validation",
+        "schema": {"pattern": "^a*$"},
+        "tests": [
+            {
+                "description": "a matching pattern is valid",
+                "data": "aaa",
+                "valid": true
+            },
+            {
+                "description": "a non-matching pattern is invalid",
+                "data": "abc",
+                "valid": false
+            }
+        ]
+    }
+]
