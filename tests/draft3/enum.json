@@ -26,7 +26,7 @@
             },
             {
                 "description": "something else is invalid",
-                "data": nil,
+                "data": null,
                 "valid": false
             },
             {
