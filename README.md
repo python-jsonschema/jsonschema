@@ -24,6 +24,7 @@ which logically group a set of test cases together.
 Inside each `.json` file is a single array containing objects. It's easiest to
 illustrate the structure of these with an example:
 
+```json
     {
         "description": "the description of the test case",
         "schema": "the schema that should be validated against",
@@ -37,9 +38,10 @@ illustrate the structure of these with an example:
                 "description": "another specific test this time, invalid",
                 "data": 15,
                 "valid": false
-            },
+            }
         ]
     }
+```
 
 So a description, a schema, and some tests, where tests is an array containing
 one or more objects with descriptions, data, and a boolean indicating whether
