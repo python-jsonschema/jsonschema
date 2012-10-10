@@ -2,16 +2,17 @@
     {
         "description": "additionalItems as schema",
         "schema": {
+            "items": [],
             "additionalItems": {"type": "integer"}
         },
         "tests": [
             {
-                "description": "all items match schema",
-                "data": [ 1, 2, 3, 4.5, 5 ],
+                "description": "additional items match schema",
+                "data": [ 1, 2, 3, 4 ],
                 "valid": true
             },
             {
-                "description": "all items match schema",
+                "description": "additional items do not match schema",
                 "data": [ 1, 2, 3, "foo" ],
                 "valid": false
             }
