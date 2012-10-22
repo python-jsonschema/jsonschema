@@ -532,6 +532,26 @@ class TestValidate(ParameterizedTestCase, TestCase):
         test(self, expect, instance)
 
     @parametrized(
+        ("", "valid", {"foo" : "baz", "bar" : 2}),
+        ("mismatch_extends", "invalid", {"foo" : "baz"}),
+        ("mismatch_extended", "invalid", {"bar" : 2}),
+        ("wrong_type", "invalid", {"foo" : "baz", "bar" : "quux"}),
+    )
+    def extends_additionalProperties(self, expect, instance):
+        schema = {
+            "properties" : {"bar" : {"type" : "integer", "required" : True}},
+            "extends" : {
+                "properties" : {
+                    "foo" : {"type" : "string", "required" : True},
+                }
+            },
+            "additionalProperties": False
+        }
+
+        test = validation_test(**schema)
+        test(self, expect, instance)
+
+    @parametrized(
         ("", "valid", {"foo" : "quux", "bar" : 2, "baz" : None}),
         ("mismatch_first_extends", "invalid", {"bar" : 2, "baz" : None}),
         ("mismatch_second_extends", "invalid", {"foo" : "quux", "bar" : 2}),
