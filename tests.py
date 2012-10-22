@@ -585,6 +585,23 @@ class TestValidate(ParameterizedTestCase, TestCase):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
+    root_pointer_ref = parametrized(
+        ("match", "valid", {"foo": False}),
+        ("recursive_match", "valid", {"foo": {"foo": False}}),
+        ("mismatch", "invalid", {"bar": False}),
+        ("recursive_mismatch", "invalid", {"foo": {"bar": False}})
+    )(validation_test(
+        properties={"foo": {"$ref": "#"}}, additionalProperties=False)
+    )
+
+    relative_pointer_ref = parametrized(
+        ("match", "valid", {"bar": 3}),
+        ("mismatch", "invalid", {"bar": True})
+    )(validation_test(
+        properties={"foo": {"type": "integer"},
+                    "bar": {"$ref": "#/properties/foo"}}
+    ))
+
 
 class TestIterErrors(TestCase):
     def setUp(self):
