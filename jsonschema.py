@@ -95,6 +95,9 @@ class Draft3Validator(object):
         """
         Initialize a validator.
 
+        ``schema`` should be a *valid* JSON Schema object already converted to
+        a native Python object (typically a dict via ``json.load``).
+
         ``types`` is a mapping (or iterable of 2-tuples) containing additional
         types or alternate types to verify via the 'type' property. For
         instance, the default types for the 'number' JSON Schema type are
@@ -111,15 +114,6 @@ class Draft3Validator(object):
         self._types["any"] = tuple(self._types.values())
 
         self.schema = schema
-
-    @property
-    def schema(self):
-        return self._schema
-
-    @schema.setter
-    def schema(self, schema):
-        self.check_schema(schema)
-        self._schema = schema
 
     def is_type(self, instance, type):
         """
@@ -149,13 +143,14 @@ class Draft3Validator(object):
         error = next(self.iter_errors(instance, schema), None)
         return error is None
 
-    def check_schema(self, schema):
+    @classmethod
+    def check_schema(cls, schema):
         """
-        Validate a schema against the meta-schema.
+        Validate a ``schema`` against the meta-schema to see if it is valid.
 
         """
 
-        for error in self.iter_errors(schema, self.META_SCHEMA):
+        for error in cls(cls.META_SCHEMA).iter_errors(schema):
             s = SchemaError(error.message)
             s.path = error.path
             s.validator = error.validator
@@ -669,13 +664,10 @@ def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
     """
     Validate an ``instance`` under the given ``schema``.
 
-    If you are unsure whether your schema itself is valid, ``meta_validate``
-    will first validate that the schema is valid before attempting to validate
-    the instance. ``meta_validate`` is ``True`` by default, since setting it to
-    ``False`` can lead to confusing error messages with an invalid schema. If
-    you're sure your schema is in fact valid, or don't care, feel free to set
-    this to ``False``. The meta validation will be done using the appropriate
-    ``version``.
+    First verifies that the provided schema is itself valid, since not doing so
+    can lead to less obvious failures when validating. If you know it is or
+    don't care, use ``YourValidator(schema).validate(instance)`` directly
+    instead (e.g. ``Draft3Validator``).
 
     ``cls`` is a validator class that will be used to validate the instance.
     By default this is a draft 3 validator.  Any other provided positional and
@@ -684,13 +676,16 @@ def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
 
     """
 
+
     meta_validate = kwargs.pop("meta_validate", None)
+
     if meta_validate is not None:
         warnings.warn(
-            "meta_validate is deprecated and will be removed. If you want to "
-            "validate a schema, use Draft3Validator.check_schema instead.",
+            "meta_validate is deprecated and will be removed. If you do not "
+            "want to validate a schema, use Draft3Validator.validate instead.",
             DeprecationWarning, stacklevel=2,
         )
 
-    validator = cls(schema, *args, **kwargs)
-    validator.validate(instance)
+    if meta_validate is not False:  # yes this is needed since True was default
+        cls.check_schema(schema)
+    cls(schema, *args, **kwargs).validate(instance)

@@ -798,18 +798,6 @@ class TestDraft3Validator(TestCase):
         self.schema = {}
         self.validator = Draft3Validator(self.schema)
 
-    def test_init(self):
-        with mock.patch.object(Draft3Validator, "check_schema"):
-            self.assertIs(self.validator.schema, self.schema)
-
-    def test_schemas_are_validated_when_assigned(self):
-        schema = mock.Mock()
-        with mock.patch.object(self.validator, "check_schema") as check_schema:
-            self.validator.schema = schema
-
-        check_schema.assert_called_once_with(schema)
-        self.assertEqual(self.validator.schema, schema)
-
     def test_valid_instances_are_valid(self):
         errors = iter([])
 
