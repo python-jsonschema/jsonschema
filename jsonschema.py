@@ -41,6 +41,13 @@ class UnknownType(Exception):
     """
 
 
+class InvalidRef(Exception):
+    """
+    An invalid reference was given.
+
+    """
+
+
 class SchemaError(Exception):
     """
     The provided schema is malformed.
@@ -390,32 +397,13 @@ class Draft3Validator(object):
                 yield error
 
     def validate_ref(self, ref, instance, schema):
-        if ref.startswith("#"):
-            parts = ref[1:].split("/")
-            if parts.pop(0) != '':
-                warnings.warn("jsonschema only supports json-pointer $refs")
-                return
-
-            parts = map(unquote, parts)
-            parts = [part.replace('~1', '/').replace('~0', '~')
-                     for part in parts]
-
-            pointer = self.schema
-
-            if not pointer:
-                # We must be validation against the META_SCHEMA
-                pointer = self.META_SCHEMA
-
-            try:
-                for part in parts:
-                    pointer = pointer[part]
-            except KeyError:
-                yield SchemaError("Unresolvable json-pointer %r" % ref)
-            else:
-                for error in self.iter_errors(instance, pointer):
-                    yield error
-        else:
+        if ref != "#" and not ref.startswith("#/"):
             warnings.warn("jsonschema only supports json-pointer $refs")
+            return
+
+        resolved = resolve_local_ref(self.schema, ref)
+        for error in self.iter_errors(instance, resolved):
+            yield error
 
 
 Draft3Validator.META_SCHEMA = {
@@ -554,6 +542,28 @@ class ErrorTree(object):
 
     def __repr__(self):
         return "<%s (%s errors)>" % (self.__class__.__name__, len(self))
+
+
+def resolve_local_ref(schema, ref):
+    """
+    Resolve a local reference ``ref`` within the given root ``schema``.
+
+    ``ref`` should be a local ref whose ``#`` is still present.
+
+    """
+
+    if ref == "#":
+        return schema
+
+    parts = ref.lstrip("#/").split("/")
+
+    try:
+        for part in parts:
+            schema = schema[part]
+    except KeyError:
+        raise InvalidRef("Unresolvable json-pointer %r" % ref)
+    else:
+        return schema
 
 
 def _find_additional_properties(instance, schema):
