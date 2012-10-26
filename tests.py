@@ -802,6 +802,39 @@ class TestDraft3Validator(TestCase):
         with mock.patch.object(Draft3Validator, "check_schema"):
             self.assertIs(self.validator.schema, self.schema)
 
+    def test_rudimentary_ref_support(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "nn": {
+                    "$ref": "http://www.example.com/schemas#/neatoNumber"
+                },
+                "ss": {
+                    "$ref": "http://www.example.com/schemas#/superString"
+                }
+            }
+        }
+        schema_store = {
+            "http://www.example.com/schemas": {
+                "neatoNumber": {
+                    "type": "number"
+                },
+                "superString": {
+                    "type": "string"
+                }
+            }
+        }
+        validator = Draft3Validator(schema, schema_store=schema_store)
+
+        validator.validate({"nn": 1})
+        validator.validate({"ss": "hello"})
+
+        with self.assertRaises(ValidationError):
+            validator.validate({"nn": "hello"})
+
+        with self.assertRaises(ValidationError):
+            validator.validate({"ss": 1})
+
     def test_schemas_are_validated_when_assigned(self):
         schema = mock.Mock()
         with mock.patch.object(self.validator, "check_schema") as check_schema:

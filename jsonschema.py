@@ -18,8 +18,9 @@ import re
 import sys
 import warnings
 
-
 __version__ = "0.7dev"
+
+from jsonpointer import resolve_pointer, JsonPointerException
 
 FLOAT_TOLERANCE = 10 ** -15
 PY3 = sys.version_info[0] >= 3
@@ -91,7 +92,7 @@ class Draft3Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(self, schema, types=()):
+    def __init__(self, schema, types=(), schema_store=dict()):
         """
         Initialize a validator.
 
@@ -109,6 +110,8 @@ class Draft3Validator(object):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
         self._types["any"] = tuple(self._types.values())
+
+        self._schema_store = schema_store
 
         self.schema = schema
 
@@ -183,6 +186,38 @@ class Draft3Validator(object):
                 # make sure to set it
                 error.validator = error.validator or k
                 yield error
+
+    def validate_ref(self, ref, instance, schema):
+
+        if '#' not in ref:
+            yield ValidationError("Invalid $ref: \"%s\"" % ref)
+            return
+
+        url, pointer = ref.split('#', 1)
+
+        # If there is a URL, try to fetch the schema from _schema_store
+        if url:
+            ref_schema = self._schema_store.get(url)
+            if not ref_schema:
+                yield ValidationError("Schema not found: " + ref)
+                return
+        else:
+            # self.schema will be None when running check_schema
+            if not getattr(self, "_schema", False):
+                ref_schema = self.META_SCHEMA
+            else:
+                ref_schema = self.schema
+
+        # If there is a pointer, try to resolve it
+        if pointer:
+            try:
+                ref_schema = resolve_pointer(ref_schema, pointer)
+            except JsonPointerException as inst:
+                err = unicode(inst)
+                yield ValidationError("Invalid JSON pointer: %s" % err)
+
+        for error in self.iter_errors(instance, ref_schema):
+            yield error
 
     def validate(self, *args, **kwargs):
         """
