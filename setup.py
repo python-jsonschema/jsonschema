@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-__version__ = "0.7dev"
+from jsonschema import __version__
 
 
 with open("README.rst") as readme:
