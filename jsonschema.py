@@ -91,7 +91,7 @@ class Draft3Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(self, schema, types=()):
+    def __init__(self, schema, types=(), schema_store=dict()):
         """
         Initialize a validator.
 
@@ -109,6 +109,13 @@ class Draft3Validator(object):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
         self._types["any"] = tuple(self._types.values())
+
+        self._schema_store = schema_store
+
+        # If no schema_store passed, initiate it with the meta-schema. Why not?
+        if not schema_store:
+            META_SCHEMA = Draft3Validator.META_SCHEMA
+            self._schema_store[META_SCHEMA['id']] = META_SCHEMA
 
         self.schema = schema
 
@@ -183,6 +190,19 @@ class Draft3Validator(object):
                 # make sure to set it
                 error.validator = error.validator or k
                 yield error
+
+    def validate_ref(self, ref, instance, schema):
+
+        # Don't break meta-schema validation
+        if ref == '#':
+            return
+
+        foreign_schema = self._schema_store.get(ref)
+        if foreign_schema:
+            for error in self.iter_errors(instance, foreign_schema):
+                yield error
+        if not foreign_schema:
+            yield ValidationError("Schema not found: " + ref)
 
     def validate(self, *args, **kwargs):
         """
