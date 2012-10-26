@@ -27,9 +27,11 @@ PY3 = sys.version_info[0] >= 3
 if PY3:
     basestring = unicode = str
     iteritems = operator.methodcaller("items")
+    from urllib.parse import unquote
 else:
     from itertools import izip as zip
     iteritems = operator.methodcaller("iteritems")
+    from urllib import unquote
 
 
 class UnknownType(Exception):
@@ -386,6 +388,34 @@ class Draft3Validator(object):
         for subschema in extends:
             for error in self.iter_errors(instance, subschema):
                 yield error
+
+    def validate_ref(self, ref, instance, schema):
+        if ref.startswith("#"):
+            parts = ref[1:].split("/")
+            if parts.pop(0) != '':
+                warnings.warn("jsonschema only supports json-pointer $refs")
+                return
+
+            parts = map(unquote, parts)
+            parts = [part.replace('~1', '/').replace('~0', '~')
+                     for part in parts]
+
+            pointer = self.schema
+
+            if not pointer:
+                # We must be validation against the META_SCHEMA
+                pointer = self.META_SCHEMA
+
+            try:
+                for part in parts:
+                    pointer = pointer[part]
+            except KeyError:
+                yield SchemaError("Unresolvable json-pointer %r" % ref)
+            else:
+                for error in self.iter_errors(instance, pointer):
+                    yield error
+        else:
+            warnings.warn("jsonschema only supports json-pointer $refs")
 
 
 Draft3Validator.META_SCHEMA = {
