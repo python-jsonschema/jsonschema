@@ -557,6 +557,8 @@ def resolve_local_ref(schema, ref):
 
     parts = ref.lstrip("#/").split("/")
 
+    parts = [part.replace('~1', '/').replace('~0', '~') for part in parts]
+
     try:
         for part in parts:
             schema = schema[part]

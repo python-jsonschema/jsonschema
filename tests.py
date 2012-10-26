@@ -602,6 +602,20 @@ class TestValidate(ParameterizedTestCase, TestCase):
                     "bar": {"$ref": "#/properties/foo"}}
     ))
 
+    escaped_pointer_ref = parametrized(
+        ("slash", "invalid", {"shash": "aoeu"}),
+        ("tilda", "invalid", {"tilda": "aoeu"})
+    )(validation_test(
+        schema= {
+            "tilda~field": {"type": "integer"},
+            "slash/field": {"type": "integer"},
+            "properties": {
+                "tilda": {"$ref": "#/tilda~0field"},
+                "slash": {"$ref": "#/slash~1field"}
+            }
+        }
+    ))
+
 
 class TestIterErrors(TestCase):
     def setUp(self):
