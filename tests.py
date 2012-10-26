@@ -806,22 +806,34 @@ class TestDraft3Validator(TestCase):
         schema = {
             "type": "object",
             "properties": {
-                "a": {
-                    "$ref": "http://www.example.com/number#"
+                "nn": {
+                    "$ref": "http://www.example.com/schemas#/neatoNumber"
+                },
+                "ss": {
+                    "$ref": "http://www.example.com/schemas#/superString"
                 }
             }
         }
         schema_store = {
-            "http://www.example.com/number#": {
-                "type": "number"
+            "http://www.example.com/schemas": {
+                "neatoNumber": {
+                    "type": "number"
+                },
+                "superString": {
+                    "type": "string"
+                }
             }
         }
         validator = Draft3Validator(schema, schema_store=schema_store)
 
-        validator.validate({"a": 1})
+        validator.validate({"nn": 1})
+        validator.validate({"ss": "hello"})
 
         with self.assertRaises(ValidationError):
-            validator.validate({"a": True})
+            validator.validate({"nn": "hello"})
+
+        with self.assertRaises(ValidationError):
+            validator.validate({"ss": 1})
 
     def test_schemas_are_validated_when_assigned(self):
         schema = mock.Mock()

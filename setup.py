@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-from jsonschema import __version__
+__version__ = "0.7dev"
 
 
 with open("README.rst") as readme:
@@ -35,4 +35,7 @@ setup(
     license="MIT/X",
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
+    install_requires=[
+        "jsonpointer"
+    ]
 )

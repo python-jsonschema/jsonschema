@@ -18,8 +18,9 @@ import re
 import sys
 import warnings
 
-
 __version__ = "0.7dev"
+
+from jsonpointer import resolve_pointer, JsonPointerException
 
 FLOAT_TOLERANCE = 10 ** -15
 PY3 = sys.version_info[0] >= 3
@@ -112,11 +113,6 @@ class Draft3Validator(object):
 
         self._schema_store = schema_store
 
-        # If no schema_store passed, initiate it with the meta-schema. Why not?
-        if not schema_store:
-            META_SCHEMA = Draft3Validator.META_SCHEMA
-            self._schema_store[META_SCHEMA['id']] = META_SCHEMA
-
         self.schema = schema
 
     @property
@@ -193,16 +189,35 @@ class Draft3Validator(object):
 
     def validate_ref(self, ref, instance, schema):
 
-        # Don't break meta-schema validation
-        if ref == '#':
+        if '#' not in ref:
+            yield ValidationError("Invalid $ref: \"%s\"" % ref)
             return
 
-        foreign_schema = self._schema_store.get(ref)
-        if foreign_schema:
-            for error in self.iter_errors(instance, foreign_schema):
-                yield error
-        if not foreign_schema:
-            yield ValidationError("Schema not found: " + ref)
+        url, pointer = ref.split('#', 1)
+
+        # If there is a URL, try to fetch the schema from _schema_store
+        if url:
+            ref_schema = self._schema_store.get(url)
+            if not ref_schema:
+                yield ValidationError("Schema not found: " + ref)
+                return
+        else:
+            # self.schema will be None when running check_schema
+            if not getattr(self, "_schema", False):
+                ref_schema = self.META_SCHEMA
+            else:
+                ref_schema = self.schema
+
+        # If there is a pointer, try to resolve it
+        if pointer:
+            try:
+                ref_schema = resolve_pointer(ref_schema, pointer)
+            except JsonPointerException as inst:
+                err = unicode(inst)
+                yield ValidationError("Invalid JSON pointer: %s" % err)
+
+        for error in self.iter_errors(instance, ref_schema):
+            yield error
 
     def validate(self, *args, **kwargs):
         """
