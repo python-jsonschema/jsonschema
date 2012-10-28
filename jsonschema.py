@@ -126,7 +126,7 @@ class Draft3Validator(object):
 
     def is_type(self, instance, type):
         """
-        Check if an ``instance`` is of the provided ``type``.
+        Check if an ``instance`` is of the provided (JSON Schema) ``type``.
 
         """
 
@@ -141,15 +141,15 @@ class Draft3Validator(object):
                 return False
         return isinstance(instance, type)
 
-    def is_valid(self, instance, schema=None):
+    def is_valid(self, instance, _schema=None):
         """
-        Check if the ``instance`` is valid under the ``schema``.
+        Check if the ``instance`` is valid under the current schema.
 
         Returns a bool indicating whether validation succeeded.
 
         """
 
-        error = next(self.iter_errors(instance, schema), None)
+        error = next(self.iter_errors(instance, _schema), None)
         return error is None
 
     @classmethod
@@ -166,22 +166,22 @@ class Draft3Validator(object):
             # I think we're safer raising these always, not yielding them
             raise s
 
-    def iter_errors(self, instance, schema=None):
+    def iter_errors(self, instance, _schema=None):
         """
         Lazily yield each of the errors in the given ``instance``.
 
         """
 
-        if schema is None:
-            schema = self.schema
+        if _schema is None:
+            _schema = self.schema
 
-        for k, v in iteritems(schema):
+        for k, v in iteritems(_schema):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
 
             if validator is None:
                 continue
 
-            errors = validator(v, instance, schema) or ()
+            errors = validator(v, instance, _schema) or ()
             for error in errors:
                 # if the validator hasn't already been set (due to recursion)
                 # make sure to set it
