@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 from decimal import Decimal
 from functools import wraps
+from itertools import count
 import sys
 import warnings
+import os
+import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
     from unittest2 import TestCase
@@ -22,6 +25,50 @@ from jsonschema import (
 
 if PY3:
     basestring = unicode = str
+
+
+class TestDraft3(TestCase):
+    test_dir = "tests/draft3/"
+    validator_class = Draft3Validator
+
+
+def make_test_case(schema, data, valid, description, cls):
+    def test_case(self):
+        if valid:
+            try:
+                validate(data, schema, cls=cls)
+            except ValidationError:
+                raise self.failureException(
+                    "Validation should have passed: " + description)
+        else:
+            try:
+                validate(data, schema, cls=cls)
+            except ValidationError:
+                pass
+            else:
+                raise self.failureException(
+                    "Validation should have failed: " + description)
+    return test_case
+
+
+def load_json_tests(test_class):
+    for filename in os.listdir(test_class.test_dir):
+        if not filename.endswith('.json'):
+            continue
+        with open(test_class.test_dir + filename) as test_file:
+            data = json.load(test_file)
+            counter = count()
+            for case in data:
+                for test in case["tests"]:
+                    a_test = make_test_case(
+                        case["schema"], test["data"], test["valid"],
+                        test["description"], test_class.validator_class)
+                    a_test.__name__ = bytes(
+                        "test_%s_%s" % (filename[:-5], counter.next()))
+                    setattr(test_class, a_test.__name__, a_test)
+
+
+load_json_tests(TestDraft3)
 
 
 class ParametrizedTestCase(type):
