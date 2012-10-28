@@ -93,11 +93,34 @@ preparations for Draft 4 underway. As of right now, Draft 3 is the only
 supported version, and the default when validating. Preparations for
 implementing some Draft 4 support are in progress.
 
+
 Release Notes
 -------------
 
-``0.6`` fixes the behavior for the ``dependencies`` property, which was
-mis-implemented.
+v0.7 introduces a number of changes.
+
+The most important one is that the ``Validator`` class is now **deprecated**.
+
+In its place is the ``Draft3Validator`` class (soon to be accompanied by others
+for other supported versions). This class accepts a schema when *initializing*,
+so that the new interface is::
+
+    validator = Draft3Validator(my_schema)
+    validator.validate(some_instance)
+
+Also, *no* meta-validation is done. If you want to check if a schema is valid,
+use the ``check_schema`` ``classmethod`` (i.e. use
+``Draft3Validator.check_schema(a_maybe_valid_schema)``).
+
+The ``validate`` function of course still exists and continues to work as it
+did before with one exception: the ``meta_validate`` argument is deprecated,
+and meta-validation will now always be done. If you don't want to have it done,
+construct a validator directly as above.
+
+One last thing that is present is partial support for ``$ref``, at least for
+JSON Pointer refs. Full support should be coming soon.
+
+As always, if you find a bug, please file a ticket.
 
 
 Running the Test Suite

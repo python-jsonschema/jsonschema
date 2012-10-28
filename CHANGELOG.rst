@@ -1,3 +1,13 @@
+v0.7
+----
+
+* Partial support for (JSON Pointer) ``$ref``
+* Deprecations
+
+  * ``Validator`` is replaced by ``Draft3Validator`` with a slightly different
+    interface
+  * ``validator(meta_validate=False)``
+
 v0.6
 ----
 
