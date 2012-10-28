@@ -97,7 +97,7 @@ implementing some Draft 4 support are in progress.
 Release Notes
 -------------
 
-v0.7 introduces a number of changes.
+``v0.7`` introduces a number of changes.
 
 The most important one is that the ``Validator`` class is now **deprecated**.
 
@@ -113,7 +113,12 @@ use the ``check_schema`` ``classmethod`` (i.e. use
 ``Draft3Validator.check_schema(a_maybe_valid_schema)``).
 
 The ``validate`` function of course still exists and continues to work as it
-did before with one exception: the ``meta_validate`` argument is deprecated,
+did before::
+
+    from jsonschema import validate
+    validate(my_instance, my_schema)
+
+There's just one exception: the ``meta_validate`` argument is deprecated,
 and meta-validation will now always be done. If you don't want to have it done,
 construct a validator directly as above.
 
