@@ -19,7 +19,7 @@ import sys
 import warnings
 
 
-__version__ = "0.7dev"
+__version__ = "0.7"
 
 FLOAT_TOLERANCE = 10 ** -15
 PY3 = sys.version_info[0] >= 3
