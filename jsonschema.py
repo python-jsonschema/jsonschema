@@ -401,7 +401,7 @@ class Draft3Validator(object):
             warnings.warn("jsonschema only supports json-pointer $refs")
             return
 
-        resolved = resolve_local_ref(self.schema, ref)
+        resolved = resolve_json_pointer(self.schema, ref)
         for error in self.iter_errors(instance, resolved):
             yield error
 
@@ -544,7 +544,7 @@ class ErrorTree(object):
         return "<%s (%s errors)>" % (self.__class__.__name__, len(self))
 
 
-def resolve_local_ref(schema, ref):
+def resolve_json_pointer(schema, ref):
     """
     Resolve a local reference ``ref`` within the given root ``schema``.
 
