@@ -35,7 +35,7 @@ Features
 
 * Support for Draft 3 of the Schema with the exception of
 
-    * ``$ref``, and ``extends`` that use ``$ref``\s
+    * Non-JSON Pointer ``$ref``, and ``extends`` that use them
 
 * Lazy validation that can iteratively report *all* validation errors.
 
@@ -125,7 +125,7 @@ construct a validator directly as above.
 One last thing that is present is partial support for ``$ref``, at least for
 JSON Pointer refs. Full support should be coming soon.
 
-As always, if you find a bug, please file a ticket.
+As always, if you find any bugs, please file a ticket.
 
 
 Running the Test Suite
