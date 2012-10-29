@@ -8,9 +8,9 @@ import os
 import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
-    from unittest2 import TestCase
+    from unittest2 import TestCase, expectedFailure
 else:
-    from unittest import TestCase
+    from unittest import TestCase, expectedFailure
 
 try:
     from unittest import mock
@@ -49,6 +49,9 @@ def load_json_cases(test_dir):
                         a_test = make_case(
                             case["schema"], test["data"], test["valid"],
                             test_class.validator_class)
+                        # Disable some tests due to issue #43
+                        if case.get("description") == "heterogeneous enum validation":
+                            a_test = expectedFailure(a_test)
                         test_name = "test_%s_%s" % (filename[:-5],
                                                     test["description"])
                         test_name = re.sub(r"[\W ]+", "_", test_name)
