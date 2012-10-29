@@ -16,7 +16,7 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, Validator, iteritems, validate
+    Draft3Validator, iteritems, validate
 )
 
 
@@ -920,34 +920,3 @@ class TestIgnorePropertiesForIrrelevantTypes(TestCase):
 
 def sorted_errors(errors):
     return sorted(errors, key=lambda e : [str(err) for err in e.path])
-
-
-class TestValidator(TestCase):
-    def test_is_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            Validator()
-            self.assertEqual(len(w), 1)
-
-
-class TestValidateFunction(TestCase):
-    def test_meta_validate_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            validate("foo", {}, meta_validate=False)
-            self.assertEqual(len(w), 1)
-
-
-class TestValidatorIterErrors(TestIterErrors):
-    def setUp(self):
-        self.validator = Validator()
-
-
-class TestValidatorErrorTree(TestErrorTree):
-    def setUp(self):
-        self.validator = Validator()
-
-
-class TestValidatorValidationErrorDetails(TestValidationErrorDetails):
-    def setUp(self):
-        self.validator = Validator()

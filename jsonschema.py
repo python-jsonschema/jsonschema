@@ -19,7 +19,7 @@ import sys
 import warnings
 
 
-__version__ = "0.7"
+__version__ = "0.8dev"
 
 FLOAT_TOLERANCE = 10 ** -15
 PY3 = sys.version_info[0] >= 3
@@ -490,24 +490,6 @@ Draft3Validator.META_SCHEMA = {
 }
 
 
-class Validator(Draft3Validator):
-    """
-    Deprecated: Use :class:`Draft3Validator` instead.
-
-    """
-
-    def __init__(
-        self, version=None, unknown_type="skip", unknown_property="skip",
-        *args, **kwargs
-    ):
-        super(Validator, self).__init__({}, *args, **kwargs)
-        warnings.warn(
-            "Validator is deprecated and will be removed. "
-            "Use Draft3Validator instead.",
-            DeprecationWarning, stacklevel=2,
-        )
-
-
 class ErrorTree(object):
     """
     ErrorTrees make it easier to check which validations failed.
@@ -720,15 +702,5 @@ def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
     """
 
 
-    meta_validate = kwargs.pop("meta_validate", None)
-
-    if meta_validate is not None:
-        warnings.warn(
-            "meta_validate is deprecated and will be removed. If you do not "
-            "want to validate a schema, use Draft3Validator.validate instead.",
-            DeprecationWarning, stacklevel=2,
-        )
-
-    if meta_validate is not False:  # yes this is needed since True was default
-        cls.check_schema(schema)
+    cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
