@@ -27,48 +27,37 @@ if PY3:
     basestring = unicode = str
 
 
-class TestDraft3(TestCase):
-    test_dir = "tests/draft3/"
-    validator_class = Draft3Validator
-
-
-def make_test_case(schema, data, valid, description, cls):
+def make_case(schema, data, valid, cls):
     def test_case(self):
         if valid:
-            try:
-                validate(data, schema, cls=cls)
-            except ValidationError:
-                raise self.failureException(
-                    "Validation should have passed: " + description)
+            validate(data, schema, cls=cls)
         else:
-            try:
+            with self.assertRaises(ValidationError):
                 validate(data, schema, cls=cls)
-            except ValidationError:
-                pass
-            else:
-                raise self.failureException(
-                    "Validation should have failed: " + description)
     return test_case
 
 
-def load_json_tests(test_class):
-    for filename in os.listdir(test_class.test_dir):
-        if not filename.endswith('.json'):
-            continue
-        with open(test_class.test_dir + filename) as test_file:
-            data = json.load(test_file)
-            counter = count()
-            for case in data:
-                for test in case["tests"]:
-                    a_test = make_test_case(
-                        case["schema"], test["data"], test["valid"],
-                        test["description"], test_class.validator_class)
-                    a_test.__name__ = bytes(
-                        "test_%s_%s" % (filename[:-5], counter.next()))
-                    setattr(test_class, a_test.__name__, a_test)
+def load_json_cases(test_dir):
+    def add_test_methods(test_class):
+        for filename in os.listdir(test_dir):
+            if not filename.endswith('.json'):
+                continue
+            with open(test_dir + filename) as test_file:
+                data = json.load(test_file)
+                for case in data:
+                    for test in case["tests"]:
+                        a_test = make_case(
+                            case["schema"], test["data"], test["valid"],
+                            test_class.validator_class)
+                        setattr(test_class,
+                            filename[:-5] + ": " + test["description"], a_test)
+        return test_class
+    return add_test_methods
 
 
-load_json_tests(TestDraft3)
+@load_json_cases("tests/draft3/")
+class TestDraft3(TestCase):
+    validator_class = Draft3Validator
 
 
 class ParametrizedTestCase(type):
