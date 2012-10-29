@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from decimal import Decimal
 from functools import wraps
-from itertools import count
+import re
 import sys
 import warnings
 import os
@@ -49,8 +49,11 @@ def load_json_cases(test_dir):
                         a_test = make_case(
                             case["schema"], test["data"], test["valid"],
                             test_class.validator_class)
-                        setattr(test_class,
-                            filename[:-5] + ": " + test["description"], a_test)
+                        test_name = "test_%s_%s" % (filename[:-5],
+                                                    test["description"])
+                        test_name = re.sub(r"[\W ]+", "_", test_name)
+                        a_test.__name__ = str(test_name)
+                        setattr(test_class, test_name, a_test)
         return test_class
     return add_test_methods
 
