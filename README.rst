@@ -35,7 +35,7 @@ Features
 
 * Support for Draft 3 of the Schema with the exception of
 
-    * ``$ref``, and ``extends`` that use ``$ref``\s
+    * Non-JSON Pointer ``$ref``, and ``extends`` that use them
 
 * Lazy validation that can iteratively report *all* validation errors.
 
@@ -93,11 +93,39 @@ preparations for Draft 4 underway. As of right now, Draft 3 is the only
 supported version, and the default when validating. Preparations for
 implementing some Draft 4 support are in progress.
 
+
 Release Notes
 -------------
 
-``0.6`` fixes the behavior for the ``dependencies`` property, which was
-mis-implemented.
+``v0.7`` introduces a number of changes.
+
+The most important one is that the ``Validator`` class is now **deprecated**.
+
+In its place is the ``Draft3Validator`` class (soon to be accompanied by others
+for other supported versions). This class accepts a schema when *initializing*,
+so that the new interface is::
+
+    validator = Draft3Validator(my_schema)
+    validator.validate(some_instance)
+
+Also, *no* meta-validation is done. If you want to check if a schema is valid,
+use the ``check_schema`` ``classmethod`` (i.e. use
+``Draft3Validator.check_schema(a_maybe_valid_schema)``).
+
+The ``validate`` function of course still exists and continues to work as it
+did before::
+
+    from jsonschema import validate
+    validate(my_instance, my_schema)
+
+There's just one exception: the ``meta_validate`` argument is deprecated,
+and meta-validation will now always be done. If you don't want to have it done,
+construct a validator directly as above.
+
+One last thing that is present is partial support for ``$ref``, at least for
+JSON Pointer refs. Full support should be coming soon.
+
+As always, if you find any bugs, please file a ticket.
 
 
 Running the Test Suite

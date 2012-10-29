@@ -19,7 +19,7 @@ import sys
 import warnings
 
 
-__version__ = "0.7dev"
+__version__ = "0.8dev"
 
 FLOAT_TOLERANCE = 10 ** -15
 PY3 = sys.version_info[0] >= 3
@@ -126,7 +126,7 @@ class Draft3Validator(object):
 
     def is_type(self, instance, type):
         """
-        Check if an ``instance`` is of the provided ``type``.
+        Check if an ``instance`` is of the provided (JSON Schema) ``type``.
 
         """
 
@@ -141,15 +141,15 @@ class Draft3Validator(object):
                 return False
         return isinstance(instance, type)
 
-    def is_valid(self, instance, schema=None):
+    def is_valid(self, instance, _schema=None):
         """
-        Check if the ``instance`` is valid under the ``schema``.
+        Check if the ``instance`` is valid under the current schema.
 
         Returns a bool indicating whether validation succeeded.
 
         """
 
-        error = next(self.iter_errors(instance, schema), None)
+        error = next(self.iter_errors(instance, _schema), None)
         return error is None
 
     @classmethod
@@ -166,22 +166,22 @@ class Draft3Validator(object):
             # I think we're safer raising these always, not yielding them
             raise s
 
-    def iter_errors(self, instance, schema=None):
+    def iter_errors(self, instance, _schema=None):
         """
         Lazily yield each of the errors in the given ``instance``.
 
         """
 
-        if schema is None:
-            schema = self.schema
+        if _schema is None:
+            _schema = self.schema
 
-        for k, v in iteritems(schema):
+        for k, v in iteritems(_schema):
             validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
 
             if validator is None:
                 continue
 
-            errors = validator(v, instance, schema) or ()
+            errors = validator(v, instance, _schema) or ()
             for error in errors:
                 # if the validator hasn't already been set (due to recursion)
                 # make sure to set it
@@ -401,7 +401,7 @@ class Draft3Validator(object):
             warnings.warn("jsonschema only supports json-pointer $refs")
             return
 
-        resolved = resolve_local_ref(self.schema, ref)
+        resolved = resolve_json_pointer(self.schema, ref)
         for error in self.iter_errors(instance, resolved):
             yield error
 
@@ -490,24 +490,6 @@ Draft3Validator.META_SCHEMA = {
 }
 
 
-class Validator(Draft3Validator):
-    """
-    Deprecated: Use :class:`Draft3Validator` instead.
-
-    """
-
-    def __init__(
-        self, version=None, unknown_type="skip", unknown_property="skip",
-        *args, **kwargs
-    ):
-        super(Validator, self).__init__({}, *args, **kwargs)
-        warnings.warn(
-            "Validator is deprecated and will be removed. "
-            "Use Draft3Validator instead.",
-            DeprecationWarning, stacklevel=2,
-        )
-
-
 class ErrorTree(object):
     """
     ErrorTrees make it easier to check which validations failed.
@@ -544,7 +526,7 @@ class ErrorTree(object):
         return "<%s (%s errors)>" % (self.__class__.__name__, len(self))
 
 
-def resolve_local_ref(schema, ref):
+def resolve_json_pointer(schema, ref):
     """
     Resolve a local reference ``ref`` within the given root ``schema``.
 
@@ -690,8 +672,8 @@ def _uniq(container):
     except TypeError:
         try:
             sort = sorted(container)
-            sliced = itertools.islice(container, 1, None)
-            for i, j in zip(container, sliced):
+            sliced = itertools.islice(sort, 1, None)
+            for i, j in zip(sort, sliced):
                 if i == j:
                     return False
         except (NotImplementedError, TypeError):
@@ -720,15 +702,5 @@ def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
     """
 
 
-    meta_validate = kwargs.pop("meta_validate", None)
-
-    if meta_validate is not None:
-        warnings.warn(
-            "meta_validate is deprecated and will be removed. If you do not "
-            "want to validate a schema, use Draft3Validator.validate instead.",
-            DeprecationWarning, stacklevel=2,
-        )
-
-    if meta_validate is not False:  # yes this is needed since True was default
-        cls.check_schema(schema)
+    cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
