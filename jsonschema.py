@@ -672,8 +672,8 @@ def _uniq(container):
     except TypeError:
         try:
             sort = sorted(container)
-            sliced = itertools.islice(container, 1, None)
-            for i, j in zip(container, sliced):
+            sliced = itertools.islice(sort, 1, None)
+            for i, j in zip(sort, sliced):
                 if i == j:
                     return False
         except (NotImplementedError, TypeError):
