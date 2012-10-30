@@ -8,9 +8,9 @@ import os
 import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
-    from unittest2 import TestCase, expectedFailure
+    from unittest2 import TestCase, expectedFailure, skipIf
 else:
-    from unittest import TestCase, expectedFailure
+    from unittest import TestCase, expectedFailure, skipIf
 
 try:
     from unittest import mock
@@ -144,189 +144,9 @@ def validation_test(schema=(), initkwargs=(), **kwschema):
 
 
 class TestValidate(ParameterizedTestCase, TestCase):
-    integer = parametrized(
-        ("integer", "valid", 1),
-        ("number", "invalid", 1.1),
-        ("string", "invalid", "foo"),
-        ("object", "invalid", {}),
-        ("array", "invalid", []),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    )(validation_test(type="integer"))
-
-    number = parametrized(
-        ("integer", "valid", 1),
-        ("number", "valid", 1.1),
-        ("string", "invalid", "foo"),
-        ("object", "invalid", {}),
-        ("array", "invalid", []),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    )(validation_test(type="number"))
-
-    _string = [
-        ("integer", "invalid", 1),
-        ("number", "invalid", 1.1),
-        ("unicode", "valid", "foo"),
-        ("object", "invalid", {}),
-        ("array", "invalid", []),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    ]
-
-    if not PY3:
-        # The JSON module in Python2 does not always produce unicode objects :/
-        _string.append(("bytestring", "valid", b"foo"))
-
-    string = parametrized(*_string)(validation_test(type="string"))
-
-    object = parametrized(
-        ("integer", "invalid", 1),
-        ("number", "invalid", 1.1),
-        ("string", "invalid", "foo"),
-        ("object", "valid", {}),
-        ("array", "invalid", []),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    )(validation_test(type="object"))
-
-    array = parametrized(
-        ("integer", "invalid", 1),
-        ("number", "invalid", 1.1),
-        ("string", "invalid", "foo"),
-        ("object", "invalid", {}),
-        ("array", "valid", []),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    )(validation_test(type="array"))
-
-    boolean = parametrized(
-        ("integer", "invalid", 1),
-        ("number", "invalid", 1.1),
-        ("string", "invalid", "foo"),
-        ("object", "invalid", {}),
-        ("array", "invalid", []),
-        ("true", "valid", True),
-        ("false", "valid", False),
-        ("null", "invalid", None),
-    )(validation_test(type="boolean"))
-
-    null = parametrized(
-        ("integer", "invalid", 1),
-        ("number", "invalid", 1.1),
-        ("string", "invalid", "foo"),
-        ("object", "invalid", {}),
-        ("array", "invalid", []),
-        ("boolean", "invalid", True),
-        ("null", "valid", None),
-    )(validation_test(type="null"))
-
-    any = parametrized(
-        ("integer", "valid", 1),
-        ("number", "valid", 1.1),
-        ("string", "valid", "foo"),
-        ("object", "valid", {}),
-        ("array", "valid", []),
-        ("boolean", "valid", True),
-        ("null", "valid", None),
-    )(validation_test(type="any"))
-
-    multiple_types = parametrized(
-        ("integer", "valid", 1),
-        ("string", "valid", "foo"),
-        ("number", "invalid", 1.1),
-        ("object", "invalid", {}),
-        ("array", "invalid", []),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    )(validation_test(type=["integer", "string"]))
-
-    multiple_types_schema = parametrized(
-        ("match", "valid", [1, 2]),
-        ("other_match", "valid", {"foo" : "bar"}),
-        ("number", "invalid", 1.1),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    )(validation_test(type=["array", {"type" : "object"}]))
-
-    multiple_types_subschema = parametrized(
-        ("integer", "valid", 1),
-        ("object_right_type", "valid", {"foo" : None}),
-        ("object_wrong_type", "invalid", {"foo" : 1}),
-        ("object_another_wrong_type", "invalid", {"foo" : 1.1}),
-    )(validation_test(
-        type=["integer", {"properties" : {"foo" : {"type" : "null"}}}]
-    ))
-
-    def test_multiple_types_nonobject(self):
-        """
-        Regression test for issue #18.
-
-        """
-        validate(
-            [1, 2, 3],
-            {"type" : [{"type" : ["string"]}, {"type" : ["array", "null"]}]}
-        )
-
-    properties = parametrized(
-        ("", "valid", {"foo" : 1, "bar" : "baz"}),
-        ("extra_property", "valid",
-         {"foo" : 1, "bar" : "baz", "quux" : 42}),
-        ("invalid_type", "invalid", {"foo" : 1, "bar" : []}),
-    )(validation_test(
-        {
-            "properties" : {
-                "foo" : {"type" : "number"},
-                "bar" : {"type" : "string"},
-            }
-        }
-    ))
-
-    patternProperties = parametrized(
-        ("single_match", "valid", {"foo" : 1}),
-        ("multiple_match", "valid", {"foo" : 1, "fah" : 2, "bar" : "baz"}),
-        ("single_mismatch", "invalid", {"foo" : "bar"}),
-        ("multiple_mismatch", "invalid", {"foo" : 1, "fah" : "bar"}),
-    )(validation_test(patternProperties={"f.*" : {"type" : "integer"}}))
-
-    multiple_patternProperties = parametrized(
-        ("match", "valid", {"a" : 21}),
-        ("other_match", "valid", {"aaaa" : 18}),
-        ("multiple_match", "valid", {"a" : 21, "aaaa" : 18}),
-        ("mismatch", "invalid", {"aaa" : "bar"}),
-        ("other_mismatch", "invalid", {"aaaa" : 31}),
-        ("multiple_mismatch", "invalid", {"aaa" : "foo", "aaaa" : 32}),
-    )(validation_test(patternProperties={
-        "a*" : {"type" : "integer"},
-        "aaa*" : {"maximum" : 20},
-        }
-    ))
-
-    def test_additionalProperties_allowed_by_default(self):
-        schema = {
-            "properties" : {
-                "foo" : {"type" : "number"},
-                "bar" : {"type" : "string"},
-            }
-        }
-        validate({"foo" : 1, "bar" : "baz", "quux" : False}, schema)
-
-    @parametrized(
-        ("", False),
-        ("schema", {"type" : "boolean"}),
-    )
-    def additionalProperties(self, aP):
-        schema = {
-            "properties" : {
-                "foo" : {"type" : "number"},
-                "bar" : {"type" : "string"},
-            },
-
-            "additionalProperties" : aP,
-        }
-
-        with self.assertRaises(ValidationError):
-            validate({"foo" : 1, "bar" : "baz", "quux" : "boom"}, schema)
+    @skipIf(PY3, "The JSON module in Python 3 always produces unicode")
+    def test_string_a_bytestring_is_a_string(self):
+        validate(b"foo", {"type" : "string"})
 
     # A horrible name and horrible test. I will repent.
     # See https://groups.google.com/d/msg/json-schema/Q5F30CZtMb4/yk_niLnsdQ0J
@@ -347,16 +167,6 @@ class TestValidate(ParameterizedTestCase, TestCase):
         patternProperties={"f.o" : {"minItems" : 2}},
         additionalProperties={"type" : "integer"},
     ))
-
-    items = parametrized(
-        ("", "valid", [1, 2, 3]),
-        ("wrong_type", "invalid", [1, "x"]),
-    )(validation_test(items={"type" : "integer"}))
-
-    items_tuple_typing = parametrized(
-        ("", "valid", [1, "foo"]),
-        ("wrong_type", "invalid", ["foo", 1])
-    )(validation_test(items=[{"type" : "integer"}, {"type" : "string"}]))
 
     def test_additionalItems_allowed_by_default(self):
         validate(
@@ -382,27 +192,6 @@ class TestValidate(ParameterizedTestCase, TestCase):
 
     def test_additionalItems_ignored_when_items_is_not_tuple(self):
         validate([1, 2], {"additionalItems" : False})
-
-    @parametrized(
-        ("false_by_default", "valid", {}, {}),
-        ("false_explicit", "valid", {"required" : False}, {}),
-        ("one", "valid", {"required" : True}, {}),
-        ("other", "invalid", {}, {"required" : True}),
-        ("both", "invalid", {"required" : True}, {"required" : True}),
-    )
-    def required(self, expect, foo, bar):
-        schema = {
-            "properties" : {
-                "foo" : {"type" : "number"},
-                "bar" : {"type" : "string"},
-            }
-        }
-
-        schema["properties"]["foo"].update(foo)
-        schema["properties"]["bar"].update(bar)
-
-        test = validation_test(schema)
-        test(self, expect, {"foo" : 1})
 
     dependencies = parametrized(
         ("neither", "valid", {}),
@@ -435,93 +224,8 @@ class TestValidate(ParameterizedTestCase, TestCase):
         }}}))
 
     @parametrized(
-        ("", "valid", {}, 2.6),
-        ("fail", "invalid", {}, .6),
-        ("exclusiveMinimum", "valid", {"exclusiveMinimum" : True}, 1.2),
-        ("exclusiveMinimum_fail", "invalid",
-         {"exclusiveMinimum" : True}, 1.1),
-    )
-    def minimum(self, expect, eM, instance):
-        eM["minimum"] = 1.1
-        test = validation_test(eM)
-        test(self, expect, instance)
-
-    @parametrized(
-        ("", "valid", {}, 2.6),
-        ("fail", "invalid", {}, 3.5),
-        ("exclusiveMaximum", "valid", {"exclusiveMaximum" : True}, 2.2),
-        ("exclusiveMaximum_fail", "invalid",
-         {"exclusiveMaximum" : True}, 3.0),
-    )
-    def maximum(self, expect, eM, instance):
-        eM["maximum"] = 3.0
-        test = validation_test(eM)
-        test(self, expect, instance)
-
-    minItems = parametrized(
-        ("exact", "valid", [1]),
-        ("longer", "valid", [1, 2]),
-        ("too_short", "invalid", []),
-    )(validation_test(minItems=1))
-
-    maxItems = parametrized(
-        ("exact", "valid", [1, 2]),
-        ("shorter", "valid", [1]),
-        ("empty", "valid", []),
-        ("too_long", "invalid", [1, 2, 3]),
-    )(validation_test(maxItems=2))
-
-    uniqueItems = parametrized(
-        ("unique", "valid", [1, 2]),
-        ("not_unique", "invalid", [1, 1]),
-        ("object_unique", "valid", [{"foo" : "bar"}, {"foo" : "baz"}]),
-        ("object_not_unique", "invalid", [{"foo" : "bar"}, {"foo" : "bar"}]),
-        ("array_unique", "valid", [["foo"], ["bar"]]),
-        ("array_not_unique", "invalid", [["foo"], ["foo"]]),
-        ("nested", "valid", [
-            {"foo" : {"bar" : {"baz" : "quux"}}},
-            {"foo" : {"bar" : {"baz" : "spam"}}},
-        ]),
-        ("nested_not_unique", "invalid", [
-            {"foo" : {"bar" : {"baz" : "quux"}}},
-            {"foo" : {"bar" : {"baz" : "quux"}}},
-        ])
-    )(validation_test(uniqueItems=True))
-
-    pattern = parametrized(
-        ("match", "valid", "aaa"),
-        ("mismatch", "invalid", "ab"),
-    )(validation_test(pattern="^a*$"))
-
-    minLength = parametrized(
-        ("", "valid", "foo"),
-        ("too_short", "invalid", "f"),
-    )(validation_test(minLength=2))
-
-    maxLength = parametrized(
-        ("", "valid", "f"),
-        ("too_long", "invalid", "foo"),
-    )(validation_test(maxLength=2))
-
-    @parametrized(
-        ("integer", "valid", 1, [1, 2, 3]),
-        ("integer_fail", "invalid", 6, [1, 2, 3]),
-        ("string", "valid", "foo", ["foo", "bar"]),
-        ("string_fail", "invalid", "quux", ["foo", "bar"]),
-        ("bool", "valid", True, [True]),
-        ("bool_fail", "invalid", False, [True]),
-        ("object", "valid", {"foo" : "bar"}, [{"foo" : "bar"}]),
-        ("object_fail", "invalid", {"foo" : "bar"}, [{"foo" : "quux"}]),
-    )
-    def enum(self, expect, instance, enum):
-        test = validation_test(enum=enum)
-        test(self, expect, instance)
-
-    @parametrized(
         ("int_by_int", "valid", 10, 2),
         ("int_by_int_fail", "invalid", 7, 2),
-        ("number_by_number", "valid", 3.3, 1.1),
-        ("number_by_number_fail", "invalid", 3.5, 1.1),
         ("number_by_number_small", "valid", .0075, .0001),
         ("number_by_number_small_fail", "invalid", .00751, .0001),
         ("number_by_number_again", "valid", 1.09, .01),
