@@ -61,7 +61,7 @@ def load_json_cases(test_dir):
     return add_test_methods
 
 
-@load_json_cases("tests/draft3/")
+@load_json_cases("json/tests/draft3/")
 class TestDraft3(TestCase):
     validator_class = Draft3Validator
 
