@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 from decimal import Decimal
 from functools import wraps
+import glob
+import os
 import re
 import sys
 import warnings
-import os
 import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
@@ -39,29 +40,34 @@ def make_case(schema, data, valid, cls):
 
 def load_json_cases(test_dir):
     def add_test_methods(test_class):
-        for filename in os.listdir(test_dir):
-            if not filename.endswith('.json'):
-                continue
-            with open(test_dir + filename) as test_file:
+        for filename in glob.iglob(os.path.join(test_dir, "*.json")):
+            with open(filename) as test_file:
                 data = json.load(test_file)
+
                 for case in data:
                     for test in case["tests"]:
                         a_test = make_case(
-                            case["schema"], test["data"], test["valid"],
-                            test_class.validator_class)
-                        # Disable some tests due to issue #43
+                            case["schema"],
+                            test["data"],
+                            test["valid"],
+                            test_class.validator_class,
+                        )
+
+                        # XXX: Disable some tests due to issue #43
                         if case.get("description") == "heterogeneous enum validation":
                             a_test = expectedFailure(a_test)
-                        test_name = "test_%s_%s" % (filename[:-5],
-                                                    test["description"])
+                        test_name = "test_%s_%s" % (
+                            filename[:-5], test["description"],
+                        )
                         test_name = re.sub(r"[\W ]+", "_", test_name)
                         a_test.__name__ = str(test_name)
                         setattr(test_class, test_name, a_test)
+
         return test_class
     return add_test_methods
 
 
-@load_json_cases("json/tests/draft3/")
+@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
 class TestDraft3(TestCase):
     validator_class = Draft3Validator
 
