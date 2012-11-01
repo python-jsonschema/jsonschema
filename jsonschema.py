@@ -684,7 +684,7 @@ def _uniq(container):
         return len(set(_unbool(i) for i in container)) == len(container)
     except TypeError:
         try:
-            sort = sorted(container)
+            sort = sorted(_unbool(i) for i in container)
             sliced = itertools.islice(sort, 1, None)
             for i, j in zip(sort, sliced):
                 if i == j:
@@ -692,6 +692,7 @@ def _uniq(container):
         except (NotImplementedError, TypeError):
             seen = []
             for e in container:
+                e = _unbool(e)
                 if e in seen:
                     return False
                 seen.append(e)
