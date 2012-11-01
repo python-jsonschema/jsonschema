@@ -657,6 +657,19 @@ def _delist(thing):
     return thing
 
 
+def _unbool(element, true=object(), false=object()):
+    """
+    A hack to make True and 1 and False and 0 unique for _uniq.
+
+    """
+
+    if element is True:
+        return true
+    elif element is False:
+        return false
+    return element
+
+
 def _uniq(container):
     """
     Check if all of a container's elements are unique.
@@ -668,7 +681,7 @@ def _uniq(container):
     """
 
     try:
-        return len(set(container)) == len(container)
+        return len(set(_unbool(i) for i in container)) == len(container)
     except TypeError:
         try:
             sort = sorted(container)

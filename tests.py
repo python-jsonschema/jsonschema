@@ -55,10 +55,6 @@ def load_json_cases(test_dir):
                             test_class.validator_class,
                         )
 
-                        # XXX: Disable some tests due to issue #43
-                        if case["description"].startswith("uniqueItems bool"):
-                            a_test = expectedFailure(a_test)
-
                         test_name = "test_%s_%s" % (
                             validating,
                             re.sub(r"[\W ]+", "_", test["description"]),
