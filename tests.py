@@ -54,8 +54,9 @@ def load_json_cases(test_dir):
                         )
 
                         # XXX: Disable some tests due to issue #43
-                        if case.get("description") == "heterogeneous enum validation":
+                        if case["description"].startswith("uniqueItems bool"):
                             a_test = expectedFailure(a_test)
+
                         test_name = "test_%s_%s" % (
                             filename[:-5], test["description"],
                         )

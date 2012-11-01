@@ -52,23 +52,18 @@
         ]
     },
     {
-        "description": "heterogeneous enum validation",
-        "schema": {"enum": [1, "foo", [], true, {"foo": 12}]},
+        "description": "uniqueItems booleans and integers",
+        "schema": {"uniqueItems": true},
         "tests": [
             {
-                "description": "one of the enum is valid",
-                "data": [],
+                "description": "1 and true are unique",
+                "data": [1, true],
                 "valid": true
             },
             {
-                "description": "something else is invalid",
-                "data": null,
-                "valid": false
-            },
-            {
-                "description": "objects are deep compared",
-                "data": {"foo": false},
-                "valid": false
+                "description": "0 and false are unique",
+                "data": [0, false],
+                "valid": true
             }
         ]
     }

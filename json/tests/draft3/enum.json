@@ -17,7 +17,7 @@
     },
     {
         "description": "heterogeneous enum validation",
-        "schema": {"enum": [1, "foo", [], true, {"foo": 12}]},
+        "schema": {"enum": [6, "foo", [], true, {"foo": 12}]},
         "tests": [
             {
                 "description": "one of the enum is valid",
