@@ -41,6 +41,8 @@ def make_case(schema, data, valid, cls):
 def load_json_cases(test_dir):
     def add_test_methods(test_class):
         for filename in glob.iglob(os.path.join(test_dir, "*.json")):
+            validating, _ = os.path.splitext(os.path.basename(filename))
+
             with open(filename) as test_file:
                 data = json.load(test_file)
 
@@ -58,10 +60,14 @@ def load_json_cases(test_dir):
                             a_test = expectedFailure(a_test)
 
                         test_name = "test_%s_%s" % (
-                            filename[:-5], test["description"],
+                            validating,
+                            re.sub(r"[\W ]+", "_", test["description"]),
                         )
-                        test_name = re.sub(r"[\W ]+", "_", test_name)
-                        a_test.__name__ = str(test_name)
+
+                        if not PY3:
+                            test_name = test_name.encode("utf-8")
+                        a_test.__name__ = test_name
+
                         setattr(test_class, test_name, a_test)
 
         return test_class
