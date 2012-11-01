@@ -48,13 +48,7 @@
                 "description": "non-unique array of arrays is invalid",
                 "data": [["foo"], ["foo"]],
                 "valid": false
-            }
-        ]
-    },
-    {
-        "description": "uniqueItems booleans and integers",
-        "schema": {"uniqueItems": true},
-        "tests": [
+            },
             {
                 "description": "1 and true are unique",
                 "data": [1, true],
@@ -64,6 +58,16 @@
                 "description": "0 and false are unique",
                 "data": [0, false],
                 "valid": true
+            },
+            {
+                "description": "unique heterogeneous types are valid",
+                "data": [{}, [1], true, null, 1],
+                "valid": true
+            },
+            {
+                "description": "non-unique heterogeneous types are invalid",
+                "data": [{}, [1], true, null, {}, 1],
+                "valid": false
             }
         ]
     }
