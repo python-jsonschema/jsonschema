@@ -17,20 +17,17 @@ import operator
 import re
 import sys
 import warnings
-
+import six
+from six import zip, iteritems, PY3
+from six import string_types as basestring
 
 __version__ = "0.8dev"
 
 FLOAT_TOLERANCE = 10 ** -15
-PY3 = sys.version_info[0] >= 3
 
-if PY3:
-    basestring = unicode = str
-    iteritems = operator.methodcaller("items")
+if six.PY3:
     from urllib.parse import unquote
 else:
-    from itertools import izip as zip
-    iteritems = operator.methodcaller("iteritems")
     from urllib import unquote
 
 
