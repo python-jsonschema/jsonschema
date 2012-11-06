@@ -1,5 +1,5 @@
-Welcome to jsonschema's documentation!
-======================================
+jsonschema
+==========
 
 Contents:
 
