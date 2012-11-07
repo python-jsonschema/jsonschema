@@ -33,9 +33,7 @@ jsonschema
 Features
 --------
 
-* Support for Draft 3 of the Schema with the exception of
-
-    * Non-JSON Pointer ``$ref``, and ``extends`` that use them
+* Full support for Draft 3 of the Schema
 
 * Lazy validation that can iteratively report *all* validation errors.
 
