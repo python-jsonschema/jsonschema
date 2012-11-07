@@ -14,6 +14,9 @@ Contents:
 .. autoclass:: Draft3Validator
     :members:
 
+.. autoclass:: RefResolver
+    :members:
+
 .. autoexception:: ValidationError
     :members:
 
