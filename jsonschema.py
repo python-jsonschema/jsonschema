@@ -100,7 +100,7 @@ class Draft3Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(self, schema, types=()):
+    def __init__(self, schema, types=(), resolver=None):
         """
         Initialize a validator.
 
@@ -116,12 +116,19 @@ class Draft3Validator(object):
         are fairly obvious but can be accessed via the ``DEFAULT_TYPES``
         attribute on this class if necessary.
 
+        ``resolver`` is an object that knows how to resolve JSON Schema refs.
+        If not specified it is an instance of :class:`RefResolver`.
+
         """
 
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
         self._types["any"] = tuple(self._types.values())
 
+        if resolver is None:
+            resolver = RefResolver()
+
+        self.resolver = resolver
         self.schema = schema
 
     def is_type(self, instance, type):
@@ -397,11 +404,7 @@ class Draft3Validator(object):
                 yield error
 
     def validate_ref(self, ref, instance, schema):
-        if ref != "#" and not ref.startswith("#/"):
-            warnings.warn("jsonschema only supports json-pointer $refs")
-            return
-
-        resolved = resolve_json_pointer(self.schema, ref)
+        resolved = self.resolver.resolve(self.schema, ref)
         for error in self.iter_errors(instance, resolved):
             yield error
 
@@ -490,6 +493,43 @@ Draft3Validator.META_SCHEMA = {
 }
 
 
+class RefResolver(object):
+    """
+    Resolve JSON Schema refs.
+
+    """
+
+    def resolve(self, root_schema, ref):
+        """
+        Resolve a ``ref`` within the context of the ``root_schema``.
+
+        """
+
+        if ref.startswith("#"):
+            return self.resolve_local(root_schema, ref)
+
+    def resolve_local(self, root_schema, ref):
+        """
+        Resolve a local ``ref``.
+
+        """
+
+        if ref == "#":
+            return root_schema
+
+        parts = ref.lstrip("#/").split("/")
+        parts = map(unquote, parts)
+        parts = [part.replace('~1', '/').replace('~0', '~') for part in parts]
+
+        try:
+            for part in parts:
+                root_schema = root_schema[part]
+        except KeyError:
+            raise InvalidRef("Unresolvable json-pointer %r" % ref)
+        else:
+            return root_schema
+
+
 class ErrorTree(object):
     """
     ErrorTrees make it easier to check which validations failed.
@@ -524,31 +564,6 @@ class ErrorTree(object):
 
     def __repr__(self):
         return "<%s (%s errors)>" % (self.__class__.__name__, len(self))
-
-
-def resolve_json_pointer(schema, ref):
-    """
-    Resolve a local reference ``ref`` within the given root ``schema``.
-
-    ``ref`` should be a local ref whose ``#`` is still present.
-
-    """
-
-    if ref == "#":
-        return schema
-
-    parts = ref.lstrip("#/").split("/")
-
-    parts = map(unquote, parts)
-    parts = [part.replace('~1', '/').replace('~0', '~') for part in parts]
-
-    try:
-        for part in parts:
-            schema = schema[part]
-    except KeyError:
-        raise InvalidRef("Unresolvable json-pointer %r" % ref)
-    else:
-        return schema
 
 
 def _find_additional_properties(instance, schema):

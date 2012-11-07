@@ -20,7 +20,7 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, iteritems, validate
+    Draft3Validator, RefResolver, iteritems, validate
 )
 
 
@@ -585,6 +585,7 @@ class TestDraft3Validator(TestCase):
     def setUp(self):
         self.instance = mock.Mock()
         self.schema = {}
+        self.resolver = mock.Mock()
         self.validator = Draft3Validator(self.schema)
 
     def test_valid_instances_are_valid(self):
@@ -611,6 +612,19 @@ class TestDraft3Validator(TestCase):
         instance, my_property, my_value = mock.Mock(), mock.Mock(), mock.Mock()
         validate(instance=instance, schema={my_property : my_value})
 
+    def test_it_creates_a_ref_resolver_if_not_provided(self):
+        self.assertIsInstance(self.validator.resolver, RefResolver)
+
+    def test_it_delegates_to_a_ref_resolver(self):
+        resolver = mock.Mock()
+        resolver.resolve.return_value = {"type" : "integer"}
+        schema = {"$ref" : mock.Mock()}
+
+        with self.assertRaises(ValidationError):
+            Draft3Validator(schema, resolver=resolver).validate(None)
+
+        resolver.resolve.assert_called_once_with(schema, schema["$ref"])
+
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
 
@@ -628,6 +642,17 @@ class TestDraft3Validator(TestCase):
     def test_is_type_raises_exception_for_unknown_type(self):
         with self.assertRaises(UnknownType):
             self.validator.is_type("foo", object())
+
+
+class TestRefResolver(TestCase):
+    def setUp(self):
+        self.resolver = RefResolver()
+        self.schema = mock.MagicMock()
+
+    def test_it_resolves_local_refs(self):
+        ref = "#/properties/foo"
+        resolved = self.resolver.resolve(self.schema, ref)
+        self.assertEqual(resolved, self.schema["properties"]["foo"])
 
 
 class TestIgnorePropertiesForIrrelevantTypes(TestCase):
