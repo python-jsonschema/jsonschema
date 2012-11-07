@@ -12,7 +12,7 @@ from jsonschema import Draft3Validator, validate
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--number", type=int, default=1000)
+parser.add_argument("-n", "--number", type=int, default=100)
 arguments = parser.parse_args()
 
 instance = schema = Draft3Validator.META_SCHEMA
