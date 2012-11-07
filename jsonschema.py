@@ -499,13 +499,21 @@ class RefResolver(object):
 
     """
 
+    def __init__(self, store=None):
+        if store is None:
+            store = {}
+
+        self.store = store
+
     def resolve(self, root_schema, ref):
         """
         Resolve a ``ref`` within the context of the ``root_schema``.
 
         """
 
-        if ref.startswith("#"):
+        if ref in self.store:
+            return self.store[ref]
+        elif ref.startswith("#"):
             return self.resolve_local(root_schema, ref)
 
     def resolve_local(self, root_schema, ref):

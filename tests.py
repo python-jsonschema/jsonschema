@@ -654,6 +654,15 @@ class TestRefResolver(TestCase):
         resolved = self.resolver.resolve(self.schema, ref)
         self.assertEqual(resolved, self.schema["properties"]["foo"])
 
+    def test_it_accepts_a_ref_store(self):
+        store = mock.Mock()
+        self.assertEqual(RefResolver(store).store, store)
+
+    def test_it_retrieves_stored_refs(self):
+        ref = self.resolver.store["cached_ref"] = mock.Mock()
+        resolved = self.resolver.resolve(self.schema, "cached_ref")
+        self.assertEqual(resolved, ref)
+
 
 class TestIgnorePropertiesForIrrelevantTypes(TestCase):
     def test_minimum_ignores_nonnumbers(self):
