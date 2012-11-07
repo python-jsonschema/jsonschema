@@ -12,11 +12,11 @@ instance under a schema, and will create a validator for you.
 from __future__ import division, unicode_literals
 
 import collections
+import json
 import itertools
 import operator
 import re
 import sys
-import warnings
 
 
 __version__ = "0.8dev"
@@ -28,10 +28,12 @@ if PY3:
     basestring = unicode = str
     iteritems = operator.methodcaller("items")
     from urllib.parse import unquote
+    from urllib.request import urlopen
 else:
     from itertools import izip as zip
     iteritems = operator.methodcaller("iteritems")
     from urllib import unquote
+    from urllib2 import urlopen
 
 
 class UnknownType(Exception):
@@ -499,10 +501,11 @@ class RefResolver(object):
 
     """
 
-    def __init__(self, store=None):
+    def __init__(self, store=None, get_page=urlopen):
         if store is None:
             store = {}
 
+        self.get_page = get_page
         self.store = store
 
     def resolve(self, root_schema, ref):
@@ -515,6 +518,8 @@ class RefResolver(object):
             return self.store[ref]
         elif ref.startswith("#"):
             return self.resolve_local(root_schema, ref)
+        else:
+            return json.load(self.get_page(ref))
 
     def resolve_local(self, root_schema, ref):
         """

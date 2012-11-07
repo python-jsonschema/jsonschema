@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from decimal import Decimal
 from functools import wraps
+from io import StringIO
 import glob
 import os
 import re
@@ -20,7 +21,7 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, RefResolver, iteritems, validate
+    Draft3Validator, RefResolver, iteritems, urlopen, validate
 )
 
 
@@ -653,6 +654,20 @@ class TestRefResolver(TestCase):
         ref = "#/properties/foo"
         resolved = self.resolver.resolve(self.schema, ref)
         self.assertEqual(resolved, self.schema["properties"]["foo"])
+
+    def test_it_retrieves_non_local_refs(self):
+        schema = '{"type" : "integer"}'
+        get_page = mock.Mock(return_value=StringIO(schema))
+        resolver = RefResolver(get_page=get_page)
+
+        url = "http://example.com/schema"
+        resolved = resolver.resolve(mock.Mock(), url)
+
+        self.assertEqual(resolved, json.loads(schema))
+        get_page.assert_called_once_with(url)
+
+    def test_it_uses_urlopen_by_default_for_nonlocal_refs(self):
+        self.assertEqual(self.resolver.get_page, urlopen)
 
     def test_it_accepts_a_ref_store(self):
         store = mock.Mock()
