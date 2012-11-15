@@ -62,6 +62,7 @@ Who Uses the Test Suite
 This suite is being used by:
 
   * [jsonschema (python)](https://github.com/Julian/jsonschema)
+  * [direct-schema (javascript)](https://github.com/IreneKnapp/direct-schema)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).
