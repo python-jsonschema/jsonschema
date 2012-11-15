@@ -63,5 +63,70 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "additionalItems are allowed by default",
+        "schema": {
+            "items": [{"type": "integer"},
+                      {"type": "string"}]
+        },
+        "tests": [
+            {
+                "description": "only the first items are validated",
+                "data": [1, "foo", false],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "additional items",
+        "schema": {
+            "items" : [{"type": "integer"}, {"type" : "string"}],
+            "additionalItems": false
+        },
+        "tests": [
+            {
+                "description": "no additional",
+                "data": [1, "foo"],
+                "valid": true
+            },
+            {
+                "description": "additional",
+                "data": [1, "foo", false],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "additionalItems schema",
+        "schema": {
+            "items" : [{"type" : "integer"}, {"type" : "string"}],
+            "additionalItems" : {"type" : "integer"}
+        },
+        "tests": [
+            {
+                "description": "match",
+                "data": [1, "foo", 3],
+                "valid": true
+            },
+            {
+                "description": "no match",
+                "data": [1, "foo", "bar"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "additionalItems ignored when items is not tuple",
+        "schema": {
+            "additionalItems": false
+        },
+        "tests": [
+            {
+                "description": "simple array",
+                "data": [1, 2],
+                "valid": true
+            }
+        ]
     }
 ]

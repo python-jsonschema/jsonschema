@@ -19,5 +19,53 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "by int",
+        "schema": {"divisibleBy": 2},
+        "tests": [
+            {
+                "description": "int by int",
+                "data": 10,
+                "valid": true
+            },
+            {
+                "description": "int by int fail",
+                "data": 7,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "by number small",
+        "schema": {"divisibleBy": 0.0001},
+        "tests": [
+            {
+                "description": "number by number small",
+                "data": 0.0075,
+                "valid": true
+            },
+            {
+                "description": "number by number small fail",
+                "data": 0.00751,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "by number again",
+        "schema": {"divisibleBy": 0.01},
+        "tests": [
+            {
+                "description": "number by number again",
+                "data": 1.09,
+                "valid": true
+            },
+            {
+                "description": "number by number again 2",
+                "data": 1.89,
+                "valid": true
+            }
+        ]
     }
 ]
