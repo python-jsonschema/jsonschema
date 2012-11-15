@@ -56,6 +56,16 @@ to have a full-coverage draft 3 test suite.
 Ultimately, when it's done, the idea is to attempt to have it included on [the
 JSON Schema website](http://www.json-schema.org).
 
+Who Uses the Test Suite
+-----------------------
+
+This suite is being used by:
+
+  * [jsonschema (python)](https://github.com/Julian/jsonschema)
+
+If you use it as well, please fork and send a pull request adding yourself to
+the list :).
+
 Contributing
 ------------
 
