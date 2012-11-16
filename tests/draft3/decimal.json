@@ -470,51 +470,5 @@
                 "valid": true
             }
         ]
-    },
-    {
-        "description": "more float tests",
-        "schema": {"type": "number"},
-        "tests": [
-            {
-                "description": "integer",
-                "data": 1,
-                "valid": true
-            },
-            {
-                "description": "number",
-                "data": 1.1,
-                "valid": true
-            },
-            {
-                "description": "decimal",
-                "data": 0.125,
-                "valid": true
-            },
-            {
-                "description": "string",
-                "data": "foo",
-                "valid": false
-            },
-            {
-                "description": "object",
-                "data": {},
-                "valid": false
-            },
-            {
-                "description": "array",
-                "data": [],
-                "valid": false
-            },
-            {
-                "description": "boolean",
-                "data": true,
-                "valid": false
-            },
-            {
-                "description": "null",
-                "data": null,
-                "valid": false
-            }
-        ]
     }
 ]
