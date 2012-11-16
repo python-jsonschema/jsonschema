@@ -33,7 +33,7 @@
             {
                 "description": "patternProperty invalidates nonproperty",
                 "data": {"fxo": []},
-                "valid": true
+                "valid": false
             },
             {
                 "description": "additionalProperty ignores property",
