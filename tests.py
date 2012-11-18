@@ -449,4 +449,5 @@ class TestIgnorePropertiesForIrrelevantTypes(TestCase):
 
 
 def sorted_errors(errors):
-    return sorted(errors, key=lambda e : [str(err) for err in e.path])
+    def key(error) : return ([str(e) for e in error.path], error.validator)
+    return sorted(errors, key=key)
