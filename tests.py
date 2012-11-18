@@ -25,10 +25,6 @@ from jsonschema import (
 )
 
 
-if PY3:  # pragma: no cover
-    basestring = unicode = str
-
-
 def make_case(schema, data, valid, cls):
     def test_case(self):
         if valid:
