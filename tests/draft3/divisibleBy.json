@@ -1,6 +1,6 @@
 [
     {
-        "description": "divisibleBy validation",
+        "description": "by number",
         "schema": {"divisibleBy": 1.5},
         "tests": [
             {
@@ -37,34 +37,18 @@
         ]
     },
     {
-        "description": "by number small",
+        "description": "by small number",
         "schema": {"divisibleBy": 0.0001},
         "tests": [
             {
-                "description": "number by number small",
+                "description": "0.0075 is divisible by 0.0001",
                 "data": 0.0075,
                 "valid": true
             },
             {
-                "description": "number by number small fail",
+                "description": "0.00751 is not divisible by 0.0001",
                 "data": 0.00751,
                 "valid": false
-            }
-        ]
-    },
-    {
-        "description": "by number again",
-        "schema": {"divisibleBy": 0.01},
-        "tests": [
-            {
-                "description": "number by number again",
-                "data": 1.09,
-                "valid": true
-            },
-            {
-                "description": "number by number again 2",
-                "data": 1.89,
-                "valid": true
             }
         ]
     }
