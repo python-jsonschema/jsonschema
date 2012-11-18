@@ -10,9 +10,9 @@ import warnings
 import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
-    from unittest2 import TestCase, expectedFailure, skipIf
+    from unittest2 import TestCase, skipIf
 else:
-    from unittest import TestCase, expectedFailure, skipIf
+    from unittest import TestCase, skipIf
 
 try:
     from unittest import mock
@@ -21,7 +21,7 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, RefResolver, iteritems, urlopen, validate
+    Draft3Validator, RefResolver, urlopen, validate
 )
 
 
