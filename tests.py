@@ -71,106 +71,30 @@ def load_json_cases(test_dir):
     return add_test_methods
 
 
-@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
-class TestDraft3(TestCase):
-    validator_class = Draft3Validator
-
-
-class ParametrizedTestCase(type):
-    """
-    A (deliberately naive & specialized) parametrized test.
-
-    """
-
-    def __new__(cls, name, bases, attrs):
-        attr = {}
-
-        for k, v in iteritems(attrs):
-            parameters = getattr(v, "_parameters", None)
-
-            if parameters is not None:
-                for parameter in parameters:
-                    parametrized_name, args = parameter[0], parameter[1:]
-                    fn = partial(v, *args)
-
-                    names = ["test", k]
-                    if parametrized_name:
-                        names.append(parametrized_name)
-
-                    fn_name = "_".join(names)
-                    if not PY3:
-                        fn_name = fn_name.encode('utf8')
-                    fn.__name__ = fn_name
-                    attr[fn.__name__] = fn
-            else:
-                attr[k] = v
-
-        if not PY3:
-            name = name.encode('utf8')
-
-        return super(ParametrizedTestCase, cls).__new__(cls, name, bases, attr)
-
-
-# Inscrutable way to create metaclasses in a Python 2/3 compatible way
-# See: http://mikewatkins.ca/2008/11/29/python-2-and-3-metaclasses/
-ParameterizedTestCase = ParametrizedTestCase(
-    'ParameterizedTestCase', (object,), {}
-)
-
-
-def parametrized(*runs):
-    def parametrized_test(fn):
-        fn._parameters = runs
-        return fn
-    return parametrized_test
-
-
-def partial(fn, *args, **kwargs):
-    """
-    ``functools.partial`` for methods (suitable for binding).
-
-    """
-
-    @wraps(fn)
-    def _partial(self):
-        return fn(self, *args, **kwargs)
-    return _partial
-
-
-def validation_test(schema=(), initkwargs=(), **kwschema):
-    schema = dict(schema, **kwschema)
-    initkwargs = dict(initkwargs)
-
-    def _validation_test(self, expected, instance):
-        if expected == "valid":
-            validate(instance, schema, **initkwargs)
-        elif expected == "invalid":
-            with self.assertRaises(ValidationError):
-                validate(instance, schema, **initkwargs)
-        else:  # pragma: no cover
-            raise ValueError("You spelled something wrong.")
-
-    return _validation_test
-
-
-class TestValidate(ParameterizedTestCase, TestCase):
+class ByteStringMixin(object):
     @skipIf(PY3, "The JSON module in Python 3 always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
-        validate(b"foo", {"type" : "string"})
+        self.validator_class({"type" : "string"}).validate(b"foo")
 
-    decimal = parametrized(
-        ("integer", "valid", 1),
-        ("number", "valid", 1.1),
-        ("decimal", "valid", Decimal(1) / Decimal(8)),
-        ("string", "invalid", "foo"),
-        ("object", "invalid", {}),
-        ("array", "invalid", []),
-        ("boolean", "invalid", True),
-        ("null", "invalid", None),
-    )(validation_test(
-        initkwargs={"types" : {"number" : (int, float, Decimal)}},
-        type="number")
-    )
+
+class DecimalMixin(object):
+    def test_it_can_validate_with_decimals(self):
+        schema = {"type" : "number"}
+        validator = self.validator_class(
+            schema, types={"number" : (int, float, Decimal)}
+        )
+
+        for valid in [1, 1.1, Decimal(1) / Decimal(8)]:
+            validator.validate(valid)
+
+        for invalid in ["foo", {}, [], True, None]:
+            with self.assertRaises(ValidationError):
+                validator.validate(invalid)
+
+
+@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
+class TestDraft3(TestCase, ByteStringMixin, DecimalMixin):
+    validator_class = Draft3Validator
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
