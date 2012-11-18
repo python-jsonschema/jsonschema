@@ -25,7 +25,7 @@ from jsonschema import (
 )
 
 
-if PY3:
+if PY3:  # pragma: no cover
     basestring = unicode = str
 
 
