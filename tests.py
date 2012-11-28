@@ -366,9 +366,8 @@ class TestDraft3Validator(TestCase):
         self.assertTrue(self.validator.is_type(True, "boolean"))
         self.assertTrue(self.validator.is_type(True, "any"))
 
-    def test_is_type_raises_exception_for_unknown_type(self):
-        with self.assertRaises(UnknownType):
-            self.validator.is_type("foo", object())
+    def test_is_type_is_true_for_unknown_type(self):
+        self.assertTrue(self.validator.is_type("foo", "some_random_type"))
 
 
 class TestRefResolver(TestCase):
