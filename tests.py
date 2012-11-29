@@ -269,43 +269,42 @@ class TestErrorTree(TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
-    def test_tree(self):
-        instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
-        schema = {
-            "type" : "string",
-            "items" : {
-                "type" : ["string", "object"],
-                "properties" : {
-                    "foo" : {"enum" : [1, 3]},
-                    "bar" : {
-                        "type" : "array",
-                        "properties" : {
-                            "bar" : {"required" : True},
-                            "baz" : {"minItems" : 2},
-                        }
-                    }
-                }
-            }
-        }
-
-        errors = sorted_errors(self.validator.iter_errors(instance, schema))
-        e1, e2, e3, e4, e5, e6 = errors
+    def test_it_knows_how_many_total_errors_it_contains(self):
+        errors = [mock.MagicMock() for _ in range(8)]
         tree = ErrorTree(errors)
+        self.assertEqual(tree.total_errors, 8)
 
-        self.assertEqual(len(tree), 6)
+    def test_it_contains_an_item_if_the_item_had_an_error(self):
+        errors = [ValidationError("a message", path=["bar"])]
+        tree = ErrorTree(errors)
+        self.assertIn("bar", tree)
 
-        self.assertIn(0, tree)
-        self.assertIn(1, tree)
-        self.assertIn("bar", tree[1])
-        self.assertIn("foo", tree[1])
-        self.assertIn("baz", tree[1]["bar"])
+    def test_it_does_not_contain_an_item_if_the_item_had_no_error(self):
+        errors = [ValidationError("a message", path=["bar"])]
+        tree = ErrorTree(errors)
+        self.assertNotIn("foo", tree)
 
-        self.assertEqual(tree.errors["type"], e1)
-        self.assertEqual(tree[0].errors["type"], e2)
-        self.assertEqual(tree[1]["bar"].errors["type"], e3)
-        self.assertEqual(tree[1]["bar"]["bar"].errors["required"], e4)
-        self.assertEqual(tree[1]["bar"]["baz"].errors["minItems"], e5)
-        self.assertEqual(tree[1]["foo"].errors["enum"], e6)
+    def test_validators_that_failed_appear_in_errors_dict(self):
+        error = ValidationError("a message", validator="foo")
+        tree = ErrorTree([error])
+        self.assertEqual(tree.errors, {"foo" : error})
+
+    def test_it_creates_a_child_tree_for_each_nested_path(self):
+        errors = [
+            ValidationError("a bar message", path=["bar"]),
+            ValidationError("a bar -> 0 message", path=[0, "bar"]),
+        ]
+        tree = ErrorTree(errors)
+        self.assertIn(0, tree["bar"])
+        self.assertNotIn(1, tree["bar"])
+
+    def test_children_have_their_errors_dicts_built(self):
+        e1, e2 = (
+            ValidationError("message 1", validator="foo", path=[0, "bar"]),
+            ValidationError("message 2", validator="quux", path=[0, "bar"]),
+        )
+        tree = ErrorTree([e1, e2])
+        self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
 
 
 class TestDraft3Validator(TestCase):

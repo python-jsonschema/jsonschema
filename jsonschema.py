@@ -58,12 +58,11 @@ class SchemaError(Exception):
 
     """
 
-    validator = None
-
-    def __init__(self, message):
+    def __init__(self, message, validator=None, path=()):
         super(SchemaError, self).__init__(message)
         self.message = message
-        self.path = []
+        self.path = list(path)
+        self.validator = validator
 
 
 class ValidationError(Exception):
@@ -78,17 +77,13 @@ class ValidationError(Exception):
 
     """
 
-    # the failing validator will be set externally at whatever recursion level
-    # is immediately above the validation failure
-    validator = None
-
-    def __init__(self, message):
-        super(ValidationError, self).__init__(message)
-        self.message = message
-
+    def __init__(self, message, validator=None, path=()):
         # Any validator that recurses must append to the ValidationError's
         # path (e.g., properties and items)
-        self.path = []
+        super(ValidationError, self).__init__(message)
+        self.message = message
+        self.path = list(path)
+        self.validator = validator
 
 
 class Draft3Validator(object):
@@ -169,11 +164,9 @@ class Draft3Validator(object):
         """
 
         for error in cls(cls.META_SCHEMA).iter_errors(schema):
-            s = SchemaError(error.message)
-            s.path = error.path
-            s.validator = error.validator
-            # I think we're safer raising these always, not yielding them
-            raise s
+            raise SchemaError(
+                error.message, validator=error.validator, path=error.path,
+            )
 
     def iter_errors(self, instance, _schema=None):
         """
@@ -192,9 +185,9 @@ class Draft3Validator(object):
 
             errors = validator(v, instance, _schema) or ()
             for error in errors:
-                # if the validator hasn't already been set (due to recursion)
-                # make sure to set it
-                error.validator = error.validator or k
+                # set the validator if it wasn't already set by the called fn
+                if error.validator is None:
+                    error.validator = k
                 yield error
 
     def validate(self, *args, **kwargs):
@@ -238,12 +231,11 @@ class Draft3Validator(object):
                     error.path.append(property)
                     yield error
             elif subschema.get("required", False):
-                error = ValidationError(
-                    "%r is a required property" % (property,)
+                yield ValidationError(
+                    "%r is a required property" % (property,),
+                    validator="required",
+                    path=[property],
                 )
-                error.path.append(property)
-                error.validator = "required"
-                yield error
 
     def validate_patternProperties(self, patternProperties, instance, schema):
         for pattern, subschema in iteritems(patternProperties):
@@ -572,11 +564,15 @@ class ErrorTree(object):
         return iter(self._contents)
 
     def __len__(self):
-        child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
-        return len(self.errors) + child_errors
+        return self.total_errors
 
     def __repr__(self):
-        return "<%s (%s errors)>" % (self.__class__.__name__, len(self))
+        return "<%s (%s total errors)>" % (self.__class__.__name__, len(self))
+
+    @property
+    def total_errors(self):
+        child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
+        return len(self.errors) + child_errors
 
 
 def _find_additional_properties(instance, schema):
