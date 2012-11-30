@@ -2,9 +2,8 @@
 jsonschema
 ==========
 
-``jsonschema`` is an implementation of JSON Schema (currently in `Draft 3
-<http://tools.ietf.org/html/draft-zyp-json-schema-03>`_) for Python (supporting
-2.6+ including Python 3).
+``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
+for Python (supporting 2.6+ including Python 3).
 
 .. code:: python
 
@@ -33,7 +32,9 @@ jsonschema
 Features
 --------
 
-* Full support for Draft 3 of the Schema
+* Full support for
+  `Draft 3 <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_
+  of the Schema
 
 * Lazy validation that can iteratively report *all* validation errors.
 
@@ -81,15 +82,6 @@ Features
 
     >>> print(tree[0].errors["type"].message)
     'spam' is not of type 'number'
-
-
-Schema Versioning
------------------
-
-JSON Schema is, at the time of this writing, seemingly at Draft 3, with
-preparations for Draft 4 underway. As of right now, Draft 3 is the only
-supported version, and the default when validating. Preparations for
-implementing some Draft 4 support are in progress.
 
 
 Release Notes
