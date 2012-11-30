@@ -8,7 +8,7 @@ with open("README.rst") as readme:
 
 
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.1",
     "Programming Language :: Python :: 3.2",
+    "Programming Language :: Python :: 3.3",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -31,7 +32,7 @@ setup(
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,
-    description="An implementation of JSON-Schema validation for Python",
+    description="An implementation of JSON Schema validation for Python",
     license="MIT/X",
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
