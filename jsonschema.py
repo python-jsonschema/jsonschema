@@ -172,6 +172,17 @@ class Draft3Validator(object):
         """
         Lazily yield each of the errors in the given ``instance``.
 
+            >>> schema = {
+            ...     "type" : "array",
+            ...     "items" : {"enum" : [1, 2, 3]},
+            ...     "maxItems" : 2,
+            ... }
+            >>> v = Draft3Validator(schema)
+            >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
+            ...     print(error)
+            4 is not one of [1, 2, 3]
+            [2, 3, 4] is too long
+
         """
 
         if _schema is None:

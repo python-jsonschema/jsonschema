@@ -36,21 +36,8 @@ Features
   `Draft 3 <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_
   of the Schema
 
-* Lazy validation that can iteratively report *all* validation errors.
-
-.. code:: python
-
-    >>> from jsonschema import Draft3Validator
-    >>> schema = {
-    ...     "type" : "array",
-    ...     "items" : {"enum" : [1, 2, 3]},
-    ...     "maxItems" : 2,
-    ... }
-    >>> v = Draft3Validator(schema)
-    >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
-    ...     print(error)
-    4 is not one of [1, 2, 3]
-    [2, 3, 4] is too long
+* `Lazy validation <https://python-jsonschema.readthedocs.org/en/latest/#jsonschema.Draft3Validator.iter_errors>`_
+  that can iteratively report *all* validation errors.
 
 * Small and extensible
 
