@@ -12,6 +12,3 @@ Schema Validation
 
 .. autoclass:: RefResolver
     :members:
-
-.. autoexception:: ValidationError
-    :members:

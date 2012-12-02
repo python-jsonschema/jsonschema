@@ -2,11 +2,13 @@
 Handling Validation Errors
 ==========================
 
+.. module:: jsonschema
+
+.. autoexception:: ValidationError
+    :members:
+
 ErrorTrees
 ----------
-
-
-.. module:: jsonschema
 
 If you want to programmatically be able to query which properties or validators
 failed when validating a given instance, you probably will want to do so using
