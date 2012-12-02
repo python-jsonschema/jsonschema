@@ -520,18 +520,18 @@ class RefResolver(object):
         if ref in self.store:
             return self.store[ref]
         elif ref.startswith("#"):
-            return self.resolve_local(root_schema, ref)
+            return self.resolve_relative(root_schema, ref)
         else:
             return json.load(self.get_page(ref))
 
-    def resolve_local(self, root_schema, ref):
+    def resolve_relative(self, schema, ref):
         """
-        Resolve a local ``ref``.
+        Resolve a relative ``ref`` within the given ``schema``.
 
         """
 
         if ref == "#":
-            return root_schema
+            return schema
 
         parts = ref.lstrip("#/").split("/")
         parts = map(unquote, parts)
@@ -539,11 +539,11 @@ class RefResolver(object):
 
         try:
             for part in parts:
-                root_schema = root_schema[part]
+                schema = schema[part]
         except KeyError:
             raise InvalidRef("Unresolvable json-pointer %r" % ref)
         else:
-            return root_schema
+            return schema
 
 
 class ErrorTree(object):
