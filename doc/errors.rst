@@ -17,7 +17,7 @@ failed when validating a given instance, you probably will want to do so using
 
 Consider the following example:
 
-.. code:: python
+.. code-block:: python
 
     >>> from jsonschema import ErrorTree, Draft3Validator
     >>> schema = {
@@ -29,7 +29,7 @@ Consider the following example:
 
 For clarity's sake, the given instance has three errors under this schema:
 
-.. code:: python
+.. code-block:: python
 
     >>> v = Draft3Validator(schema)
     >>> for error in sorted(v.iter_errors(["spam", 2]), key=str):
@@ -41,7 +41,7 @@ For clarity's sake, the given instance has three errors under this schema:
 Let's construct an :class:`ErrorTree` so that we can query the errors a bit
 more easily than by just iterating over the error objects.
 
-.. code:: python
+.. code-block:: python
 
     >>> tree = ErrorTree(v.iter_errors(instance))
 
@@ -53,7 +53,7 @@ the return value of a validator's ``iter_errors`` method.
 might want to perform is to check whether a given element in our instance
 failed validation. We do so using the ``in`` operator:
 
-.. code:: python
+.. code-block:: python
 
     >>> 0 in tree
     True
@@ -68,7 +68,7 @@ it was valid).
 If we want to see which errors a child had, we index into the tree and look at
 the ``errors`` attribute.
 
-.. code:: python
+.. code-block:: python
 
     >>> sorted(tree[0].errors)
     ['enum', 'type']
@@ -77,7 +77,7 @@ Here we see that the ``enum`` and ``type`` validators failed for index 0. In
 fact ``errors`` is a dict, whose values are the :class:`ValidationError`\s, so
 we can get at those directly if we want them.
 
-.. code:: python
+.. code-block:: python
 
     >>> print(tree[0].errors["type"].message)
     'spam' is not of type 'number'
@@ -85,7 +85,7 @@ we can get at those directly if we want them.
 Of course this means that if we want to know if a given validator failed for a
 given index, we check for its presence in ``errors``:
 
-.. code:: python
+.. code-block:: python
 
     >>> "enum" in tree[0].errors
     True
@@ -98,7 +98,7 @@ haven't seen our ``minItems`` error appear anywhere yet. This is because
 ``minItems`` is an error that applies globally to the instance itself. So it
 appears in the root node of the tree.
 
-.. code:: python
+.. code-block:: python
 
     >>> "minItems" in tree.errors
     True
