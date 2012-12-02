@@ -4,7 +4,9 @@ jsonschema
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
+
+    errors
 
 
 .. automodule:: jsonschema
@@ -18,9 +20,6 @@ Contents:
     :members:
 
 .. autoexception:: ValidationError
-    :members:
-
-.. autoclass:: ErrorTree
     :members:
 
 

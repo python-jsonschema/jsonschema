@@ -555,6 +555,11 @@ class ErrorTree(object):
         return k in self._contents
 
     def __getitem__(self, k):
+        """
+        Retrieve the child tree with key ``k``.
+
+        """
+
         return self._contents[k]
 
     def __setitem__(self, k, v):
@@ -571,6 +576,11 @@ class ErrorTree(object):
 
     @property
     def total_errors(self):
+        """
+        The total number of errors in the entire tree, including children.
+
+        """
+
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
 
