@@ -32,7 +32,7 @@ for Python (supporting 2.6+ including Python 3).
 Features
 --------
 
-* `Full support <https://python-jsonschema.readthedocs.org/en/latest/#jsonschema.Draft3Validator>`
+* `Full support <https://python-jsonschema.readthedocs.org/en/latest/#jsonschema.Draft3Validator>`_
   for `Draft 3 <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_ of the
   schema
 
