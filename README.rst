@@ -54,34 +54,8 @@ Features
 
 * Small and extensible
 
-* Programmatic querying of which properties or items failed validation.
-
-.. code:: python
-
-    >>> from jsonschema import ErrorTree, Draft3Validator
-    >>> schema = {
-    ...     "type" : "array",
-    ...     "items" : {"type" : "number", "enum" : [1, 2, 3]},
-    ...     "minItems" : 3,
-    ... }
-    >>> instance = ["spam", 2]
-    >>> v = Draft3Validator(schema)
-    >>> tree = ErrorTree(v.iter_errors(instance))
-
-    >>> sorted(tree.errors)
-    ['minItems']
-
-    >>> 0 in tree
-    True
-
-    >>> 1 in tree
-    False
-
-    >>> sorted(tree[0].errors)
-    ['enum', 'type']
-
-    >>> print(tree[0].errors["type"].message)
-    'spam' is not of type 'number'
+* `Programmatic querying <https://python-jsonschema.readthedocs.org/en/latest/errors.html#module-jsonschema>`_
+  of which properties or items failed validation.
 
 
 Release Notes
