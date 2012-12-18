@@ -64,6 +64,7 @@ This suite is being used by:
   * [jsonschema (python)](https://github.com/Julian/jsonschema)
   * [aeson-schema (haskell)](https://github.com/timjb/aeson-schema)
   * [direct-schema (javascript)](https://github.com/IreneKnapp/direct-schema)
+  * [jsonschema (javascript)](https://github.com/tdegrunt/jsonschema)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).
