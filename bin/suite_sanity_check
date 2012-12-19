@@ -31,12 +31,49 @@ def cases(paths):
             yield test
 
 
+def errortree_messages(et, path=""):
+    for e in et.errors.values():
+        yield "%s: %s" % (path, e)
+    for key in et:
+        for msg in errortree_messages(et[key], "%s/%s" % (path, key)):
+            yield msg
+
+
+TESTSUITE_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "description": {"type": "string", "required": True},
+            "schema": {"required": True},
+            "tests": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "description": {"type": "string", "required": True},
+                        "data": {"required": True},
+                        "valid": {"type": "boolean", "required": True}
+                    },
+                    "additionalProperties": False
+                },
+                "minItems": 1
+            }
+        },
+        "additionalProperties": False,
+    "minItems": 1
+    }
+}
+
+
 class SanityTests(TestCase):
     @classmethod
     def setUpClass(cls):
-        test_glob = os.path.join(SUITE_ROOT_DIR, "*/*.json")
-        logging.info("Looking for tests in %s", test_glob)
-        cls.test_files = glob(test_glob)
+        logging.info("Looking for tests in %s", SUITE_ROOT_DIR)
+        cls.test_files = []
+        for root, dirs, files in os.walk(SUITE_ROOT_DIR):
+            cls.test_files.extend(glob(os.path.join(root, "*.json")))
         logging.info("Found %s test files", len(cls.test_files))
         assert cls.test_files, "Didn't find the test files!"
 
@@ -55,6 +92,18 @@ class SanityTests(TestCase):
         for group in groups(self.test_files):
             descriptions = {test["description"] for test in group["tests"]}
             self.assertEqual(len(descriptions), len(group["tests"]))
+
+    def test_suites_are_valid(self):
+        validator = jsonschema.Draft3Validator(TESTSUITE_SCHEMA)
+        for root, dirs, files in os.walk(SUITE_ROOT_DIR):
+            for f in glob(os.path.join(root, "*.json")):
+                with open(f) as test_file:
+                    test_data = json.load(test_file)
+                errortree = jsonschema.ErrorTree(validator.iter_errors(test_data))
+                msg = "Test suite '%s' does not follow the test format:\n" % f
+                msg += "\n".join("\t" + e for e in errortree_messages(errortree))
+                assert not len(errortree), msg
+
 
 
 if __name__ == "__main__":
