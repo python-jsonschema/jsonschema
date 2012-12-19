@@ -1,4 +1,4 @@
-JSON Schema Test Suite
+JSON Schema Test Suite [![Build Status](https://travis-ci.org/json-schema/JSON-Schema-Test-Suite.png?branch=master)](https://travis-ci.org/json-schema/JSON-Schema-Test-Suite)
 ======================
 
 This repository contains a set of JSON objects that implementors of JSON Schema
