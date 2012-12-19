@@ -37,6 +37,7 @@ class SanityTests(TestCase):
         test_glob = os.path.join(SUITE_ROOT_DIR, "*/*.json")
         logging.info("Looking for tests in %s", test_glob)
         cls.test_files = glob(test_glob)
+        logging.info("Found %s test files", len(cls.test_files))
         assert cls.test_files, "Didn't find the test files!"
 
     def test_all_files_are_valid_json(self):
