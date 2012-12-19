@@ -6,8 +6,8 @@ validation libraries can use to test their validators.
 
 It is meant to be language agnostic and should require only a JSON parser.
 
-The conversion of the JSON objects into tests within your test framework of choice
-is still the job of the validator implementor.
+The conversion of the JSON objects into tests within your test framework of
+choice is still the job of the validator implementor.
 
 Structure of a Test
 -------------------
