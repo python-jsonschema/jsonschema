@@ -1,6 +1,6 @@
 #! /usr/bin/env python
-from glob import glob
 from unittest import TestCase, skipIf
+import fnmatch
 import json
 import logging
 import os
@@ -11,34 +11,9 @@ except ImportError:
     jsonschema = None
 
 
-SUITE_ROOT_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "tests")
-
 logging.basicConfig(level=logging.INFO)
 
-
-def groups(paths):
-    for path in paths:
-        with open(path) as test_file:
-            groups = json.load(test_file)
-            for group in groups:
-                yield group
-
-
-def cases(paths):
-    for test_group in groups(paths):
-        for test in test_group["tests"]:
-            test["schema"] = test_group["schema"]
-            yield test
-
-
-def errortree_messages(et, path=""):
-    for e in et.errors.values():
-        yield "%s: %s" % (path, e)
-    for key in et:
-        for msg in errortree_messages(et[key], "%s/%s" % (path, key)):
-            yield msg
-
-
+SUITE_ROOT_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "tests")
 TESTSUITE_SCHEMA = {
     "$schema": "http://json-schema.org/draft-03/schema#",
     "type": "array",
@@ -67,43 +42,73 @@ TESTSUITE_SCHEMA = {
 }
 
 
+def files(paths):
+    for path in paths:
+        with open(path) as test_file:
+            yield json.load(test_file)
+
+
+def groups(paths):
+    for test_file in files(paths):
+        for group in test_file:
+            yield group
+
+
+def cases(paths):
+    for test_group in groups(paths):
+        for test in test_group["tests"]:
+            test["schema"] = test_group["schema"]
+            yield test
+
+
+def collect(root_dir):
+    for root, dirs, files in os.walk(root_dir):
+        for filename in fnmatch.filter(files, "*.json"):
+            yield os.path.join(root, filename)
+
+
 class SanityTests(TestCase):
     @classmethod
     def setUpClass(cls):
         logging.info("Looking for tests in %s", SUITE_ROOT_DIR)
-        cls.test_files = []
-        for root, dirs, files in os.walk(SUITE_ROOT_DIR):
-            cls.test_files.extend(glob(os.path.join(root, "*.json")))
+        cls.test_files = list(collect(SUITE_ROOT_DIR))
         logging.info("Found %s test files", len(cls.test_files))
         assert cls.test_files, "Didn't find the test files!"
 
     def test_all_files_are_valid_json(self):
-        for test_path in self.test_files:
-            with open(test_path) as test_file:
-                json.load(test_file)
-
-    @skipIf(jsonschema is None, "Validation library not present! Skipping.")
-    def test_all_schemas_are_valid(self):
-        for test_case in cases(self.test_files):
-            # XXX: Add the other versions for the other drafts
-            jsonschema.Draft3Validator.check_schema(test_case["schema"])
+        for path in self.test_files:
+            with open(path) as test_file:
+                try:
+                    json.load(test_file)
+                except ValueError as error:
+                    self.fail("%s contains invalid JSON (%s)" % (path, error))
 
     def test_all_descriptions_are_unique(self):
         for group in groups(self.test_files):
             descriptions = {test["description"] for test in group["tests"]}
-            self.assertEqual(len(descriptions), len(group["tests"]))
+            self.assertEqual(
+                len(descriptions),
+                len(group["tests"]),
+                "%r contains a duplicate description" % (group,)
+            )
 
+    @skipIf(jsonschema is None, "Validation library not present! Skipping.")
+    def test_all_schemas_are_valid(self):
+        for case in cases(self.test_files):
+            # XXX: Add the other versions for the other drafts
+            try:
+                jsonschema.Draft3Validator.check_schema(case["schema"])
+            except jsonschema.SchemaError as error:
+                self.fail("%s contains an invalid schema (%s)" % (case, error))
+
+    @skipIf(jsonschema is None, "Validation library not present! Skipping.")
     def test_suites_are_valid(self):
         validator = jsonschema.Draft3Validator(TESTSUITE_SCHEMA)
-        for root, dirs, files in os.walk(SUITE_ROOT_DIR):
-            for f in glob(os.path.join(root, "*.json")):
-                with open(f) as test_file:
-                    test_data = json.load(test_file)
-                errortree = jsonschema.ErrorTree(validator.iter_errors(test_data))
-                msg = "Test suite '%s' does not follow the test format:\n" % f
-                msg += "\n".join("\t" + e for e in errortree_messages(errortree))
-                assert not len(errortree), msg
-
+        for tests in files(self.test_files):
+            try:
+                validator.validate(tests)
+            except jsonschema.ValidationError as error:
+                self.fail(str(error))
 
 
 if __name__ == "__main__":
