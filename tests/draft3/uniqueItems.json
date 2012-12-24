@@ -14,6 +14,11 @@
                 "valid": false
             },
             {
+                "description": "numbers are unique if mathematically unequal",
+                "data": [1.0, 1.00, 1],
+                "valid": false
+            },
+            {
                 "description": "unique array of objects is valid",
                 "data": [{"foo": "bar"}, {"foo": "baz"}],
                 "valid": true

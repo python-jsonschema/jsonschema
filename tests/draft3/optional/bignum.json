@@ -1,0 +1,13 @@
+[
+    {
+        "description": "support for bignums",
+        "schema": {"type": "integer"},
+        "tests": [
+            {
+                "description": "a bignum is an integer",
+                "data": 12345678910111213141516171819202122232425262728293031,
+                "valid": true
+            }
+        ]
+    }
+]
