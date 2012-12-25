@@ -404,49 +404,6 @@ class TestRefResolver(TestCase):
         self.assertEqual(resolved, ref)
 
 
-class TestIgnorePropertiesForIrrelevantTypes(TestCase):
-    def test_minimum_ignores_nonnumbers(self):
-        validate("x", {"type": ["string", "number"], "minimum": 10})
-
-    def test_maximum_ignores_nonnumbers(self):
-        validate("x", {"type": ["string", "number"], "maximum": 10})
-
-    def test_properties_ignores_nonobjects(self):
-        validate(1, {"type": ["integer", "object"], "properties": {"x": {}}})
-
-    def test_additionalProperties_ignores_nonobjects(self):
-        validate(None, {"additionalProperties" : False})
-
-    def test_minLength_ignores_nonstrings(self):
-        validate([1], {"minLength" : 3})
-
-    def test_maxLength_ignores_nonstrings(self):
-        validate([1, 2, 3], {"minLength" : 2})
-
-    def test_pattern_ignores_non_strings(self):
-        validate(True, {"pattern" : "^a*$"})
-
-    def test_items_ignores_nonarrays(self):
-        validate(
-            1, {"type": ["integer", "array"], "items": {"type": "string"}}
-        )
-
-    def test_minItems_ignores_nonarrays(self):
-        validate("x", {"minItems" : 3})
-
-    def test_maxItems_ignores_nonarrays(self):
-        validate("xxxx", {"maxItems" : 3})
-
-    def test_additionalItems_ignores_nonarrays(self):
-        validate(None, {"additionalItems" : False})
-
-    def test_divisibleBy_ignores_nonnumbers(self):
-        validate("x", {"type": ["integer", "string"], "divisibleBy": 10})
-
-    def test_dependencies_ignores_nonobjects(self):
-        validate("foo", {"dependencies" : {"foo": "bar"}})
-
-
 def sorted_errors(errors):
     def key(error) : return ([str(e) for e in error.path], error.validator)
     return sorted(errors, key=key)
