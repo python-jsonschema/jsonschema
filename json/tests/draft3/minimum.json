@@ -12,6 +12,11 @@
                 "description": "below the minimum is invalid",
                 "data": 0.6,
                 "valid": false
+            },
+            {
+                "description": "ignores non-numbers",
+                "data": "x",
+                "valid": true
             }
         ]
     },

@@ -14,6 +14,11 @@
                 "valid": false
             },
             {
+                "description": "a float is not an integer even without fractional part",
+                "data": 1.0,
+                "valid": false
+            },
+            {
                 "description": "a string is not an integer",
                 "data": "foo",
                 "valid": false

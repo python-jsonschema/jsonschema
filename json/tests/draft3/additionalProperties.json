@@ -16,6 +16,11 @@
                 "description": "an additional property is invalid",
                 "data": {"foo" : 1, "bar" : 2, "quux" : "boom"},
                 "valid": false
+            },
+            {
+                "description": "ignores non-objects",
+                "data": [1, 2, 3],
+                "valid": true
             }
         ]
     },

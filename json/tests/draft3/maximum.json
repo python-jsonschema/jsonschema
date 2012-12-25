@@ -12,6 +12,11 @@
                 "description": "above the maximum is invalid",
                 "data": 3.5,
                 "valid": false
+            },
+            {
+                "description": "ignores non-numbers",
+                "data": "x",
+                "valid": true
             }
         ]
     },

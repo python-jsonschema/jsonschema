@@ -60,6 +60,11 @@
                     "items defaults to empty schema so everything is valid",
                 "data": [ 1, 2, 3, 4, 5 ],
                 "valid": true
+            },
+            {
+                "description": "ignores non-arrays",
+                "data": {"foo" : "bar"},
+                "valid": true
             }
         ]
     },

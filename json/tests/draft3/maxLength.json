@@ -17,6 +17,11 @@
                 "description": "too long is invalid",
                 "data": "foo",
                 "valid": false
+            },
+            {
+                "description": "ignores non-strings",
+                "data": 10,
+                "valid": true
             }
         ]
     }

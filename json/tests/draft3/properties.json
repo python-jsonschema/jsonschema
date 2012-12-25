@@ -27,6 +27,11 @@
                 "description": "doesn't invalidate other properties",
                 "data": {"quux": []},
                 "valid": true
+            },
+            {
+                "description": "ignores non-objects",
+                "data": [],
+                "valid": true
             }
         ]
     },

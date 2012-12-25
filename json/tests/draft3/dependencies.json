@@ -24,6 +24,11 @@
                 "description": "missing dependency",
                 "data": {"bar": 2},
                 "valid": false
+            },
+            {
+                "description": "ignores non-objects",
+                "data": "foo",
+                "valid": true
             }
         ]
     },

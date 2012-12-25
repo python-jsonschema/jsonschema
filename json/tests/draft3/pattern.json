@@ -12,6 +12,11 @@
                 "description": "a non-matching pattern is invalid",
                 "data": "abc",
                 "valid": false
+            },
+            {
+                "description": "ignores non-strings",
+                "data": true,
+                "valid": true
             }
         ]
     }
