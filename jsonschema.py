@@ -249,6 +249,9 @@ class Draft3Validator(object):
                 )
 
     def validate_patternProperties(self, patternProperties, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
                 if re.match(pattern, k):
