@@ -83,6 +83,15 @@ class SanityTests(TestCase):
                 except ValueError as error:
                     self.fail("%s contains invalid JSON (%s)" % (path, error))
 
+    def test_all_descriptions_have_reasonable_length(self):
+        for case in cases(self.test_files):
+            descript = case["description"]
+            self.assertLess(
+                len(descript),
+                60,
+                "%r is too long! (keep it to less than 60 chars)" % (descript,)
+            )
+
     def test_all_descriptions_are_unique(self):
         for group in groups(self.test_files):
             descriptions = {test["description"] for test in group["tests"]}
