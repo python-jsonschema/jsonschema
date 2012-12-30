@@ -86,8 +86,14 @@ class DecimalMixin(object):
                 validator.validate(invalid)
 
 
+class AnyTypeMixin(object):
+    def test_any_type_is_valid_for_type_any(self):
+        validator = self.validator_class({"type" : "any"})
+        validator.validate(mock.Mock())
+
+
 @load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
-class TestDraft3(TestCase, ByteStringMixin, DecimalMixin):
+class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
     validator_class = Draft3Validator
 
     # TODO: we're in need of more meta schema tests
@@ -354,6 +360,9 @@ class TestDraft3Validator(TestCase):
 
     def test_is_type_is_false_for_invalid_type(self):
         self.assertFalse(self.validator.is_type("foo", "array"))
+
+    def test_is_type_is_true_for_any_type(self):
+        self.assertTrue(self.validator.is_type(mock.Mock(), "any"))
 
     def test_is_type_evades_bool_inheriting_from_int(self):
         self.assertFalse(self.validator.is_type(True, "integer"))

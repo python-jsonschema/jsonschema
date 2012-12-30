@@ -138,7 +138,6 @@ class Draft3Validator(object):
 
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
-        self._types["any"] = tuple(self._types.values())
 
         if resolver is None:
             resolver = RefResolver.from_schema(schema)
@@ -152,7 +151,9 @@ class Draft3Validator(object):
 
         """
 
-        if type not in self._types:
+        if type == "any":
+            return True
+        elif type not in self._types:
             raise UnknownType(type)
         type = self._types[type]
 
@@ -232,11 +233,12 @@ class Draft3Validator(object):
         types = _list(types)
 
         for type in types:
+            if type == "any" or (
+
             # Ouch. Brain hurts. Two paths here, either we have a schema, then
             # check if the instance is valid under it
-            if ((
-                self.is_type(type, "object") and
-                self.is_valid(instance, type)
+
+                self.is_type(type, "object") and self.is_valid(instance, type)
 
             # Or we have a type as a string, just check if the instance is that
             # type. Also, HACK: we can reach the `or` here if skip_types is
@@ -245,7 +247,7 @@ class Draft3Validator(object):
             ) or (
                 self.is_type(type, "string") and
                 (self.is_type(instance, type) or type not in self._types)
-            )):
+            ):
                 return
         else:
             yield ValidationError(_types_msg(instance, types))
