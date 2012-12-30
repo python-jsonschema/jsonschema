@@ -138,7 +138,6 @@ class Draft3Validator(object):
 
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
-        self._types["any"] = tuple(self._types.values())
 
         if resolver is None:
             resolver = RefResolver.from_schema(schema)
@@ -152,9 +151,11 @@ class Draft3Validator(object):
 
         """
 
-        if type not in self._types:
-            raise UnknownType(type)
-        type = self._types[type]
+        type = self._types.get(type, "any")
+
+        # If type is "any", then this will always succeed
+        if type == "any":
+            return True
 
         # bool inherits from int, so ensure bools aren't reported as integers
         if isinstance(instance, bool):
