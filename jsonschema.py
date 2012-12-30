@@ -525,17 +525,24 @@ class RefResolver(object):
     """
     Resolve JSON References.
 
+    :argument string base_uri: URI of the referring document
+    :argument referrer: the actual referring document
+    :argument dict store: a mapping from URIs to documents to cache
+
     """
 
     def __init__(self, base_uri, referrer, store=()):
         self.base_uri = base_uri
         self.referrer = referrer
-        self.store = collections.defaultdict(dict, store, **_meta_schemas())
+        self.store = dict(store, **_meta_schemas())
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
         """
         Construct a resolver from a JSON schema object.
+
+        :argument schema schema: the referring schema
+        :rtype: :class:`RefResolver`
 
         """
 
@@ -544,6 +551,9 @@ class RefResolver(object):
     def resolve(self, ref):
         """
         Resolve a JSON ``ref``.
+
+        :argument string ref: reference to resolve
+        :returns: the referrant document
 
         """
 
@@ -562,6 +572,9 @@ class RefResolver(object):
     def resolve_fragment(self, document, fragment):
         """
         Resolve a ``fragment`` within the referenced ``document``.
+
+        :argument document: the referrant document
+        :argument string fragment: a URI fragment to resolve within it
 
         """
 
@@ -582,6 +595,9 @@ class RefResolver(object):
         Resolve a remote ``uri``.
 
         Does not check the store first.
+
+        :argument string uri: the URI to resolve
+        :returns: the retrieved document
 
         """
 
