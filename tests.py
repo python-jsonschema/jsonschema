@@ -1,12 +1,10 @@
 from __future__ import unicode_literals
 from decimal import Decimal
-from functools import wraps
-from io import StringIO
+from io import BytesIO
 import glob
 import os
 import re
 import sys
-import warnings
 import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
@@ -21,7 +19,7 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, RefResolver, urlopen, validate
+    Draft3Validator, RefResolver, validate
 )
 
 
@@ -349,7 +347,7 @@ class TestDraft3Validator(TestCase):
         with self.assertRaises(ValidationError):
             Draft3Validator(schema, resolver=resolver).validate(None)
 
-        resolver.resolve.assert_called_once_with(schema, schema["$ref"])
+        resolver.resolve.assert_called_once_with(schema["$ref"])
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
@@ -372,36 +370,52 @@ class TestDraft3Validator(TestCase):
 
 class TestRefResolver(TestCase):
     def setUp(self):
-        self.resolver = RefResolver()
-        self.schema = mock.MagicMock()
+        self.base_uri = ""
+        self.referrer = {}
+        self.store = {}
+        self.resolver = RefResolver(self.base_uri, self.referrer, self.store)
+
+    def test_it_does_not_retrieve_schema_urls_from_the_network(self):
+        ref = Draft3Validator.META_SCHEMA["id"]
+        with mock.patch.object(self.resolver, "resolve_remote") as remote:
+            resolved = self.resolver.resolve(ref)
+
+        self.assertEqual(resolved, Draft3Validator.META_SCHEMA)
+        self.assertFalse(remote.called)
 
     def test_it_resolves_local_refs(self):
         ref = "#/properties/foo"
-        resolved = self.resolver.resolve(self.schema, ref)
-        self.assertEqual(resolved, self.schema["properties"]["foo"])
-
-    def test_it_retrieves_non_local_refs(self):
-        schema = '{"type" : "integer"}'
-        get_page = mock.Mock(return_value=StringIO(schema))
-        resolver = RefResolver(get_page=get_page)
-
-        url = "http://example.com/schema"
-        resolved = resolver.resolve(mock.Mock(), url)
-
-        self.assertEqual(resolved, json.loads(schema))
-        get_page.assert_called_once_with(url)
-
-    def test_it_uses_urlopen_by_default_for_nonlocal_refs(self):
-        self.assertEqual(self.resolver.get_page, urlopen)
-
-    def test_it_accepts_a_ref_store(self):
-        store = mock.Mock()
-        self.assertEqual(RefResolver(store).store, store)
+        self.referrer["properties"] = {"foo" : object()}
+        resolved = self.resolver.resolve(ref)
+        self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
     def test_it_retrieves_stored_refs(self):
-        ref = self.resolver.store["cached_ref"] = mock.Mock()
-        resolved = self.resolver.resolve(self.schema, "cached_ref")
-        self.assertEqual(resolved, ref)
+        ref = self.resolver.store["cached_ref"] = {"foo" : 12}
+        resolved = self.resolver.resolve("cached_ref#/foo")
+        self.assertEqual(resolved, 12)
+
+    def test_it_retrieves_unstored_refs_via_urlopen(self):
+        ref = "http://bar#baz"
+        schema = {"baz" : 12}
+
+        with mock.patch("jsonschema.urlopen") as urlopen:
+            urlopen.return_value.read.return_value = json.dumps(schema)
+            resolved = self.resolver.resolve(ref)
+
+        self.assertEqual(resolved, 12)
+        urlopen.assert_called_once_with("http://bar")
+
+    def test_it_can_construct_a_base_uri_from_a_schema(self):
+        schema = {"id" : "foo"}
+        resolver = RefResolver.from_schema(schema)
+        self.assertEqual(resolver.base_uri, "foo")
+        self.assertEqual(resolver.referrer, schema)
+
+    def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
+        schema = {}
+        resolver = RefResolver.from_schema(schema)
+        self.assertEqual(resolver.base_uri, "")
+        self.assertEqual(resolver.referrer, schema)
 
 
 def sorted_errors(errors):

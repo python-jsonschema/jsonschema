@@ -21,12 +21,12 @@ import sys
 
 __version__ = "0.8dev"
 
-FLOAT_TOLERANCE = 10 ** -15
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
     basestring = unicode = str
     iteritems = operator.methodcaller("items")
+    from urllib import parse as urlparse
     from urllib.parse import unquote
     from urllib.request import urlopen
 else:
@@ -34,6 +34,23 @@ else:
     iteritems = operator.methodcaller("iteritems")
     from urllib import unquote
     from urllib2 import urlopen
+    import urlparse
+
+
+FLOAT_TOLERANCE = 10 ** -15
+validators = {}
+
+
+def validator(version):
+    """
+    Register a validator for a ``version`` of the specification.
+
+    """
+
+    def _validator(cls):
+        validators[version] = cls
+        return cls
+    return _validator
 
 
 class UnknownType(Exception):
@@ -86,6 +103,7 @@ class ValidationError(Exception):
         self.validator = validator
 
 
+@validator("draft3")
 class Draft3Validator(object):
     """
     A validator for JSON Schema draft 3.
@@ -123,7 +141,7 @@ class Draft3Validator(object):
         self._types["any"] = tuple(self._types.values())
 
         if resolver is None:
-            resolver = RefResolver()
+            resolver = RefResolver.from_schema(schema)
 
         self.resolver = resolver
         self.schema = schema
@@ -412,7 +430,7 @@ class Draft3Validator(object):
                 yield error
 
     def validate_ref(self, ref, instance, schema):
-        resolved = self.resolver.resolve(self.schema, ref)
+        resolved = self.resolver.resolve(ref)
         for error in self.iter_errors(instance, resolved):
             yield error
 
@@ -503,50 +521,69 @@ Draft3Validator.META_SCHEMA = {
 
 class RefResolver(object):
     """
-    Resolve JSON Schema refs.
+    Resolve JSON References.
 
     """
 
-    def __init__(self, store=None, get_page=urlopen):
-        if store is None:
-            store = {}
+    def __init__(self, base_uri, referrer, store=()):
+        self.base_uri = base_uri
+        self.referrer = referrer
+        self.store = collections.defaultdict(dict, store, **_meta_schemas())
 
-        self.get_page = get_page
-        self.store = store
-
-    def resolve(self, root_schema, ref):
+    @classmethod
+    def from_schema(cls, schema, *args, **kwargs):
         """
-        Resolve a ``ref`` within the context of the ``root_schema``.
+        Construct a resolver from a JSON schema object.
 
         """
 
-        if ref in self.store:
-            return self.store[ref]
-        elif ref.startswith("#"):
-            return self.resolve_relative(root_schema, ref)
+        return cls(schema.get("id", ""), schema, *args, **kwargs)
+
+    def resolve(self, ref):
+        """
+        Resolve a JSON ``ref``.
+
+        """
+
+        base_uri = self.base_uri
+        uri, fragment = urlparse.urldefrag(urlparse.urljoin(base_uri, ref))
+
+        if uri in self.store:
+            document = self.store[uri]
+        elif not uri or uri == self.base_uri:
+            document = self.referrer
         else:
-            return json.load(self.get_page(ref))
+            document = self.resolve_remote(uri)
 
-    def resolve_relative(self, schema, ref):
+        return self.resolve_fragment(document, fragment.lstrip("/"))
+
+    def resolve_fragment(self, document, fragment):
         """
-        Resolve a relative ``ref`` within the given ``schema``.
+        Resolve a ``fragment`` within the referenced ``document``.
 
         """
 
-        if ref == "#":
-            return schema
+        parts = unquote(fragment).split("/") if fragment else []
 
-        parts = ref.lstrip("#/").split("/")
-        parts = map(unquote, parts)
-        parts = [part.replace('~1', '/').replace('~0', '~') for part in parts]
+        for part in parts:
+            part = part.replace("~1", "/").replace("~0", "~")
 
-        try:
-            for part in parts:
-                schema = schema[part]
-        except KeyError:
-            raise InvalidRef("Unresolvable json-pointer %r" % ref)
-        else:
-            return schema
+            if part not in document:
+                raise InvalidRef("Unresolvable JSON pointer: %r" % fragment)
+
+            document = document[part]
+
+        return document
+
+    def resolve_remote(self, uri):
+        """
+        Resolve a remote ``uri``.
+
+        Does not check the store first.
+
+        """
+
+        return json.load(urlopen(uri))
 
 
 class ErrorTree(object):
@@ -597,6 +634,16 @@ class ErrorTree(object):
 
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
+
+
+def _meta_schemas():
+    """
+    Collect the urls and meta schemas from each known validator.
+
+    """
+
+    meta_schemas = (v.META_SCHEMA for v in validators.values())
+    return dict((urlparse.urldefrag(m["id"])[0], m) for m in meta_schemas)
 
 
 def _find_additional_properties(instance, schema):
