@@ -19,7 +19,7 @@ import re
 import sys
 
 
-__version__ = "0.8dev"
+__version__ = "0.8.0-b1"
 
 PY3 = sys.version_info[0] >= 3
 
