@@ -145,15 +145,20 @@ class Draft3Validator(object):
                 return False
         return isinstance(instance, type)
 
-    def is_valid(self, instance, _schema=None):
+    def is_valid(self, instance, _schema=None, errors=None):
         """
         Check if the ``instance`` is valid under the current schema.
 
         Returns a bool indicating whether validation succeeded.
 
         """
+        errorsIter = self.iter_errors(instance, _schema)
+        error = next(errorsIter, None)
 
-        error = next(self.iter_errors(instance, _schema), None)
+        if not (errors is None):
+            errors.append(error)
+            errors.extend(errorsIter)
+
         return error is None
 
     @classmethod
@@ -212,25 +217,34 @@ class Draft3Validator(object):
 
     def validate_type(self, types, instance, schema):
         types = _list(types)
+        all_errors = list()
 
         for type in types:
+
+            # We will need this a couple of times
+            is_object = self.is_type(type, "object")
+
             # Ouch. Brain hurts. Two paths here, either we have a schema, then
             # check if the instance is valid under it
-            if ((
-                self.is_type(type, "object") and
-                self.is_valid(instance, type)
-
+            if (
+                is_object and 
+                self.is_valid(instance, type, all_errors)
+                ):
+                    return
+            
             # Or we have a type as a string, just check if the instance is that
             # type. Also, HACK: we can reach the `or` here if skip_types is
             # something other than error. If so, bail out.
 
-            ) or (
-                self.is_type(type, "string") and
-                (self.is_type(instance, type) or type not in self._types)
-            )):
-                return
+            if self.is_type(type, "string"):
+                if (self.is_type(instance, type) or type not in self._types):               
+                    return
+
+            if not is_object:
+                all_errors.append(ValidationError(_types_msg(instance, type)))
         else:
-            yield ValidationError(_types_msg(instance, types))
+            for error in all_errors:
+                yield error
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
