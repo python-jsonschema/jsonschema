@@ -41,7 +41,7 @@ FLOAT_TOLERANCE = 10 ** -15
 validators = {}
 
 
-def validator(version):
+def validates(version):
     """
     Register a validator for a ``version`` of the specification.
 
@@ -50,10 +50,10 @@ def validator(version):
 
     """
 
-    def _validator(cls):
+    def _validates(cls):
         validators[version] = cls
         return cls
-    return _validator
+    return _validates
 
 
 class UnknownType(Exception):
@@ -106,7 +106,7 @@ class ValidationError(Exception):
         self.validator = validator
 
 
-@validator("draft3")
+@validates("draft3")
 class Draft3Validator(object):
     """
     A validator for JSON Schema draft 3.
@@ -226,6 +226,12 @@ class Draft3Validator(object):
     def validate(self, *args, **kwargs):
         """
         Validate an ``instance`` under the given ``schema``.
+
+            >>> schema = {"maxItems" : 2}
+            >>> Draft3Validator(schema).validate([2, 3, 4])
+            Traceback (most recent call last):
+                ...
+            ValidationError: [2, 3, 4] is too long
 
         """
 
