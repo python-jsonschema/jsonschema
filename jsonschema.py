@@ -45,6 +45,9 @@ def validator(version):
     """
     Register a validator for a ``version`` of the specification.
 
+    :argument str version: an identifier to use as the version's name
+    :returns: a class decorator to decorate the validator with the version
+
     """
 
     def _validator(cls):
@@ -525,7 +528,7 @@ class RefResolver(object):
     """
     Resolve JSON References.
 
-    :argument string base_uri: URI of the referring document
+    :argument str base_uri: URI of the referring document
     :argument referrer: the actual referring document
     :argument dict store: a mapping from URIs to documents to cache
 
@@ -552,7 +555,7 @@ class RefResolver(object):
         """
         Resolve a JSON ``ref``.
 
-        :argument string ref: reference to resolve
+        :argument str ref: reference to resolve
         :returns: the referrant document
 
         """
@@ -574,7 +577,7 @@ class RefResolver(object):
         Resolve a ``fragment`` within the referenced ``document``.
 
         :argument document: the referrant document
-        :argument string fragment: a URI fragment to resolve within it
+        :argument str fragment: a URI fragment to resolve within it
 
         """
 
@@ -596,7 +599,7 @@ class RefResolver(object):
 
         Does not check the store first.
 
-        :argument string uri: the URI to resolve
+        :argument str uri: the URI to resolve
         :returns: the retrieved document
 
         """
