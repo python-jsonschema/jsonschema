@@ -1,3 +1,14 @@
+v0.8.0
+------
+
+* Full support for JSON References
+* ``validates`` for registering new validators
+* Documentation
+* Bugfixes
+
+    * uniqueItems not so unique (#34)
+    * Improper any (#47)
+
 v0.7
 ----
 
@@ -12,6 +23,7 @@ v0.6
 ----
 
 * Bugfixes
+
   * Issue #30 - Wrong behavior for the dependencies property validation
   * Fix a miswritten test
 
@@ -19,6 +31,7 @@ v0.5
 ----
 
 * Bugfixes
+
   * Issue #17 - require path for error objects
   * Issue #18 - multiple type validation for non-objects
 
@@ -32,6 +45,7 @@ v0.4
 
     In order to make this happen (and also to clean things up a bit), a number
     of deprecations are necessary:
+
         * ``stop_on_error`` is deprecated in ``Validator.__init__``. Use 
           ``Validator.iter_errors()`` instead.
         * ``number_types`` and ``string_types`` are deprecated there as well.

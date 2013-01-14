@@ -48,35 +48,18 @@ Features
 Release Notes
 -------------
 
-``v0.7`` introduces a number of changes.
+``v0.8.0`` introduces full support for JSON references via the ``RefResolver``
+object. It also removes all of the deprecated code from ``v0.7``.
 
-The most important one is that the ``Validator`` class is now **deprecated**.
+Other notable fixes are a fix for improper support of ``uniqueItems`` for
+``True`` and ``False`` (#34) and ``any`` for unknown types (#47).
 
-In its place is the ``Draft3Validator`` class (soon to be accompanied by others
-for other supported versions). This class accepts a schema when *initializing*,
-so that the new interface is::
+Notably, there now exists some documentation (woo hoo!). It can be found at:
 
-    validator = Draft3Validator(my_schema)
-    validator.validate(some_instance)
+    http://python-jsonschema.readthedocs.org
 
-Also, *no* meta-validation is done. If you want to check if a schema is valid,
-use the ``check_schema`` ``classmethod`` (i.e. use
-``Draft3Validator.check_schema(a_maybe_valid_schema)``).
-
-The ``validate`` function of course still exists and continues to work as it
-did before::
-
-    from jsonschema import validate
-    validate(my_instance, my_schema)
-
-There's just one exception: the ``meta_validate`` argument is deprecated,
-and meta-validation will now always be done. If you don't want to have it done,
-construct a validator directly as above.
-
-One last thing that is present is partial support for ``$ref``, at least for
-JSON Pointer refs. Full support should be coming soon.
-
-As always, if you find any bugs, please file a ticket.
+There are still a few incomplete sections, but it's mostly there. Patches
+welcome for weak points.
 
 
 Running the Test Suite
