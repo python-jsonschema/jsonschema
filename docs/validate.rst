@@ -38,6 +38,11 @@ adhere to.
                         unprovided, a :class:`RefResolver` is created and used.
 
 
+    .. attribute:: DEFAULT_TYPES
+
+        The default mapping of JSON types to Python types used when validating
+        ``type`` properties in JSON schemas.
+
     .. attribute:: META_SCHEMA
 
         An object representing the validator's meta schema (the schema that
@@ -69,17 +74,38 @@ adhere to.
 
         :rtype: bool
 
+            >>> schema = {"maxItems" : 2}
+            >>> Draft3Validator(schema).is_valid([2, 3, 4])
+            False
+
     .. method:: iter_errors(instance)
 
         Lazily yield each of the validation errors in the given instance.
 
         :rtype: an iterable of :exc:`ValidationError`\s
 
+            >>> schema = {
+            ...     "type" : "array",
+            ...     "items" : {"enum" : [1, 2, 3]},
+            ...     "maxItems" : 2,
+            ... }
+            >>> v = Draft3Validator(schema)
+            >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
+            ...     print(error)
+            4 is not one of [1, 2, 3]
+            [2, 3, 4] is too long
+
     .. method:: validate(instance)
 
         Check if the instance is valid under the current :attr:`schema`.
 
         :raises: :exc:`ValidationError` if the instance is invalid
+
+            >>> schema = {"maxItems" : 2}
+            >>> Draft3Validator(schema).validate([2, 3, 4])
+            Traceback (most recent call last):
+                ...
+            ValidationError: [2, 3, 4] is too long
 
 
 All of the :ref:`versioned validators <versioned-validators>` that are included
@@ -88,16 +114,43 @@ that extend or complement the ones included should adhere to it as well. For
 more information see :ref:`creating-validators`.
 
 
+.. _validating-types:
+
+Validating With Additional Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Occasionally it can be useful to provide additional or alternate types when
+validating the JSON Schema's ``type`` property. Validators allow this by taking
+a ``types`` argument on construction that specifies additional types, or which
+can be used to specify a different set of Python types to map to a given JSON
+type.
+
+For instance, JSON defines a ``number`` type, which can be validated with a
+schema such as ``{"type" : "number"}``. By default, this will validate
+correctly for Python :class:`int`\s and :class:`float`\s. If you wanted to
+additionally validate :class:`decimal.Decimal` objects, you'd use:
+
+    >>> import decimal
+    >>> Draft3Validator(
+    ... {"type" : "number"},
+    ... types={"number" : (int, float, decimal.Decimal)}
+    ... )
+
+ The list of default Python types for each JSON type is available on each
+ validator in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note that you
+ need to specify all types to match if you override one of the existing JSON
+ types, so you may want to access the set of default types to add it to the
+ ones being appended.
+
+
 .. _versioned-validators:
 
 Versioned Validators
 --------------------
 
+:mod:`jsonschema` ships with validators for various versions of the JSON Schema
+specification. For details on the methods and attributes that each validator
+provides see the :class:`IValidator` interface, which each validator
+implements.
+
 .. autoclass:: Draft3Validator
-    :members:
-
-
-.. _validating-types:
-
-Validating With Additional Types
---------------------------------

@@ -129,18 +129,6 @@ class Draft3Validator(object):
     }
 
     def __init__(self, schema, types=(), resolver=None):
-        """
-        ``types`` is a mapping (or iterable of 2-tuples) containing additional
-        types or alternate types to verify via the 'type' property. For
-        instance, the default types for the 'number' JSON Schema type are
-        ``int`` and ``float``.  To override this behavior (e.g. for also
-        allowing ``decimal.Decimal``), pass ``types={"number" : (int, float,
-        decimal.Decimal)} *including* the default types if so desired, which
-        are fairly obvious but can be accessed via the ``DEFAULT_TYPES``
-        attribute on this class if necessary.
-
-        """
-
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
 
@@ -176,22 +164,6 @@ class Draft3Validator(object):
             )
 
     def iter_errors(self, instance, _schema=None):
-        """
-        Lazily yield each of the errors in the given ``instance``.
-
-            >>> schema = {
-            ...     "type" : "array",
-            ...     "items" : {"enum" : [1, 2, 3]},
-            ...     "maxItems" : 2,
-            ... }
-            >>> v = Draft3Validator(schema)
-            >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
-            ...     print(error)
-            4 is not one of [1, 2, 3]
-            [2, 3, 4] is too long
-
-        """
-
         if _schema is None:
             _schema = self.schema
 
@@ -209,17 +181,6 @@ class Draft3Validator(object):
                 yield error
 
     def validate(self, *args, **kwargs):
-        """
-        Validate an ``instance`` under the given ``schema``.
-
-            >>> schema = {"maxItems" : 2}
-            >>> Draft3Validator(schema).validate([2, 3, 4])
-            Traceback (most recent call last):
-                ...
-            ValidationError: [2, 3, 4] is too long
-
-        """
-
         for error in self.iter_errors(*args, **kwargs):
             raise error
 
