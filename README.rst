@@ -36,7 +36,7 @@ Features
   for `Draft 3 <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_ of the
   schema
 
-* `Lazy validation <https://python-jsonschema.readthedocs.org/en/latest/#jsonschema.Draft3Validator.iter_errors>`_
+* `Lazy validation <https://python-jsonschema.readthedocs.org/en/latest/#jsonschema.IValidator.iter_errors>`_
   that can iteratively report *all* validation errors.
 
 * Small and extensible
