@@ -2,6 +2,10 @@
 jsonschema
 ==========
 
+
+.. module:: jsonschema
+
+
 ``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
 for Python (supporting 2.6+ including Python 3).
 
@@ -36,6 +40,8 @@ Contents:
 
     validate
     errors
+    references
+    creating
 
 
 Indices and tables

@@ -43,7 +43,7 @@ validators = {}
 
 def validates(version):
     """
-    Register a validator for a ``version`` of the specification.
+    Register the decorated validator for a ``version`` of the specification.
 
     Registered validators and their meta schemas will be considered when
     parsing ``$schema`` properties' URIs.
@@ -77,7 +77,7 @@ class SchemaError(Exception):
     """
     The provided schema is malformed.
 
-    The same attributes are present as for :exception:`ValidationError`s.
+    The same attributes are present as for :exc:`ValidationError`\s.
 
     """
 
@@ -837,15 +837,26 @@ def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
     """
     Validate an ``instance`` under the given ``schema``.
 
-    First verifies that the provided schema is itself valid, since not doing so
-    can lead to less obvious failures when validating. If you know it is or
-    don't care, use ``YourValidator(schema).validate(instance)`` directly
-    instead (e.g. ``Draft3Validator``).
+        >>> validate([2, 3, 4], {"maxItems" : 2})
+        Traceback (most recent call last):
+            ...
+        ValidationError: [2, 3, 4] is too long
+
+    :func:`validate` will first verify that the provided schema is itself
+    valid, since not doing so can lead to less obvious error messages and fail
+    in less obvious or consistent ways. If you know you have a valid schema
+    already or don't care, you might prefer using the ``validate`` method
+    directly on a specific validator (e.g. :meth:`Draft3Validator.validate`).
 
     ``cls`` is a validator class that will be used to validate the instance.
     By default this is a draft 3 validator.  Any other provided positional and
     keyword arguments will be provided to this class when constructing a
     validator.
+
+    :raises:
+        :exc:`ValidationError` if the instance is invalid
+
+        :exc:`SchemaError` if the schema itself is invalid
 
     """
 

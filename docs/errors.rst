@@ -2,9 +2,18 @@
 Handling Validation Errors
 ==========================
 
-.. module:: jsonschema
+.. currentmodule:: jsonschema
+
+When an invalid instance is encountered, a :exc:`ValidationError` will be
+raised or returned, depending on which method or function is used.
 
 .. autoexception:: ValidationError
+    :members:
+
+In case an invalid schema itself is encountered, a :exc:`SchemaError` is
+raised.
+
+.. autoexception:: SchemaError
     :members:
 
 ErrorTrees
