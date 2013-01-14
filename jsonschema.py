@@ -282,9 +282,10 @@ class Draft3Validator(object):
                     yield error
 
     def validate_additionalItems(self, aI, instance, schema):
-        if not self.is_type(instance, "array"):
-            return
-        if not self.is_type(schema.get("items"), "array"):
+        if (
+            not self.is_type(instance, "array") or
+            not self.is_type(schema.get("items"), "array")
+        ):
             return
 
         if self.is_type(aI, "object"):
