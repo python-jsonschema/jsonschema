@@ -24,17 +24,17 @@ __version__ = "0.8.0-b1"
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
-    basestring = unicode = str
-    iteritems = operator.methodcaller("items")
     from urllib import parse as urlparse
     from urllib.parse import unquote
     from urllib.request import urlopen
+    basestring = unicode = str
+    iteritems = operator.methodcaller("items")
 else:
     from itertools import izip as zip
-    iteritems = operator.methodcaller("iteritems")
     from urllib import unquote
     from urllib2 import urlopen
     import urlparse
+    iteritems = operator.methodcaller("iteritems")
 
 
 FLOAT_TOLERANCE = 10 ** -15
@@ -44,6 +44,9 @@ validators = {}
 def validates(version):
     """
     Register a validator for a ``version`` of the specification.
+
+    Registered validators and their meta schemas will be considered when
+    parsing ``$schema`` properties' URIs.
 
     :argument str version: an identifier to use as the version's name
     :returns: a class decorator to decorate the validator with the version
@@ -58,14 +61,14 @@ def validates(version):
 
 class UnknownType(Exception):
     """
-    An unknown type was given.
+    An attempt was made to check if an instance was of an unknown type.
 
     """
 
 
-class InvalidRef(Exception):
+class RefResolutionError(Exception):
     """
-    An invalid reference was given.
+    A JSON reference failed to resolve.
 
     """
 
@@ -74,20 +77,23 @@ class SchemaError(Exception):
     """
     The provided schema is malformed.
 
-    The same attributes exist for ``SchemaError``s as for ``ValidationError``s.
+    The same attributes are present as for :exception:`ValidationError`s.
 
     """
 
     def __init__(self, message, validator=None, path=()):
-        super(SchemaError, self).__init__(message)
+        super(SchemaError, self).__init__(message, validator, path)
         self.message = message
         self.path = list(path)
         self.validator = validator
 
+    def __str__(self):
+        return self.message
+
 
 class ValidationError(Exception):
     """
-    The instance didn't properly validate with the provided schema.
+    The instance didn't properly validate under the provided schema.
 
     Relevant attributes are:
         * ``message`` : a human readable message explaining the error
@@ -98,12 +104,16 @@ class ValidationError(Exception):
     """
 
     def __init__(self, message, validator=None, path=()):
-        # Any validator that recurses must append to the ValidationError's
-        # path (e.g., properties and items)
-        super(ValidationError, self).__init__(message)
+        # Any validator that recurses (e.g. properties and items) must append
+        # to the ValidationError's path to properly maintain where in the
+        # instance the error occurred
+        super(ValidationError, self).__init__(message, validator, path)
         self.message = message
         self.path = list(path)
         self.validator = validator
+
+    def __str__(self):
+        return self.message
 
 
 @validates("draft3")
@@ -593,7 +603,9 @@ class RefResolver(object):
             part = part.replace("~1", "/").replace("~0", "~")
 
             if part not in document:
-                raise InvalidRef("Unresolvable JSON pointer: %r" % fragment)
+                raise RefResolutionError(
+                    "Unresolvable JSON pointer: %r" % fragment
+                )
 
             document = document[part]
 
