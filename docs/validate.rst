@@ -128,19 +128,20 @@ type.
 For instance, JSON defines a ``number`` type, which can be validated with a
 schema such as ``{"type" : "number"}``. By default, this will validate
 correctly for Python :class:`int`\s and :class:`float`\s. If you wanted to
-additionally validate :class:`decimal.Decimal` objects, you'd use:
+additionally validate :class:`decimal.Decimal` objects, you'd use
 
-    >>> import decimal
-    >>> Draft3Validator(
-    ... {"type" : "number"},
-    ... types={"number" : (int, float, decimal.Decimal)}
-    ... )
+.. code-block:: python
 
- The list of default Python types for each JSON type is available on each
- validator in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note that you
- need to specify all types to match if you override one of the existing JSON
- types, so you may want to access the set of default types to add it to the
- ones being appended.
+    Draft3Validator(
+        schema={"type" : "number"},
+        types={"number" : (int, float, decimal.Decimal)},
+    )
+
+The list of default Python types for each JSON type is available on each
+validator in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note that you
+need to specify all types to match if you override one of the existing JSON
+types, so you may want to access the set of default types to add it to the
+ones being appended.
 
 
 .. _versioned-validators:
