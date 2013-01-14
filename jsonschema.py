@@ -130,11 +130,6 @@ class Draft3Validator(object):
 
     def __init__(self, schema, types=(), resolver=None):
         """
-        Initialize a validator.
-
-        ``schema`` should be a *valid* JSON Schema object already converted to
-        a native Python object (typically a dict via ``json.load``).
-
         ``types`` is a mapping (or iterable of 2-tuples) containing additional
         types or alternate types to verify via the 'type' property. For
         instance, the default types for the 'number' JSON Schema type are
@@ -143,9 +138,6 @@ class Draft3Validator(object):
         decimal.Decimal)} *including* the default types if so desired, which
         are fairly obvious but can be accessed via the ``DEFAULT_TYPES``
         attribute on this class if necessary.
-
-        ``resolver`` is an object that knows how to resolve JSON Schema refs.
-        If not specified it is an instance of :class:`RefResolver`.
 
         """
 
@@ -159,11 +151,6 @@ class Draft3Validator(object):
         self.schema = schema
 
     def is_type(self, instance, type):
-        """
-        Check if an ``instance`` is of the provided (JSON Schema) ``type``.
-
-        """
-
         if type == "any":
             return True
         elif type not in self._types:
@@ -178,23 +165,11 @@ class Draft3Validator(object):
         return isinstance(instance, type)
 
     def is_valid(self, instance, _schema=None):
-        """
-        Check if the ``instance`` is valid under the current schema.
-
-        Returns a bool indicating whether validation succeeded.
-
-        """
-
         error = next(self.iter_errors(instance, _schema), None)
         return error is None
 
     @classmethod
     def check_schema(cls, schema):
-        """
-        Validate a ``schema`` against the meta-schema to see if it is valid.
-
-        """
-
         for error in cls(cls.META_SCHEMA).iter_errors(schema):
             raise SchemaError(
                 error.message, validator=error.validator, path=error.path,
