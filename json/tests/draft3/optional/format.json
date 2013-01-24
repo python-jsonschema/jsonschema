@@ -14,5 +14,149 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "validation of date-time strings",
+        "schema": {"format": "date-time"},
+        "tests": [
+            {
+                "description": "a valid date-time string",
+                "data": "1963-06-19T08:30:06.283185",
+                "valid": true
+            },
+            {
+                "description": "an invalid date-time string",
+                "data": "06/19/1963 08:30:06 PST",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of date strings",
+        "schema": {"format": "date"},
+        "tests": [
+            {
+                "description": "a valid date string",
+                "data": "1963-06-19",
+                "valid": true
+            },
+            {
+                "description": "an invalid date string",
+                "data": "06/19/1963",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of time strings",
+        "schema": {"format": "time"},
+        "tests": [
+            {
+                "description": "a valid time string",
+                "data": "08:30:06",
+                "valid": true
+            },
+            {
+                "description": "an invalid time string",
+                "data": "8:30 AM",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of URIs",
+        "schema": {"format": "uri"},
+        "tests": [
+            {
+                "description": "a valid URI",
+                "data": "http://foo.bar/?baz=qux#quux",
+                "valid": true
+            },
+            {
+                "description": "an invalid URI",
+                "data": "\\\\WINDOWS\\fileshare",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of e-mail addresses",
+        "schema": {"format": "email"},
+        "tests": [
+            {
+                "description": "a valid e-mail address",
+                "data": "joe.bloggs@example.com",
+                "valid": true
+            },
+            {
+                "description": "an invalid e-mail address",
+                "data": "2962",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of IP addresses",
+        "schema": {"format": "ip-address"},
+        "tests": [
+            {
+                "description": "a valid IP address",
+                "data": "192.168.0.1",
+                "valid": true
+            },
+            {
+                "description": "an invalid IP address",
+                "data": "256.256.256.256",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of IPv6 addresses",
+        "schema": {"format": "ipv6"},
+        "tests": [
+            {
+                "description": "a valid IPv6 address",
+                "data": "::1",
+                "valid": true
+            },
+            {
+                "description": "an invalid IPv6 address",
+                "data": "12345::",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of host names",
+        "schema": {"format": "host-name"},
+        "tests": [
+            {
+                "description": "a valid host name",
+                "data": "wiki-wiki.example.com",
+                "valid": true
+            },
+            {
+                "description": "an invalid host name",
+                "data": "-a-host-name-that-starts-with---or-has-any-component-with-more-than-63-characters-or-is-longer-than-255-characters-in-total",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of CSS colors",
+        "schema": {"format": "color"},
+        "tests": [
+            {
+                "description": "a valid CSS color",
+                "data": "red",
+                "valid": true
+            },
+            {
+                "description": "an invalid CSS color",
+                "data": "#redF00",
+                "valid": false
+            }
+        ]
     }
 ]
