@@ -23,6 +23,9 @@ from jsonschema import (
 )
 
 
+# Include optional JSON tests?
+INCLUDE_OPTIONAL = True
+
 def make_case(schema, data, valid, cls):
     def test_case(self):
         if valid:
@@ -33,9 +36,20 @@ def make_case(schema, data, valid, cls):
     return test_case
 
 
-def load_json_cases(test_dir):
+def load_json_cases(test_dir, include_optional=False):
+    def gen_json_files():
+        """A generator that returns the names of JSON test files"""
+        sources = [glob.iglob(os.path.join(test_dir, "*.json"))]
+        if include_optional:
+            sources.append(
+                glob.iglob(os.path.join(test_dir, "optional", "*.json")))
+        for s in sources:
+            for filename in s:
+                yield filename
+
     def add_test_methods(test_class):
-        for filename in glob.iglob(os.path.join(test_dir, "*.json")):
+        json_files = gen_json_files()
+        for filename in json_files:
             validating, _ = os.path.splitext(os.path.basename(filename))
 
             with open(filename) as test_file:
@@ -92,7 +106,8 @@ class AnyTypeMixin(object):
         validator.validate(mock.Mock())
 
 
-@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
+@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"),
+                 include_optional=INCLUDE_OPTIONAL)
 class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
     validator_class = Draft3Validator
 
