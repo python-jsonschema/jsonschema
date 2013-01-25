@@ -338,50 +338,6 @@ class Draft3Validator(object):
         if self.is_type(instance, "string") and not re.match(patrn, instance):
             yield ValidationError("%r does not match %r" % (instance, patrn))
 
-    def validate_format(self, format, instance, schema):
-        format_re={
-            'date-time': r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$',
-            'date': r'^\d{4}-\d{2}-\d{2}$',
-            'time': r'^\d{2}:\d{2}:\d{2}$',
-            'utc-millisec': r'^\d+(\.\d+)?$',
-            # URI regex from http://snipplr.com/view/6889/
-            'uri': (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;="
-                    r":]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%"
-                    r"[0-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,"
-                    r";=:@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,"
-                    r";=:@]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|"
-                    r"%[0-9A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/"
-                    r"?@]|%[0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;"
-                    r"=:/?@]|%[0-9A-Fa-f]{2})*))?$"),
-            # Based on RFC 2822: http://tools.ietf.org/html/rfc2822
-            'email': (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/="
-                      r"?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23"
-                      r"-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?"
-                      r":(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z"
-                      r"0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9"
-                      r"][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|"
-                      r"[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-"
-                      r"\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$"),
-            # Not exact, but practical ...
-            # Allows address components > 255
-            'ip-address': r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$',
-            # Allows numbers > FFFF, allows arbitrarily long addresses
-            'ipv6': r'^[:A-Fa-f0-9]{3,}$',
-            # Allows domain components > 63 chars.
-            'host-name': '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$',
-            # Allows invalid hex values and illegal color names
-            'color': '^[A-Za-z0-9#\-]+$',
-            # Also mentioned in Draft 3:
-            #'regex'
-            #'style'
-            #'phone'
-        }
-        if (self.is_type(instance, "string")
-            and format in format_re
-            and not re.match(format_re[format], instance)
-        ):
-            yield ValidationError("%r does not match format %r" % (instance, format))
-
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
             yield ValidationError("%r is too short" % (instance,))
@@ -509,6 +465,61 @@ Draft3Validator.META_SCHEMA = {
         "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
     },
 }
+
+
+class Draft3ValidatorWithFormat(Draft3Validator):
+    """
+    Adds validation of "format" properties, which is optional for JSON schema
+    validators.
+
+    Extend or modify the "format_re" dictionary to customise validation for
+    your particular requirements.
+    """
+    format_re={
+        'date-time': r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$',
+        'date': r'^\d{4}-\d{2}-\d{2}$',
+        'time': r'^\d{2}:\d{2}:\d{2}$',
+        'utc-millisec': r'^\d+(\.\d+)?$',
+        # URI regex from http://snipplr.com/view/6889/
+        'uri': (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:]|"
+                r"%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0-9A-"
+                r"Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%["
+                r"0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@]|%[0-9A"
+                r"-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9A-Fa-f]{2}"
+                r")*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2"
+                r"})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2"
+                r"})*))?$"),
+        # Based on RFC 2822: http://tools.ietf.org/html/rfc2822
+        'email': (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
+                  r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
+                  r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
+                  r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
+                  r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+                  r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
+                  r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
+                  r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$"),
+        # Not exact, but practical ...
+        # (WARNING: Allows address components > 255)
+        'ip-address': r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$',
+        # (WARNING: Allows numbers > FFFF, allows arbitrarily long addresses)
+        'ipv6': r'^[:A-Fa-f0-9]{3,}$',
+        # (WARNING: Allows domain components > 63 chars.)
+        'host-name': '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$',
+        # (WARNING: Allows invalid hex values and illegal color names)
+        'color': '^[A-Za-z0-9#\-]+$',
+        # Also mentioned in Draft 3:
+        #'regex'
+        #'style'
+        #'phone'
+    }
+
+    def validate_format(self, format, instance, schema):
+        if (self.is_type(instance, "string")
+            and format in self.format_re
+            and not re.match(self.format_re[format], instance)
+        ):
+            yield ValidationError("%r does not match format %r" % (instance,
+                                                                   format))
 
 
 class RefResolver(object):
