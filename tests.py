@@ -23,9 +23,6 @@ from jsonschema import (
 )
 
 
-# Include optional JSON tests?
-INCLUDE_OPTIONAL = True
-
 def make_case(schema, data, valid, cls):
     def test_case(self):
         if valid:
@@ -107,7 +104,7 @@ class AnyTypeMixin(object):
 
 
 @load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"),
-                 include_optional=INCLUDE_OPTIONAL)
+                 include_optional=False) # Include optional JSON tests?
 class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
     validator_class = Draft3Validator
 
