@@ -128,14 +128,18 @@ class Draft3Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(self, schema, types=(), resolver=None):
+    def __init__(self, schema, types=(), resolver=None, format_checker=None):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
 
         if resolver is None:
             resolver = RefResolver.from_schema(schema)
 
+        if format_checker is None:
+            format_checker = FormatChecker()
+
         self.resolver = resolver
+        self.format_checker = format_checker
         self.schema = schema
 
     def is_type(self, instance, type):
@@ -338,6 +342,16 @@ class Draft3Validator(object):
         if self.is_type(instance, "string") and not re.match(patrn, instance):
             yield ValidationError("%r does not match %r" % (instance, patrn))
 
+    def validate_format(self, format, instance, schema):
+        if (self.is_type(instance, "string")
+            and self.format_checker.conforms(instance, format) is False
+            # Note: conforms() returns None if it doesn't know how to validate
+            # the given format.
+        ):
+            yield ValidationError(
+                '%r does not match "%r" format' % (instance, format)
+            )
+
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
             yield ValidationError("%r is too short" % (instance,))
@@ -467,59 +481,284 @@ Draft3Validator.META_SCHEMA = {
 }
 
 
-class Draft3ValidatorWithFormat(Draft3Validator):
+class FormatChecker(object):
     """
     Adds validation of "format" properties, which is optional for JSON schema
     validators.
 
-    Extend or modify the "format_re" dictionary to customise validation for
-    your particular requirements.
-    """
-    format_re={
-        'date-time': r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$',
-        'date': r'^\d{4}-\d{2}-\d{2}$',
-        'time': r'^\d{2}:\d{2}:\d{2}$',
-        'utc-millisec': r'^\d+(\.\d+)?$',
-        # URI regex from http://snipplr.com/view/6889/
-        'uri': (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:]|"
-                r"%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0-9A-"
-                r"Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%["
-                r"0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@]|%[0-9A"
-                r"-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9A-Fa-f]{2}"
-                r")*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2"
-                r"})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2"
-                r"})*))?$"),
-        # Based on RFC 2822: http://tools.ietf.org/html/rfc2822
-        'email': (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
-                  r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
-                  r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
-                  r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
-                  r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
-                  r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
-                  r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
-                  r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$"),
-        # Not exact, but practical ...
-        # (WARNING: Allows address components > 255)
-        'ip-address': r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$',
-        # (WARNING: Allows numbers > FFFF, allows arbitrarily long addresses)
-        'ipv6': r'^[:A-Fa-f0-9]{3,}$',
-        # (WARNING: Allows domain components > 63 chars.)
-        'host-name': '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$',
-        # (WARNING: Allows invalid hex values and illegal color names)
-        'color': '^[A-Za-z0-9#\-]+$',
-        # Also mentioned in Draft 3:
-        #'regex'
-        #'style'
-        #'phone'
-    }
+    Subclass, and implement "is_<format_name>()" methods that return boolean
+    values for formats specific to your requirements.
 
-    def validate_format(self, format, instance, schema):
-        if (self.is_type(instance, "string")
-            and format in self.format_re
-            and not re.match(self.format_re[format], instance)
-        ):
-            yield ValidationError("%r does not match format %r" % (instance,
-                                                                   format))
+    See :class:`DateTimeFormatChecker`, :class:`InternetFormatChecker` and
+    :class:`CssColorChecker` for examples.
+    """
+
+    def conforms(self, instance, format):
+        """
+        Checks whether a string conforms to the given format
+
+        :argument str instance: the string instance to check
+        :argument str format: the format that instance should conform to
+        :returns: Boolean whether instance conforms to format, or None if it
+                  cannot be determined
+
+        """
+        method_name = 'is_' + re.sub('[^A-Za-z0-9]', '_', format)
+        method = getattr(self, method_name, None)
+        if method:
+            return method(instance)
+        return None
+
+
+class DateTimeFormatChecker(FormatChecker):
+    """
+    Validates strings in "date", "time", "date-time" and "utc-milisec" format
+    according to the `JSON Schema Draft 3 specification`_.
+
+    This class is an example of how to extend :class:`FormatChecker` with
+    "is_<format_name>()" methods that check the format of the given strings.
+
+    .. _JSON Schema Draft 3 specification: http://tools.ietf.org/id/draft-zyp-json-schema-03.html#anchor27
+
+    """
+
+    def is_date_time(self, instance):
+        """
+        If instance matches a date and time in "YYYY-MM-DDThh:mm:ssZ" format,
+        returns True, otherwise False.
+
+        >>> is_date_time('1970-01-01T00:00:00.0')
+        True
+        >>> is_date_time('1970-01-01 00:00:00 GMT')
+        False
+
+        .. note:: Does not check whether year, month, day, hour, minute and
+                  second components have values in the correct ranges.
+
+                  >>> is_date_time('0000-58-59T60:61:62')
+                  True
+
+        """
+        pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$'
+        return bool(re.match(pattern, instance))
+
+    def is_date(self, instance):
+        """
+        If instance matches a date in "YYYY-MM-DD" format, returns True,
+        otherwise False.
+
+        >>> is_date('1970-12-31')
+        True
+        >>> is_date('12/31/1970')
+        False
+
+        .. note:: Does not check whether year, month and day components have
+                  values in the correct ranges.
+
+                  >>> is_date('0000-13-32')
+                  True
+
+        """
+        pattern = r'^\d{4}-\d{2}-\d{2}$'
+        return bool(re.match(pattern, instance))
+
+    def is_time(self, instance):
+        """
+        If instance matches a time in "hh:mm:ss" format, returns True,
+        otherwise False.
+
+        >>> is_time('23:59:59')
+        True
+        >>> is_time('11:59:59 PM')
+        False
+
+        .. note:: Does not check whether hour, minute and second components
+                  have values in the correct ranges.
+
+                  >>> is_time('59:60:61')
+                  True
+
+        """
+        pattern = r'^\d{2}:\d{2}:\d{2}$'
+        return bool(re.match(pattern, instance))
+
+
+class InternetFormatChecker(DateTimeFormatChecker):
+    """
+    Checks Internet-related formats. Extends DateTimeFormatChecker.
+    """
+
+    def is_uri(self, instance):
+        """
+        If instance matches a URI, returns True, otherwise False.
+
+        >>> check = InternetFormatChecker()
+        >>> check.is_uri('ftp://joe.bloggs@www2.example.com:8080/pub/os/')
+        True
+        >>> check.is_uri('http://www2.example.com:8000/pub/#os?user=joe.bloggs')
+        True
+        >>> check.is_uri(r'\\\\WINDOWS\My Files')
+        False
+
+        """
+        # URI regex from http://snipplr.com/view/6889/
+        pattern = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
+                   r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
+                   r"-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:"
+                   r"@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@"
+                   r"]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9"
+                   r"A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%["
+                   r"0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|"
+                   r"%[0-9A-Fa-f]{2})*))?$")
+        return bool(re.match(pattern, instance))
+
+    def is_email(self, instance):
+        """
+        If instance matches an e-mail address, returns True, otherwise False.
+
+        Check is based on `RFC 2822`_
+
+        >>> check = InternetFormatChecker()
+        >>> check.is_email('joe.bloggs@example.com')
+        True
+        >>> check.is_email('joe.bloggs')
+        False
+
+        .. _RFC 2822: http://tools.ietf.org/html/rfc2822
+
+        """
+        pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
+                   r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
+                   r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
+                   r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
+                   r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+                   r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
+                   r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
+                   r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$")
+        return bool(re.match(pattern, instance))
+
+    def is_ip_address(self, instance):
+        """
+        If instance matches an IP address, returns True, otherwise False.
+
+        >>> check = InternetFormatChecker()
+        >>> check.is_ip_address('192.168.0.1')
+        True
+        >>> check.is_ip_address('::1')
+        False
+
+        .. note:: Does not check whether address components have values in the
+                  correct ranges.
+
+                  >>> check.is_ip_address('256.256.256.256')
+                  True
+
+        """
+        pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+        return bool(re.match(pattern, instance))
+
+    def is_ipv6(self, instance):
+        """
+        If instance matches an IPv6 address, returns True, otherwise False.
+
+        >>> check = InternetFormatChecker()
+        >>> check.is_ipv6('::1')
+        True
+        >>> check.is_ipv6('192.168.0.1')
+        False
+
+        .. note:: Does not check whether components have values in the correct
+                  ranges, or the length of the address.
+
+                  >>> check.is_ipv6('12345::')
+                  True
+                  >>> check.is_ipv6('1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1')
+                  True
+
+        """
+        pattern = r'^[:A-Fa-f0-9]{3,}$'
+        return bool(re.match(pattern, instance))
+
+    def is_host_name(self, instance):
+        """
+        If instance matches a host name, returns True, otherwise False.
+
+        >>> check = InternetFormatChecker()
+        >>> check.is_host_name('www.example.com')
+        True
+        >>> check.is_host_name('my laptop')
+        False
+
+        .. note:: Does not perform a DNS lookup. Allows host name components
+                  with more than 63 characters.
+
+                  >>> check.is_host_name('www.example.doesnotexist')
+                  True
+                  >>> check.is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeer'
+                  ...     'rrrrrrrrrrrrrrrryyyyyyyyyyyyyyyyy.long.host.name')
+                  True
+
+        """
+        pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
+        return bool(re.match(pattern, instance))
+
+
+class CssColorChecker(FormatChecker):
+    """
+    Provides the is_color() format checker.
+    """
+    css_colors = (
+        "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
+        "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
+        "burlywood", "cadetblue", "chartreuse", "chocolate", "coral",
+        "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue",
+        "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkkhaki",
+        "darkmagenta", "darkolivegreen", "darkorange", "darkorchid", "darkred",
+        "darksalmon", "darkseagreen", "darkslateblue", "darkslategray",
+        "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray",
+        "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia",
+        "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "green",
+        "greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory",
+        "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon",
+        "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow",
+        "lightgray", "lightgreen", "lightpink", "lightsalmon", "lightseagreen",
+        "lightskyblue", "lightslategray", "lightsteelblue", "lightyellow",
+        "lime", "limegreen", "linen", "magenta", "maroon", "mediumaquamarine",
+        "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen",
+        "mediumslateblue", "mediumspringgreen", "mediumturquoise",
+        "mediumvioletred", "midnightblue", "mintcream", "mistyrose",
+        "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
+        "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
+        "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru",
+        "pink", "plum", "powderblue", "purple", "red", "rosybrown",
+        "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
+        "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray",
+        "snow", "springgreen", "steelblue", "tan", "teal", "thistle", "tomato",
+        "turquoise", "violet", "wheat", "white", "whitesmoke", "yellow",
+        "yellowgreen"
+    )
+
+    def is_color(self, instance):
+        """
+        Checks for valid CSS names and well-formed CSS color codes.
+
+        >>> check = CssColorChecker()
+        >>> check.is_color('pink')
+        True
+        >>> check.is_color('puce')
+        False
+        >>> check.is_color('#CC8899')
+        True
+        >>> check.is_color('#C89')
+        True
+        >>> check.is_color('#00332520')
+        False
+
+        """
+        if instance in self.css_colors:
+            return True
+        pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
+        return bool(re.match(pattern, instance))
 
 
 class RefResolver(object):
