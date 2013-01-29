@@ -494,6 +494,15 @@ class FormatChecker(object):
     """
 
     def conforms(self, instance, format):
+        """
+        Checks whether a string conforms to the given format
+
+        :argument str instance: the string instance to check
+        :argument str format: the format that instance should conform to
+        :returns: Boolean whether instance conforms to format, or None if it
+                  cannot be determined
+
+        """
         method_name = 'is_' + re.sub('[^A-Za-z0-9]', '_', format)
         method = getattr(self, method_name, None)
         if method:
