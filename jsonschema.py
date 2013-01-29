@@ -513,10 +513,13 @@ class FormatChecker(object):
 class DateTimeFormatChecker(FormatChecker):
     """
     Validates strings in "date", "time", "date-time" and "utc-milisec" format
-    according to the JSON Schema Draft 3 specification.
+    according to the `JSON Schema Draft 3 specification`_.
 
     This class is an example of how to extend :class:`FormatChecker` with
     "is_<format_name>()" methods that check the format of the given strings.
+
+    .. _JSON Schema Draft 3 specification: http://tools.ietf.org/id/draft-zyp-json-schema-03.html#anchor27
+
     """
 
     def is_date_time(self, instance):
@@ -529,11 +532,11 @@ class DateTimeFormatChecker(FormatChecker):
         >>> is_date_time('1970-01-01 00:00:00 GMT')
         False
 
-        .. NOTE: Does not check that month, day, hour, minute and second
-                 components have values in the correct ranges.
+        .. note:: Does not check whether year, month, day, hour, minute and
+                  second components have values in the correct ranges.
 
-                 >>> is_date_time('0000-58-59T60:61:62')
-                 True
+                  >>> is_date_time('0000-58-59T60:61:62')
+                  True
 
         """
         pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$'
@@ -549,11 +552,11 @@ class DateTimeFormatChecker(FormatChecker):
         >>> is_date('12/31/1970')
         False
 
-        .. NOTE: Does not check that month and day components have values in
-                 the correct ranges.
+        .. note:: Does not check whether year, month and day components have
+                  values in the correct ranges.
 
-                 >>> is_date('0000-13-32')
-                 True
+                  >>> is_date('0000-13-32')
+                  True
 
         """
         pattern = r'^\d{4}-\d{2}-\d{2}$'
@@ -569,11 +572,11 @@ class DateTimeFormatChecker(FormatChecker):
         >>> is_time('11:59:59 PM')
         False
 
-        .. NOTE: Does not check that hour, minute and second components have
-                 values in the correct ranges.
+        .. note:: Does not check whether hour, minute and second components
+                  have values in the correct ranges.
 
-                 >>> is_time('59:60:61')
-                 True
+                  >>> is_time('59:60:61')
+                  True
 
         """
         pattern = r'^\d{2}:\d{2}:\d{2}$'
@@ -594,7 +597,7 @@ class InternetFormatChecker(DateTimeFormatChecker):
         True
         >>> check.is_uri('http://www2.example.com:8000/pub/#os?user=joe.bloggs')
         True
-        >>> check.is_uri(r'\\WINDOWS\My Files')
+        >>> check.is_uri(r'\\\\WINDOWS\My Files')
         False
 
         """
@@ -644,11 +647,11 @@ class InternetFormatChecker(DateTimeFormatChecker):
         >>> check.is_ip_address('::1')
         False
 
-        .. NOTE: Does not check that address components have values in the
-                 correct ranges.
+        .. note:: Does not check whether address components have values in the
+                  correct ranges.
 
-                 >>> check.is_ip_address('256.256.256.256')
-                 True
+                  >>> check.is_ip_address('256.256.256.256')
+                  True
 
         """
         pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
@@ -664,11 +667,13 @@ class InternetFormatChecker(DateTimeFormatChecker):
         >>> check.is_ipv6('192.168.0.1')
         False
 
-        .. NOTE: Does not check that components have values in the correct
-                 ranges, or the length of the address.
+        .. note:: Does not check whether components have values in the correct
+                  ranges, or the length of the address.
 
-                 >>> check.is_ipv6('12345:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1')
-                 True
+                  >>> check.is_ipv6('12345::')
+                  True
+                  >>> check.is_ipv6('1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1')
+                  True
 
         """
         pattern = r'^[:A-Fa-f0-9]{3,}$'
@@ -684,14 +689,14 @@ class InternetFormatChecker(DateTimeFormatChecker):
         >>> check.is_host_name('my laptop')
         False
 
-        .. NOTE: Does not perform a DNS lookup. Allows host name components
-                 with more than 63 characters.
+        .. note:: Does not perform a DNS lookup. Allows host name components
+                  with more than 63 characters.
 
-                 >>> check.is_host_name('www.example.doesnotexist')
-                 True
-                 >>> check.is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerr'
-                 ...     'rrrrrrrrrrrrrrryyyyyyyyyyyyyyyyy.long.host.name')
-                 True
+                  >>> check.is_host_name('www.example.doesnotexist')
+                  True
+                  >>> check.is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeer'
+                  ...     'rrrrrrrrrrrrrrrryyyyyyyyyyyyyyyyy.long.host.name')
+                  True
 
         """
         pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
