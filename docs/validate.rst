@@ -21,7 +21,7 @@ The Validator Interface
 :mod:`jsonschema` defines an (informal) interface that all validators should
 adhere to.
 
-.. class:: IValidator(schema, types=(), resolver=None)
+.. class:: IValidator(schema, types=(), resolver=None, format_checker=None)
 
     :argument dict schema: the schema that the validator will validate with. It
                            is assumed to be valid, and providing an invalid
@@ -36,6 +36,10 @@ adhere to.
     :argument resolver: an object with a ``resolve()`` method that will be used
                         to resolve ``$ref`` properties (JSON references). If
                         unprovided, a :class:`RefResolver` is created and used.
+    :argument format_checker: an object with a ``conforms()`` method that
+                              returns True if a value conforms to the format
+                              given in its schema. If unprovided, a
+                              :class:`FormatChecker` is created and used.
 
 
     .. attribute:: DEFAULT_TYPES
