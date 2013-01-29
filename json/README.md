@@ -56,6 +56,32 @@ Currently, draft 3 should have essentially full coverage for the core schema.
 
 The beginnings of draft 4 are underway.
 
+Properties For Which Validation Is Optional
+-------------------------------------------
+
+Tests for optional validation are available in the "optional" directory,
+including for bignums (large integers), and for several of the values of the
+"format" property.
+
+Values of "format" covered are:
+
+  * regex
+  * date-time
+  * date
+  * time
+  * uri
+  * email
+  * ip-address
+  * ipv6
+  * host-name
+  * color
+
+Those also mentioned in draft 3, but currently omitted in the tests are:
+
+  * utc-millisec
+  * style
+  * phone
+
 Who Uses the Test Suite
 -----------------------
 
