@@ -486,10 +486,13 @@ class FormatChecker(object):
     Adds validation of "format" properties, which is optional for JSON schema
     validators.
 
-    Subclass, and implement "is_<format_name>()" methods to yield
-    ValidationError on failure.
+    Subclass, and implement "is_<format_name>()" methods that return boolean
+    values for formats specific to your requirements.
+
+    See :class:`DateTimeFormatChecker`, :class:`InternetFormatChecker` and
+    :class:`CssColorChecker` for examples.
     """
-    
+
     def conforms(self, instance, format):
         method_name = 'is_' + re.sub('[^A-Za-z0-9]', '_', format)
         method = getattr(self, method_name, None)
@@ -502,6 +505,9 @@ class DateTimeFormatChecker(FormatChecker):
     """
     Validates strings in "date", "time", "date-time" and "utc-milisec" format
     according to the JSON Schema Draft 3 specification.
+
+    This class is an example of how to extend :class:`FormatChecker` with
+    "is_<format_name>()" methods that check the format of the given strings.
     """
 
     def is_date_time(self, instance):
@@ -567,7 +573,7 @@ class DateTimeFormatChecker(FormatChecker):
 
 class InternetFormatChecker(DateTimeFormatChecker):
     """
-    Checks Internet-related formats. Extends DateTimeFormatChecker
+    Checks Internet-related formats. Extends DateTimeFormatChecker.
     """
 
     def is_uri(self, instance):
@@ -576,6 +582,8 @@ class InternetFormatChecker(DateTimeFormatChecker):
 
         >>> check = InternetFormatChecker()
         >>> check.is_uri('ftp://joe.bloggs@www2.example.com:8080/pub/os/')
+        True
+        >>> check.is_uri('http://www2.example.com:8000/pub/#os?user=joe.bloggs')
         True
         >>> check.is_uri(r'\\WINDOWS\My Files')
         False
@@ -596,13 +604,15 @@ class InternetFormatChecker(DateTimeFormatChecker):
         """
         If instance matches an e-mail address, returns True, otherwise False.
 
-        Check is based on RFC 2822: http://tools.ietf.org/html/rfc2822
+        Check is based on `RFC 2822`_
 
         >>> check = InternetFormatChecker()
         >>> check.is_email('joe.bloggs@example.com')
         True
         >>> check.is_email('joe.bloggs')
         False
+
+        .. _RFC 2822: http://tools.ietf.org/html/rfc2822
 
         """
         pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
@@ -671,11 +681,69 @@ class InternetFormatChecker(DateTimeFormatChecker):
                  >>> check.is_host_name('www.example.doesnotexist')
                  True
                  >>> check.is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerr'
-                 ...              'rrrrrrrrrrrrrrryyyyyyyyyyyyyyyyy.long.name')
+                 ...     'rrrrrrrrrrrrrrryyyyyyyyyyyyyyyyy.long.host.name')
                  True
 
         """
         pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
+        return bool(re.match(pattern, instance))
+
+
+class CssColorChecker(FormatChecker):
+    """
+    Provides the is_color() format checker.
+    """
+    css_colors = (
+        "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
+        "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
+        "burlywood", "cadetblue", "chartreuse", "chocolate", "coral",
+        "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue",
+        "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkkhaki",
+        "darkmagenta", "darkolivegreen", "darkorange", "darkorchid", "darkred",
+        "darksalmon", "darkseagreen", "darkslateblue", "darkslategray",
+        "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray",
+        "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia",
+        "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "green",
+        "greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory",
+        "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon",
+        "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow",
+        "lightgray", "lightgreen", "lightpink", "lightsalmon", "lightseagreen",
+        "lightskyblue", "lightslategray", "lightsteelblue", "lightyellow",
+        "lime", "limegreen", "linen", "magenta", "maroon", "mediumaquamarine",
+        "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen",
+        "mediumslateblue", "mediumspringgreen", "mediumturquoise",
+        "mediumvioletred", "midnightblue", "mintcream", "mistyrose",
+        "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
+        "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
+        "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru",
+        "pink", "plum", "powderblue", "purple", "red", "rosybrown",
+        "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
+        "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray",
+        "snow", "springgreen", "steelblue", "tan", "teal", "thistle", "tomato",
+        "turquoise", "violet", "wheat", "white", "whitesmoke", "yellow",
+        "yellowgreen"
+    )
+
+    def is_color(self, instance):
+        """
+        Checks for valid CSS names and well-formed CSS color codes.
+
+        >>> check = CssColorChecker()
+        >>> check.is_color('pink')
+        True
+        >>> check.is_color('puce')
+        False
+        >>> check.is_color('#CC8899')
+        True
+        >>> check.is_color('#C89')
+        True
+        >>> check.is_color('#00332520')
+        False
+
+        """
+        if instance in self.css_colors:
+            return True
+        pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
         return bool(re.match(pattern, instance))
 
 
