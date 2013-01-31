@@ -590,6 +590,8 @@ def is_uri(instance):
     """
     Checks whether instance matches a URI.
 
+    Also supports relative URLs.
+
     :argument str instance: the instance to check
     :rtype: bool
 
@@ -599,11 +601,8 @@ def is_uri(instance):
     True
     >>> is_uri(r'\\\\WINDOWS\My Files')
     False
-
-    .. note:: Also supports relative URLs.
-
-              >>> is_uri('#/properties/foo')
-              True
+    >>> is_uri('#/properties/foo')
+    True
 
     """
     # URI regex from http://snipplr.com/view/6889/
@@ -662,16 +661,16 @@ def is_ip_address(instance):
     True
     >>> is_ip_address('::1')
     False
-
-    .. note:: Does not check whether address components have values in the
-              correct ranges.
-
-              >>> is_ip_address('256.256.256.256')
-              True
+    >>> is_ip_address('256.256.256.256')
+    False
 
     """
-    pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
-    return bool(re.match(pattern, instance))
+    import socket
+    try:
+        socket.inet_aton(instance)
+        return True
+    except socket.error:
+        return False
 
 
 @FormatChecker.checks("ipv6")
@@ -686,18 +685,16 @@ def is_ipv6(instance):
     True
     >>> is_ipv6('192.168.0.1')
     False
-
-    .. note:: Does not check whether components have values in the correct
-              ranges, or the length of the address.
-
-              >>> is_ipv6('12345::')
-              True
-              >>> is_ipv6('1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1')
-              True
+    >>> is_ipv6('1:1:1:1:1:1:1:1:1')
+    False
 
     """
-    pattern = r'^[:A-Fa-f0-9]{3,}$'
-    return bool(re.match(pattern, instance))
+    import socket
+    try:
+        socket.inet_pton(socket.AF_INET6, instance)
+        return True
+    except socket.error:
+        return False
 
 
 @FormatChecker.checks("host-name")
@@ -724,23 +721,35 @@ def is_host_name(instance):
     return bool(re.match(pattern, instance))
 
 
+def is_css_color_code(instance):
+    """
+    Checks for well-formed CSS color codes.
+
+    >>> is_css_color_code('#CC8899')
+    True
+    >>> is_css_color_code('#C89')
+    True
+    >>> is_css_color_code('#00332520')
+    False
+
+    """
+    pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
+    return bool(re.match(pattern, instance))
+
+
 @FormatChecker.checks("color")
 def is_css21_color(instance):
     """
-    Checks for valid CSS 2.1 names and well-formed CSS color codes.
+    Checks for valid CSS 2.1 color names and well-formed CSS color codes.
 
     Optionally uses the webcolors_ library.
 
     >>> is_css21_color('fuchsia')
     True
-    >>> is_css21_color('puce')
+    >>> is_css21_color('pink')
     False
-    >>> is_css21_color('#CC8899')
+    >>> is_css_color_code('#CC8899')
     True
-    >>> is_css21_color('#C89')
-    True
-    >>> is_css21_color('#00332520')
-    False
 
     .. _webcolors: http://pypi.python.org/pypi/webcolors/
 
@@ -748,13 +757,70 @@ def is_css21_color(instance):
     try:
         from webcolors import css21_names_to_hex as css21_colors
     except ImportError:
-        css21_colors = ('aqua', 'black', 'blue', 'fuchsia', 'green', 'grey', 'lime', 'maroon', 'navy', 'olive',
-                        'orange', 'purple', 'red', 'silver', 'teal', 'white', 'yellow')
+        css21_colors = (
+            "aqua", "black", "blue", "fuchsia", "green", "grey", "lime",
+            "maroon", "navy", "olive", "orange", "purple", "red", "silver",
+            "teal", "white", "yellow")
 
     if instance.lower() in css21_colors:
         return True
-    pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
-    return bool(re.match(pattern, instance))
+    return is_css_color_code(instance)
+
+
+def is_css3_color(instance):
+    """
+    Checks for valid CSS 3 color names and well-formed CSS color codes.
+
+    Optionally uses the webcolors_ library.
+
+    >>> is_css21_color('pink')
+    True
+    >>> is_css21_color('puce')
+    False
+    >>> is_css_color_code('#CC8899')
+    True
+
+    .. _webcolors: http://pypi.python.org/pypi/webcolors/
+
+    """
+    try:
+        from webcolors import css3_names_to_hex as css3_colors
+    except ImportError:
+        css3_colors = (
+            "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
+            "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
+            "burlywood", "cadetblue", "chartreuse", "chocolate", "coral",
+            "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue",
+            "darkcyan", "darkgoldenrod", "darkgray", "darkgrey", "darkgreen",
+            "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange",
+            "darkorchid", "darkred", "darksalmon", "darkseagreen",
+            "darkslateblue", "darkslategray", "darkslategrey", "darkturquoise",
+            "darkviolet", "deeppink", "deepskyblue", "dimgray", "dimgrey",
+            "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia",
+            "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "grey",
+            "green", "greenyellow", "honeydew", "hotpink", "indianred",
+            "indigo", "ivory", "khaki", "lavender", "lavenderblush",
+            "lawngreen", "lemonchiffon", "lightblue", "lightcoral",
+            "lightcyan", "lightgoldenrodyellow", "lightgray", "lightgrey",
+            "lightgreen", "lightpink", "lightsalmon", "lightseagreen",
+            "lightskyblue", "lightslategray", "lightslategrey",
+            "lightsteelblue", "lightyellow", "lime", "limegreen", "linen",
+            "magenta", "maroon", "mediumaquamarine", "mediumblue",
+            "mediumorchid", "mediumpurple", "mediumseagreen",
+            "mediumslateblue", "mediumspringgreen", "mediumturquoise",
+            "mediumvioletred", "midnightblue", "mintcream", "mistyrose",
+            "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
+            "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
+            "paleturquoise", "palevioletred", "papayawhip", "peachpuff",
+            "peru", "pink", "plum", "powderblue", "purple", "red", "rosybrown",
+            "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
+            "seashell", "sienna", "silver", "skyblue", "slateblue",
+            "slategray", "slategrey", "snow", "springgreen", "steelblue",
+            "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat",
+            "white", "whitesmoke", "yellow", "yellowgreen")
+    if instance.lower() in css3_colors:
+        return True
+    return is_css_color_code(instance)
 
 
 class RefResolver(object):
