@@ -56,8 +56,8 @@ Currently, draft 3 should have essentially full coverage for the core schema.
 
 The beginnings of draft 4 are underway.
 
-Properties For Which Validation Is Optional
--------------------------------------------
+Optional Tests
+--------------
 
 Tests for optional validation are available in the "optional" directory,
 including for bignums (large integers), and for several of the values of the

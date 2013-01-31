@@ -344,9 +344,7 @@ class Draft3Validator(object):
 
     def validate_format(self, format, instance, schema):
         if (self.is_type(instance, "string")
-            and self.format_checker.conforms(instance, format) is False
-            # Note: conforms() returns None if it doesn't know how to validate
-            # the given format.
+            and not self.format_checker.conforms(instance, format)
         ):
             yield ValidationError(
                 '%r does not match "%r" format' % (instance, format)
@@ -483,282 +481,280 @@ Draft3Validator.META_SCHEMA = {
 
 class FormatChecker(object):
     """
-    Adds validation of "format" properties, which is optional for JSON schema
-    validators.
+    Checks "format" properties, optional for JSON schema validators.
 
-    Subclass, and implement "is_<format_name>()" methods that return boolean
-    values for formats specific to your requirements.
-
-    See :class:`DateTimeFormatChecker`, :class:`InternetFormatChecker` and
-    :class:`CssColorChecker` for examples.
+    To add new checks, create a function that accepts a string and returns
+    boolean. Decorate it with `@FormatChecker.checks(<format_name>)`.
     """
+    _checkers = {}
+
+    @classmethod
+    def checks(cls, format):
+        """
+        A decorator to register a function that checks a given format
+
+        :argument str format: the format that the decorated function checks
+        """
+        def decorator(func):
+            cls._checkers[format] = func
+
+        return decorator
 
     def conforms(self, instance, format):
         """
         Checks whether a string conforms to the given format
 
-        :argument str instance: the string instance to check
+        :argument str instance: the instance to check
         :argument str format: the format that instance should conform to
-        :returns: Boolean whether instance conforms to format, or None if it
-                  cannot be determined
-
+        :rtype: bool
         """
-        method_name = 'is_' + re.sub('[^A-Za-z0-9]', '_', format)
-        method = getattr(self, method_name, None)
-        if method:
-            return method(instance)
-        return None
+        if format in self._checkers:
+            return self._checkers[format](instance)
+        return True
 
 
-class DateTimeFormatChecker(FormatChecker):
+@FormatChecker.checks("date-time")
+def is_date_time(instance):
     """
-    Validates strings in "date", "time", "date-time" and "utc-milisec" format
-    according to the `JSON Schema Draft 3 specification`_.
+    Checks whether instance matches "YYYY-MM-DDThh:mm:ssZ" format.
 
-    This class is an example of how to extend :class:`FormatChecker` with
-    "is_<format_name>()" methods that check the format of the given strings.
+    :argument str instance: the instance to check
+    :rtype: bool
 
-    .. _JSON Schema Draft 3 specification: http://tools.ietf.org/id/draft-zyp-json-schema-03.html#anchor27
+    >>> is_date_time('1970-01-01T00:00:00.0')
+    True
+    >>> is_date_time('1970-01-01 00:00:00 GMT')
+    False
+
+    .. note:: Does not check whether year, month, day, hour, minute and
+              second components have values in the correct ranges.
+
+              >>> is_date_time('0000-58-59T60:61:62')
+              True
 
     """
-
-    def is_date_time(self, instance):
-        """
-        If instance matches a date and time in "YYYY-MM-DDThh:mm:ssZ" format,
-        returns True, otherwise False.
-
-        >>> is_date_time('1970-01-01T00:00:00.0')
-        True
-        >>> is_date_time('1970-01-01 00:00:00 GMT')
-        False
-
-        .. note:: Does not check whether year, month, day, hour, minute and
-                  second components have values in the correct ranges.
-
-                  >>> is_date_time('0000-58-59T60:61:62')
-                  True
-
-        """
-        pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$'
-        return bool(re.match(pattern, instance))
-
-    def is_date(self, instance):
-        """
-        If instance matches a date in "YYYY-MM-DD" format, returns True,
-        otherwise False.
-
-        >>> is_date('1970-12-31')
-        True
-        >>> is_date('12/31/1970')
-        False
-
-        .. note:: Does not check whether year, month and day components have
-                  values in the correct ranges.
-
-                  >>> is_date('0000-13-32')
-                  True
-
-        """
-        pattern = r'^\d{4}-\d{2}-\d{2}$'
-        return bool(re.match(pattern, instance))
-
-    def is_time(self, instance):
-        """
-        If instance matches a time in "hh:mm:ss" format, returns True,
-        otherwise False.
-
-        >>> is_time('23:59:59')
-        True
-        >>> is_time('11:59:59 PM')
-        False
-
-        .. note:: Does not check whether hour, minute and second components
-                  have values in the correct ranges.
-
-                  >>> is_time('59:60:61')
-                  True
-
-        """
-        pattern = r'^\d{2}:\d{2}:\d{2}$'
-        return bool(re.match(pattern, instance))
+    pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$'
+    return bool(re.match(pattern, instance))
 
 
-class InternetFormatChecker(DateTimeFormatChecker):
+@FormatChecker.checks("date")
+def is_date(instance):
     """
-    Checks Internet-related formats. Extends DateTimeFormatChecker.
+    Checks whether instance matches a date in "YYYY-MM-DD" format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_date('1970-12-31')
+    True
+    >>> is_date('12/31/1970')
+    False
+
+    .. note:: Does not check whether year, month and day components have
+              values in the correct ranges.
+
+              >>> is_date('0000-13-32')
+              True
+
     """
-
-    def is_uri(self, instance):
-        """
-        If instance matches a URI, returns True, otherwise False.
-
-        >>> check = InternetFormatChecker()
-        >>> check.is_uri('ftp://joe.bloggs@www2.example.com:8080/pub/os/')
-        True
-        >>> check.is_uri('http://www2.example.com:8000/pub/#os?user=joe.bloggs')
-        True
-        >>> check.is_uri(r'\\\\WINDOWS\My Files')
-        False
-
-        """
-        # URI regex from http://snipplr.com/view/6889/
-        pattern = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
-                   r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
-                   r"-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:"
-                   r"@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@"
-                   r"]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9"
-                   r"A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%["
-                   r"0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|"
-                   r"%[0-9A-Fa-f]{2})*))?$")
-        return bool(re.match(pattern, instance))
-
-    def is_email(self, instance):
-        """
-        If instance matches an e-mail address, returns True, otherwise False.
-
-        Check is based on `RFC 2822`_
-
-        >>> check = InternetFormatChecker()
-        >>> check.is_email('joe.bloggs@example.com')
-        True
-        >>> check.is_email('joe.bloggs')
-        False
-
-        .. _RFC 2822: http://tools.ietf.org/html/rfc2822
-
-        """
-        pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
-                   r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
-                   r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
-                   r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
-                   r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
-                   r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
-                   r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
-                   r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$")
-        return bool(re.match(pattern, instance))
-
-    def is_ip_address(self, instance):
-        """
-        If instance matches an IP address, returns True, otherwise False.
-
-        >>> check = InternetFormatChecker()
-        >>> check.is_ip_address('192.168.0.1')
-        True
-        >>> check.is_ip_address('::1')
-        False
-
-        .. note:: Does not check whether address components have values in the
-                  correct ranges.
-
-                  >>> check.is_ip_address('256.256.256.256')
-                  True
-
-        """
-        pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
-        return bool(re.match(pattern, instance))
-
-    def is_ipv6(self, instance):
-        """
-        If instance matches an IPv6 address, returns True, otherwise False.
-
-        >>> check = InternetFormatChecker()
-        >>> check.is_ipv6('::1')
-        True
-        >>> check.is_ipv6('192.168.0.1')
-        False
-
-        .. note:: Does not check whether components have values in the correct
-                  ranges, or the length of the address.
-
-                  >>> check.is_ipv6('12345::')
-                  True
-                  >>> check.is_ipv6('1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1')
-                  True
-
-        """
-        pattern = r'^[:A-Fa-f0-9]{3,}$'
-        return bool(re.match(pattern, instance))
-
-    def is_host_name(self, instance):
-        """
-        If instance matches a host name, returns True, otherwise False.
-
-        >>> check = InternetFormatChecker()
-        >>> check.is_host_name('www.example.com')
-        True
-        >>> check.is_host_name('my laptop')
-        False
-
-        .. note:: Does not perform a DNS lookup. Allows host name components
-                  with more than 63 characters.
-
-                  >>> check.is_host_name('www.example.doesnotexist')
-                  True
-                  >>> check.is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeer'
-                  ...     'rrrrrrrrrrrrrrrryyyyyyyyyyyyyyyyy.long.host.name')
-                  True
-
-        """
-        pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
-        return bool(re.match(pattern, instance))
+    pattern = r'^\d{4}-\d{2}-\d{2}$'
+    return bool(re.match(pattern, instance))
 
 
-class CssColorChecker(FormatChecker):
+@FormatChecker.checks("time")
+def is_time(instance):
     """
-    Provides the is_color() format checker.
+    Checks whether instance matches a time in "hh:mm:ss" format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_time('23:59:59')
+    True
+    >>> is_time('11:59:59 PM')
+    False
+
+    .. note:: Does not check whether hour, minute and second components
+              have values in the correct ranges.
+
+              >>> is_time('59:60:61')
+              True
+
     """
-    css_colors = (
-        "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
-        "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
-        "burlywood", "cadetblue", "chartreuse", "chocolate", "coral",
-        "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue",
-        "darkcyan", "darkgoldenrod", "darkgray", "darkgreen", "darkkhaki",
-        "darkmagenta", "darkolivegreen", "darkorange", "darkorchid", "darkred",
-        "darksalmon", "darkseagreen", "darkslateblue", "darkslategray",
-        "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray",
-        "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia",
-        "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "green",
-        "greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory",
-        "khaki", "lavender", "lavenderblush", "lawngreen", "lemonchiffon",
-        "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow",
-        "lightgray", "lightgreen", "lightpink", "lightsalmon", "lightseagreen",
-        "lightskyblue", "lightslategray", "lightsteelblue", "lightyellow",
-        "lime", "limegreen", "linen", "magenta", "maroon", "mediumaquamarine",
-        "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen",
-        "mediumslateblue", "mediumspringgreen", "mediumturquoise",
-        "mediumvioletred", "midnightblue", "mintcream", "mistyrose",
-        "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
-        "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
-        "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru",
-        "pink", "plum", "powderblue", "purple", "red", "rosybrown",
-        "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
-        "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray",
-        "snow", "springgreen", "steelblue", "tan", "teal", "thistle", "tomato",
-        "turquoise", "violet", "wheat", "white", "whitesmoke", "yellow",
-        "yellowgreen"
-    )
+    pattern = r'^\d{2}:\d{2}:\d{2}$'
+    return bool(re.match(pattern, instance))
 
-    def is_color(self, instance):
-        """
-        Checks for valid CSS names and well-formed CSS color codes.
 
-        >>> check = CssColorChecker()
-        >>> check.is_color('pink')
-        True
-        >>> check.is_color('puce')
-        False
-        >>> check.is_color('#CC8899')
-        True
-        >>> check.is_color('#C89')
-        True
-        >>> check.is_color('#00332520')
-        False
+@FormatChecker.checks("uri")
+def is_uri(instance):
+    """
+    Checks whether instance matches a URI.
 
-        """
-        if instance in self.css_colors:
-            return True
-        pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
-        return bool(re.match(pattern, instance))
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_uri('ftp://joe.bloggs@www2.example.com:8080/pub/os/')
+    True
+    >>> is_uri('http://www2.example.com:8000/pub/#os?user=joe.bloggs')
+    True
+    >>> is_uri(r'\\\\WINDOWS\My Files')
+    False
+
+    .. note:: Also supports relative URLs.
+
+              >>> is_uri('#/properties/foo')
+              True
+
+    """
+    # URI regex from http://snipplr.com/view/6889/
+    abs_uri = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
+               r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
+               r"-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:"
+               r"@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@"
+               r"]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9"
+               r"A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%["
+               r"0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|"
+               r"%[0-9A-Fa-f]{2})*))?$")
+    if re.match(abs_uri, instance):
+        return True
+    rel_uri = r"^(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2})*))?$"
+    return bool(re.match(rel_uri, instance))
+
+
+@FormatChecker.checks("email")
+def is_email(instance):
+    """
+    Checks whether instance matches an e-mail address.
+
+    Checking is based on `RFC 2822`_
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_email('joe.bloggs@example.com')
+    True
+    >>> is_email('joe.bloggs')
+    False
+
+    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
+
+    """
+    pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
+               r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
+               r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
+               r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
+               r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+               r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
+               r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
+               r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$")
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("ip-address")
+def is_ip_address(instance):
+    """
+    Checks whether instance matches an IP address.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_ip_address('192.168.0.1')
+    True
+    >>> is_ip_address('::1')
+    False
+
+    .. note:: Does not check whether address components have values in the
+              correct ranges.
+
+              >>> is_ip_address('256.256.256.256')
+              True
+
+    """
+    pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("ipv6")
+def is_ipv6(instance):
+    """
+    Checks whether instance matches an IPv6 address.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_ipv6('::1')
+    True
+    >>> is_ipv6('192.168.0.1')
+    False
+
+    .. note:: Does not check whether components have values in the correct
+              ranges, or the length of the address.
+
+              >>> is_ipv6('12345::')
+              True
+              >>> is_ipv6('1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1')
+              True
+
+    """
+    pattern = r'^[:A-Fa-f0-9]{3,}$'
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("host-name")
+def is_host_name(instance):
+    """
+    If instance matches a host name, returns True, otherwise False.
+
+    >>> is_host_name('www.example.com')
+    True
+    >>> is_host_name('my laptop')
+    False
+
+    .. note:: Does not perform a DNS lookup. Allows host name components
+              with more than 63 characters.
+
+              >>> is_host_name('www.example.doesnotexist')
+              True
+              >>> is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrr'
+              ...     'rrrrrrrryyyyyyyyyyyyyyyyy.long.host.name')
+              True
+
+    """
+    pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("color")
+def is_css21_color(instance):
+    """
+    Checks for valid CSS 2.1 names and well-formed CSS color codes.
+
+    Optionally uses the webcolors_ library.
+
+    >>> is_css21_color('fuchsia')
+    True
+    >>> is_css21_color('puce')
+    False
+    >>> is_css21_color('#CC8899')
+    True
+    >>> is_css21_color('#C89')
+    True
+    >>> is_css21_color('#00332520')
+    False
+
+    .. _webcolors: http://pypi.python.org/pypi/webcolors/
+
+    """
+    try:
+        from webcolors import css21_names_to_hex as css21_colors
+    except ImportError:
+        css21_colors = ('aqua', 'black', 'blue', 'fuchsia', 'green', 'grey', 'lime', 'maroon', 'navy', 'olive',
+                        'orange', 'purple', 'red', 'silver', 'teal', 'white', 'yellow')
+
+    if instance.lower() in css21_colors:
+        return True
+    pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
+    return bool(re.match(pattern, instance))
 
 
 class RefResolver(object):
