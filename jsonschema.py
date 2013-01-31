@@ -723,19 +723,24 @@ def is_host_name(instance):
     True
     >>> is_host_name('my laptop')
     False
+    >>> is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrr'
+    ...     'yyyyyyyyyyyyyyyyy.long.host.name')
+    False
 
-    .. note:: Does not perform a DNS lookup. Allows host name components
-              with more than 63 characters.
+    .. note:: Does not perform a DNS lookup.
 
               >>> is_host_name('www.example.doesnotexist')
-              True
-              >>> is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrr'
-              ...     'rrrrrrrryyyyyyyyyyyyyyyyy.long.host.name')
               True
 
     """
     pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
-    return bool(re.match(pattern, instance))
+    if not re.match(pattern, instance):
+        return False
+    components = instance.split('.')
+    for component in components:
+        if len(component) > 63:
+            return False
+    return True
 
 
 def is_css_color_code(instance):
@@ -838,6 +843,27 @@ def is_css3_color(instance):
     if instance.lower() in css3_colors:
         return True
     return is_css_color_code(instance)
+
+
+@FormatChecker.checks("regex")
+def is_regex(instance):
+    """
+    Checks whether instance is a well-formed regular expression.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_regex('^(bob)?cat$')
+    True
+    >>> is_ipv6('^(bob?cat$')
+    False
+
+    """
+    try:
+        re.compile(instance)
+        return True
+    except re.error:
+        return False
 
 
 class RefResolver(object):
