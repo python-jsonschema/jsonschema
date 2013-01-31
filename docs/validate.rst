@@ -37,7 +37,7 @@ adhere to.
                         to resolve ``$ref`` properties (JSON references). If
                         unprovided, a :class:`RefResolver` is created and used.
     :argument format_checker: an object with a ``conforms()`` method that
-                              returns True if a value conforms to the format
+                              checks whether a value conforms to the format
                               given in its schema. If unprovided, a
                               :class:`FormatChecker` is created and used.
 
