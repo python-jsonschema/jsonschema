@@ -128,18 +128,15 @@ class Draft3Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(self, schema, types=(), resolver=None, format_checker=None):
+    def __init__(self, schema, types=(), resolver=None, formats=()):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
 
         if resolver is None:
             resolver = RefResolver.from_schema(schema)
 
-        if format_checker is None:
-            format_checker = FormatChecker()
-
         self.resolver = resolver
-        self.format_checker = format_checker
+        self.format_checker = FormatChecker(formats)
         self.schema = schema
 
     def is_type(self, instance, type):
@@ -483,10 +480,30 @@ class FormatChecker(object):
     """
     Checks "format" properties, optional for JSON schema validators.
 
-    To add new checks, create a function that accepts a string and returns
-    boolean. Decorate it with `@FormatChecker.checks(<format_name>)`.
+    To check a custom format, create a function that accepts a string and
+    returns boolean. Decorate it with `@FormatChecker.checks(<format_name>)`.
+    e.g. ::
+
+        from jsonschema import FormatChecker
+
+        @FormatChecker.checks("shouting")
+        def is_shouting(instance):
+            return instance.upper() == instance
+
+    To opt out of checking some formats, pass the list of formats you want
+    to check to the validator, when instantiating. e.g. ::
+
+        validator = Draft3Validator(formats=("uri", "email"))
+
     """
     _checkers = {}
+
+    def __init__(self, formats=()):
+        self.checkers = self._checkers.copy()
+        if formats:
+            for key in self.checkers.keys():
+                if key not in formats:
+                    del self.checkers[key]
 
     @classmethod
     def checks(cls, format):
@@ -508,8 +525,8 @@ class FormatChecker(object):
         :argument str format: the format that instance should conform to
         :rtype: bool
         """
-        if format in self._checkers:
-            return self._checkers[format](instance)
+        if format in self.checkers:
+            return self.checkers[format](instance)
         return True
 
 
