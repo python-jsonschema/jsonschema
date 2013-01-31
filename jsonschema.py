@@ -128,7 +128,7 @@ class Draft3Validator(object):
         "number" : (int, float), "object" : dict, "string" : basestring,
     }
 
-    def __init__(self, schema, types=(), resolver=None):
+    def __init__(self, schema, types=(), resolver=None, formats=()):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
 
@@ -136,6 +136,7 @@ class Draft3Validator(object):
             resolver = RefResolver.from_schema(schema)
 
         self.resolver = resolver
+        self.format_checker = FormatChecker(formats)
         self.schema = schema
 
     def is_type(self, instance, type):
@@ -338,6 +339,14 @@ class Draft3Validator(object):
         if self.is_type(instance, "string") and not re.match(patrn, instance):
             yield ValidationError("%r does not match %r" % (instance, patrn))
 
+    def validate_format(self, format, instance, schema):
+        if (self.is_type(instance, "string")
+            and not self.format_checker.conforms(instance, format)
+        ):
+            yield ValidationError(
+                '%r does not match "%r" format' % (instance, format)
+            )
+
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
             yield ValidationError("%r is too short" % (instance,))
@@ -465,6 +474,396 @@ Draft3Validator.META_SCHEMA = {
         "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
     },
 }
+
+
+class FormatChecker(object):
+    """
+    Checks "format" properties, optional for JSON schema validators.
+
+    To check a custom format, create a function that accepts a string and
+    returns boolean. Decorate it with `@FormatChecker.checks(<format_name>)`.
+    e.g. ::
+
+        from jsonschema import FormatChecker
+
+        @FormatChecker.checks("shouting")
+        def is_shouting(instance):
+            return instance.upper() == instance
+
+    To opt out of checking some formats, pass the list of formats you want
+    to check to the validator, when instantiating. e.g. ::
+
+        validator = Draft3Validator(formats=("uri", "email"))
+
+    """
+    _checkers = {}
+
+    def __init__(self, formats=()):
+        self.checkers = self._checkers.copy()
+        if formats:
+            for key in self.checkers.keys():
+                if key not in formats:
+                    del self.checkers[key]
+
+    @classmethod
+    def checks(cls, format):
+        """
+        A decorator to register a function that checks a given format
+
+        :argument str format: the format that the decorated function checks
+        """
+        def decorator(func):
+            cls._checkers[format] = func
+
+        return decorator
+
+    def conforms(self, instance, format):
+        """
+        Checks whether a string conforms to the given format
+
+        :argument str instance: the instance to check
+        :argument str format: the format that instance should conform to
+        :rtype: bool
+        """
+        if format in self.checkers:
+            return self.checkers[format](instance)
+        return True
+
+
+@FormatChecker.checks("date-time")
+def is_date_time(instance):
+    """
+    Checks whether instance matches "YYYY-MM-DDThh:mm:ssZ" format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_date_time('1970-01-01T00:00:00.0')
+    True
+    >>> is_date_time('1970-01-01 00:00:00 GMT')
+    False
+
+    .. note:: Does not check whether year, month, day, hour, minute and
+              second components have values in the correct ranges.
+
+              >>> is_date_time('0000-58-59T60:61:62')
+              True
+
+    """
+    pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$'
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("date")
+def is_date(instance):
+    """
+    Checks whether instance matches a date in "YYYY-MM-DD" format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_date('1970-12-31')
+    True
+    >>> is_date('12/31/1970')
+    False
+
+    .. note:: Does not check whether year, month and day components have
+              values in the correct ranges.
+
+              >>> is_date('0000-13-32')
+              True
+
+    """
+    pattern = r'^\d{4}-\d{2}-\d{2}$'
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("time")
+def is_time(instance):
+    """
+    Checks whether instance matches a time in "hh:mm:ss" format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_time('23:59:59')
+    True
+    >>> is_time('11:59:59 PM')
+    False
+
+    .. note:: Does not check whether hour, minute and second components
+              have values in the correct ranges.
+
+              >>> is_time('59:60:61')
+              True
+
+    """
+    pattern = r'^\d{2}:\d{2}:\d{2}$'
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("uri")
+def is_uri(instance):
+    """
+    Checks whether instance matches a URI.
+
+    Also supports relative URLs.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_uri('ftp://joe.bloggs@www2.example.com:8080/pub/os/')
+    True
+    >>> is_uri('http://www2.example.com:8000/pub/#os?user=joe.bloggs')
+    True
+    >>> is_uri(r'\\\\WINDOWS\My Files')
+    False
+    >>> is_uri('#/properties/foo')
+    True
+
+    """
+    # URI regex from http://snipplr.com/view/6889/
+    abs_uri = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
+               r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
+               r"-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:"
+               r"@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@"
+               r"]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9"
+               r"A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%["
+               r"0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|"
+               r"%[0-9A-Fa-f]{2})*))?$")
+    if re.match(abs_uri, instance):
+        return True
+    rel_uri = r"^(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2})*))?$"
+    return bool(re.match(rel_uri, instance))
+
+
+@FormatChecker.checks("email")
+def is_email(instance):
+    """
+    Checks whether instance matches an e-mail address.
+
+    Checking is based on `RFC 2822`_
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_email('joe.bloggs@example.com')
+    True
+    >>> is_email('joe.bloggs')
+    False
+
+    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
+
+    """
+    pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
+               r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
+               r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
+               r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
+               r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+               r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
+               r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
+               r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$")
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("ip-address")
+def is_ip_address(instance):
+    """
+    Checks whether instance matches an IP address.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_ip_address('192.168.0.1')
+    True
+    >>> is_ip_address('::1')
+    False
+    >>> is_ip_address('256.256.256.256')
+    False
+
+    """
+    import socket
+    try:
+        socket.inet_aton(instance)
+        return True
+    except socket.error:
+        return False
+
+
+@FormatChecker.checks("ipv6")
+def is_ipv6(instance):
+    """
+    Checks whether instance matches an IPv6 address.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_ipv6('::1')
+    True
+    >>> is_ipv6('192.168.0.1')
+    False
+    >>> is_ipv6('1:1:1:1:1:1:1:1:1')
+    False
+
+    """
+    import socket
+    try:
+        socket.inet_pton(socket.AF_INET6, instance)
+        return True
+    except socket.error:
+        return False
+
+
+@FormatChecker.checks("host-name")
+def is_host_name(instance):
+    """
+    If instance matches a host name, returns True, otherwise False.
+
+    >>> is_host_name('www.example.com')
+    True
+    >>> is_host_name('my laptop')
+    False
+    >>> is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrr'
+    ...     'yyyyyyyyyyyyyyyyy.long.host.name')
+    False
+
+    .. note:: Does not perform a DNS lookup.
+
+              >>> is_host_name('www.example.doesnotexist')
+              True
+
+    """
+    pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
+    if not re.match(pattern, instance):
+        return False
+    components = instance.split('.')
+    for component in components:
+        if len(component) > 63:
+            return False
+    return True
+
+
+def is_css_color_code(instance):
+    """
+    Checks for well-formed CSS color codes.
+
+    >>> is_css_color_code('#CC8899')
+    True
+    >>> is_css_color_code('#C89')
+    True
+    >>> is_css_color_code('#00332520')
+    False
+
+    """
+    pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.checks("color")
+def is_css21_color(instance):
+    """
+    Checks for valid CSS 2.1 color names and well-formed CSS color codes.
+
+    Optionally uses the webcolors_ library.
+
+    >>> is_css21_color('fuchsia')
+    True
+    >>> is_css21_color('pink')
+    False
+    >>> is_css_color_code('#CC8899')
+    True
+
+    .. _webcolors: http://pypi.python.org/pypi/webcolors/
+
+    """
+    try:
+        from webcolors import css21_names_to_hex as css21_colors
+    except ImportError:
+        css21_colors = (
+            "aqua", "black", "blue", "fuchsia", "green", "grey", "lime",
+            "maroon", "navy", "olive", "orange", "purple", "red", "silver",
+            "teal", "white", "yellow")
+
+    if instance.lower() in css21_colors:
+        return True
+    return is_css_color_code(instance)
+
+
+def is_css3_color(instance):
+    """
+    Checks for valid CSS 3 color names and well-formed CSS color codes.
+
+    Optionally uses the webcolors_ library.
+
+    >>> is_css21_color('pink')
+    True
+    >>> is_css21_color('puce')
+    False
+    >>> is_css_color_code('#CC8899')
+    True
+
+    .. _webcolors: http://pypi.python.org/pypi/webcolors/
+
+    """
+    try:
+        from webcolors import css3_names_to_hex as css3_colors
+    except ImportError:
+        css3_colors = (
+            "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
+            "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
+            "burlywood", "cadetblue", "chartreuse", "chocolate", "coral",
+            "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue",
+            "darkcyan", "darkgoldenrod", "darkgray", "darkgrey", "darkgreen",
+            "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange",
+            "darkorchid", "darkred", "darksalmon", "darkseagreen",
+            "darkslateblue", "darkslategray", "darkslategrey", "darkturquoise",
+            "darkviolet", "deeppink", "deepskyblue", "dimgray", "dimgrey",
+            "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia",
+            "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "grey",
+            "green", "greenyellow", "honeydew", "hotpink", "indianred",
+            "indigo", "ivory", "khaki", "lavender", "lavenderblush",
+            "lawngreen", "lemonchiffon", "lightblue", "lightcoral",
+            "lightcyan", "lightgoldenrodyellow", "lightgray", "lightgrey",
+            "lightgreen", "lightpink", "lightsalmon", "lightseagreen",
+            "lightskyblue", "lightslategray", "lightslategrey",
+            "lightsteelblue", "lightyellow", "lime", "limegreen", "linen",
+            "magenta", "maroon", "mediumaquamarine", "mediumblue",
+            "mediumorchid", "mediumpurple", "mediumseagreen",
+            "mediumslateblue", "mediumspringgreen", "mediumturquoise",
+            "mediumvioletred", "midnightblue", "mintcream", "mistyrose",
+            "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
+            "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
+            "paleturquoise", "palevioletred", "papayawhip", "peachpuff",
+            "peru", "pink", "plum", "powderblue", "purple", "red", "rosybrown",
+            "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
+            "seashell", "sienna", "silver", "skyblue", "slateblue",
+            "slategray", "slategrey", "snow", "springgreen", "steelblue",
+            "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat",
+            "white", "whitesmoke", "yellow", "yellowgreen")
+    if instance.lower() in css3_colors:
+        return True
+    return is_css_color_code(instance)
+
+
+@FormatChecker.checks("regex")
+def is_regex(instance):
+    """
+    Checks whether instance is a well-formed regular expression.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+    >>> is_regex('^(bob)?cat$')
+    True
+    >>> is_ipv6('^(bob?cat$')
+    False
+
+    """
+    try:
+        re.compile(instance)
+        return True
+    except re.error:
+        return False
 
 
 class RefResolver(object):

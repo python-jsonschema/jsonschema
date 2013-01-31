@@ -33,9 +33,19 @@ def make_case(schema, data, valid, cls):
     return test_case
 
 
-def load_json_cases(test_dir):
+def load_json_cases(test_dir, include_optional=()):
+    def gen_json_files():
+        """A generator that returns the names of JSON test files"""
+        sources = [glob.iglob(os.path.join(test_dir, "*.json"))]
+        for opt in include_optional:
+            sources.append([os.path.join(test_dir, "optional", opt + ".json")])
+        for s in sources:
+            for filename in s:
+                yield filename
+
     def add_test_methods(test_class):
-        for filename in glob.iglob(os.path.join(test_dir, "*.json")):
+        json_files = gen_json_files()
+        for filename in json_files:
             validating, _ = os.path.splitext(os.path.basename(filename))
 
             with open(filename) as test_file:
@@ -92,7 +102,11 @@ class AnyTypeMixin(object):
         validator.validate(mock.Mock())
 
 
-@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
+@load_json_cases(
+    os.path.join(os.path.dirname(__file__), "json/tests/draft3/"),
+    # Include the following optional JSON tests
+    #include_optional=("bignum", "format")
+)
 class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
     validator_class = Draft3Validator
 
