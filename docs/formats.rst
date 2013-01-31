@@ -7,12 +7,3 @@ Validating String Formats
 
 .. autoclass:: FormatChecker
     :members:
-
-.. autoclass:: DateTimeFormatChecker
-    :members:
-
-.. autoclass:: InternetFormatChecker
-    :members:
-
-.. autoclass:: CssColorChecker
-    :members:
