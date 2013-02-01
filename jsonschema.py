@@ -481,7 +481,11 @@ Draft3Validator.META_SCHEMA = {
 
 class FormatChecker(object):
     """
-    Checks "format" properties, optional for JSON schema validators.
+    ``format`` property checker.
+
+    JSON Schema does not mandate that the ``format`` property actually do any
+    validation. If validation is desired however, instances of this class can
+    be hooked into validators to enable format validation.
 
     To check a custom format, create a function that accepts a string and
     returns boolean. Decorate it with `@FormatChecker.checks(<format_name>)`.
