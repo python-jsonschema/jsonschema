@@ -488,15 +488,9 @@ class FormatChecker(object):
     validation. If validation is desired however, instances of this class can
     be hooked into validators to enable format validation.
 
-    To check a custom format, create a function that accepts a string and
-    returns boolean. Decorate it with `@FormatChecker.checks(<format_name>)`.
-    e.g. ::
-
-        from jsonschema import FormatChecker
-
-        @FormatChecker.checks("shouting")
-        def is_shouting(instance):
-            return instance.upper() == instance
+    To check a custom format using a function that takes a ``str`` and returns
+    a ``bool``, use the :meth:`FormatChecker.checks` or
+    :meth:`FormatChecker.cls_checks` decorators.
 
     To opt out of checking some formats, pass the list of formats you want
     to check to the validator, when instantiating. e.g. ::
@@ -507,15 +501,30 @@ class FormatChecker(object):
 
     checkers = {}
 
-    def __init__(self, formats=()):
-        self.checkers = self.checkers.copy()
-        if formats:
-            for key in self.checkers.keys():
-                if key not in formats:
-                    del self.checkers[key]
+    def __init__(self, formats=None):
+        if formats is None:
+            self.checkers = self.checkers.copy()
+        else:
+            self.checkers = dict((k, self.checkers[k]) for k in formats)
 
     @classmethod
-    def checks(cls, format):
+    def cls_checks(cls, format):
+        """
+        Register a decorated function as *globally* validating a new format.
+
+        Any instance created after this function is called will pick up the
+        supplied checker.
+
+        :argument str format: the format that the decorated function will check
+
+        """
+
+        def _checks(func):
+            cls.checkers[format] = func
+            return func
+        return _checks
+
+    def checks(self, format):
         """
         Register a decorated function as validating a new format.
 
@@ -524,7 +533,7 @@ class FormatChecker(object):
         """
 
         def _checks(func):
-            cls.checkers[format] = func
+            self.checkers[format] = func
             return func
         return _checks
 
@@ -543,7 +552,7 @@ class FormatChecker(object):
         return True
 
 
-@FormatChecker.checks("date-time")
+@FormatChecker.cls_checks("date-time")
 def is_date_time(instance):
     """
     Check whether the instance matches "YYYY-MM-DDThh:mm:ssZ" format.
@@ -568,7 +577,7 @@ def is_date_time(instance):
     return bool(re.match(pattern, instance))
 
 
-@FormatChecker.checks("date")
+@FormatChecker.cls_checks("date")
 def is_date(instance):
     """
     Check whether the instance matches a date in "YYYY-MM-DD" format.
@@ -593,7 +602,7 @@ def is_date(instance):
     return bool(re.match(pattern, instance))
 
 
-@FormatChecker.checks("time")
+@FormatChecker.cls_checks("time")
 def is_time(instance):
     """
     Check whether the instance matches a time in "hh:mm:ss" format.
@@ -618,7 +627,7 @@ def is_time(instance):
     return bool(re.match(pattern, instance))
 
 
-@FormatChecker.checks("uri")
+@FormatChecker.cls_checks("uri")
 def is_uri(instance):
     """
     Check whether the instance is a valid URI.
@@ -654,7 +663,7 @@ def is_uri(instance):
     return bool(re.match(rel_uri, instance))
 
 
-@FormatChecker.checks("email")
+@FormatChecker.cls_checks("email")
 def is_email(instance):
     """
     Check whether the instance is a valid e-mail address.
@@ -684,7 +693,7 @@ def is_email(instance):
     return bool(re.match(pattern, instance))
 
 
-@FormatChecker.checks("ip-address")
+@FormatChecker.cls_checks("ip-address")
 def is_ip_address(instance):
     """
     Check whether the instance is a valid IP address.
@@ -708,7 +717,7 @@ def is_ip_address(instance):
         return False
 
 
-@FormatChecker.checks("ipv6")
+@FormatChecker.cls_checks("ipv6")
 def is_ipv6(instance):
     """
     Check whether the instance is a valid IPv6 address.
@@ -732,7 +741,7 @@ def is_ipv6(instance):
         return False
 
 
-@FormatChecker.checks("host-name")
+@FormatChecker.cls_checks("host-name")
 def is_host_name(instance):
     """
     Check if the instance is a valid host name.
@@ -781,7 +790,7 @@ def is_css_color_code(instance):
     return bool(re.match(pattern, instance))
 
 
-@FormatChecker.checks("color")
+@FormatChecker.cls_checks("color")
 def is_css21_color(instance):
     """
     Check for valid CSS 2.1 color names and well-formed CSS color codes.
@@ -869,7 +878,7 @@ def is_css3_color(instance):
     return is_css_color_code(instance)
 
 
-@FormatChecker.checks("regex")
+@FormatChecker.cls_checks("regex")
 def is_regex(instance):
     """
     Check if the instance is a well-formed regular expression.

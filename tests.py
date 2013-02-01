@@ -473,13 +473,29 @@ class TestRefResolver(TestCase):
 
 
 class TestFormatChecker(TestCase):
-    def test_it_can_register_global_checkers(self):
-        with mock.patch.dict(FormatChecker.checkers, clear=True):
-            def upper(instance):
-                return instance.isupper()
-            FormatChecker.checks("uppercase")(upper)
+    def setUp(self):
+        self.fn = mock.Mock()
 
-            self.assertEqual(FormatChecker.checkers, {"uppercase" : upper})
+    def test_it_can_validate_no_formats(self):
+        checker = FormatChecker(formats=())
+        self.assertFalse(checker.checkers)
+
+    def test_it_raises_a_key_error_for_unknown_formats(self):
+        with self.assertRaises(KeyError):
+            checker = FormatChecker(formats=["o noes"])
+
+    def test_it_can_register_cls_checkers(self):
+        with mock.patch.dict(FormatChecker.checkers, clear=True):
+            FormatChecker.cls_checks("new")(self.fn)
+            self.assertEqual(FormatChecker.checkers, {"new" : self.fn})
+
+    def test_it_can_register_checkers(self):
+        checker = FormatChecker()
+        checker.checks("new")(self.fn)
+        self.assertEqual(
+            checker.checkers,
+            dict(FormatChecker.checkers, new=self.fn)
+        )
 
 
 def sorted_errors(errors):
