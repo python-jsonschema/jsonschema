@@ -104,8 +104,7 @@ class AnyTypeMixin(object):
 
 @load_json_cases(
     os.path.join(os.path.dirname(__file__), "json/tests/draft3/"),
-    # Include the following optional JSON tests
-    #include_optional=("bignum", "format")
+    include_optional=("bignum", "format"),
 )
 class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
     validator_class = Draft3Validator
