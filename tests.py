@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from decimal import Decimal
-from io import BytesIO
 import glob
 import os
 import re
@@ -445,7 +444,7 @@ class TestRefResolver(TestCase):
         self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
     def test_it_retrieves_stored_refs(self):
-        ref = self.resolver.store["cached_ref"] = {"foo" : 12}
+        self.resolver.store["cached_ref"] = {"foo" : 12}
         resolved = self.resolver.resolve("cached_ref#/foo")
         self.assertEqual(resolved, 12)
 
