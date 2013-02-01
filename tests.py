@@ -26,11 +26,13 @@ from jsonschema import (
 def make_case(schema, data, valid):
     if valid:
         def test_case(self):
-            validate(data, schema, cls=self.validator_class)
+            kwargs = getattr(self, "validator_kwargs", {})
+            validate(data, schema, cls=self.validator_class, **kwargs)
     else:
         def test_case(self):
+            kwargs = getattr(self, "validator_kwargs", {})
             with self.assertRaises(ValidationError):
-                validate(data, schema, cls=self.validator_class)
+                validate(data, schema, cls=self.validator_class, **kwargs)
     return test_case
 
 
@@ -97,7 +99,11 @@ class BigNumMixin(object):
     pass
 
 
+@load_json_cases("json/tests/draft3/optional/format.json")
 class FormatMixin(object):
+
+    validator_kwargs = {"format_checker" : FormatChecker()}
+
     def test_it_does_not_validate_formats_by_default(self):
         validator = self.validator_class({})
         self.assertIsNone(validator.format_checker)
