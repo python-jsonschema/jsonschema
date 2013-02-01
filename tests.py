@@ -23,29 +23,20 @@ from jsonschema import (
 )
 
 
-def make_case(schema, data, valid, cls):
-    def test_case(self):
-        if valid:
-            validate(data, schema, cls=cls)
-        else:
+def make_case(schema, data, valid):
+    if valid:
+        def test_case(self):
+            validate(data, schema, cls=self.validator_class)
+    else:
+        def test_case(self):
             with self.assertRaises(ValidationError):
-                validate(data, schema, cls=cls)
+                validate(data, schema, cls=self.validator_class)
     return test_case
 
 
-def load_json_cases(test_dir, include_optional=()):
-    def gen_json_files():
-        """A generator that returns the names of JSON test files"""
-        sources = [glob.iglob(os.path.join(test_dir, "*.json"))]
-        for opt in include_optional:
-            sources.append([os.path.join(test_dir, "optional", opt + ".json")])
-        for s in sources:
-            for filename in s:
-                yield filename
-
+def load_json_cases(tests_glob, basedir=os.path.dirname(__file__)):
     def add_test_methods(test_class):
-        json_files = gen_json_files()
-        for filename in json_files:
+        for filename in glob.iglob(os.path.join(basedir, tests_glob)):
             validating, _ = os.path.splitext(os.path.basename(filename))
 
             with open(filename) as test_file:
@@ -57,7 +48,6 @@ def load_json_cases(test_dir, include_optional=()):
                             case["schema"],
                             test["data"],
                             test["valid"],
-                            test_class.validator_class,
                         )
 
                         test_name = "test_%s_%s" % (
@@ -75,7 +65,7 @@ def load_json_cases(test_dir, include_optional=()):
     return add_test_methods
 
 
-class ByteStringMixin(object):
+class BytesMixin(object):
     @skipIf(PY3, "The JSON module in Python 3 always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
         self.validator_class({"type" : "string"}).validate(b"foo")
@@ -102,6 +92,11 @@ class AnyTypeMixin(object):
         validator.validate(mock.Mock())
 
 
+@load_json_cases("json/tests/draft3/optional/bignum.json")
+class BigNumMixin(object):
+    pass
+
+
 class FormatMixin(object):
     def test_it_does_not_validate_formats_by_default(self):
         validator = self.validator_class({})
@@ -124,12 +119,9 @@ class FormatMixin(object):
             validator.validate("bar")
 
 
-@load_json_cases(
-    os.path.join(os.path.dirname(__file__), "json/tests/draft3/"),
-    include_optional=("bignum",),
-)
+@load_json_cases("json/tests/draft3/*.json")
 class TestDraft3(
-    TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin, FormatMixin
+    TestCase, BytesMixin, DecimalMixin, AnyTypeMixin, FormatMixin, BigNumMixin,
 ):
     validator_class = Draft3Validator
 
