@@ -505,10 +505,10 @@ class FormatChecker(object):
 
     """
 
-    _checkers = {}
+    checkers = {}
 
     def __init__(self, formats=()):
-        self.checkers = self._checkers.copy()
+        self.checkers = self.checkers.copy()
         if formats:
             for key in self.checkers.keys():
                 if key not in formats:
@@ -523,10 +523,10 @@ class FormatChecker(object):
 
         """
 
-        def decorator(func):
-            cls._checkers[format] = func
-
-        return decorator
+        def _checks(func):
+            cls.checkers[format] = func
+            return func
+        return _checks
 
     def conforms(self, instance, format):
         """

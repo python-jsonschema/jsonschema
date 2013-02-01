@@ -472,6 +472,16 @@ class TestRefResolver(TestCase):
         self.assertEqual(resolver.referrer, schema)
 
 
+class TestFormatChecker(TestCase):
+    def test_it_can_register_global_checkers(self):
+        with mock.patch.dict(FormatChecker.checkers, clear=True):
+            def upper(instance):
+                return instance.isupper()
+            FormatChecker.checks("uppercase")(upper)
+
+            self.assertEqual(FormatChecker.checkers, {"uppercase" : upper})
+
+
 def sorted_errors(errors):
     def key(error) : return ([str(e) for e in error.path], error.validator)
     return sorted(errors, key=key)
