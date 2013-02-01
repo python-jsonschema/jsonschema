@@ -551,20 +551,20 @@ def is_date_time(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_date_time('1970-01-01T00:00:00.0')
-    True
-    >>> is_date_time('1970-01-01 00:00:00 GMT')
-    False
+        >>> is_date_time("1970-01-01T00:00:00.0")
+        True
+        >>> is_date_time("1970-01-01 00:00:00 GMT")
+        False
 
     .. note:: Does not check whether year, month, day, hour, minute and
               second components have values in the correct ranges.
 
-              >>> is_date_time('0000-58-59T60:61:62')
-              True
+        >>> is_date_time("0000-58-59T60:61:62")
+        True
 
     """
 
-    pattern = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$'
+    pattern = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$"
     return bool(re.match(pattern, instance))
 
 
@@ -576,20 +576,20 @@ def is_date(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_date('1970-12-31')
-    True
-    >>> is_date('12/31/1970')
-    False
+        >>> is_date("1970-12-31")
+        True
+        >>> is_date("12/31/1970")
+        False
 
     .. note:: Does not check whether year, month and day components have
               values in the correct ranges.
 
-              >>> is_date('0000-13-32')
-              True
+        >>> is_date("0000-13-32")
+        True
 
     """
 
-    pattern = r'^\d{4}-\d{2}-\d{2}$'
+    pattern = r"^\d{4}-\d{2}-\d{2}$"
     return bool(re.match(pattern, instance))
 
 
@@ -601,20 +601,20 @@ def is_time(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_time('23:59:59')
-    True
-    >>> is_time('11:59:59 PM')
-    False
+        >>> is_time("23:59:59")
+        True
+        >>> is_time("11:59:59 PM")
+        False
 
     .. note:: Does not check whether hour, minute and second components
               have values in the correct ranges.
 
-              >>> is_time('59:60:61')
-              True
+        >>> is_time("59:60:61")
+        True
 
     """
 
-    pattern = r'^\d{2}:\d{2}:\d{2}$'
+    pattern = r"^\d{2}:\d{2}:\d{2}$"
     return bool(re.match(pattern, instance))
 
 
@@ -628,14 +628,14 @@ def is_uri(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_uri('ftp://joe.bloggs@www2.example.com:8080/pub/os/')
-    True
-    >>> is_uri('http://www2.example.com:8000/pub/#os?user=joe.bloggs')
-    True
-    >>> is_uri(r'\\\\WINDOWS\My Files')
-    False
-    >>> is_uri('#/properties/foo')
-    True
+        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
+        True
+        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
+        True
+        >>> is_uri(r"\\\\WINDOWS\My Files")
+        False
+        >>> is_uri("#/properties/foo")
+        True
 
     """
 
@@ -664,10 +664,10 @@ def is_email(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_email('joe.bloggs@example.com')
-    True
-    >>> is_email('joe.bloggs')
-    False
+        >>> is_email("joe.bloggs@example.com")
+        True
+        >>> is_email("joe.bloggs")
+        False
 
     .. _RFC 2822: http://tools.ietf.org/html/rfc2822
 
@@ -692,12 +692,12 @@ def is_ip_address(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_ip_address('192.168.0.1')
-    True
-    >>> is_ip_address('::1')
-    False
-    >>> is_ip_address('256.256.256.256')
-    False
+        >>> is_ip_address("192.168.0.1")
+        True
+        >>> is_ip_address("::1")
+        False
+        >>> is_ip_address("256.256.256.256")
+        False
 
     """
 
@@ -716,12 +716,12 @@ def is_ipv6(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_ipv6('::1')
-    True
-    >>> is_ipv6('192.168.0.1')
-    False
-    >>> is_ipv6('1:1:1:1:1:1:1:1:1')
-    False
+        >>> is_ipv6("::1")
+        True
+        >>> is_ipv6("192.168.0.1")
+        False
+        >>> is_ipv6("1:1:1:1:1:1:1:1:1")
+        False
 
     """
 
@@ -737,25 +737,27 @@ def is_host_name(instance):
     """
     Check if the instance is a valid host name.
 
-    >>> is_host_name('www.example.com')
-    True
-    >>> is_host_name('my laptop')
-    False
-    >>> is_host_name('a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrr'
-    ...     'yyyyyyyyyyyyyyyyy.long.host.name')
-    False
+        >>> is_host_name("www.example.com")
+        True
+        >>> is_host_name("my laptop")
+        False
+        >>> is_host_name(
+        ...     "a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrryyyyyyyy"
+        ...     "yyyyyyyyy.long.host.name"
+        ... )
+        False
 
     .. note:: Does not perform a DNS lookup.
 
-              >>> is_host_name('www.example.doesnotexist')
-              True
+        >>> is_host_name("www.example.doesnotexist")
+        True
 
     """
 
-    pattern = '^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$'
+    pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
     if not re.match(pattern, instance):
         return False
-    components = instance.split('.')
+    components = instance.split(".")
     for component in components:
         if len(component) > 63:
             return False
@@ -766,16 +768,16 @@ def is_css_color_code(instance):
     """
     Check if the instance is a valid CSS color code.
 
-    >>> is_css_color_code('#CC8899')
-    True
-    >>> is_css_color_code('#C89')
-    True
-    >>> is_css_color_code('#00332520')
-    False
+        >>> is_css_color_code("#CC8899")
+        True
+        >>> is_css_color_code("#C89")
+        True
+        >>> is_css_color_code("#00332520")
+        False
 
     """
 
-    pattern = r'^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$'
+    pattern = r"^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$"
     return bool(re.match(pattern, instance))
 
 
@@ -786,12 +788,12 @@ def is_css21_color(instance):
 
     Optionally uses the webcolors_ library.
 
-    >>> is_css21_color('fuchsia')
-    True
-    >>> is_css21_color('pink')
-    False
-    >>> is_css_color_code('#CC8899')
-    True
+        >>> is_css21_color("fuchsia")
+        True
+        >>> is_css21_color("pink")
+        False
+        >>> is_css_color_code("#CC8899")
+        True
 
     .. _webcolors: http://pypi.python.org/pypi/webcolors/
 
@@ -816,12 +818,12 @@ def is_css3_color(instance):
 
     Optionally uses the webcolors_ library.
 
-    >>> is_css21_color('pink')
-    True
-    >>> is_css21_color('puce')
-    False
-    >>> is_css_color_code('#CC8899')
-    True
+        >>> is_css21_color("pink")
+        True
+        >>> is_css21_color("puce")
+        False
+        >>> is_css_color_code("#CC8899")
+        True
 
     .. _webcolors: http://pypi.python.org/pypi/webcolors/
 
@@ -875,10 +877,10 @@ def is_regex(instance):
     :argument str instance: the instance to check
     :rtype: bool
 
-    >>> is_regex('^(bob)?cat$')
-    True
-    >>> is_ipv6('^(bob?cat$')
-    False
+        >>> is_regex("^(bob)?cat$")
+        True
+        >>> is_ipv6("^(bob?cat$")
+        False
 
     """
     try:
