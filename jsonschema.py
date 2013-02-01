@@ -127,7 +127,7 @@ class Draft3Validator(object):
 
     DEFAULT_TYPES = {
         "array" : list, "boolean" : bool, "integer" : numbers.Integral,
-        "null" : type(None), "number" : (int, float), "object" : dict,
+        "null" : type(None), "number" : numbers.Number, "object" : dict,
         "string" : basestring,
     }
 
@@ -152,8 +152,8 @@ class Draft3Validator(object):
         # bool inherits from int, so ensure bools aren't reported as integers
         if isinstance(instance, bool):
             type = _flatten(type)
-            have_int = any(issubclass(t, numbers.Integral) for t in type)
-            if have_int and bool not in type:
+            have_number = any(issubclass(t, numbers.Number) for t in type)
+            if have_number and bool not in type:
                 return False
         return isinstance(instance, type)
 

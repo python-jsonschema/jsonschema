@@ -126,7 +126,7 @@ class FormatMixin(object):
 
 @load_json_cases(
     os.path.join(os.path.dirname(__file__), "json/tests/draft3/"),
-    # include_optional=("bignum", "format"),
+    include_optional=("bignum",),
 )
 class TestDraft3(
     TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin, FormatMixin
