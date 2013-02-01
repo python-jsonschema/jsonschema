@@ -19,7 +19,7 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, RefResolver, validate
+    Draft3Validator, FormatChecker, RefResolver, validate
 )
 
 
@@ -154,9 +154,9 @@ class TestIterErrors(TestCase):
 
 
 class TestValidationErrorMessages(TestCase):
-    def message_for(self, instance, schema):
+    def message_for(self, instance, schema, *args, **kwargs):
         with self.assertRaises(ValidationError) as e:
-            validate(instance, schema)
+            validate(instance, schema, *args, **kwargs)
         return e.exception.message
 
     def test_single_type_failure(self):
@@ -214,6 +214,17 @@ class TestValidationErrorMessages(TestCase):
         self.assertIn(repr("foo"), message)
         self.assertIn(repr("bar"), message)
         self.assertIn("were unexpected)", message)
+
+    def test_invalid_format(self):
+        checker = mock.Mock(spec=FormatChecker)
+        checker.conforms.return_value = False
+
+        schema = {"format" : "thing"}
+        message = self.message_for("bla", schema, format_checker=checker)
+
+        self.assertIn(repr("bla"), message)
+        self.assertIn(repr("thing"), message)
+        self.assertIn("is not a", message)
 
 
 class TestValidationErrorDetails(TestCase):
