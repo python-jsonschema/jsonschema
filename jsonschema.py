@@ -130,7 +130,7 @@ class Draft3Validator(object):
         "string" : basestring,
     }
 
-    def __init__(self, schema, types=(), resolver=None, formats=()):
+    def __init__(self, schema, types=(), resolver=None, format_checker=None):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
 
@@ -138,7 +138,7 @@ class Draft3Validator(object):
             resolver = RefResolver.from_schema(schema)
 
         self.resolver = resolver
-        self.format_checker = FormatChecker(formats)
+        self.format_checker = format_checker
         self.schema = schema
 
     def is_type(self, instance, type):
@@ -343,12 +343,12 @@ class Draft3Validator(object):
             yield ValidationError("%r does not match %r" % (instance, patrn))
 
     def validate_format(self, format, instance, schema):
-        if (self.is_type(instance, "string")
-            and not self.format_checker.conforms(instance, format)
+        if (
+            self.format_checker is not None and
+            self.is_type(instance, "string") and
+            not self.format_checker.conforms(instance, format)
         ):
-            yield ValidationError(
-                '%r does not match "%r" format' % (instance, format)
-            )
+            yield ValidationError("%r is not a %r" % (instance, format))
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:

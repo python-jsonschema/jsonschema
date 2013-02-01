@@ -102,11 +102,35 @@ class AnyTypeMixin(object):
         validator.validate(mock.Mock())
 
 
+class FormatMixin(object):
+    def test_it_does_not_validate_formats_by_default(self):
+        validator = self.validator_class({})
+        self.assertIsNone(validator.format_checker)
+
+    def test_it_validates_formats_if_a_checker_is_provided(self):
+        checker = mock.Mock(spec=FormatChecker)
+        checker.conforms.return_value = True
+        validator = self.validator_class(
+            {"format" : "foo"}, format_checker=checker,
+        )
+
+        validator.validate("bar")
+
+        checker.conforms.assert_called_once_with("bar", "foo")
+
+        checker.conforms.return_value = False
+
+        with self.assertRaises(ValidationError):
+            validator.validate("bar")
+
+
 @load_json_cases(
     os.path.join(os.path.dirname(__file__), "json/tests/draft3/"),
-    include_optional=("bignum", "format"),
+    # include_optional=("bignum", "format"),
 )
-class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
+class TestDraft3(
+    TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin, FormatMixin
+):
     validator_class = Draft3Validator
 
     # TODO: we're in need of more meta schema tests
