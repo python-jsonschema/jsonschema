@@ -36,8 +36,13 @@ adhere to.
     :argument resolver: an object with a ``resolve()`` method that will be used
                         to resolve ``$ref`` properties (JSON references). If
                         unprovided, a :class:`RefResolver` is created and used.
-    :argument formats: a list of formats to check. If not specified, check all
-                       registered formats.
+    :argument format_checker: an object with a ``conform()`` method that will
+                              be called to check and see if instances conform
+                              to each ``format`` property present in the
+                              schema. If unprovided, no validation will be done
+                              for ``format``. :class:`FormatChecker` is a
+                              concrete implementation of an object of this form
+                              that can be used for common formats.
 
     .. attribute:: DEFAULT_TYPES
 
