@@ -147,15 +147,15 @@ class Draft3Validator(object):
             return True
         elif type not in self._types:
             raise UnknownType(type)
-        type = self._types[type]
+        pytypes = self._types[type]
 
         # bool inherits from int, so ensure bools aren't reported as integers
         if isinstance(instance, bool):
-            type = _flatten(type)
-            have_number = any(issubclass(t, numbers.Number) for t in type)
-            if have_number and bool not in type:
+            pytypes = _flatten(pytypes)
+            num = any(issubclass(pytype, numbers.Number) for pytype in pytypes)
+            if num and bool not in pytypes:
                 return False
-        return isinstance(instance, type)
+        return isinstance(instance, pytypes)
 
     def is_valid(self, instance, _schema=None):
         error = next(self.iter_errors(instance, _schema), None)
