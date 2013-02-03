@@ -219,4 +219,29 @@ to validate. Their names can be viewed by inspecting the
      ...'uri']
 
 
+The actual functions that do the validation are also exposed, in case there is
+any use for them. They are listed below, along with any limitations they come
+with.
+
+
 .. autofunction:: is_date_time
+
+.. autofunction:: is_date
+
+.. autofunction:: is_time
+
+.. autofunction:: is_regex
+
+.. autofunction:: is_css21_color
+
+.. autofunction:: is_css3_color
+
+.. autofunction:: is_uri
+
+.. autofunction:: is_email
+
+.. autofunction:: is_ip_address
+
+.. autofunction:: is_ipv6
+
+.. autofunction:: is_host_name

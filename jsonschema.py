@@ -12,6 +12,7 @@ instance under a schema, and will create a validator for you.
 from __future__ import division, unicode_literals
 
 import collections
+import datetime
 import itertools
 import json
 import numbers
@@ -569,17 +570,16 @@ def is_date_time(instance):
         True
         >>> is_date_time("1970-01-01 00:00:00 GMT")
         False
-
-    .. note:: Does not check whether year, month, day, hour, minute and
-              second components have values in the correct ranges.
-
         >>> is_date_time("0000-58-59T60:61:62")
-        True
+        False
 
     """
 
-    pattern = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$"
-    return bool(re.match(pattern, instance))
+    try:
+        datetime.datetime.strptime(instance, "%Y-%m-%dT%H:%M:%S.%f")
+        return True
+    except ValueError:
+        return False
 
 
 @FormatChecker.cls_checks("date")
@@ -594,17 +594,16 @@ def is_date(instance):
         True
         >>> is_date("12/31/1970")
         False
-
-    .. note:: Does not check whether year, month and day components have
-              values in the correct ranges.
-
         >>> is_date("0000-13-32")
-        True
+        False
 
     """
 
-    pattern = r"^\d{4}-\d{2}-\d{2}$"
-    return bool(re.match(pattern, instance))
+    try:
+        datetime.datetime.strptime(instance, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
 
 
 @FormatChecker.cls_checks("time")
@@ -619,17 +618,16 @@ def is_time(instance):
         True
         >>> is_time("11:59:59 PM")
         False
-
-    .. note:: Does not check whether hour, minute and second components
-              have values in the correct ranges.
-
         >>> is_time("59:60:61")
-        True
+        False
 
     """
 
-    pattern = r"^\d{2}:\d{2}:\d{2}$"
-    return bool(re.match(pattern, instance))
+    try:
+        datetime.datetime.strptime(instance, "%H:%M:%S")
+        return True
+    except ValueError:
+        return False
 
 
 @FormatChecker.cls_checks("uri")
