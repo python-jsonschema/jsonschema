@@ -488,14 +488,18 @@ class FormatChecker(object):
     validation. If validation is desired however, instances of this class can
     be hooked into validators to enable format validation.
 
-    To check a custom format using a function that takes a ``str`` and returns
-    a ``bool``, use the :meth:`FormatChecker.checks` or
+    :class:`FormatChecker` objects always return ``True`` when asked about
+    formats that they do not know how to validate.
+
+    To check a custom format using a function that takes an instance and
+    returns a ``bool``, use the :meth:`FormatChecker.checks` or
     :meth:`FormatChecker.cls_checks` decorators.
 
-    To opt out of checking some formats, pass the list of formats you want
-    to check to the validator, when instantiating. e.g. ::
+    :argument iterable formats: the known formats to validate. This argument
+                                can be used to limit which formats will be used
+                                during validation.
 
-        validator = Draft3Validator(formats=("uri", "email"))
+        >>> checker = FormatChecker(formats=("uri", "regex"))
 
     """
 
@@ -541,7 +545,8 @@ class FormatChecker(object):
         """
         Check whether the instance conforms to the given format.
 
-        :argument str instance: the instance to check
+        :argument instance: the instance to check
+        :type: any primitive type (str, number, bool)
         :argument str format: the format that instance should conform to
         :rtype: bool
 
@@ -555,7 +560,7 @@ class FormatChecker(object):
 @FormatChecker.cls_checks("date-time")
 def is_date_time(instance):
     """
-    Check whether the instance matches "YYYY-MM-DDThh:mm:ssZ" format.
+    Check whether the instance is in ISO 8601 "YYYY-MM-DDThh:mm:ssZ" format.
 
     :argument str instance: the instance to check
     :rtype: bool
@@ -827,9 +832,9 @@ def is_css3_color(instance):
 
     Optionally uses the webcolors_ library.
 
-        >>> is_css21_color("pink")
+        >>> is_css3_color("pink")
         True
-        >>> is_css21_color("puce")
+        >>> is_css3_color("puce")
         False
         >>> is_css_color_code("#CC8899")
         True
