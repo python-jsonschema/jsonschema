@@ -181,7 +181,6 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
         ...
     ValidationError: "tomorrow" is not a "date"
 
-
 .. autoclass:: FormatChecker
     :members:
 
@@ -191,5 +190,33 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
         New checkers can be added and removed either per-instance or globally
         for all checkers using the :meth:`FormatChecker.checks` or
         :meth:`FormatChecker.cls_checks` decorators respectively.
+
+
+There are a number of default checkers that :class:`FormatChecker`\s know how
+to validate. Their names can be viewed by inspecting the
+:attr:`FormatChecker.checkers` attribute.
+
+.. testsetup::
+
+    from pprint import pprint
+
+.. testcode::
+
+    pprint(sorted(FormatChecker.checkers))
+
+.. testoutput::
+    :options: +NORMALIZE_WHITESPACE
+
+    [...'color',
+     ...'date',
+     ...'date-time',
+     ...'email',
+     ...'host-name',
+     ...'ip-address',
+     ...'ipv6',
+     ...'regex',
+     ...'time',
+     ...'uri']
+
 
 .. autofunction:: is_date_time
