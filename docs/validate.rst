@@ -171,7 +171,25 @@ primitive types (``str``\s, ``number``\s, ``bool``\s) conform to well-defined
 formats. By default, no validation is enforced, but optionally, validation can
 be enabled by hooking in a format-checking object into an :class:`IValidator`.
 
+.. doctest::
+
+    >>> validate("tomorrow", {"format" : "date"})
+    >>> validate(
+    ...     "tomorrow", {"format" : "date"}, format_checker=FormatChecker(),
+    ... )
+    Traceback (most recent call last):
+        ...
+    ValidationError: "tomorrow" is not a "date"
+
+
 .. autoclass:: FormatChecker
     :members:
+
+    .. attribute:: checkers
+
+        A mapping of currently known formats to functions that validate them.
+        New checkers can be added and removed either per-instance or globally
+        for all checkers using the :meth:`FormatChecker.checks` or
+        :meth:`FormatChecker.cls_checks` decorators respectively.
 
 .. autofunction:: is_date_time
