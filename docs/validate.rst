@@ -161,3 +161,17 @@ provides see the :class:`IValidator` interface, which each validator
 implements.
 
 .. autoclass:: Draft3Validator
+
+
+Validating Formats
+------------------
+
+JSON Schema defines the ``format`` property which can be used to check if
+primitive types (``str``\s, ``number``\s, ``bool``\s) conform to well-defined
+formats. By default, no validation is enforced, but optionally, validation can
+be enabled by hooking in a format-checking object into an :class:`IValidator`.
+
+.. autoclass:: FormatChecker
+    :members:
+
+.. autofunction:: is_date_time

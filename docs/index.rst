@@ -41,7 +41,6 @@ Contents:
     validate
     errors
     references
-    formats
     creating
 
 
