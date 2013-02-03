@@ -21,6 +21,11 @@ import re
 import socket
 import sys
 
+try:
+    import webcolors
+except ImportError:
+    webcolors = None
+
 
 __version__ = "1.0.0-dev"
 
@@ -561,7 +566,7 @@ class FormatChecker(object):
 @FormatChecker.cls_checks("date-time")
 def is_date_time(instance):
     """
-    Check whether the instance is in ISO 8601 "YYYY-MM-DDThh:mm:ssZ" format.
+    Check whether the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
 
     :argument str instance: the instance to check
     :rtype: bool
@@ -585,7 +590,7 @@ def is_date_time(instance):
 @FormatChecker.cls_checks("date")
 def is_date(instance):
     """
-    Check whether the instance matches a date in "YYYY-MM-DD" format.
+    Check whether the instance matches a date in ``YYYY-MM-DD`` format.
 
     :argument str instance: the instance to check
     :rtype: bool
@@ -609,7 +614,7 @@ def is_date(instance):
 @FormatChecker.cls_checks("time")
 def is_time(instance):
     """
-    Check whether the instance matches a time in "hh:mm:ss" format.
+    Check whether the instance matches a time in ``hh:mm:ss`` format.
 
     :argument str instance: the instance to check
     :rtype: bool
@@ -776,111 +781,6 @@ def is_host_name(instance):
     return True
 
 
-def is_css_color_code(instance):
-    """
-    Check if the instance is a valid CSS color code.
-
-        >>> is_css_color_code("#CC8899")
-        True
-        >>> is_css_color_code("#C89")
-        True
-        >>> is_css_color_code("#00332520")
-        False
-
-    """
-
-    pattern = r"^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$"
-    return bool(re.match(pattern, instance))
-
-
-@FormatChecker.cls_checks("color")
-def is_css21_color(instance):
-    """
-    Check for valid CSS 2.1 color names and well-formed CSS color codes.
-
-    Optionally uses the webcolors_ library.
-
-        >>> is_css21_color("fuchsia")
-        True
-        >>> is_css21_color("pink")
-        False
-        >>> is_css_color_code("#CC8899")
-        True
-
-    .. _webcolors: http://pypi.python.org/pypi/webcolors/
-
-    """
-
-    try:
-        from webcolors import css21_names_to_hex as css21_colors
-    except ImportError:
-        css21_colors = (
-            "aqua", "black", "blue", "fuchsia", "green", "grey", "lime",
-            "maroon", "navy", "olive", "orange", "purple", "red", "silver",
-            "teal", "white", "yellow")
-
-    if instance.lower() in css21_colors:
-        return True
-    return is_css_color_code(instance)
-
-
-def is_css3_color(instance):
-    """
-    Check for valid CSS 3 color names and well-formed CSS color codes.
-
-    Optionally uses the webcolors_ library.
-
-        >>> is_css3_color("pink")
-        True
-        >>> is_css3_color("puce")
-        False
-        >>> is_css_color_code("#CC8899")
-        True
-
-    .. _webcolors: http://pypi.python.org/pypi/webcolors/
-
-    """
-
-    try:
-        from webcolors import css3_names_to_hex as css3_colors
-    except ImportError:
-        css3_colors = (
-            "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
-            "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
-            "burlywood", "cadetblue", "chartreuse", "chocolate", "coral",
-            "cornflowerblue", "cornsilk", "crimson", "cyan", "darkblue",
-            "darkcyan", "darkgoldenrod", "darkgray", "darkgrey", "darkgreen",
-            "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange",
-            "darkorchid", "darkred", "darksalmon", "darkseagreen",
-            "darkslateblue", "darkslategray", "darkslategrey", "darkturquoise",
-            "darkviolet", "deeppink", "deepskyblue", "dimgray", "dimgrey",
-            "dodgerblue", "firebrick", "floralwhite", "forestgreen", "fuchsia",
-            "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "grey",
-            "green", "greenyellow", "honeydew", "hotpink", "indianred",
-            "indigo", "ivory", "khaki", "lavender", "lavenderblush",
-            "lawngreen", "lemonchiffon", "lightblue", "lightcoral",
-            "lightcyan", "lightgoldenrodyellow", "lightgray", "lightgrey",
-            "lightgreen", "lightpink", "lightsalmon", "lightseagreen",
-            "lightskyblue", "lightslategray", "lightslategrey",
-            "lightsteelblue", "lightyellow", "lime", "limegreen", "linen",
-            "magenta", "maroon", "mediumaquamarine", "mediumblue",
-            "mediumorchid", "mediumpurple", "mediumseagreen",
-            "mediumslateblue", "mediumspringgreen", "mediumturquoise",
-            "mediumvioletred", "midnightblue", "mintcream", "mistyrose",
-            "moccasin", "navajowhite", "navy", "oldlace", "olive", "olivedrab",
-            "orange", "orangered", "orchid", "palegoldenrod", "palegreen",
-            "paleturquoise", "palevioletred", "papayawhip", "peachpuff",
-            "peru", "pink", "plum", "powderblue", "purple", "red", "rosybrown",
-            "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
-            "seashell", "sienna", "silver", "skyblue", "slateblue",
-            "slategray", "slategrey", "snow", "springgreen", "steelblue",
-            "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat",
-            "white", "whitesmoke", "yellow", "yellowgreen")
-    if instance.lower() in css3_colors:
-        return True
-    return is_css_color_code(instance)
-
-
 @FormatChecker.cls_checks("regex")
 def is_regex(instance):
     """
@@ -895,11 +795,34 @@ def is_regex(instance):
         False
 
     """
+
     try:
         re.compile(instance)
         return True
     except re.error:
         return False
+
+
+if webcolors is not None:
+    def is_css_color_code(instance):
+        try:
+            webcolors.normalize_hex(instance)
+        except (ValueError, TypeError):
+            return False
+        return True
+
+
+    @FormatChecker.cls_checks("color")
+    def is_css21_color(instance):
+        if instance.lower() in webcolors.css21_names_to_hex:
+            return True
+        return is_css_color_code(instance)
+
+
+    def is_css3_color(instance):
+        if instance.lower() in webcolors.css3_names_to_hex:
+            return True
+        return is_css_color_code(instance)
 
 
 class RefResolver(object):

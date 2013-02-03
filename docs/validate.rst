@@ -232,10 +232,6 @@ with.
 
 .. autofunction:: is_regex
 
-.. autofunction:: is_css21_color
-
-.. autofunction:: is_css3_color
-
 .. autofunction:: is_uri
 
 .. autofunction:: is_email
@@ -245,3 +241,30 @@ with.
 .. autofunction:: is_ipv6
 
 .. autofunction:: is_host_name
+
+Additionally, if the webcolors_ library is present, some checkers related to
+CSS will be enabled:
+
+.. function:: is_css21_color
+
+    Check if the instance is a valid CSS 2.1 color name or code.
+
+        >>> is_css21_color("fuchsia")
+        True
+        >>> is_css21_color("pink")
+        False
+        >>> is_css_color_code("#CC8899")
+        True
+
+.. function:: is_css3_color
+
+    Check if the instance is a valid CSS 3 color name or code.
+
+        >>> is_css3_color("pink")
+        True
+        >>> is_css3_color("puce")
+        False
+        >>> is_css_color_code("#CC8899")
+        True
+
+.. _webcolors: http://pypi.python.org/pypi/webcolors/
