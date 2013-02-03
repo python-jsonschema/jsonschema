@@ -517,23 +517,6 @@ class FormatChecker(object):
         else:
             self.checkers = dict((k, self.checkers[k]) for k in formats)
 
-    @classmethod
-    def cls_checks(cls, format):
-        """
-        Register a decorated function as *globally* validating a new format.
-
-        Any instance created after this function is called will pick up the
-        supplied checker.
-
-        :argument str format: the format that the decorated function will check
-
-        """
-
-        def _checks(func):
-            cls.checkers[format] = func
-            return func
-        return _checks
-
     def checks(self, format):
         """
         Register a decorated function as validating a new format.
@@ -546,6 +529,8 @@ class FormatChecker(object):
             self.checkers[format] = func
             return func
         return _checks
+
+    cls_checks = classmethod(checks)
 
     def conforms(self, instance, format):
         """

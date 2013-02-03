@@ -183,6 +183,7 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
 
 .. autoclass:: FormatChecker
     :members:
+    :exclude-members: cls_checks
 
     .. attribute:: checkers
 
@@ -190,6 +191,16 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
         New checkers can be added and removed either per-instance or globally
         for all checkers using the :meth:`FormatChecker.checks` or
         :meth:`FormatChecker.cls_checks` decorators respectively.
+
+    .. method:: cls_checks(format)
+
+        Register a decorated function as *globally* validating a new format.
+
+        Any instance created after this function is called will pick up the
+        supplied checker.
+
+        :argument str format: the format that the decorated function will check
+
 
 
 There are a number of default checkers that :class:`FormatChecker`\s know how
