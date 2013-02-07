@@ -116,10 +116,9 @@ class ValidationError(Exception):
         return self.message
 
 
-@validates("draft3")
-class Draft3Validator(object):
+class ValidatorMixin(object):
     """
-    A validator for JSON Schema draft 3.
+    Concretely implements IValidator.
 
     """
 
@@ -139,9 +138,7 @@ class Draft3Validator(object):
         self.schema = schema
 
     def is_type(self, instance, type):
-        if type == "any":
-            return True
-        elif type not in self._types:
+        if type not in self._types:
             raise UnknownType(type)
         type = self._types[type]
 
@@ -184,18 +181,12 @@ class Draft3Validator(object):
         for error in self.iter_errors(*args, **kwargs):
             raise error
 
-    def validate_type(self, types, instance, schema):
-        types = _list(types)
 
-        for type in types:
-            if self.is_type(type, "object"):
-                if self.is_valid(instance, type):
-                    return
-            elif self.is_type(type, "string"):
-                if self.is_type(instance, type):
-                    return
-        else:
-            yield ValidationError(_types_msg(instance, types))
+class _Draft34Common(ValidatorMixin):
+    """
+    Contains the validator methods common to both JSON schema drafts.
+
+    """
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -211,7 +202,7 @@ class Draft3Validator(object):
                     "%r is a required property" % (property,),
                     validator="required",
                     path=[property],
-                )
+                    )
 
     def validate_patternProperties(self, patternProperties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -237,25 +228,6 @@ class Draft3Validator(object):
             error = "Additional properties are not allowed (%s %s unexpected)"
             yield ValidationError(error % _extras_msg(extras))
 
-    def validate_dependencies(self, dependencies, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for property, dependency in iteritems(dependencies):
-            if property not in instance:
-                continue
-
-            if self.is_type(dependency, "object"):
-                for error in self.iter_errors(instance, dependency):
-                    yield error
-            else:
-                dependencies = _list(dependency)
-                for dependency in dependencies:
-                    if dependency not in instance:
-                        yield ValidationError(
-                            "%r is a dependency of %r" % (dependency, property)
-                        )
-
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
             return
@@ -273,8 +245,8 @@ class Draft3Validator(object):
 
     def validate_additionalItems(self, aI, instance, schema):
         if (
-            not self.is_type(instance, "array") or
-            not self.is_type(schema.get("items"), "array")
+                not self.is_type(instance, "array") or
+                not self.is_type(schema.get("items"), "array")
         ):
             return
 
@@ -350,6 +322,53 @@ class Draft3Validator(object):
         if instance not in enums:
             yield ValidationError("%r is not one of %r" % (instance, enums))
 
+    def validate_ref(self, ref, instance, schema):
+        resolved = self.resolver.resolve(ref)
+        for error in self.iter_errors(instance, resolved):
+            yield error
+
+
+@validates("draft3")
+class Draft3Validator(_Draft34Common):
+    """
+    A validator for JSON Schema draft 3.
+
+    """
+
+    def validate_type(self, types, instance, schema):
+        types = _list(types)
+
+        for type in types:
+            if type == 'any':
+                return
+            if self.is_type(type, "object"):
+                if self.is_valid(instance, type):
+                    return
+            elif self.is_type(type, "string"):
+                if self.is_type(instance, type):
+                    return
+        else:
+            yield ValidationError(_types_msg(instance, types))
+
+    def validate_dependencies(self, dependencies, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
+        for property, dependency in iteritems(dependencies):
+            if property not in instance:
+                continue
+
+            if self.is_type(dependency, "object"):
+                for error in self.iter_errors(instance, dependency):
+                    yield error
+            else:
+                dependencies = _list(dependency)
+                for dependency in dependencies:
+                    if dependency not in instance:
+                        yield ValidationError(
+                            "%r is a dependency of %r" % (dependency, property)
+                        )
+
     def validate_divisibleBy(self, dB, instance, schema):
         if not self.is_type(instance, "number"):
             return
@@ -376,11 +395,6 @@ class Draft3Validator(object):
         for subschema in extends:
             for error in self.iter_errors(instance, subschema):
                 yield error
-
-    def validate_ref(self, ref, instance, schema):
-        resolved = self.resolver.resolve(ref)
-        for error in self.iter_errors(instance, resolved):
-            yield error
 
 
 Draft3Validator.META_SCHEMA = {
@@ -464,6 +478,171 @@ Draft3Validator.META_SCHEMA = {
     "dependencies" : {
         "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
     },
+}
+
+
+class Draft4Validator(_Draft34Common):
+    """
+    A validator for JSON Schema draft 4.
+
+    """
+
+    def validate_type(self, types, instance, schema):
+        types = _list(types)
+
+        if not any(self.is_type(instance, type) for type in types):
+            yield ValidationError(_types_msg(instance, types))
+
+
+Draft4Validator.META_SCHEMA = {
+    "id": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Core schema meta-schema",
+    "definitions": {
+        "schemaArray": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#"}
+        },
+        "positiveInteger": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "positiveIntegerDefault0": {
+            "allOf": [{"$ref": "#/definitions/positiveInteger"}, {"default": 0}]
+        },
+        "simpleTypes": {
+            "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
+        },
+        "stringArray": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 1,
+            "uniqueItems": True
+        }
+    },
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uri"
+        },
+        "$schema": {
+            "type": "string",
+            "format": "uri"
+        },
+        "title": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "default": {},
+        "multipleOf": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": True
+        },
+        "maximum": {
+            "type": "number"
+        },
+        "exclusiveMaximum": {
+            "type": "boolean",
+            "default": False
+        },
+        "minimum": {
+            "type": "number"
+        },
+        "exclusiveMinimum": {
+            "type": "boolean",
+            "default": False
+        },
+        "maxLength": {"$ref": "#/definitions/positiveInteger"},
+        "minLength": {"$ref": "#/definitions/positiveIntegerDefault0"},
+        "pattern": {
+            "type": "string",
+            "format": "regex"
+        },
+        "additionalItems": {
+            "anyOf": [
+                {"type": "boolean"},
+                {"$ref": "#"}
+            ],
+            "default": {}
+        },
+        "items": {
+            "anyOf": [
+                {"$ref": "#"},
+                {"$ref": "#/definitions/schemaArray"}
+            ],
+            "default": {}
+        },
+        "maxItems": {"$ref": "#/definitions/positiveInteger"},
+        "minItems": {"$ref": "#/definitions/positiveIntegerDefault0"},
+        "uniqueItems": {
+            "type": "boolean",
+            "default": False
+        },
+        "maxProperties": {"$ref": "#/definitions/positiveInteger"},
+        "minProperties": {"$ref": "#/definitions/positiveIntegerDefault0"},
+        "required": {"$ref": "#/definitions/stringArray"},
+        "additionalProperties": {
+            "anyOf": [
+                {"type": "boolean"},
+                {"$ref": "#"}
+            ],
+            "default": {}
+        },
+        "definitions": {
+            "type": "object",
+            "additionalProperties": {"$ref": "#"},
+            "default": {}
+        },
+        "properties": {
+            "type": "object",
+            "additionalProperties": {"$ref": "#"},
+            "default": {}
+        },
+        "patternProperties": {
+            "type": "object",
+            "additionalProperties": {"$ref": "#"},
+            "default": {}
+        },
+        "dependencies": {
+            "type": "object",
+            "additionalProperties": {
+                "anyOf": [
+                    {"$ref": "#"},
+                    {"$ref": "#/definitions/stringArray"}
+                ]
+            }
+        },
+        "enum": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": True
+        },
+        "type": {
+            "anyOf": [
+                {"$ref": "#/definitions/simpleTypes"},
+                {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/simpleTypes"},
+                    "minItems": 1,
+                    "uniqueItems": True
+                }
+            ]
+        },
+        "allOf": {"$ref": "#/definitions/schemaArray"},
+        "anyOf": {"$ref": "#/definitions/schemaArray"},
+        "oneOf": {"$ref": "#/definitions/schemaArray"},
+        "not": {"$ref": "#"}
+    },
+    "dependencies": {
+        "exclusiveMaximum": ["maximum"],
+        "exclusiveMinimum": ["minimum"]
+    },
+    "default": {}
 }
 
 
