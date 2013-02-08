@@ -188,29 +188,13 @@ class _Draft34Common(ValidatorMixin):
 
     """
 
-    def validate_properties(self, properties, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for property, subschema in iteritems(properties):
-            if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
-                    error.path.append(property)
-                    yield error
-            elif subschema.get("required", False):
-                yield ValidationError(
-                    "%r is a required property" % (property,),
-                    validator="required",
-                    path=[property],
-                    )
-
     def validate_patternProperties(self, patternProperties, instance, schema):
         if not self.is_type(instance, "object"):
             return
 
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
-                if re.match(pattern, k):
+                if re.search(pattern, k):
                     for error in self.iter_errors(v, subschema):
                         yield error
 
@@ -246,7 +230,7 @@ class _Draft34Common(ValidatorMixin):
     def validate_additionalItems(self, aI, instance, schema):
         if (
                 not self.is_type(instance, "array") or
-                not self.is_type(schema.get("items"), "array")
+                self.is_type(schema.get("items", {}), "object")
         ):
             return
 
@@ -294,6 +278,19 @@ class _Draft34Common(ValidatorMixin):
                 "%r is %s the maximum of %r" % (instance, cmp, maximum)
             )
 
+    def _validate_multipleOf(self, dB, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
+        if isinstance(dB, float):
+            mod = instance % dB
+            failed = (mod > FLOAT_TOLERANCE) and (dB - mod) > FLOAT_TOLERANCE
+        else:
+            failed = instance % dB
+
+        if failed:
+            yield ValidationError("%r is not multiple of %r" % (instance, dB))
+
     def validate_minItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) < mI:
             yield ValidationError("%r is too short" % (instance,))
@@ -317,6 +314,25 @@ class _Draft34Common(ValidatorMixin):
     def validate_maxLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) > mL:
             yield ValidationError("%r is too long" % (instance,))
+
+    def validate_dependencies(self, dependencies, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
+        for property, dependency in iteritems(dependencies):
+            if property not in instance:
+                continue
+
+            if self.is_type(dependency, "object"):
+                for error in self.iter_errors(instance, dependency):
+                    yield error
+            else:
+                dependencies = _list(dependency)
+                for dependency in dependencies:
+                    if dependency not in instance:
+                        yield ValidationError(
+                            "%r is a dependency of %r" % (dependency, property)
+                        )
 
     def validate_enum(self, enums, instance, schema):
         if instance not in enums:
@@ -350,37 +366,21 @@ class Draft3Validator(_Draft34Common):
         else:
             yield ValidationError(_types_msg(instance, types))
 
-    def validate_dependencies(self, dependencies, instance, schema):
+    def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
             return
 
-        for property, dependency in iteritems(dependencies):
-            if property not in instance:
-                continue
-
-            if self.is_type(dependency, "object"):
-                for error in self.iter_errors(instance, dependency):
+        for property, subschema in iteritems(properties):
+            if property in instance:
+                for error in self.iter_errors(instance[property], subschema):
+                    error.path.append(property)
                     yield error
-            else:
-                dependencies = _list(dependency)
-                for dependency in dependencies:
-                    if dependency not in instance:
-                        yield ValidationError(
-                            "%r is a dependency of %r" % (dependency, property)
-                        )
-
-    def validate_divisibleBy(self, dB, instance, schema):
-        if not self.is_type(instance, "number"):
-            return
-
-        if isinstance(dB, float):
-            mod = instance % dB
-            failed = (mod > FLOAT_TOLERANCE) and (dB - mod) > FLOAT_TOLERANCE
-        else:
-            failed = instance % dB
-
-        if failed:
-            yield ValidationError("%r is not divisible by %r" % (instance, dB))
+            elif subschema.get("required", False):
+                yield ValidationError(
+                    "%r is a required property" % (property,),
+                    validator="required",
+                    path=[property],
+                    )
 
     def validate_disallow(self, disallow, instance, schema):
         for disallowed in _list(disallow):
@@ -395,6 +395,8 @@ class Draft3Validator(_Draft34Common):
         for subschema in extends:
             for error in self.iter_errors(instance, subschema):
                 yield error
+
+    validate_divisibleBy = _Draft34Common._validate_multipleOf
 
 
 Draft3Validator.META_SCHEMA = {
@@ -481,6 +483,7 @@ Draft3Validator.META_SCHEMA = {
 }
 
 
+@validates("draft4")
 class Draft4Validator(_Draft34Common):
     """
     A validator for JSON Schema draft 4.
@@ -492,6 +495,69 @@ class Draft4Validator(_Draft34Common):
 
         if not any(self.is_type(instance, type) for type in types):
             yield ValidationError(_types_msg(instance, types))
+
+    def validate_properties(self, properties, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
+        for property, subschema in iteritems(properties):
+            if property in instance:
+                for error in self.iter_errors(instance[property], subschema):
+                    error.path.append(property)
+                    yield error
+
+    def validate_required(self, required, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+        for property in required:
+            if property not in instance:
+                yield ValidationError("%r is required property" % property)
+
+    def validate_minProperties(self, mP, instance, schema):
+        if self.is_type(instance, "object") and len(instance) < mP:
+            yield ValidationError("%r is too short" % (instance,))
+
+    def validate_maxProperties(self, mP, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+        if self.is_type(instance, "object") and len(instance) > mP:
+            yield ValidationError("%r is too short" % (instance,))
+
+    def validate_allOf(self, allOf, instance, schema):
+        for subschema in allOf:
+            for error in self.iter_errors(instance, subschema):
+                yield error
+
+    def validate_oneOf(self, oneOf, instance, schema):
+        one_valid = False
+        for subschema in oneOf:
+            if self.is_valid(instance, subschema):
+                if one_valid:
+                    # TODO: Better error message?
+                    yield ValidationError(
+                        "more than one schema was valid"
+                    )
+                one_valid = True
+        if not one_valid:
+            # TODO: Better error message?
+            yield ValidationError(
+                "none of the schemas were valid"
+            )
+
+    def validate_anyOf(self, anyOf, instance, schema):
+        if not any(self.is_valid(instance, subschema) for subschema in anyOf):
+            # TODO: Better error message?
+            yield ValidationError(
+                "none of the schemas were valid"
+            )
+
+    def validate_not(self, not_schema, instance, schema):
+        if self.is_valid(instance, not_schema):
+            yield ValidationError(
+                "%r is not allowed for %r" % (not_schema, instance)
+            )
+
+    validate_multipleOf = _Draft34Common._validate_multipleOf
 
 
 Draft4Validator.META_SCHEMA = {

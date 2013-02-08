@@ -19,7 +19,7 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, RefResolver, validate
+    Draft3Validator, Draft4Validator, RefResolver, validate
 )
 
 
@@ -95,6 +95,20 @@ class AnyTypeMixin(object):
 @load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
 class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
     validator_class = Draft3Validator
+
+    # TODO: we're in need of more meta schema tests
+    def test_invalid_properties(self):
+        with self.assertRaises(SchemaError):
+            validate({}, {"properties": {"test": True}})
+
+    def test_minItems_invalid_string(self):
+        with self.assertRaises(SchemaError):
+            validate([1], {"minItems" : "1"})  # needs to be an integer
+
+
+@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft4/"))
+class TestDraft4(TestCase, ByteStringMixin, DecimalMixin):
+    validator_class = Draft4Validator
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
@@ -362,7 +376,7 @@ class TestDraft3Validator(TestCase):
         self.assertFalse(self.validator.is_type("foo", "array"))
 
     def test_is_type_is_true_for_any_type(self):
-        self.assertTrue(self.validator.is_type(mock.Mock(), "any"))
+        self.assertTrue(self.validator.is_valid(mock.Mock(), {"type": "any"}))
 
     def test_is_type_evades_bool_inheriting_from_int(self):
         self.assertFalse(self.validator.is_type(True, "integer"))
@@ -370,7 +384,7 @@ class TestDraft3Validator(TestCase):
 
     def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
         self.assertTrue(self.validator.is_type(True, "boolean"))
-        self.assertTrue(self.validator.is_type(True, "any"))
+        self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
 
     def test_is_type_raises_exception_for_unknown_type(self):
         with self.assertRaises(UnknownType):
