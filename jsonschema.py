@@ -710,28 +710,29 @@ def is_ip_address(instance):
         return False
 
 
-@FormatChecker.cls_checks("ipv6")
-def is_ipv6(instance):
-    """
-    Check whether the instance is a valid IPv6 address.
+if hasattr(socket, "inet_pton"):
+    @FormatChecker.cls_checks("ipv6")
+    def is_ipv6(instance):
+        """
+        Check whether the instance is a valid IPv6 address.
 
-    :argument str instance: the instance to check
-    :rtype: bool
+        :argument str instance: the instance to check
+        :rtype: bool
 
-        >>> is_ipv6("::1")
-        True
-        >>> is_ipv6("192.168.0.1")
-        False
-        >>> is_ipv6("1:1:1:1:1:1:1:1:1")
-        False
+            >>> is_ipv6("::1")
+            True
+            >>> is_ipv6("192.168.0.1")
+            False
+            >>> is_ipv6("1:1:1:1:1:1:1:1:1")
+            False
 
-    """
+        """
 
-    try:
-        socket.inet_pton(socket.AF_INET6, instance)
-        return True
-    except socket.error:
-        return False
+        try:
+            socket.inet_pton(socket.AF_INET6, instance)
+            return True
+        except socket.error:
+            return False
 
 
 @FormatChecker.cls_checks("host-name")
