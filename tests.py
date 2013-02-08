@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from decimal import Decimal
-from io import BytesIO
 import glob
 import os
 import re
@@ -19,23 +18,26 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, Draft4Validator, RefResolver, validate
+    Draft3Validator, Draft4Validator, FormatChecker, RefResolver, validate
 )
 
 
-def make_case(schema, data, valid, cls):
-    def test_case(self):
-        if valid:
-            validate(data, schema, cls=cls)
-        else:
+def make_case(schema, data, valid):
+    if valid:
+        def test_case(self):
+            kwargs = getattr(self, "validator_kwargs", {})
+            validate(data, schema, cls=self.validator_class, **kwargs)
+    else:
+        def test_case(self):
+            kwargs = getattr(self, "validator_kwargs", {})
             with self.assertRaises(ValidationError):
-                validate(data, schema, cls=cls)
+                validate(data, schema, cls=self.validator_class, **kwargs)
     return test_case
 
 
-def load_json_cases(test_dir):
+def load_json_cases(tests_glob, basedir=os.path.dirname(__file__)):
     def add_test_methods(test_class):
-        for filename in glob.iglob(os.path.join(test_dir, "*.json")):
+        for filename in glob.iglob(os.path.join(basedir, tests_glob)):
             validating, _ = os.path.splitext(os.path.basename(filename))
 
             with open(filename) as test_file:
@@ -47,7 +49,6 @@ def load_json_cases(test_dir):
                             case["schema"],
                             test["data"],
                             test["valid"],
-                            test_class.validator_class,
                         )
 
                         test_name = "test_%s_%s" % (
@@ -65,7 +66,7 @@ def load_json_cases(test_dir):
     return add_test_methods
 
 
-class ByteStringMixin(object):
+class BytesMixin(object):
     @skipIf(PY3, "The JSON module in Python 3 always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
         self.validator_class({"type" : "string"}).validate(b"foo")
@@ -92,8 +93,41 @@ class AnyTypeMixin(object):
         validator.validate(mock.Mock())
 
 
-@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft3/"))
-class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
+@load_json_cases("json/tests/draft3/optional/bignum.json")
+class BigNumMixin(object):
+    pass
+
+
+@load_json_cases("json/tests/draft3/optional/format.json")
+class FormatMixin(object):
+
+    validator_kwargs = {"format_checker" : FormatChecker()}
+
+    def test_it_does_not_validate_formats_by_default(self):
+        validator = self.validator_class({})
+        self.assertIsNone(validator.format_checker)
+
+    def test_it_validates_formats_if_a_checker_is_provided(self):
+        checker = mock.Mock(spec=FormatChecker)
+        checker.conforms.return_value = True
+        validator = self.validator_class(
+            {"format" : "foo"}, format_checker=checker,
+        )
+
+        validator.validate("bar")
+
+        checker.conforms.assert_called_once_with("bar", "foo")
+
+        checker.conforms.return_value = False
+
+        with self.assertRaises(ValidationError):
+            validator.validate("bar")
+
+
+@load_json_cases("json/tests/draft3/*.json")
+class TestDraft3(
+    TestCase, BytesMixin, DecimalMixin, AnyTypeMixin, FormatMixin, BigNumMixin,
+):
     validator_class = Draft3Validator
 
     # TODO: we're in need of more meta schema tests
@@ -106,8 +140,8 @@ class TestDraft3(TestCase, ByteStringMixin, DecimalMixin, AnyTypeMixin):
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
 
-@load_json_cases(os.path.join(os.path.dirname(__file__), "json/tests/draft4/"))
-class TestDraft4(TestCase, ByteStringMixin, DecimalMixin):
+@load_json_cases("json/tests/draft4/*.json")
+class TestDraft4(TestCase, BytesMixin, DecimalMixin, FormatMixin, BigNumMixin):
     validator_class = Draft4Validator
 
     # TODO: we're in need of more meta schema tests
@@ -155,9 +189,9 @@ class TestIterErrors(TestCase):
 
 
 class TestValidationErrorMessages(TestCase):
-    def message_for(self, instance, schema):
+    def message_for(self, instance, schema, *args, **kwargs):
         with self.assertRaises(ValidationError) as e:
-            validate(instance, schema)
+            validate(instance, schema, *args, **kwargs)
         return e.exception.message
 
     def test_single_type_failure(self):
@@ -215,6 +249,17 @@ class TestValidationErrorMessages(TestCase):
         self.assertIn(repr("foo"), message)
         self.assertIn(repr("bar"), message)
         self.assertIn("were unexpected)", message)
+
+    def test_invalid_format(self):
+        checker = mock.Mock(spec=FormatChecker)
+        checker.conforms.return_value = False
+
+        schema = {"format" : "thing"}
+        message = self.message_for("bla", schema, format_checker=checker)
+
+        self.assertIn(repr("bla"), message)
+        self.assertIn(repr("thing"), message)
+        self.assertIn("is not a", message)
 
 
 class TestValidationErrorDetails(TestCase):
@@ -413,7 +458,7 @@ class TestRefResolver(TestCase):
         self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
     def test_it_retrieves_stored_refs(self):
-        ref = self.resolver.store["cached_ref"] = {"foo" : 12}
+        self.resolver.store["cached_ref"] = {"foo" : 12}
         resolved = self.resolver.resolve("cached_ref#/foo")
         self.assertEqual(resolved, 12)
 
@@ -439,6 +484,32 @@ class TestRefResolver(TestCase):
         resolver = RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "")
         self.assertEqual(resolver.referrer, schema)
+
+
+class TestFormatChecker(TestCase):
+    def setUp(self):
+        self.fn = mock.Mock()
+
+    def test_it_can_validate_no_formats(self):
+        checker = FormatChecker(formats=())
+        self.assertFalse(checker.checkers)
+
+    def test_it_raises_a_key_error_for_unknown_formats(self):
+        with self.assertRaises(KeyError):
+            checker = FormatChecker(formats=["o noes"])
+
+    def test_it_can_register_cls_checkers(self):
+        with mock.patch.dict(FormatChecker.checkers, clear=True):
+            FormatChecker.cls_checks("new")(self.fn)
+            self.assertEqual(FormatChecker.checkers, {"new" : self.fn})
+
+    def test_it_can_register_checkers(self):
+        checker = FormatChecker()
+        checker.checks("new")(self.fn)
+        self.assertEqual(
+            checker.checkers,
+            dict(FormatChecker.checkers, new=self.fn)
+        )
 
 
 def sorted_errors(errors):

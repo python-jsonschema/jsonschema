@@ -12,11 +12,19 @@ instance under a schema, and will create a validator for you.
 from __future__ import division, unicode_literals
 
 import collections
-import json
+import datetime
 import itertools
+import json
+import numbers
 import operator
 import re
+import socket
 import sys
+
+try:
+    import webcolors
+except ImportError:
+    webcolors = None
 
 
 __version__ = "1.0.0-dev"
@@ -123,11 +131,12 @@ class ValidatorMixin(object):
     """
 
     DEFAULT_TYPES = {
-        "array" : list, "boolean" : bool, "integer" : int, "null" : type(None),
-        "number" : (int, float), "object" : dict, "string" : basestring,
+        "array" : list, "boolean" : bool, "integer" : numbers.Integral,
+        "null" : type(None), "number" : numbers.Number, "object" : dict,
+        "string" : basestring,
     }
 
-    def __init__(self, schema, types=(), resolver=None):
+    def __init__(self, schema, types=(), resolver=None, format_checker=None):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
 
@@ -135,19 +144,21 @@ class ValidatorMixin(object):
             resolver = RefResolver.from_schema(schema)
 
         self.resolver = resolver
+        self.format_checker = format_checker
         self.schema = schema
 
     def is_type(self, instance, type):
         if type not in self._types:
             raise UnknownType(type)
-        type = self._types[type]
+        pytypes = self._types[type]
 
         # bool inherits from int, so ensure bools aren't reported as integers
         if isinstance(instance, bool):
-            type = _flatten(type)
-            if int in type and bool not in type:
+            pytypes = _flatten(pytypes)
+            num = any(issubclass(pytype, numbers.Number) for pytype in pytypes)
+            if num and bool not in pytypes:
                 return False
-        return isinstance(instance, type)
+        return isinstance(instance, pytypes)
 
     def is_valid(self, instance, _schema=None):
         error = next(self.iter_errors(instance, _schema), None)
@@ -306,6 +317,14 @@ class _Draft34Common(ValidatorMixin):
     def validate_pattern(self, patrn, instance, schema):
         if self.is_type(instance, "string") and not re.match(patrn, instance):
             yield ValidationError("%r does not match %r" % (instance, patrn))
+
+    def validate_format(self, format, instance, schema):
+        if (
+            self.format_checker is not None and
+            self.is_type(instance, "string") and
+            not self.format_checker.conforms(instance, format)
+        ):
+            yield ValidationError("%r is not a %r" % (instance, format))
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
@@ -710,6 +729,330 @@ Draft4Validator.META_SCHEMA = {
     },
     "default": {}
 }
+
+
+class FormatChecker(object):
+    """
+    A ``format`` property checker.
+
+    JSON Schema does not mandate that the ``format`` property actually do any
+    validation. If validation is desired however, instances of this class can
+    be hooked into validators to enable format validation.
+
+    :class:`FormatChecker` objects always return ``True`` when asked about
+    formats that they do not know how to validate.
+
+    To check a custom format using a function that takes an instance and
+    returns a ``bool``, use the :meth:`FormatChecker.checks` or
+    :meth:`FormatChecker.cls_checks` decorators.
+
+    :argument iterable formats: the known formats to validate. This argument
+                                can be used to limit which formats will be used
+                                during validation.
+
+        >>> checker = FormatChecker(formats=("uri", "regex"))
+
+    """
+
+    checkers = {}
+
+    def __init__(self, formats=None):
+        if formats is None:
+            self.checkers = self.checkers.copy()
+        else:
+            self.checkers = dict((k, self.checkers[k]) for k in formats)
+
+    def checks(self, format):
+        """
+        Register a decorated function as validating a new format.
+
+        :argument str format: the format that the decorated function will check
+
+        """
+
+        def _checks(func):
+            self.checkers[format] = func
+            return func
+        return _checks
+
+    cls_checks = classmethod(checks)
+
+    def conforms(self, instance, format):
+        """
+        Check whether the instance conforms to the given format.
+
+        :argument instance: the instance to check
+        :type: any primitive type (str, number, bool)
+        :argument str format: the format that instance should conform to
+        :rtype: bool
+
+        """
+
+        if format in self.checkers:
+            return self.checkers[format](instance)
+        return True
+
+
+@FormatChecker.cls_checks("date-time")
+def is_date_time(instance):
+    """
+    Check whether the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_date_time("1970-01-01T00:00:00.0")
+        True
+        >>> is_date_time("1970-01-01 00:00:00 GMT")
+        False
+        >>> is_date_time("0000-58-59T60:61:62")
+        False
+
+    """
+
+    try:
+        datetime.datetime.strptime(instance, "%Y-%m-%dT%H:%M:%S.%f")
+        return True
+    except ValueError:
+        return False
+
+
+@FormatChecker.cls_checks("date")
+def is_date(instance):
+    """
+    Check whether the instance matches a date in ``YYYY-MM-DD`` format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_date("1970-12-31")
+        True
+        >>> is_date("12/31/1970")
+        False
+        >>> is_date("0000-13-32")
+        False
+
+    """
+
+    try:
+        datetime.datetime.strptime(instance, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
+
+@FormatChecker.cls_checks("time")
+def is_time(instance):
+    """
+    Check whether the instance matches a time in ``hh:mm:ss`` format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_time("23:59:59")
+        True
+        >>> is_time("11:59:59 PM")
+        False
+        >>> is_time("59:60:61")
+        False
+
+    """
+
+    try:
+        datetime.datetime.strptime(instance, "%H:%M:%S")
+        return True
+    except ValueError:
+        return False
+
+
+@FormatChecker.cls_checks("uri")
+def is_uri(instance):
+    """
+    Check whether the instance is a valid URI.
+
+    Also supports relative URIs.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
+        True
+        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
+        True
+        >>> is_uri(r"\\\\WINDOWS\My Files")
+        False
+        >>> is_uri("#/properties/foo")
+        True
+
+    """
+
+    # URI regex from http://snipplr.com/view/6889/
+    abs_uri = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
+               r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
+               r"-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:"
+               r"@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@"
+               r"]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9"
+               r"A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%["
+               r"0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|"
+               r"%[0-9A-Fa-f]{2})*))?$")
+    if re.match(abs_uri, instance):
+        return True
+    rel_uri = r"^(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2})*))?$"
+    return bool(re.match(rel_uri, instance))
+
+
+@FormatChecker.cls_checks("email")
+def is_email(instance):
+    """
+    Check whether the instance is a valid e-mail address.
+
+    Checking is based on `RFC 2822`_
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_email("joe.bloggs@example.com")
+        True
+        >>> is_email("joe.bloggs")
+        False
+
+    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
+
+    """
+
+    pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
+               r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
+               r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
+               r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
+               r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+               r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
+               r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
+               r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$")
+    return bool(re.match(pattern, instance))
+
+
+@FormatChecker.cls_checks("ip-address")
+def is_ip_address(instance):
+    """
+    Check whether the instance is a valid IP address.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_ip_address("192.168.0.1")
+        True
+        >>> is_ip_address("::1")
+        False
+        >>> is_ip_address("256.256.256.256")
+        False
+
+    """
+
+    try:
+        socket.inet_aton(instance)
+        return True
+    except socket.error:
+        return False
+
+
+@FormatChecker.cls_checks("ipv6")
+def is_ipv6(instance):
+    """
+    Check whether the instance is a valid IPv6 address.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_ipv6("::1")
+        True
+        >>> is_ipv6("192.168.0.1")
+        False
+        >>> is_ipv6("1:1:1:1:1:1:1:1:1")
+        False
+
+    """
+
+    try:
+        socket.inet_pton(socket.AF_INET6, instance)
+        return True
+    except socket.error:
+        return False
+
+
+@FormatChecker.cls_checks("host-name")
+def is_host_name(instance):
+    """
+    Check if the instance is a valid host name.
+
+        >>> is_host_name("www.example.com")
+        True
+        >>> is_host_name("my laptop")
+        False
+        >>> is_host_name(
+        ...     "a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrryyyyyyyy"
+        ...     "yyyyyyyyy.long.host.name"
+        ... )
+        False
+
+    .. note:: Does not perform a DNS lookup.
+
+        >>> is_host_name("www.example.doesnotexist")
+        True
+
+    """
+
+    pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
+    if not re.match(pattern, instance):
+        return False
+    components = instance.split(".")
+    for component in components:
+        if len(component) > 63:
+            return False
+    return True
+
+
+@FormatChecker.cls_checks("regex")
+def is_regex(instance):
+    """
+    Check if the instance is a well-formed regular expression.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_regex("^(bob)?cat$")
+        True
+        >>> is_ipv6("^(bob?cat$")
+        False
+
+    """
+
+    try:
+        re.compile(instance)
+        return True
+    except re.error:
+        return False
+
+
+if webcolors is not None:
+    def is_css_color_code(instance):
+        try:
+            webcolors.normalize_hex(instance)
+        except (ValueError, TypeError):
+            return False
+        return True
+
+
+    @FormatChecker.cls_checks("color")
+    def is_css21_color(instance):
+        if instance.lower() in webcolors.css21_names_to_hex:
+            return True
+        return is_css_color_code(instance)
+
+
+    def is_css3_color(instance):
+        if instance.lower() in webcolors.css3_names_to_hex:
+            return True
+        return is_css_color_code(instance)
 
 
 class RefResolver(object):

@@ -21,7 +21,7 @@ The Validator Interface
 :mod:`jsonschema` defines an (informal) interface that all validators should
 adhere to.
 
-.. class:: IValidator(schema, types=(), resolver=None)
+.. class:: IValidator(schema, types=(), resolver=None, format_checker=None)
 
     :argument dict schema: the schema that the validator will validate with. It
                            is assumed to be valid, and providing an invalid
@@ -36,7 +36,13 @@ adhere to.
     :argument resolver: an object with a ``resolve()`` method that will be used
                         to resolve ``$ref`` properties (JSON references). If
                         unprovided, a :class:`RefResolver` is created and used.
-
+    :argument format_checker: an object with a ``conform()`` method that will
+                              be called to check and see if instances conform
+                              to each ``format`` property present in the
+                              schema. If unprovided, no validation will be done
+                              for ``format``. :class:`FormatChecker` is a
+                              concrete implementation of an object of this form
+                              that can be used for common formats.
 
     .. attribute:: DEFAULT_TYPES
 
@@ -155,3 +161,121 @@ provides see the :class:`IValidator` interface, which each validator
 implements.
 
 .. autoclass:: Draft3Validator
+
+
+Validating Formats
+------------------
+
+JSON Schema defines the ``format`` property which can be used to check if
+primitive types (``str``\s, ``number``\s, ``bool``\s) conform to well-defined
+formats. By default, no validation is enforced, but optionally, validation can
+be enabled by hooking in a format-checking object into an :class:`IValidator`.
+
+.. doctest::
+
+    >>> validate("tomorrow", {"format" : "date"})
+    >>> validate(
+    ...     "tomorrow", {"format" : "date"}, format_checker=FormatChecker(),
+    ... )
+    Traceback (most recent call last):
+        ...
+    ValidationError: "tomorrow" is not a "date"
+
+.. autoclass:: FormatChecker
+    :members:
+    :exclude-members: cls_checks
+
+    .. attribute:: checkers
+
+        A mapping of currently known formats to functions that validate them.
+        New checkers can be added and removed either per-instance or globally
+        for all checkers using the :meth:`FormatChecker.checks` or
+        :meth:`FormatChecker.cls_checks` decorators respectively.
+
+    .. method:: cls_checks(format)
+
+        Register a decorated function as *globally* validating a new format.
+
+        Any instance created after this function is called will pick up the
+        supplied checker.
+
+        :argument str format: the format that the decorated function will check
+
+
+
+There are a number of default checkers that :class:`FormatChecker`\s know how
+to validate. Their names can be viewed by inspecting the
+:attr:`FormatChecker.checkers` attribute.
+
+.. testsetup::
+
+    from pprint import pprint
+
+.. testcode::
+
+    pprint(sorted(FormatChecker.checkers))
+
+.. testoutput::
+    :options: +NORMALIZE_WHITESPACE
+
+    [...'color',
+     ...'date',
+     ...'date-time',
+     ...'email',
+     ...'host-name',
+     ...'ip-address',
+     ...'ipv6',
+     ...'regex',
+     ...'time',
+     ...'uri']
+
+
+The actual functions that do the validation are also exposed, in case there is
+any use for them. They are listed below, along with any limitations they come
+with.
+
+
+.. autofunction:: is_date_time
+
+.. autofunction:: is_date
+
+.. autofunction:: is_time
+
+.. autofunction:: is_regex
+
+.. autofunction:: is_uri
+
+.. autofunction:: is_email
+
+.. autofunction:: is_ip_address
+
+.. autofunction:: is_ipv6
+
+.. autofunction:: is_host_name
+
+Additionally, if the webcolors_ library is present, some checkers related to
+CSS will be enabled:
+
+.. function:: is_css21_color
+
+    Check if the instance is a valid CSS 2.1 color name or code.
+
+        >>> is_css21_color("fuchsia")
+        True
+        >>> is_css21_color("pink")
+        False
+        >>> is_css_color_code("#CC8899")
+        True
+
+.. function:: is_css3_color
+
+    Check if the instance is a valid CSS 3 color name or code.
+
+        >>> is_css3_color("pink")
+        True
+        >>> is_css3_color("puce")
+        False
+        >>> is_css_color_code("#CC8899")
+        True
+
+.. _webcolors: http://pypi.python.org/pypi/webcolors/
