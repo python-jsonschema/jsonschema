@@ -230,7 +230,7 @@ class Draft3Validator(object):
 
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
-                if re.match(pattern, k):
+                if re.search(pattern, k):
                     for error in self.iter_errors(v, subschema):
                         yield error
 
@@ -346,7 +346,7 @@ class Draft3Validator(object):
             yield ValidationError("%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):
-        if self.is_type(instance, "string") and not re.match(patrn, instance):
+        if self.is_type(instance, "string") and not re.search(patrn, instance):
             yield ValidationError("%r does not match %r" % (instance, patrn))
 
     def validate_format(self, format, instance, schema):
