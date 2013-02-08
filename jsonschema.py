@@ -931,19 +931,19 @@ def is_email(instance):
     return bool(re.match(pattern, instance))
 
 
-@FormatChecker.cls_checks("ip-address")
-def is_ip_address(instance):
+@FormatChecker.cls_checks("ipv4")
+def is_ipv4(instance):
     """
     Check whether the instance is a valid IP address.
 
     :argument str instance: the instance to check
     :rtype: bool
 
-        >>> is_ip_address("192.168.0.1")
+        >>> is_ipv4("192.168.0.1")
         True
-        >>> is_ip_address("::1")
+        >>> is_ipv4("::1")
         False
-        >>> is_ip_address("256.256.256.256")
+        >>> is_ipv4("256.256.256.256")
         False
 
     """
@@ -1033,6 +1033,11 @@ def is_regex(instance):
         return False
 
 
+draft4_format_checker = FormatChecker()
+draft3_format_checker = FormatChecker()
+draft3_format_checker.checkers['ip-address'] = is_ipv4
+
+
 if webcolors is not None:
     def is_css_color_code(instance):
         try:
@@ -1042,7 +1047,7 @@ if webcolors is not None:
         return True
 
 
-    @FormatChecker.cls_checks("color")
+    @draft3_format_checker.checks("color")
     def is_css21_color(instance):
         if instance.lower() in webcolors.css21_names_to_hex:
             return True

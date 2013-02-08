@@ -18,7 +18,8 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, Draft4Validator, FormatChecker, RefResolver, validate
+    Draft3Validator, Draft4Validator, FormatChecker, draft3_format_checker,
+    draft4_format_checker, RefResolver, validate
 )
 
 
@@ -129,6 +130,7 @@ class TestDraft3(
     TestCase, BytesMixin, DecimalMixin, AnyTypeMixin, FormatMixin, BigNumMixin,
 ):
     validator_class = Draft3Validator
+    validator_kwargs = {"format_checker" : draft3_format_checker}
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
@@ -143,6 +145,7 @@ class TestDraft3(
 @load_json_cases("json/tests/draft4/*.json")
 class TestDraft4(TestCase, BytesMixin, DecimalMixin, FormatMixin, BigNumMixin):
     validator_class = Draft4Validator
+    validator_kwargs = {"format_checker" : draft4_format_checker}
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
