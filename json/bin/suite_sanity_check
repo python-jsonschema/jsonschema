@@ -37,7 +37,7 @@ TESTSUITE_SCHEMA = {
             }
         },
         "additionalProperties": False,
-    "minItems": 1
+        "minItems": 1
     }
 }
 
@@ -103,12 +103,18 @@ class SanityTests(TestCase):
 
     @skipIf(jsonschema is None, "Validation library not present! Skipping.")
     def test_all_schemas_are_valid(self):
-        for case in cases(self.test_files):
-            # XXX: Add the other versions for the other drafts
-            try:
-                jsonschema.Draft3Validator.check_schema(case["schema"])
-            except jsonschema.SchemaError as error:
-                self.fail("%s contains an invalid schema (%s)" % (case, error))
+        for schema in os.listdir(SUITE_ROOT_DIR):
+            schema_validator = jsonschema.validators.get(schema)
+            if schema_validator:
+                test_files = collect(os.path.join(SUITE_ROOT_DIR, schema))
+                for case in cases(test_files):
+                    try:
+                        schema_validator.check_schema(case["schema"])
+                    except jsonschema.SchemaError as error:
+                        self.fail("%s contains an invalid schema (%s)" %
+                                  (case, error))
+            else:
+                logging.warning("No schema validator for %s" % schema)
 
     @skipIf(jsonschema is None, "Validation library not present! Skipping.")
     def test_suites_are_valid(self):
