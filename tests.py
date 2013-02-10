@@ -99,11 +99,7 @@ class BigNumMixin(object):
     pass
 
 
-@load_json_cases("json/tests/draft3/optional/format.json")
 class FormatMixin(object):
-
-    validator_kwargs = {"format_checker" : FormatChecker()}
-
     def test_it_does_not_validate_formats_by_default(self):
         validator = self.validator_class({})
         self.assertIsNone(validator.format_checker)
@@ -125,12 +121,22 @@ class FormatMixin(object):
             validator.validate("bar")
 
 
+@load_json_cases("json/tests/draft3/optional/format.json")
+class Draft3FormatMixin(object):
+    validator_kwargs = {"format_checker" : draft3_format_checker}
+
+
+@load_json_cases("json/tests/draft4/optional/format.json")
+class Draft4FormatMixin(object):
+    validator_kwargs = {"format_checker" : draft4_format_checker}
+
+
 @load_json_cases("json/tests/draft3/*.json")
 class TestDraft3(
-    TestCase, BytesMixin, DecimalMixin, AnyTypeMixin, FormatMixin, BigNumMixin,
+    TestCase, BytesMixin, DecimalMixin, AnyTypeMixin, Draft3FormatMixin,
+    BigNumMixin
 ):
     validator_class = Draft3Validator
-    validator_kwargs = {"format_checker" : draft3_format_checker}
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
@@ -143,9 +149,10 @@ class TestDraft3(
 
 
 @load_json_cases("json/tests/draft4/*.json")
-class TestDraft4(TestCase, BytesMixin, DecimalMixin, FormatMixin, BigNumMixin):
+class TestDraft4(
+    TestCase, BytesMixin, DecimalMixin, Draft4FormatMixin, BigNumMixin
+):
     validator_class = Draft4Validator
-    validator_kwargs = {"format_checker" : draft4_format_checker}
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
