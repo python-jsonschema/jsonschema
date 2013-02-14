@@ -10,7 +10,7 @@
                         "foo": {"type": "integer"}
                     }
                 },
-                "valid": false
+                "valid": true
             }
         ]
     },
