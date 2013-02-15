@@ -235,8 +235,6 @@ any use for them. They are listed below, along with any limitations they come
 with.
 
 
-.. autofunction:: is_date_time
-
 .. autofunction:: is_date
 
 .. autofunction:: is_time
@@ -252,6 +250,21 @@ with.
 .. autofunction:: is_ipv6
 
 .. autofunction:: is_host_name
+
+
+If the iso8601_ library is present, a date-time checker will also be present.
+
+.. autofunction:: is_date_time
+
+    Check if the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
+
+        >>> is_date_time("1970-01-01T00:00:00.0Z")
+        True
+        >>> is_date_time("1970-01-01 00:00:00 GMT")
+        False
+        >>> is_date_time("0000-58-59T60:61:62")
+        False
+
 
 Additionally, if the webcolors_ library is present, some checkers related to
 CSS will be enabled:
@@ -278,4 +291,5 @@ CSS will be enabled:
         >>> is_css_color_code("#CC8899")
         True
 
+.. _iso8601: http://pypi.python.org/pypi/iso8601/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/

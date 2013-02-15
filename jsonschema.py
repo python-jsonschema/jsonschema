@@ -26,6 +26,11 @@ try:
 except ImportError:
     webcolors = None
 
+try:
+    import iso8601
+except ImportError:
+    iso8601 = None
+
 
 __version__ = "1.0.0-dev"
 
@@ -548,30 +553,6 @@ class FormatChecker(object):
         return True
 
 
-@FormatChecker.cls_checks("date-time")
-def is_date_time(instance):
-    """
-    Check whether the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_date_time("1970-01-01T00:00:00.0")
-        True
-        >>> is_date_time("1970-01-01 00:00:00 GMT")
-        False
-        >>> is_date_time("0000-58-59T60:61:62")
-        False
-
-    """
-
-    try:
-        datetime.datetime.strptime(instance, "%Y-%m-%dT%H:%M:%S.%f")
-        return True
-    except ValueError:
-        return False
-
-
 @FormatChecker.cls_checks("date")
 def is_date(instance):
     """
@@ -787,6 +768,16 @@ def is_regex(instance):
         return True
     except re.error:
         return False
+
+
+if iso8601 is not None:
+    @FormatChecker.cls_checks("date-time")
+    def is_date_time(instance):
+        try:
+            iso8601.parse_date(instance)
+            return True
+        except ValueError:
+            return False
 
 
 if webcolors is not None:
