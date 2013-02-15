@@ -7,9 +7,9 @@ import sys
 import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
-    from unittest2 import TestCase, skipIf
+    import unittest2 as unittest
 else:
-    from unittest import TestCase, skipIf
+    import unittest
 
 try:
     from unittest import mock
@@ -35,7 +35,7 @@ def make_case(schema, data, valid):
     return test_case
 
 
-def load_json_cases(tests_glob, basedir=os.path.dirname(__file__)):
+def load_json_cases(tests_glob, basedir=os.path.dirname(__file__), skip=None):
     def add_test_methods(test_class):
         for filename in glob.iglob(os.path.join(basedir, tests_glob)):
             validating, _ = os.path.splitext(os.path.basename(filename))
@@ -60,6 +60,11 @@ def load_json_cases(tests_glob, basedir=os.path.dirname(__file__)):
                             test_name = test_name.encode("utf-8")
                         a_test.__name__ = test_name
 
+                        if skip is not None and skip(case):
+                            a_test = unittest.skip("Checker not present.")(
+                                a_test
+                            )
+
                         setattr(test_class, test_name, a_test)
 
         return test_class
@@ -67,7 +72,7 @@ def load_json_cases(tests_glob, basedir=os.path.dirname(__file__)):
 
 
 class BytesMixin(object):
-    @skipIf(PY3, "The JSON module in Python 3 always produces unicode")
+    @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
         self.validator_class({"type" : "string"}).validate(b"foo")
 
@@ -87,18 +92,10 @@ class DecimalMixin(object):
                 validator.validate(invalid)
 
 
-class AnyTypeMixin(object):
-    def test_any_type_is_valid_for_type_any(self):
-        validator = self.validator_class({"type" : "any"})
-        validator.validate(mock.Mock())
-
-
-@load_json_cases("json/tests/draft3/optional/bignum.json")
-class BigNumMixin(object):
-    pass
-
-
-@load_json_cases("json/tests/draft3/optional/format.json")
+@load_json_cases(
+    "json/tests/draft3/optional/format.json",
+    skip=lambda case : case["schema"]["format"] not in FormatChecker.checkers
+)
 class FormatMixin(object):
 
     validator_kwargs = {"format_checker" : FormatChecker()}
@@ -125,10 +122,14 @@ class FormatMixin(object):
 
 
 @load_json_cases("json/tests/draft3/*.json")
-class TestDraft3(
-    TestCase, BytesMixin, DecimalMixin, AnyTypeMixin, FormatMixin, BigNumMixin,
-):
+@load_json_cases("json/tests/draft3/optional/bignum.json")
+class TestDraft3(unittest.TestCase, BytesMixin, DecimalMixin, FormatMixin):
+
     validator_class = Draft3Validator
+
+    def test_any_type_is_valid_for_type_any(self):
+        validator = self.validator_class({"type" : "any"})
+        validator.validate(mock.Mock())
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
@@ -140,7 +141,7 @@ class TestDraft3(
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
 
-class TestIterErrors(TestCase):
+class TestIterErrors(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
@@ -174,7 +175,7 @@ class TestIterErrors(TestCase):
         self.assertEqual(len(errors), 4)
 
 
-class TestValidationErrorMessages(TestCase):
+class TestValidationErrorMessages(unittest.TestCase):
     def message_for(self, instance, schema, *args, **kwargs):
         with self.assertRaises(ValidationError) as e:
             validate(instance, schema, *args, **kwargs)
@@ -248,7 +249,7 @@ class TestValidationErrorMessages(TestCase):
         self.assertIn("is not a", message)
 
 
-class TestValidationErrorDetails(TestCase):
+class TestValidationErrorDetails(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
@@ -314,7 +315,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e6.validator, "enum")
 
 
-class TestErrorTree(TestCase):
+class TestErrorTree(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
@@ -356,7 +357,7 @@ class TestErrorTree(TestCase):
         self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
 
 
-class TestDraft3Validator(TestCase):
+class TestDraft3Validator(unittest.TestCase):
     def setUp(self):
         self.instance = mock.Mock()
         self.schema = {}
@@ -422,7 +423,7 @@ class TestDraft3Validator(TestCase):
             self.validator.is_type("foo", object())
 
 
-class TestRefResolver(TestCase):
+class TestRefResolver(unittest.TestCase):
     def setUp(self):
         self.base_uri = ""
         self.referrer = {}
@@ -472,7 +473,7 @@ class TestRefResolver(TestCase):
         self.assertEqual(resolver.referrer, schema)
 
 
-class TestFormatChecker(TestCase):
+class TestFormatChecker(unittest.TestCase):
     def setUp(self):
         self.fn = mock.Mock()
 
