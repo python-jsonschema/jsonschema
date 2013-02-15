@@ -817,54 +817,6 @@ def is_date_time(instance):
         return False
 
 
-@FormatChecker.cls_checks("date")
-def is_date(instance):
-    """
-    Check whether the instance matches a date in ``YYYY-MM-DD`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_date("1970-12-31")
-        True
-        >>> is_date("12/31/1970")
-        False
-        >>> is_date("0000-13-32")
-        False
-
-    """
-
-    try:
-        datetime.datetime.strptime(instance, "%Y-%m-%d")
-        return True
-    except ValueError:
-        return False
-
-
-@FormatChecker.cls_checks("time")
-def is_time(instance):
-    """
-    Check whether the instance matches a time in ``hh:mm:ss`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_time("23:59:59")
-        True
-        >>> is_time("11:59:59 PM")
-        False
-        >>> is_time("59:60:61")
-        False
-
-    """
-
-    try:
-        datetime.datetime.strptime(instance, "%H:%M:%S")
-        return True
-    except ValueError:
-        return False
-
-
 @FormatChecker.cls_checks("uri")
 def is_uri(instance):
     """
@@ -980,7 +932,7 @@ if hasattr(socket, "inet_pton"):
             return False
 
 
-@FormatChecker.cls_checks("host-name")
+@FormatChecker.cls_checks("hostname")
 def is_host_name(instance):
     """
     Check if the instance is a valid host name.
@@ -1036,7 +988,56 @@ def is_regex(instance):
 
 draft4_format_checker = FormatChecker()
 draft3_format_checker = FormatChecker()
-draft3_format_checker.checkers['ip-address'] = is_ipv4
+draft3_format_checker.checks('ip-address')(is_ipv4)
+draft3_format_checker.checks('host-name')(is_host_name)
+
+
+@draft3_format_checker.checks("date")
+def is_date(instance):
+    """
+    Check whether the instance matches a date in ``YYYY-MM-DD`` format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_date("1970-12-31")
+        True
+        >>> is_date("12/31/1970")
+        False
+        >>> is_date("0000-13-32")
+        False
+
+    """
+
+    try:
+        datetime.datetime.strptime(instance, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
+
+@draft3_format_checker.checks("time")
+def is_time(instance):
+    """
+    Check whether the instance matches a time in ``hh:mm:ss`` format.
+
+    :argument str instance: the instance to check
+    :rtype: bool
+
+        >>> is_time("23:59:59")
+        True
+        >>> is_time("11:59:59 PM")
+        False
+        >>> is_time("59:60:61")
+        False
+
+    """
+
+    try:
+        datetime.datetime.strptime(instance, "%H:%M:%S")
+        return True
+    except ValueError:
+        return False
 
 
 if webcolors is not None:
