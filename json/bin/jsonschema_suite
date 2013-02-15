@@ -1,9 +1,12 @@
 #! /usr/bin/env python
-from unittest import TestCase, skipIf
+import argparse
 import fnmatch
 import json
 import logging
 import os
+import random
+import sys
+import unittest
 
 try:
     import jsonschema
@@ -37,7 +40,7 @@ TESTSUITE_SCHEMA = {
             }
         },
         "additionalProperties": False,
-    "minItems": 1
+        "minItems": 1
     }
 }
 
@@ -67,7 +70,7 @@ def collect(root_dir):
             yield os.path.join(root, filename)
 
 
-class SanityTests(TestCase):
+class SanityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logging.info("Looking for tests in %s", SUITE_ROOT_DIR)
@@ -101,16 +104,22 @@ class SanityTests(TestCase):
                 "%r contains a duplicate description" % (group,)
             )
 
-    @skipIf(jsonschema is None, "Validation library not present! Skipping.")
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_all_schemas_are_valid(self):
-        for case in cases(self.test_files):
-            # XXX: Add the other versions for the other drafts
-            try:
-                jsonschema.Draft3Validator.check_schema(case["schema"])
-            except jsonschema.SchemaError as error:
-                self.fail("%s contains an invalid schema (%s)" % (case, error))
+        for schema in os.listdir(SUITE_ROOT_DIR):
+            schema_validator = jsonschema.validators.get(schema)
+            if schema_validator:
+                test_files = collect(os.path.join(SUITE_ROOT_DIR, schema))
+                for case in cases(test_files):
+                    try:
+                        schema_validator.check_schema(case["schema"])
+                    except jsonschema.SchemaError as error:
+                        self.fail("%s contains an invalid schema (%s)" %
+                                  (case, error))
+            else:
+                logging.warning("No schema validator for %s" % schema)
 
-    @skipIf(jsonschema is None, "Validation library not present! Skipping.")
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_suites_are_valid(self):
         validator = jsonschema.Draft3Validator(TESTSUITE_SCHEMA)
         for tests in files(self.test_files):
@@ -120,6 +129,44 @@ class SanityTests(TestCase):
                 self.fail(str(error))
 
 
+def main(arguments):
+    if arguments.command == "check":
+        suite = unittest.TestLoader().loadTestsFromTestCase(SanityTests)
+        result = unittest.TextTestRunner(verbosity=2).run(suite)
+        sys.exit(not result.wasSuccessful())
+    elif arguments.command == "flatten":
+        selected_cases = [case for case in cases(collect(arguments.version))]
+
+        if arguments.randomize:
+            random.shuffle(selected_cases)
+
+        json.dump(selected_cases, arguments.out, indent=4)
+
+
+parser = argparse.ArgumentParser(
+    description="JSON Schema Test Suite utilities",
+)
+subparsers = parser.add_subparsers(help="utility commands", dest="command")
+
+check = subparsers.add_parser("check", help="Sanity check the test suite.")
+
+flatten = subparsers.add_parser(
+    "flatten",
+    help="Output a flattened file containing the test cases and any "
+            "additionally specified optional test cases."
+)
+flatten.add_argument(
+    "--randomize",
+    action="store_true",
+    help="randomize the order of the outputted cases",
+)
+flatten.add_argument(
+    "version", help="the directory containing the version to output",
+)
+flatten.add_argument(
+    "out", help="the output file to write to", type=argparse.FileType("w"),
+)
+
+
 if __name__ == "__main__":
-    from unittest import main
-    main()
+    main(parser.parse_args())

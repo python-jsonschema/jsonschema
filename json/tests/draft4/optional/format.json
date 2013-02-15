@@ -32,38 +32,6 @@
         ]
     },
     {
-        "description": "validation of date strings",
-        "schema": {"format": "date"},
-        "tests": [
-            {
-                "description": "a valid date string",
-                "data": "1963-06-19",
-                "valid": true
-            },
-            {
-                "description": "an invalid date string",
-                "data": "06/19/1963",
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "validation of time strings",
-        "schema": {"format": "time"},
-        "tests": [
-            {
-                "description": "a valid time string",
-                "data": "08:30:06",
-                "valid": true
-            },
-            {
-                "description": "an invalid time string",
-                "data": "8:30 AM",
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "validation of URIs",
         "schema": {"format": "uri"},
         "tests": [
@@ -97,7 +65,7 @@
     },
     {
         "description": "validation of IP addresses",
-        "schema": {"format": "ip-address"},
+        "schema": {"format": "ipv4"},
         "tests": [
             {
                 "description": "a valid IP address",
@@ -144,7 +112,7 @@
     },
     {
         "description": "validation of host names",
-        "schema": {"format": "host-name"},
+        "schema": {"format": "hostname"},
         "tests": [
             {
                 "description": "a valid host name",
@@ -164,42 +132,6 @@
             {
                 "description": "a host name with a component too long",
                 "data": "a-vvvvvvvvvvvvvvvveeeeeeeeeeeeeeeerrrrrrrrrrrrrrrryyyyyyyyyyyyyyyy-long-host-name-component",
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "validation of CSS colors",
-        "schema": {"format": "color"},
-        "tests": [
-            {
-                "description": "a valid CSS color name",
-                "data": "fuchsia",
-                "valid": true
-            },
-            {
-                "description": "a valid six-digit CSS color code",
-                "data": "#CC8899",
-                "valid": true
-            },
-            {
-                "description": "a valid three-digit CSS color code",
-                "data": "#C89",
-                "valid": true
-            },
-            {
-                "description": "an invalid CSS color code",
-                "data": "#00332520",
-                "valid": false
-            },
-            {
-                "description": "an invalid CSS color name",
-                "data": "puce",
-                "valid": false
-            },
-            {
-                "description": "a CSS color name containing invalid characters",
-                "data": "light_grayish_red-violet",
                 "valid": false
             }
         ]

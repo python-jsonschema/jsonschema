@@ -1,4 +1,4 @@
 language: python
 python: "2.7"
 install: pip install jsonschema
-script: bin/suite_sanity_check -v
+script: bin/jsonschema_suite check

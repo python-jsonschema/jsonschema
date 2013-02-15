@@ -56,41 +56,17 @@ Currently, draft 3 should have essentially full coverage for the core schema.
 
 The beginnings of draft 4 are underway.
 
-Optional Tests
---------------
-
-Tests for optional validation are available in the "optional" directory,
-including for bignums (large integers), and for several of the values of the
-"format" property.
-
-Values of "format" covered are:
-
-  * regex
-  * date-time
-  * date
-  * time
-  * uri
-  * email
-  * ip-address
-  * ipv6
-  * host-name
-  * color
-
-Those also mentioned in draft 3, but currently omitted in the tests are:
-
-  * utc-millisec
-  * style
-  * phone
-
 Who Uses the Test Suite
 -----------------------
 
 This suite is being used by:
 
+  * [json-schema-validator (Java)](https://github.com/fge/json-schema-validator)
   * [jsonschema (python)](https://github.com/Julian/jsonschema)
   * [aeson-schema (haskell)](https://github.com/timjb/aeson-schema)
   * [direct-schema (javascript)](https://github.com/IreneKnapp/direct-schema)
   * [jsonschema (javascript)](https://github.com/tdegrunt/jsonschema)
+  * [JaySchema (javascript)](https://github.com/natesilva/jayschema)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).
