@@ -812,10 +812,11 @@ class RefResolver(object):
 
     """
 
-    def __init__(self, base_uri, referrer, store=()):
+    def __init__(self, base_uri, referrer, store=(), cache_remote=True):
         self.base_uri = base_uri
         self.referrer = referrer
         self.store = dict(store, **_meta_schemas())
+        self.cache_remote = cache_remote
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -884,7 +885,10 @@ class RefResolver(object):
 
         """
 
-        return json.load(urlopen(uri))
+        result = json.load(urlopen(uri))
+        if self.cache_remote:
+            self.store[uri] = result
+        return result
 
 
 class ErrorTree(object):
