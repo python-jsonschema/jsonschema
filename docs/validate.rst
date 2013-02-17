@@ -254,7 +254,7 @@ with.
 
 If the iso8601_ library is present, a date-time checker will also be present.
 
-.. autofunction:: is_date_time
+.. function:: is_date_time
 
     Check if the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
 
