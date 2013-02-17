@@ -33,7 +33,7 @@ setup(
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,
     description="An implementation of JSON Schema validation for Python",
-    license="MIT/X",
+    license="MIT",
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
 )
