@@ -27,9 +27,9 @@ except ImportError:
     webcolors = None
 
 try:
-    import iso8601
+    import isodate
 except ImportError:
-    iso8601 = None
+    isodate = None
 
 
 __version__ = "1.0.0-dev"
@@ -641,13 +641,13 @@ def is_regex(instance):
         return False
 
 
-if iso8601 is not None:
+if isodate is not None:
     @FormatChecker.cls_checks("date-time")
     def is_date_time(instance):
         try:
-            iso8601.parse_date(instance)
+            isodate.parse_datetime(instance)
             return True
-        except ValueError:
+        except (ValueError, isodate.ISO8601Error):
             return False
 
 
@@ -967,32 +967,5 @@ def _uniq(container):
 
 
 def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
-    """
-    Validate an ``instance`` under the given ``schema``.
-
-        >>> validate([2, 3, 4], {"maxItems" : 2})
-        Traceback (most recent call last):
-            ...
-        ValidationError: [2, 3, 4] is too long
-
-    :func:`validate` will first verify that the provided schema is itself
-    valid, since not doing so can lead to less obvious error messages and fail
-    in less obvious or consistent ways. If you know you have a valid schema
-    already or don't care, you might prefer using the ``validate`` method
-    directly on a specific validator (e.g. :meth:`Draft3Validator.validate`).
-
-    ``cls`` is a validator class that will be used to validate the instance.
-    By default this is a draft 3 validator.  Any other provided positional and
-    keyword arguments will be provided to this class when constructing a
-    validator.
-
-    :raises:
-        :exc:`ValidationError` if the instance is invalid
-
-        :exc:`SchemaError` if the schema itself is invalid
-
-    """
-
-
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)

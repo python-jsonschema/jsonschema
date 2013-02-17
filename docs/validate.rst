@@ -12,7 +12,7 @@ The Basics
 The simplest way to validate an instance under a given schema is to use the
 :func:`validate` function.
 
-.. autofunction:: validate
+.. function:: validate
 
 
 The Validator Interface
@@ -339,7 +339,7 @@ On OSes with the ``socket.inet_pton`` function, an additional checker for
         False
 
 
-If the iso8601_ library is present, a date-time checker will also be present.
+If the isodate_ library is present, a date-time checker will also be present.
 
 .. function:: is_date_time
 
@@ -347,8 +347,6 @@ If the iso8601_ library is present, a date-time checker will also be present.
 
         >>> is_date_time("1970-01-01T00:00:00.0Z")
         True
-        >>> is_date_time("1970-01-01 00:00:00 GMT")
-        False
         >>> is_date_time("0000-58-59T60:61:62")
         False
 
@@ -378,5 +376,5 @@ CSS will be enabled:
         >>> is_css_color_code("#CC8899")
         True
 
-.. _iso8601: http://pypi.python.org/pypi/iso8601/
+.. _isodate: http://pypi.python.org/pypi/isodate/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
