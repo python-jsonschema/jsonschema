@@ -235,21 +235,108 @@ any use for them. They are listed below, along with any limitations they come
 with.
 
 
-.. autofunction:: is_date
+.. function:: is_date
 
-.. autofunction:: is_time
+    Check if the instance is a date in ``YYYY-MM-DD`` format.
 
-.. autofunction:: is_regex
+        >>> is_date("1970-12-31")
+        True
+        >>> is_date("12/31/1970")
+        False
+        >>> is_date("0000-13-32")
+        False
 
-.. autofunction:: is_uri
+.. function:: is_time
 
-.. autofunction:: is_email
+    Check if the instance is a time in ``hh:mm:ss`` format.
 
-.. autofunction:: is_ip_address
+        >>> is_time("23:59:59")
+        True
+        >>> is_time("11:59:59 PM")
+        False
+        >>> is_time("59:60:61")
+        False
 
-.. autofunction:: is_ipv6
+.. function:: is_regex
 
-.. autofunction:: is_host_name
+    Check if the instance is a well-formed regular expression.
+
+        >>> is_regex("^(bob)?cat$")
+        True
+        >>> is_ipv6("^(bob?cat$")
+        False
+
+.. function:: is_uri
+
+    Check if the instance is a valid URI.
+
+    Also supports relative URIs.
+
+        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
+        True
+        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
+        True
+        >>> is_uri(r"\\\\WINDOWS\My Files")
+        False
+        >>> is_uri("#/properties/foo")
+        True
+
+.. function:: is_email
+
+    Check if the instance is a valid e-mail address.
+
+    Checking is based on `RFC 2822`_
+
+        >>> is_email("joe.bloggs@example.com")
+        True
+        >>> is_email("joe.bloggs")
+        False
+
+    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
+
+.. function:: is_host_name
+
+    Check if the instance is a valid host name.
+
+        >>> is_host_name("www.example.com")
+        True
+        >>> is_host_name("my laptop")
+        False
+        >>> is_host_name(
+        ...     "a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrryyyyyyyy"
+        ...     "yyyyyyyyy.long.host.name"
+        ... )
+        False
+
+    .. note:: Does not perform a DNS lookup.
+
+        >>> is_host_name("www.example.doesnotexist")
+        True
+
+.. function:: is_ip_address
+
+    Check if the instance is a valid IP address.
+
+        >>> is_ip_address("192.168.0.1")
+        True
+        >>> is_ip_address("::1")
+        False
+        >>> is_ip_address("256.256.256.256")
+        False
+
+On OSes with the ``socket.inet_pton`` function, an additional checker for
+``ipv6`` will be enabled:
+
+.. function:: is_ipv6
+
+    Check if the instance is a valid IPv6 address.
+
+        >>> is_ipv6("::1")
+        True
+        >>> is_ipv6("192.168.0.1")
+        False
+        >>> is_ipv6("1:1:1:1:1:1:1:1:1")
+        False
 
 
 If the iso8601_ library is present, a date-time checker will also be present.

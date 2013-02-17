@@ -555,21 +555,6 @@ class FormatChecker(object):
 
 @FormatChecker.cls_checks("date")
 def is_date(instance):
-    """
-    Check whether the instance matches a date in ``YYYY-MM-DD`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_date("1970-12-31")
-        True
-        >>> is_date("12/31/1970")
-        False
-        >>> is_date("0000-13-32")
-        False
-
-    """
-
     try:
         datetime.datetime.strptime(instance, "%Y-%m-%d")
         return True
@@ -579,21 +564,6 @@ def is_date(instance):
 
 @FormatChecker.cls_checks("time")
 def is_time(instance):
-    """
-    Check whether the instance matches a time in ``hh:mm:ss`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_time("23:59:59")
-        True
-        >>> is_time("11:59:59 PM")
-        False
-        >>> is_time("59:60:61")
-        False
-
-    """
-
     try:
         datetime.datetime.strptime(instance, "%H:%M:%S")
         return True
@@ -603,25 +573,6 @@ def is_time(instance):
 
 @FormatChecker.cls_checks("uri")
 def is_uri(instance):
-    """
-    Check whether the instance is a valid URI.
-
-    Also supports relative URIs.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
-        True
-        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
-        True
-        >>> is_uri(r"\\\\WINDOWS\My Files")
-        False
-        >>> is_uri("#/properties/foo")
-        True
-
-    """
-
     # URI regex from http://snipplr.com/view/6889/
     abs_uri = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
                r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
@@ -639,23 +590,6 @@ def is_uri(instance):
 
 @FormatChecker.cls_checks("email")
 def is_email(instance):
-    """
-    Check whether the instance is a valid e-mail address.
-
-    Checking is based on `RFC 2822`_
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_email("joe.bloggs@example.com")
-        True
-        >>> is_email("joe.bloggs")
-        False
-
-    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
-
-    """
-
     pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
                r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
                r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
@@ -669,21 +603,6 @@ def is_email(instance):
 
 @FormatChecker.cls_checks("ip-address")
 def is_ip_address(instance):
-    """
-    Check whether the instance is a valid IP address.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_ip_address("192.168.0.1")
-        True
-        >>> is_ip_address("::1")
-        False
-        >>> is_ip_address("256.256.256.256")
-        False
-
-    """
-
     try:
         socket.inet_aton(instance)
         return True
@@ -694,21 +613,6 @@ def is_ip_address(instance):
 if hasattr(socket, "inet_pton"):
     @FormatChecker.cls_checks("ipv6")
     def is_ipv6(instance):
-        """
-        Check whether the instance is a valid IPv6 address.
-
-        :argument str instance: the instance to check
-        :rtype: bool
-
-            >>> is_ipv6("::1")
-            True
-            >>> is_ipv6("192.168.0.1")
-            False
-            >>> is_ipv6("1:1:1:1:1:1:1:1:1")
-            False
-
-        """
-
         try:
             socket.inet_pton(socket.AF_INET6, instance)
             return True
@@ -718,26 +622,6 @@ if hasattr(socket, "inet_pton"):
 
 @FormatChecker.cls_checks("host-name")
 def is_host_name(instance):
-    """
-    Check if the instance is a valid host name.
-
-        >>> is_host_name("www.example.com")
-        True
-        >>> is_host_name("my laptop")
-        False
-        >>> is_host_name(
-        ...     "a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrryyyyyyyy"
-        ...     "yyyyyyyyy.long.host.name"
-        ... )
-        False
-
-    .. note:: Does not perform a DNS lookup.
-
-        >>> is_host_name("www.example.doesnotexist")
-        True
-
-    """
-
     pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
     if not re.match(pattern, instance):
         return False
@@ -750,19 +634,6 @@ def is_host_name(instance):
 
 @FormatChecker.cls_checks("regex")
 def is_regex(instance):
-    """
-    Check if the instance is a well-formed regular expression.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_regex("^(bob)?cat$")
-        True
-        >>> is_ipv6("^(bob?cat$")
-        False
-
-    """
-
     try:
         re.compile(instance)
         return True
