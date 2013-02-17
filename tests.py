@@ -449,13 +449,26 @@ class TestRefResolver(unittest.TestCase):
         resolved = self.resolver.resolve("cached_ref#/foo")
         self.assertEqual(resolved, 12)
 
+    def test_it_retrieves_unstored_refs_via_requests(self):
+        ref = "http://bar#baz"
+        schema = {"baz" : 12}
+
+        with mock.patch("jsonschema.requests") as requests:
+            requests.get.return_value.json.return_value = schema
+            resolved = self.resolver.resolve(ref)
+
+        self.assertEqual(resolved, 12)
+        requests.get.assert_called_once_with("http://bar")
+
     def test_it_retrieves_unstored_refs_via_urlopen(self):
         ref = "http://bar#baz"
         schema = {"baz" : 12}
 
-        with mock.patch("jsonschema.urlopen") as urlopen:
-            urlopen.return_value.read.return_value = json.dumps(schema)
-            resolved = self.resolver.resolve(ref)
+        with mock.patch("jsonschema.requests", None):
+            with mock.patch("jsonschema.urlopen") as urlopen:
+                urlopen.return_value.read.return_value = \
+                    json.dumps(schema).encode("utf8")
+                resolved = self.resolver.resolve(ref)
 
         self.assertEqual(resolved, 12)
         urlopen.assert_called_once_with("http://bar")
@@ -471,6 +484,33 @@ class TestRefResolver(unittest.TestCase):
         resolver = RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "")
         self.assertEqual(resolver.referrer, schema)
+
+    def test_custom_uri_scheme_handlers(self):
+        schema = {"foo": "bar"}
+        ref = "foo://bar"
+        foo_handler = mock.Mock(return_value=schema)
+        resolver = RefResolver("", {}, handlers={"foo": foo_handler})
+        resolved = resolver.resolve(ref)
+        self.assertEqual(resolved, schema)
+        foo_handler.assert_called_once_with(ref)
+
+    def test_cache_remote_on(self):
+        ref = "foo://bar"
+        foo_handler = mock.Mock()
+        resolver = RefResolver("", {}, cache_remote=True,
+                               handlers={"foo": foo_handler})
+        resolver.resolve(ref)
+        resolver.resolve(ref)
+        foo_handler.assert_called_once_with(ref)
+
+    def test_cache_remote_off(self):
+        ref = "foo://bar"
+        foo_handler = mock.Mock()
+        resolver = RefResolver("", {}, cache_remote=False,
+                               handlers={"foo": foo_handler})
+        resolver.resolve(ref)
+        resolver.resolve(ref)
+        self.assertEqual(foo_handler.call_count, 2)
 
 
 class TestFormatChecker(unittest.TestCase):

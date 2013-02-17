@@ -21,6 +21,14 @@ import re
 import socket
 import sys
 
+try:
+    import requests
+    # We need requests >= 1.0.0
+    if requests.__version__.split(".") < ["1"]:
+        requests = None
+except ImportError:
+    requests = None
+
 __version__ = "1.0.0-dev"
 
 PY3 = sys.version_info[0] >= 3
@@ -627,14 +635,20 @@ class RefResolver(object):
     :argument str base_uri: URI of the referring document
     :argument referrer: the actual referring document
     :argument dict store: a mapping from URIs to documents to cache
+    :argument bool cache_remote: whether remote refs should be cached after
+        first resolution
+    :argument dict handlers: a mapping from URI schemes to functions that
+        should be used to retrieve them
 
     """
 
-    def __init__(self, base_uri, referrer, store=(), cache_remote=True):
+    def __init__(self, base_uri, referrer, store=(), cache_remote=True,
+                 handlers=()):
         self.base_uri = base_uri
         self.referrer = referrer
         self.store = dict(store, **_meta_schemas())
         self.cache_remote = cache_remote
+        self.handlers = dict(handlers)
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -703,7 +717,17 @@ class RefResolver(object):
 
         """
 
-        result = json.load(urlopen(uri))
+        scheme = urlparse.urlsplit(uri).scheme
+        if scheme in self.handlers:
+            result = self.handlers[scheme](uri)
+        elif scheme in ["http", "https"] and requests:
+            # Requests has support for detecting the correct encoding of
+            # json over http
+            result = requests.get(uri).json()
+        else:
+            # Otherwise, pass off to urllib and assume utf8
+            result = json.loads(urlopen(uri).read().decode("utf-8"))
+
         if self.cache_remote:
             self.store[uri] = result
         return result
