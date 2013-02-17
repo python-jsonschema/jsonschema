@@ -14,6 +14,29 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. function:: validate
 
+    Validate an ``instance`` under the given ``schema``.
+
+        >>> validate([2, 3, 4], {"maxItems" : 2})
+        Traceback (most recent call last):
+            ...
+        ValidationError: [2, 3, 4] is too long
+
+    :func:`validate` will first verify that the provided schema is itself
+    valid, since not doing so can lead to less obvious error messages and fail
+    in less obvious or consistent ways. If you know you have a valid schema
+    already or don't care, you might prefer using the ``validate`` method
+    directly on a specific validator (e.g. :meth:`Draft3Validator.validate`).
+
+    ``cls`` is a validator class that will be used to validate the instance.
+    By default this is a draft 3 validator.  Any other provided positional and
+    keyword arguments will be provided to this class when constructing a
+    validator.
+
+    :raises:
+        :exc:`ValidationError` if the instance is invalid
+
+        :exc:`SchemaError` if the schema itself is invalid
+
 
 The Validator Interface
 -----------------------
