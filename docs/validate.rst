@@ -184,7 +184,7 @@ need to specify all types to match if you override one of the existing JSON
 types, so you may want to access the set of default types when specifying your
 additional type.
 
-.. numbers:: http://docs.python.org/3.3/library/numbers.html
+.. _numbers: http://docs.python.org/3.3/library/numbers.html
 
 .. _versioned-validators:
 
