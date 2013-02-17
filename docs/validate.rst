@@ -309,14 +309,22 @@ with.
 
     Check if the instance is a valid e-mail address.
 
-    Checking is based on `RFC 2822`_
-
         >>> is_email("joe.bloggs@example.com")
         True
         >>> is_email("joe.bloggs")
         False
 
+    .. note::
+
+        This is *not* done in strict compliance of `RFC 2822`_ and / or `RFC
+        5322`_.
+
+        The only constraint is that the instance contain an ``@`` sign. If you
+        want stricter compliance, either change what you want or add and
+        register your own checker.
+
     .. _RFC 2822: http://tools.ietf.org/html/rfc2822
+    .. _RFC 5322: http://tools.ietf.org/html/rfc5322
 
 .. autofunction:: is_host_name
 
