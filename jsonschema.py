@@ -459,7 +459,7 @@ class FormatChecker(object):
                                 can be used to limit which formats will be used
                                 during validation.
 
-        >>> checker = FormatChecker(formats=("uri", "regex"))
+        >>> checker = FormatChecker(formats=("date", "regex"))
 
     """
 
