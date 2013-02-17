@@ -89,20 +89,6 @@ def validates(version):
     return _validates
 
 
-class ValidationError(Exception):
-    def __init__(self, message, validator=None, path=()):
-        # Any validator that recurses (e.g. properties and items) must append
-        # to the ValidationError's path to properly maintain where in the
-        # instance the error occurred
-        super(ValidationError, self).__init__(message, validator, path)
-        self.message = message
-        self.path = list(path)
-        self.validator = validator
-
-    def __str__(self):
-        return self.message
-
-
 @validates("draft3")
 class Draft3Validator(object):
     """
