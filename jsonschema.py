@@ -38,6 +38,11 @@ else:
     import urlparse
     iteritems = operator.methodcaller("iteritems")
 
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
+
 
 FLOAT_TOLERANCE = 10 ** -15
 validators = {}
@@ -87,7 +92,7 @@ class Draft3Validator(object):
 
     DEFAULT_TYPES = {
         "array" : list, "boolean" : bool, "integer" : numbers.Integral,
-        "null" : type(None), "number" : numbers.Number, "object" : dict,
+        "null" : type(None), "number" : numbers.Number, "object" : abc.Mapping,
         "string" : basestring,
     }
 

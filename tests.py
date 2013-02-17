@@ -17,7 +17,7 @@ except ImportError:
     import mock
 
 from jsonschema import (
-    PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
+    PY3, abc, SchemaError, UnknownType, ValidationError, ErrorTree,
     Draft3Validator, FormatChecker, RefResolver, validate
 )
 
@@ -71,10 +71,17 @@ def load_json_cases(tests_glob, basedir=os.path.dirname(__file__), skip=None):
     return add_test_methods
 
 
-class BytesMixin(object):
+class TypesMixin(object):
     @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
         self.validator_class({"type" : "string"}).validate(b"foo")
+
+    def test_mappings_are_objects(self):
+        class Mapping(abc.Mapping):
+            def __getitem__(self): return 12
+            def __iter__(self): return iter([])
+            def __len__(self): return 12
+        self.validator_class({"type" : "object"}).validate(Mapping())
 
 
 class DecimalMixin(object):
@@ -123,7 +130,7 @@ class FormatMixin(object):
 
 @load_json_cases("json/tests/draft3/*.json")
 @load_json_cases("json/tests/draft3/optional/bignum.json")
-class TestDraft3(unittest.TestCase, BytesMixin, DecimalMixin, FormatMixin):
+class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 
     validator_class = Draft3Validator
 
