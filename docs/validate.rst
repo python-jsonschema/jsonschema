@@ -155,24 +155,36 @@ a ``types`` argument on construction that specifies additional types, or which
 can be used to specify a different set of Python types to map to a given JSON
 type.
 
-For instance, JSON defines a ``number`` type, which can be validated with a
-schema such as ``{"type" : "number"}``. By default, this will validate
-correctly for Python :class:`int`\s and :class:`float`\s. If you wanted to
-additionally validate :class:`decimal.Decimal` objects, you'd use
+``jsonschema`` tries to be as general as possible by default. For instance,
+JSON defines a ``number`` type, which can be validated with a schema such as
+``{"type" : "number"}``. By default, this will validate correctly for instances
+of Python :class:`number.Number`\s. This includes in particular :class:`int`\s
+and :class:`float`\s, along with `decimal.Decimal` objects, :class:`complex`
+numbers etc. See the numbers_ module documentation for more details.
+
+For most purposes, if you want to add additional types as being acceptible for
+a validator, you should do so by inheriting from the relevant ``abc`` or by
+registering the existing class with the ``abc``. If this isn't an option, or if
+you otherwise prefer not doing so, :class:`IValidator`\s have a ``types``
+argument that can be used to provide additional or new types.
 
 .. code-block:: python
 
+    class MyInteger(object):
+        ...
+
     Draft3Validator(
         schema={"type" : "number"},
-        types={"number" : (int, float, decimal.Decimal)},
+        types={"number" : (numbers.Number, MyInteger)},
     )
 
 The list of default Python types for each JSON type is available on each
 validator in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note that you
 need to specify all types to match if you override one of the existing JSON
-types, so you may want to access the set of default types to add it to the
-ones being appended.
+types, so you may want to access the set of default types when specifying your
+additional type.
 
+.. numbers:: http://docs.python.org/3.3/library/numbers.html
 
 .. _versioned-validators:
 
