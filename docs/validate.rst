@@ -12,7 +12,7 @@ The Basics
 The simplest way to validate an instance under a given schema is to use the
 :func:`validate` function.
 
-.. function:: validate
+.. autofunction:: validate
 
     Validate an ``instance`` under the given ``schema``.
 
@@ -258,7 +258,7 @@ any use for them. They are listed below, along with any limitations they come
 with.
 
 
-.. function:: is_date
+.. autofunction:: is_date
 
     Check if the instance is a date in ``YYYY-MM-DD`` format.
 
@@ -269,7 +269,7 @@ with.
         >>> is_date("0000-13-32")
         False
 
-.. function:: is_time
+.. autofunction:: is_time
 
     Check if the instance is a time in ``hh:mm:ss`` format.
 
@@ -280,7 +280,7 @@ with.
         >>> is_time("59:60:61")
         False
 
-.. function:: is_regex
+.. autofunction:: is_regex
 
     Check if the instance is a well-formed regular expression.
 
@@ -289,7 +289,7 @@ with.
         >>> is_ipv6("^(bob?cat$")
         False
 
-.. function:: is_uri
+.. autofunction:: is_uri
 
     Check if the instance is a valid URI.
 
@@ -304,7 +304,7 @@ with.
         >>> is_uri("#/properties/foo")
         True
 
-.. function:: is_email
+.. autofunction:: is_email
 
     Check if the instance is a valid e-mail address.
 
@@ -317,7 +317,7 @@ with.
 
     .. _RFC 2822: http://tools.ietf.org/html/rfc2822
 
-.. function:: is_host_name
+.. autofunction:: is_host_name
 
     Check if the instance is a valid host name.
 
@@ -336,7 +336,7 @@ with.
         >>> is_host_name("www.example.doesnotexist")
         True
 
-.. function:: is_ip_address
+.. autofunction:: is_ip_address
 
     Check if the instance is a valid IP address.
 
@@ -350,7 +350,7 @@ with.
 On OSes with the ``socket.inet_pton`` function, an additional checker for
 ``ipv6`` will be enabled:
 
-.. function:: is_ipv6
+.. function:: is_ipv6(instance)
 
     Check if the instance is a valid IPv6 address.
 
@@ -364,7 +364,7 @@ On OSes with the ``socket.inet_pton`` function, an additional checker for
 
 If the isodate_ library is present, a date-time checker will also be present.
 
-.. function:: is_date_time
+.. function:: is_date_time(instance)
 
     Check if the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
 
@@ -377,7 +377,7 @@ If the isodate_ library is present, a date-time checker will also be present.
 Additionally, if the webcolors_ library is present, some checkers related to
 CSS will be enabled:
 
-.. function:: is_css21_color
+.. function:: is_css21_color(instance)
 
     Check if the instance is a valid CSS 2.1 color name or code.
 
@@ -388,7 +388,7 @@ CSS will be enabled:
         >>> is_css_color_code("#CC8899")
         True
 
-.. function:: is_css3_color
+.. function:: is_css3_color(instance)
 
     Check if the instance is a valid CSS 3 color name or code.
 

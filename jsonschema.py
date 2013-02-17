@@ -87,13 +87,6 @@ class RefResolutionError(Exception):
 
 
 class SchemaError(Exception):
-    """
-    The provided schema is malformed.
-
-    The same attributes are present as for :exc:`ValidationError`\s.
-
-    """
-
     def __init__(self, message, validator=None, path=()):
         super(SchemaError, self).__init__(message, validator, path)
         self.message = message
@@ -105,17 +98,6 @@ class SchemaError(Exception):
 
 
 class ValidationError(Exception):
-    """
-    The instance didn't properly validate under the provided schema.
-
-    Relevant attributes are:
-        * ``message`` : a human readable message explaining the error
-        * ``path`` : a list containing the path to the offending element (or []
-                     if the error happened globally) in *reverse* order (i.e.
-                     deepest index first).
-
-    """
-
     def __init__(self, message, validator=None, path=()):
         # Any validator that recurses (e.g. properties and items) must append
         # to the ValidationError's path to properly maintain where in the
