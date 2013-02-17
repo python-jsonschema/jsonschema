@@ -54,6 +54,23 @@ FLOAT_TOLERANCE = 10 ** -15
 validators = {}
 
 
+class _Error(Exception):
+    def __init__(self, message, validator=None, path=()):
+        super(_Error, self).__init__(message, validator, path)
+        self.message = message
+        self.path = list(path)
+        self.validator = validator
+
+    def __str__(self):
+        return self.message
+
+
+class SchemaError(_Error): pass
+class ValidationError(_Error): pass
+class RefResolutionError(Exception): pass
+class UnknownType(Exception): pass
+
+
 def validates(version):
     """
     Register the decorated validator for a ``version`` of the specification.
@@ -70,31 +87,6 @@ def validates(version):
         validators[version] = cls
         return cls
     return _validates
-
-
-class UnknownType(Exception):
-    """
-    An attempt was made to check if an instance was of an unknown type.
-
-    """
-
-
-class RefResolutionError(Exception):
-    """
-    A JSON reference failed to resolve.
-
-    """
-
-
-class SchemaError(Exception):
-    def __init__(self, message, validator=None, path=()):
-        super(SchemaError, self).__init__(message, validator, path)
-        self.message = message
-        self.path = list(path)
-        self.validator = validator
-
-    def __str__(self):
-        return self.message
 
 
 class ValidationError(Exception):
