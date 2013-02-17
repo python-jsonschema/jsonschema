@@ -21,17 +21,6 @@ import re
 import socket
 import sys
 
-try:
-    import webcolors
-except ImportError:
-    webcolors = None
-
-try:
-    import isodate
-except ImportError:
-    isodate = None
-
-
 __version__ = "1.0.0-dev"
 
 PY3 = sys.version_info[0] >= 3
@@ -531,23 +520,6 @@ def is_time(instance):
         return False
 
 
-@FormatChecker.cls_checks("uri")
-def is_uri(instance):
-    # URI regex from http://snipplr.com/view/6889/
-    abs_uri = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
-               r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
-               r"-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:"
-               r"@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@"
-               r"]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9"
-               r"A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%["
-               r"0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|"
-               r"%[0-9A-Fa-f]{2})*))?$")
-    if re.match(abs_uri, instance):
-        return True
-    rel_uri = r"^(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2})*))?$"
-    return bool(re.match(rel_uri, instance))
-
-
 @FormatChecker.cls_checks("email")
 def is_email(instance):
     return "@" in instance
@@ -593,7 +565,25 @@ def is_regex(instance):
         return False
 
 
-if isodate is not None:
+try:
+    import rfc3987
+except ImportError:
+    pass
+else:
+    @FormatChecker.cls_checks("uri")
+    def is_uri(instance):
+        try:
+            rfc3987.parse(instance, rule="URI_reference")
+        except ValueError:
+            return False
+        return True
+
+
+try:
+    import isodate
+except ImportError:
+    pass
+else:
     @FormatChecker.cls_checks("date-time")
     def is_date_time(instance):
         try:
@@ -603,7 +593,11 @@ if isodate is not None:
             return False
 
 
-if webcolors is not None:
+try:
+    import webcolors
+except ImportError:
+    pass
+else:
     def is_css_color_code(instance):
         try:
             webcolors.normalize_hex(instance)

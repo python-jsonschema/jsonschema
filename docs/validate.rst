@@ -290,21 +290,6 @@ with.
         >>> is_ipv6("^(bob?cat$")
         False
 
-.. autofunction:: is_uri
-
-    Check if the instance is a valid URI.
-
-    Also supports relative URIs.
-
-        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
-        True
-        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
-        True
-        >>> is_uri(r"\\\\WINDOWS\My Files")
-        False
-        >>> is_uri("#/properties/foo")
-        True
-
 .. autofunction:: is_email
 
     Check if the instance is a valid e-mail address.
@@ -371,6 +356,24 @@ On OSes with the ``socket.inet_pton`` function, an additional checker for
         False
 
 
+If the rfc3987_ library is present, a checker for URIs will be present.
+
+.. function:: is_uri
+
+    Check if the instance is a valid URI.
+
+    Also supports relative URIs.
+
+        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
+        True
+        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
+        True
+        >>> is_uri(r"\\\\WINDOWS\My Files")
+        False
+        >>> is_uri("#/properties/foo")
+        True
+
+
 If the isodate_ library is present, a date-time checker will also be present.
 
 .. function:: is_date_time(instance)
@@ -409,4 +412,5 @@ CSS will be enabled:
         True
 
 .. _isodate: http://pypi.python.org/pypi/isodate/
+.. _rfc3987: http://pypi.python.org/pypi/rfc3987/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
