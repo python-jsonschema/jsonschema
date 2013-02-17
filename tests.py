@@ -17,7 +17,7 @@ except ImportError:
     import mock
 
 from jsonschema import (
-    PY3, abc, SchemaError, UnknownType, ValidationError, ErrorTree,
+    PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
     Draft3Validator, FormatChecker, RefResolver, validate
 )
 
@@ -75,13 +75,6 @@ class TypesMixin(object):
     @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
         self.validator_class({"type" : "string"}).validate(b"foo")
-
-    def test_mappings_are_objects(self):
-        class Mapping(abc.Mapping):
-            def __getitem__(self): return 12
-            def __iter__(self): return iter([])
-            def __len__(self): return 12
-        self.validator_class({"type" : "object"}).validate(Mapping())
 
 
 class DecimalMixin(object):

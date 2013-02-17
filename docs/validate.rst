@@ -155,18 +155,19 @@ a ``types`` argument on construction that specifies additional types, or which
 can be used to specify a different set of Python types to map to a given JSON
 type.
 
-``jsonschema`` tries to be as general as possible by default. For instance,
-JSON defines a ``number`` type, which can be validated with a schema such as
-``{"type" : "number"}``. By default, this will validate correctly for instances
-of Python :class:`number.Number`\s. This includes in particular :class:`int`\s
-and :class:`float`\s, along with `decimal.Decimal` objects, :class:`complex`
-numbers etc. See the numbers_ module documentation for more details.
+``jsonschema`` tries to strike a balance between performance in the common case
+and generality. For instance, JSON defines a ``number`` type, which can be
+validated with a schema such as ``{"type" : "number"}``. By default, this will
+accept instances of Python :class:`number.Number`. This includes in particular
+:class:`int`\s and :class:`float`\s, along with `decimal.Decimal` objects,
+:class:`complex` numbers etc. See the numbers_ module documentation for more
+details. For ``integer`` and ``object``, however, rather than checking for
+``number.Integral`` and ``collections.Mapping``, ``jsonschema`` simply checks
+for ``int`` and ``dict``, since the former can introduce significant slowdown.
 
-For most purposes, if you want to add additional types as being acceptible for
-a validator, you should do so by inheriting from the relevant ``abc`` or by
-registering the existing class with the ``abc``. If this isn't an option, or if
-you otherwise prefer not doing so, :class:`IValidator`\s have a ``types``
-argument that can be used to provide additional or new types.
+If you *do* want the generality, or just want to add a few specific additional
+types as being acceptible for a validator, :class:`IValidator`\s have a
+``types`` argument that can be used to provide additional or new types.
 
 .. code-block:: python
 

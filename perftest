@@ -6,22 +6,21 @@ A *very* basic performance test.
 
 from __future__ import print_function
 import argparse
+import textwrap
 import timeit
-
-from jsonschema import Draft3Validator, validate
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--number", type=int, default=100)
 arguments = parser.parse_args()
 
-instance = schema = Draft3Validator.META_SCHEMA
-
 results = timeit.timeit(
+    number=arguments.number,
     # Validate the Draft 3 meta-schema against itself without meta-validating
     stmt="validate(instance, schema)",
-    setup="from __main__ import instance, schema, validate",
-    number=arguments.number,
+    setup=textwrap.dedent("""
+    from jsonschema import Draft3Validator, validate
+    instance = schema = Draft3Validator.META_SCHEMA
+    """),
 )
 
 print(

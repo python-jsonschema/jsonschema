@@ -30,6 +30,7 @@ if PY3:
     from urllib.parse import unquote
     from urllib.request import urlopen
     basestring = unicode = str
+    long = int
     iteritems = operator.methodcaller("items")
 else:
     from itertools import izip as zip
@@ -37,11 +38,6 @@ else:
     from urllib2 import urlopen
     import urlparse
     iteritems = operator.methodcaller("iteritems")
-
-try:
-    from collections import abc
-except ImportError:
-    import collections as abc
 
 
 FLOAT_TOLERANCE = 10 ** -15
@@ -91,8 +87,8 @@ class Draft3Validator(object):
     """
 
     DEFAULT_TYPES = {
-        "array" : list, "boolean" : bool, "integer" : numbers.Integral,
-        "null" : type(None), "number" : numbers.Number, "object" : abc.Mapping,
+        "array" : list, "boolean" : bool, "integer" : (int, long),
+        "null" : type(None), "number" : numbers.Number, "object" : dict,
         "string" : basestring,
     }
 
