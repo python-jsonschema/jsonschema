@@ -466,8 +466,8 @@ class TestRefResolver(unittest.TestCase):
 
         with mock.patch("jsonschema.requests", None):
             with mock.patch("jsonschema.urlopen") as urlopen:
-                urlopen.return_value.read.return_value = \
-                    json.dumps(schema).encode("utf8")
+                urlopen.return_value.read.return_value = (
+                    json.dumps(schema).encode("utf8"))
                 resolved = self.resolver.resolve(ref)
 
         self.assertEqual(resolved, 12)

@@ -23,9 +23,6 @@ import sys
 
 try:
     import requests
-    # We need requests >= 1.0.0
-    if requests.__version__.split(".") < ["1"]:
-        requests = None
 except ImportError:
     requests = None
 
@@ -720,10 +717,14 @@ class RefResolver(object):
         scheme = urlparse.urlsplit(uri).scheme
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
-        elif scheme in ["http", "https"] and requests:
+        elif (scheme in ["http", "https"] and requests and
+              hasattr(requests.Response, "json")):
             # Requests has support for detecting the correct encoding of
             # json over http
-            result = requests.get(uri).json()
+            if callable(requests.Response.json):
+                result = requests.get(uri).json()
+            else:
+                result = requests.get(uri).json
         else:
             # Otherwise, pass off to urllib and assume utf8
             result = json.loads(urlopen(uri).read().decode("utf-8"))
