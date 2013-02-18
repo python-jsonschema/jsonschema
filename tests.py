@@ -16,6 +16,11 @@ try:
 except ImportError:
     import mock
 
+try:
+    from sys import pypy_version_info
+except ImportError:
+    pypy_version_info = None
+
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
     Draft3Validator, FormatChecker, RefResolver, validate
@@ -92,10 +97,17 @@ class DecimalMixin(object):
                 validator.validate(invalid)
 
 
-@load_json_cases(
-    "json/tests/draft3/optional/format.json",
-    skip=lambda case : case["schema"]["format"] not in FormatChecker.checkers
-)
+def missing_format(case):
+    format = case["schema"].get("format")
+    return format not in FormatChecker.checkers or (
+        # datetime.datetime is overzealous about typechecking in <=1.9
+        format == "date-time" and
+        pypy_version_info is not None and
+        pypy_version_info[:2] <= (1, 9)
+    )
+
+
+@load_json_cases("json/tests/draft3/optional/format.json", skip=missing_format)
 class FormatMixin(object):
 
     validator_kwargs = {"format_checker" : FormatChecker()}
