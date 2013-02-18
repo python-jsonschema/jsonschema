@@ -403,7 +403,7 @@ class Draft3Validator(object):
                 yield error
 
     def validate_ref(self, ref, instance, schema):
-        context, resolved = self.resolver.context_and_document(ref)
+        context, resolved = self.resolver.resolve_context_and_fragment(ref)
         with self.resolver.in_context(context):
             for error in self.iter_errors(instance, resolved):
                 yield error
@@ -856,15 +856,15 @@ class RefResolver(object):
 
         """
 
-        return self.context_and_document(ref)[1]
+        return self.resolve_context_and_fragment(ref)[1]
 
-    def context_and_document(self, ref):
+    def resolve_context_and_fragment(self, ref):
         """
         Resolve the context of a JSON ``ref`` as well as the specific
-        document pointed to by the fragment of the ref
+        section pointed to by the fragment of the ref
 
         :param ref: reference to resolve
-        :return: tuple of ref context, and document within that context
+        :return: tuple of ref context, and section within that context
         :rtype: tuple
 
         """

@@ -392,9 +392,9 @@ class TestDraft3Validator(unittest.TestCase):
         self.assertIsInstance(self.validator.resolver, RefResolver)
 
     def test_it_delegates_to_a_ref_resolver(self):
-        with mock.patch.object(RefResolver, 'context_and_document'):
+        with mock.patch.object(RefResolver, 'resolve_context_and_fragment'):
             resolver = RefResolver('', '')
-            resolver.context_and_document.return_value = (
+            resolver.resolve_context_and_fragment.return_value = (
                 {"type": "integer"},
                 {"type": "integer"}
             )
@@ -403,7 +403,7 @@ class TestDraft3Validator(unittest.TestCase):
             with self.assertRaises(ValidationError):
                 Draft3Validator(schema, resolver=resolver).validate(None)
 
-            resolver.context_and_document.assert_called_once_with(
+            resolver.resolve_context_and_fragment.assert_called_once_with(
                 schema["$ref"])
 
     def test_is_type_is_true_for_valid_type(self):
