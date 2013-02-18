@@ -874,7 +874,8 @@ class RefResolver(object):
 
         context = self.resolve_context(uri)
 
-        return context, self.resolve_fragment(context, fragment.lstrip('/'))
+        with self.in_context(context):
+            return context, self.resolve_fragment(fragment)
 
     def resolve_context(self, uri):
         """
@@ -895,16 +896,18 @@ class RefResolver(object):
 
         return document
 
-    def resolve_fragment(self, document, fragment):
+    def resolve_fragment(self, fragment):
         """
-        Resolve a ``fragment`` within the referenced ``document``.
+        Resolve a ``fragment`` within the current context.
 
-        :argument document: the referrant document
-        :argument str fragment: a URI fragment to resolve within it
+        :argument str fragment: a URI fragment to resolve
 
         """
 
+        fragment = fragment.lstrip("/")
         parts = unquote(fragment).split("/") if fragment else []
+
+        document = self.context
 
         for part in parts:
             part = part.replace("~1", "/").replace("~0", "~")
