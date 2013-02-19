@@ -20,6 +20,7 @@ import operator
 import re
 import socket
 import sys
+import contextlib
 
 try:
     import requests
@@ -357,9 +358,10 @@ class Draft3Validator(object):
                 yield error
 
     def validate_ref(self, ref, instance, schema):
-        resolved = self.resolver.resolve(ref)
-        for error in self.iter_errors(instance, resolved):
-            yield error
+        context, resolved = self.resolver.resolve_context_and_fragment(ref)
+        with self.resolver.in_context(context):
+            for error in self.iter_errors(instance, resolved):
+                yield error
 
 
 Draft3Validator.META_SCHEMA = {
@@ -642,7 +644,7 @@ class RefResolver(object):
     def __init__(self, base_uri, referrer, store=(), cache_remote=True,
                  handlers=()):
         self.base_uri = base_uri
-        self.referrer = referrer
+        self.context = referrer
         self.store = dict(store, **_meta_schemas())
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
@@ -659,6 +661,22 @@ class RefResolver(object):
 
         return cls(schema.get("id", ""), schema, *args, **kwargs)
 
+    @contextlib.contextmanager
+    def in_context(self, context):
+        """
+        Context manager which changes the context a relative fragment should
+        be looked up in.
+
+        :param context: context to be used for relative fragment lookups
+        :return:
+
+        """
+
+        old_context = self.context
+        self.context = context
+        yield
+        self.context = old_context
+
     def resolve(self, ref):
         """
         Resolve a JSON ``ref``.
@@ -668,28 +686,58 @@ class RefResolver(object):
 
         """
 
+        return self.resolve_context_and_fragment(ref)[1]
+
+    def resolve_context_and_fragment(self, ref):
+        """
+        Resolve the context of a JSON ``ref`` as well as the specific
+        section pointed to by the fragment of the ref
+
+        :param ref: reference to resolve
+        :return: tuple of ref context, and section within that context
+        :rtype: tuple
+
+        """
+
         base_uri = self.base_uri
         uri, fragment = urlparse.urldefrag(urlparse.urljoin(base_uri, ref))
+
+        context = self.resolve_context(uri)
+
+        with self.in_context(context):
+            return context, self.resolve_fragment(fragment)
+
+    def resolve_context(self, uri):
+        """
+        Resolves the document given ``uri`` points to.
+        ``uri`` should not contain a fragment.
+
+        :argument str uri: the URI to resolve
+        :returns: the json document the URI refers to
+
+        """
 
         if uri in self.store:
             document = self.store[uri]
         elif not uri or uri == self.base_uri:
-            document = self.referrer
+            document = self.context
         else:
             document = self.resolve_remote(uri)
 
-        return self.resolve_fragment(document, fragment.lstrip("/"))
+        return document
 
-    def resolve_fragment(self, document, fragment):
+    def resolve_fragment(self, fragment):
         """
-        Resolve a ``fragment`` within the referenced ``document``.
+        Resolve a ``fragment`` within the current context.
 
-        :argument document: the referrant document
-        :argument str fragment: a URI fragment to resolve within it
+        :argument str fragment: a URI fragment to resolve
 
         """
 
+        fragment = fragment.lstrip("/")
         parts = unquote(fragment).split("/") if fragment else []
+
+        document = self.context
 
         for part in parts:
             part = part.replace("~1", "/").replace("~0", "~")

@@ -404,14 +404,19 @@ class TestDraft3Validator(unittest.TestCase):
         self.assertIsInstance(self.validator.resolver, RefResolver)
 
     def test_it_delegates_to_a_ref_resolver(self):
-        resolver = mock.Mock()
-        resolver.resolve.return_value = {"type" : "integer"}
-        schema = {"$ref" : mock.Mock()}
+        with mock.patch.object(RefResolver, 'resolve_context_and_fragment'):
+            resolver = RefResolver('', '')
+            resolver.resolve_context_and_fragment.return_value = (
+                {"type": "integer"},
+                {"type": "integer"}
+            )
+            schema = {"$ref": mock.Mock()}
 
-        with self.assertRaises(ValidationError):
-            Draft3Validator(schema, resolver=resolver).validate(None)
+            with self.assertRaises(ValidationError):
+                Draft3Validator(schema, resolver=resolver).validate(None)
 
-        resolver.resolve.assert_called_once_with(schema["$ref"])
+            resolver.resolve_context_and_fragment.assert_called_once_with(
+                schema["$ref"])
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
@@ -489,13 +494,13 @@ class TestRefResolver(unittest.TestCase):
         schema = {"id" : "foo"}
         resolver = RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "foo")
-        self.assertEqual(resolver.referrer, schema)
+        self.assertEqual(resolver.context, schema)
 
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
         resolver = RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "")
-        self.assertEqual(resolver.referrer, schema)
+        self.assertEqual(resolver.context, schema)
 
     def test_custom_uri_scheme_handlers(self):
         schema = {"foo": "bar"}
