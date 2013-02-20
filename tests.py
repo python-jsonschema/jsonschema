@@ -407,8 +407,8 @@ class TestDraft3Validator(unittest.TestCase):
         resolver = RefResolver("", {})
         schema = {"$ref" : mock.Mock()}
 
-        with mock.patch.object(resolver, "resolve") as resolve:
-            resolve.return_value = {"type" : "integer"}
+        with mock.patch.object(resolver, "resolve_with_scope") as resolve:
+            resolve.return_value = {"type" : "integer"}, ""
             with self.assertRaises(ValidationError):
                 Draft3Validator(schema, resolver=resolver).validate(None)
 
