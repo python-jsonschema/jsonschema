@@ -361,8 +361,7 @@ class Draft3Validator(object):
                 yield error
 
     def validate_ref(self, ref, instance, schema):
-        resolved, scope = self.resolver.resolve_with_scope(ref)
-        with self.resolver.in_scope(scope):
+        with self.resolver.resolving(ref) as resolved:
             for error in self.iter_errors(instance, resolved):
                 yield error
 
@@ -674,13 +673,13 @@ class RefResolver(object):
         finally:
             self.resolution_scope = old_scope
 
-    def resolve_with_scope(self, ref):
+    @contextlib.contextmanager
+    def resolving(self, ref):
         """
-        Resolve a JSON ``ref`` and the new resolution scope.
+        Context manager which resolves a JSON ``ref`` and enters the
+        resolution scope of this ref.
 
         :argument str ref: reference to resolve
-        :returns: tuple of the referenced schema and the resolution scope of it
-        :rtype: tuple
 
         """
 
@@ -694,18 +693,8 @@ class RefResolver(object):
         else:
             document = self.resolve_remote(uri)
 
-        return self.resolve_fragment(document, fragment.lstrip("/")), uri
-
-    def resolve(self, ref):
-        """
-        Resolve a JSON ``ref``.
-
-        :argument str ref: reference to resolve
-        :returns: the referenced schema
-
-        """
-
-        return self.resolve_with_scope(ref)[0]
+        with self.in_scope(uri):
+            yield self.resolve_fragment(document, fragment.lstrip("/"))
 
     def resolve_fragment(self, document, fragment):
         """
