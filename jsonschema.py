@@ -12,6 +12,7 @@ instance under a schema, and will create a validator for you.
 from __future__ import division, unicode_literals
 
 import collections
+import contextlib
 import datetime
 import itertools
 import json
@@ -138,18 +139,21 @@ class Draft3Validator(object):
         if _schema is None:
             _schema = self.schema
 
-        for k, v in iteritems(_schema):
-            validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
+        with self.resolver.in_scope(_schema.get("id", "")):
+            for k, v in iteritems(_schema):
+                validator = getattr(self,
+                                    "validate_%s" % (k.lstrip("$"),), None)
 
-            if validator is None:
-                continue
+                if validator is None:
+                    continue
 
-            errors = validator(v, instance, _schema) or ()
-            for error in errors:
-                # set the validator if it wasn't already set by the called fn
-                if error.validator is None:
-                    error.validator = k
-                yield error
+                errors = validator(v, instance, _schema) or ()
+                for error in errors:
+                    # set the validator if it wasn't already set by the
+                    # called function
+                    if error.validator is None:
+                        error.validator = k
+                    yield error
 
     def validate(self, *args, **kwargs):
         for error in self.iter_errors(*args, **kwargs):
@@ -357,9 +361,9 @@ class Draft3Validator(object):
                 yield error
 
     def validate_ref(self, ref, instance, schema):
-        resolved = self.resolver.resolve(ref)
-        for error in self.iter_errors(instance, resolved):
-            yield error
+        with self.resolver.resolving(ref) as resolved:
+            for error in self.iter_errors(instance, resolved):
+                yield error
 
 
 Draft3Validator.META_SCHEMA = {
@@ -642,6 +646,7 @@ class RefResolver(object):
     def __init__(self, base_uri, referrer, store=(), cache_remote=True,
                  handlers=()):
         self.base_uri = base_uri
+        self.resolution_scope = base_uri
         self.referrer = referrer
         self.store = dict(store, **_meta_schemas())
         self.cache_remote = cache_remote
@@ -659,17 +664,27 @@ class RefResolver(object):
 
         return cls(schema.get("id", ""), schema, *args, **kwargs)
 
-    def resolve(self, ref):
+    @contextlib.contextmanager
+    def in_scope(self, scope):
+        old_scope = self.resolution_scope
+        self.resolution_scope = urlparse.urljoin(old_scope, scope)
+        try:
+            yield
+        finally:
+            self.resolution_scope = old_scope
+
+    @contextlib.contextmanager
+    def resolving(self, ref):
         """
-        Resolve a JSON ``ref``.
+        Context manager which resolves a JSON ``ref`` and enters the
+        resolution scope of this ref.
 
         :argument str ref: reference to resolve
-        :returns: the referrant document
 
         """
 
-        base_uri = self.base_uri
-        uri, fragment = urlparse.urldefrag(urlparse.urljoin(base_uri, ref))
+        full_uri = urlparse.urljoin(self.resolution_scope, ref)
+        uri, fragment = urlparse.urldefrag(full_uri)
 
         if uri in self.store:
             document = self.store[uri]
@@ -678,7 +693,13 @@ class RefResolver(object):
         else:
             document = self.resolve_remote(uri)
 
-        return self.resolve_fragment(document, fragment.lstrip("/"))
+        old_base_uri, old_referrer = self.base_uri, self.referrer
+        self.base_uri, self.referrer = uri, document
+        try:
+            with self.in_scope(uri):
+                yield self.resolve_fragment(document, fragment)
+        finally:
+            self.base_uri, self.referrer = old_base_uri, old_referrer
 
     def resolve_fragment(self, document, fragment):
         """
@@ -689,6 +710,7 @@ class RefResolver(object):
 
         """
 
+        fragment = fragment.lstrip("/")
         parts = unquote(fragment).split("/") if fragment else []
 
         for part in parts:
