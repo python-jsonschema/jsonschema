@@ -693,8 +693,13 @@ class RefResolver(object):
         else:
             document = self.resolve_remote(uri)
 
-        with self.in_scope(uri):
-            yield self.resolve_fragment(document, fragment.lstrip("/"))
+        old_base_uri, old_referrer = self.base_uri, self.referrer
+        self.base_uri, self.referrer = uri, document
+        try:
+            with self.in_scope(uri):
+                yield self.resolve_fragment(document, fragment)
+        finally:
+            self.base_uri, self.referrer = old_base_uri, old_referrer
 
     def resolve_fragment(self, document, fragment):
         """
@@ -705,6 +710,7 @@ class RefResolver(object):
 
         """
 
+        fragment = fragment.lstrip("/")
         parts = unquote(fragment).split("/") if fragment else []
 
         for part in parts:
