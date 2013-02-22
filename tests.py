@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 from decimal import Decimal
 import contextlib
 import glob
+import json
 import os
 import re
 import sys
-import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
     import unittest2 as unittest
@@ -542,7 +542,7 @@ class TestFormatChecker(unittest.TestCase):
 
     def test_it_raises_a_key_error_for_unknown_formats(self):
         with self.assertRaises(KeyError):
-            checker = FormatChecker(formats=["o noes"])
+            FormatChecker(formats=["o noes"])
 
     def test_it_can_register_cls_checkers(self):
         with mock.patch.dict(FormatChecker.checkers, clear=True):
@@ -559,5 +559,6 @@ class TestFormatChecker(unittest.TestCase):
 
 
 def sorted_errors(errors):
-    def key(error) : return ([str(e) for e in error.path], error.validator)
+    def key(error):
+        return [str(e) for e in error.path], error.validator
     return sorted(errors, key=key)
