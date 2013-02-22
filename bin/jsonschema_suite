@@ -1,18 +1,19 @@
 #! /usr/bin/env python
+from __future__ import print_function
 import sys
 import textwrap
 
 try:
     import argparse
 except ImportError:
-    print textwrap.dedent("""
+    print(textwrap.dedent("""
         The argparse library could not be imported. jsonschema_suite requires
         either Python 2.7 or for you to install argparse. You can do so by
         running `pip install argparse`, `easy_install argparse` or by
         downloading argparse and running `python2.6 setup.py install`.
 
         See https://pypi.python.org/pypi/argparse for details.
-    """.strip("\n"))
+    """.strip("\n")))
     sys.exit(1)
 
 import errno
@@ -33,7 +34,8 @@ except ImportError:
     jsonschema = None
 
 
-ROOT_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
+ROOT_DIR = os.path.join(
+    os.path.dirname(__file__), os.pardir).rstrip("__pycache__")
 SUITE_ROOT_DIR = os.path.join(ROOT_DIR, "tests")
 
 REMOTES = {
@@ -102,9 +104,9 @@ def collect(root_dir):
 class SanityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        print "Looking for tests in %s" % SUITE_ROOT_DIR
+        print("Looking for tests in %s" % SUITE_ROOT_DIR)
         cls.test_files = list(collect(SUITE_ROOT_DIR))
-        print "Found %s test files" % len(cls.test_files)
+        print("Found %s test files" % len(cls.test_files))
         assert cls.test_files, "Didn't find the test files!"
 
     def test_all_files_are_valid_json(self):
@@ -158,7 +160,7 @@ class SanityTests(unittest.TestCase):
                 self.fail(str(error))
 
     def test_remote_schemas_are_updated(self):
-        for url, schema in REMOTES.iteritems():
+        for url, schema in REMOTES.items():
             filepath = os.path.join(REMOTES_DIR, url)
             with open(filepath) as schema_file:
                 self.assertEqual(json.load(schema_file), schema)
@@ -186,11 +188,11 @@ def main(arguments):
             os.makedirs(arguments.out_dir)
         except OSError as e:
             if e.errno == errno.EEXIST:
-                print "%s already exists. Aborting." % arguments.out_dir
+                print("%s already exists. Aborting." % arguments.out_dir)
                 sys.exit(1)
             raise
 
-        for url, schema in REMOTES.iteritems():
+        for url, schema in REMOTES.items():
             filepath = os.path.join(arguments.out_dir, url)
 
             try:
@@ -205,7 +207,7 @@ def main(arguments):
         try:
             from flask import Flask, jsonify
         except ImportError:
-            print textwrap.dedent("""
+            print(textwrap.dedent("""
                 The Flask library is required to serve the remote schemas.
 
                 You can install it by running `pip install Flask`.
@@ -213,7 +215,7 @@ def main(arguments):
                 Alternatively, see the `jsonschema_suite remotes` or
                 `jsonschema_suite dump_remotes` commands to create static files
                 that can be served with your own web server.
-            """.strip("\n"))
+            """.strip("\n")))
             sys.exit(1)
 
         app = Flask(__name__)
