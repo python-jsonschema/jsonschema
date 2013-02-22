@@ -28,6 +28,11 @@ from jsonschema import (
 )
 
 
+THIS_DIR = os.path.dirname(__file__)
+TESTS_DIR = os.path.join(THIS_DIR, "json", "tests")
+JSONSCHEMA_SUITE = os.path.join(THIS_DIR, "json", "bin", "jsonschema_suite")
+
+
 def make_case(schema, data, valid):
     if valid:
         def test_case(self):
@@ -41,9 +46,17 @@ def make_case(schema, data, valid):
     return test_case
 
 
-def load_json_cases(tests_glob, basedir=os.path.dirname(__file__), skip=None):
+def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
+    if ignore_glob:
+        ignore_glob = os.path.join(basedir, ignore_glob)
+
     def add_test_methods(test_class):
+        ignored = set(glob.iglob(ignore_glob))
+
         for filename in glob.iglob(os.path.join(basedir, tests_glob)):
+            if filename in ignored:
+                continue
+
             validating, _ = os.path.splitext(os.path.basename(filename))
 
             with open(filename) as test_file:
@@ -108,7 +121,7 @@ def missing_format(case):
     )
 
 
-@load_json_cases("json/tests/draft3/optional/format.json", skip=missing_format)
+@load_json_cases("draft3/optional/format.json", skip=missing_format)
 class FormatMixin(object):
 
     validator_kwargs = {"format_checker" : FormatChecker()}
@@ -134,8 +147,9 @@ class FormatMixin(object):
             validator.validate("bar")
 
 
-@load_json_cases("json/tests/draft3/*.json")
-@load_json_cases("json/tests/draft3/optional/bignum.json")
+@load_json_cases("draft3/*.json", ignore_glob="draft3/refRemote.json")
+@load_json_cases("draft3/optional/bignum.json")
+@load_json_cases("draft3/optional/zeroTerminatedFloats.json")
 class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 
     validator_class = Draft3Validator
