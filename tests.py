@@ -33,7 +33,11 @@ THIS_DIR = os.path.dirname(__file__)
 TESTS_DIR = os.path.join(THIS_DIR, "json", "tests")
 
 JSONSCHEMA_SUITE = os.path.join(THIS_DIR, "json", "bin", "jsonschema_suite")
-REMOTES = json.loads(subprocess.check_output([JSONSCHEMA_SUITE, "remotes"]))
+REMOTES = json.load(
+    subprocess.Popen(
+        [JSONSCHEMA_SUITE, "remotes"], stdout=subprocess.PIPE,
+    ).stdout
+)
 
 
 def make_case(schema, data, valid):
