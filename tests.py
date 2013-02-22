@@ -5,6 +5,7 @@ import glob
 import json
 import os
 import re
+import subprocess
 import sys
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
@@ -30,7 +31,9 @@ from jsonschema import (
 
 THIS_DIR = os.path.dirname(__file__)
 TESTS_DIR = os.path.join(THIS_DIR, "json", "tests")
+
 JSONSCHEMA_SUITE = os.path.join(THIS_DIR, "json", "bin", "jsonschema_suite")
+REMOTES = json.loads(subprocess.check_output([JSONSCHEMA_SUITE, "remotes"]))
 
 
 def make_case(schema, data, valid):
@@ -166,6 +169,22 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
             validate([1], {"minItems" : "1"})  # needs to be an integer
+
+
+@load_json_cases("draft3/refRemote.json")
+class TestDraft3RemoteRefResolution(unittest.TestCase):
+
+    validator_class = Draft3Validator
+
+    def setUp(self):
+        patch = mock.patch("jsonschema.requests")
+        requests = patch.start()
+        requests.get.side_effect = self.resolve
+        self.addCleanup(patch.stop)
+
+    def resolve(self, reference):
+        _, _, reference = reference.partition("http://localhost:1234/")
+        return mock.Mock(**{"json.return_value" : REMOTES.get(reference)})
 
 
 class TestIterErrors(unittest.TestCase):
