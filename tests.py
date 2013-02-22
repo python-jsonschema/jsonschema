@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 from decimal import Decimal
+from subprocess import PIPE
 import contextlib
 import glob
+import io
 import json
 import os
 import re
@@ -33,11 +35,11 @@ THIS_DIR = os.path.dirname(__file__)
 TESTS_DIR = os.path.join(THIS_DIR, "json", "tests")
 
 JSONSCHEMA_SUITE = os.path.join(THIS_DIR, "json", "bin", "jsonschema_suite")
-REMOTES = json.load(
-    subprocess.Popen(
-        [JSONSCHEMA_SUITE, "remotes"], stdout=subprocess.PIPE,
-    ).stdout
-)
+
+REMOTES = subprocess.Popen([JSONSCHEMA_SUITE, "remotes"], stdout=PIPE).stdout
+if PY3:
+    REMOTES = io.TextIOWrapper(REMOTES)
+REMOTES = json.load(REMOTES)
 
 
 def make_case(schema, data, valid):
