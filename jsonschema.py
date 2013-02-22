@@ -141,8 +141,8 @@ class Draft3Validator(object):
 
         with self.resolver.in_scope(_schema.get("id", "")):
             for k, v in iteritems(_schema):
-                validator = getattr(self,
-                                    "validate_%s" % (k.lstrip("$"),), None)
+                validator_attr = "validate_%s" % (k.lstrip("$"),)
+                validator = getattr(self, validator_attr, None)
 
                 if validator is None:
                     continue
@@ -731,16 +731,31 @@ class RefResolver(object):
 
         Does not check the store first.
 
+        .. note::
+
+            If the requests_ library is present, ``jsonschema`` will use it to
+            request the remote ``uri``, so that the correct encoding is
+            detected and used.
+
+            If it isn't, or if the scheme of the ``uri`` is not ``http`` or
+            ``https``, UTF-8 is assumed.
+
         :argument str uri: the URI to resolve
         :returns: the retrieved document
+
+        .. _requests: http://pypi.python.org/pypi/requests/
 
         """
 
         scheme = urlparse.urlsplit(uri).scheme
+
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
-        elif (scheme in ["http", "https"] and requests and
-              hasattr(requests.Response, "json")):
+        elif (
+            scheme in ["http", "https"] and
+            requests and
+            getattr(requests.Response, "json", None) is not None
+        ):
             # Requests has support for detecting the correct encoding of
             # json over http
             if callable(requests.Response.json):
@@ -748,7 +763,7 @@ class RefResolver(object):
             else:
                 result = requests.get(uri).json
         else:
-            # Otherwise, pass off to urllib and assume utf8
+            # Otherwise, pass off to urllib and assume utf-8
             result = json.loads(urlopen(uri).read().decode("utf-8"))
 
         if self.cache_remote:
