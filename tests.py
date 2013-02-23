@@ -175,11 +175,13 @@ class TestDraft3(
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
         with self.assertRaises(SchemaError):
-            validate({}, {"properties": {"test": True}})
+            validate({}, {"properties": {"test": True}},
+                     cls=self.validator_class)
 
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
-            validate([1], {"minItems" : "1"})  # needs to be an integer
+            # needs to be an integer
+            validate([1], {"minItems" : "1"}, cls=self.validator_class)
 
 
 @load_json_cases("draft4/*.json",
@@ -197,11 +199,13 @@ class TestDraft4(
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
         with self.assertRaises(SchemaError):
-            validate({}, {"properties": {"test": True}})
+            validate({}, {"properties": {"test": True}},
+                     cls=self.validator_class)
 
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
-            validate([1], {"minItems" : "1"})  # needs to be an integer
+            # needs to be an integer
+            validate([1], {"minItems" : "1"}, cls=self.validator_class)
 
 
 class RemoteRefResolution(unittest.TestCase):
@@ -265,6 +269,7 @@ class TestIterErrors(unittest.TestCase):
 
 class TestValidationErrorMessages(unittest.TestCase):
     def message_for(self, instance, schema, *args, **kwargs):
+        kwargs.setdefault("cls", Draft3Validator)
         with self.assertRaises(ValidationError) as e:
             validate(instance, schema, *args, **kwargs)
         return e.exception.message
@@ -522,6 +527,20 @@ class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
 
 class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft4Validator
+
+
+class TestValidate(unittest.TestCase):
+    def test_draft3_validator_is_chosen(self):
+        schema = {"$schema" : "http://json-schema.org/draft-03/schema#"}
+        with mock.patch.object(Draft3Validator, "check_schema") as chk_schema:
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
+
+    def test_draft4_validator_is_chosen(self):
+        schema = {"$schema" : "http://json-schema.org/draft-04/schema#"}
+        with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
 
 
 class TestRefResolver(unittest.TestCase):
