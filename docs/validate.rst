@@ -343,15 +343,15 @@ with.
         >>> is_host_name("www.example.doesnotexist")
         True
 
-.. autofunction:: is_ip_address
+.. autofunction:: is_ipv4
 
     Check if the instance is a valid IP address.
 
-        >>> is_ip_address("192.168.0.1")
+        >>> is_ipv4("192.168.0.1")
         True
-        >>> is_ip_address("::1")
+        >>> is_ipv4("::1")
         False
-        >>> is_ip_address("256.256.256.256")
+        >>> is_ipv4("256.256.256.256")
         False
 
 On OSes with the ``socket.inet_pton`` function, an additional checker for

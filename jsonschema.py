@@ -81,14 +81,15 @@ def validates(version):
 
     def _validates(cls):
         validators[version] = cls
+        if "id" in cls.META_SCHEMA:
+            validators[cls.META_SCHEMA["id"]] = cls
         return cls
     return _validates
 
 
-@validates("draft3")
-class Draft3Validator(object):
+class ValidatorMixin(object):
     """
-    A validator for JSON Schema draft 3.
+    Concretely implements IValidator.
 
     """
 
@@ -110,9 +111,7 @@ class Draft3Validator(object):
         self.schema = schema
 
     def is_type(self, instance, type):
-        if type == "any":
-            return True
-        elif type not in self._types:
+        if type not in self._types:
             raise UnknownType(type)
         pytypes = self._types[type]
 
@@ -159,34 +158,12 @@ class Draft3Validator(object):
         for error in self.iter_errors(*args, **kwargs):
             raise error
 
-    def validate_type(self, types, instance, schema):
-        types = _list(types)
 
-        for type in types:
-            if self.is_type(type, "object"):
-                if self.is_valid(instance, type):
-                    return
-            elif self.is_type(type, "string"):
-                if self.is_type(instance, type):
-                    return
-        else:
-            yield ValidationError(_types_msg(instance, types))
+class _Draft34Common(ValidatorMixin):
+    """
+    Contains the validator methods common to both JSON schema drafts.
 
-    def validate_properties(self, properties, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for property, subschema in iteritems(properties):
-            if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
-                    error.path.append(property)
-                    yield error
-            elif subschema.get("required", False):
-                yield ValidationError(
-                    "%r is a required property" % (property,),
-                    validator="required",
-                    path=[property],
-                )
+    """
 
     def validate_patternProperties(self, patternProperties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -212,25 +189,6 @@ class Draft3Validator(object):
             error = "Additional properties are not allowed (%s %s unexpected)"
             yield ValidationError(error % _extras_msg(extras))
 
-    def validate_dependencies(self, dependencies, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for property, dependency in iteritems(dependencies):
-            if property not in instance:
-                continue
-
-            if self.is_type(dependency, "object"):
-                for error in self.iter_errors(instance, dependency):
-                    yield error
-            else:
-                dependencies = _list(dependency)
-                for dependency in dependencies:
-                    if dependency not in instance:
-                        yield ValidationError(
-                            "%r is a dependency of %r" % (dependency, property)
-                        )
-
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
             return
@@ -248,8 +206,8 @@ class Draft3Validator(object):
 
     def validate_additionalItems(self, aI, instance, schema):
         if (
-            not self.is_type(instance, "array") or
-            not self.is_type(schema.get("items"), "array")
+                not self.is_type(instance, "array") or
+                self.is_type(schema.get("items", {}), "object")
         ):
             return
 
@@ -297,6 +255,19 @@ class Draft3Validator(object):
                 "%r is %s the maximum of %r" % (instance, cmp, maximum)
             )
 
+    def _validate_multipleOf(self, dB, instance, schema):
+        if not self.is_type(instance, "number"):
+            return
+
+        if isinstance(dB, float):
+            mod = instance % dB
+            failed = (mod > FLOAT_TOLERANCE) and (dB - mod) > FLOAT_TOLERANCE
+        else:
+            failed = instance % dB
+
+        if failed:
+            yield ValidationError("%r is not multiple of %r" % (instance, dB))
+
     def validate_minItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) < mI:
             yield ValidationError("%r is too short" % (instance,))
@@ -329,22 +300,71 @@ class Draft3Validator(object):
         if self.is_type(instance, "string") and len(instance) > mL:
             yield ValidationError("%r is too long" % (instance,))
 
+    def validate_dependencies(self, dependencies, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
+        for property, dependency in iteritems(dependencies):
+            if property not in instance:
+                continue
+
+            if self.is_type(dependency, "object"):
+                for error in self.iter_errors(instance, dependency):
+                    yield error
+            else:
+                dependencies = _list(dependency)
+                for dependency in dependencies:
+                    if dependency not in instance:
+                        yield ValidationError(
+                            "%r is a dependency of %r" % (dependency, property)
+                        )
+
     def validate_enum(self, enums, instance, schema):
         if instance not in enums:
             yield ValidationError("%r is not one of %r" % (instance, enums))
 
-    def validate_divisibleBy(self, dB, instance, schema):
-        if not self.is_type(instance, "number"):
+    def validate_ref(self, ref, instance, schema):
+        with self.resolver.resolving(ref) as resolved:
+            for error in self.iter_errors(instance, resolved):
+                yield error
+
+@validates("draft3")
+class Draft3Validator(_Draft34Common):
+    """
+    A validator for JSON Schema draft 3.
+
+    """
+
+    def validate_type(self, types, instance, schema):
+        types = _list(types)
+
+        for type in types:
+            if type == 'any':
+                return
+            if self.is_type(type, "object"):
+                if self.is_valid(instance, type):
+                    return
+            elif self.is_type(type, "string"):
+                if self.is_type(instance, type):
+                    return
+        else:
+            yield ValidationError(_types_msg(instance, types))
+
+    def validate_properties(self, properties, instance, schema):
+        if not self.is_type(instance, "object"):
             return
 
-        if isinstance(dB, float):
-            mod = instance % dB
-            failed = (mod > FLOAT_TOLERANCE) and (dB - mod) > FLOAT_TOLERANCE
-        else:
-            failed = instance % dB
-
-        if failed:
-            yield ValidationError("%r is not divisible by %r" % (instance, dB))
+        for property, subschema in iteritems(properties):
+            if property in instance:
+                for error in self.iter_errors(instance[property], subschema):
+                    error.path.append(property)
+                    yield error
+            elif subschema.get("required", False):
+                yield ValidationError(
+                    "%r is a required property" % (property,),
+                    validator="required",
+                    path=[property],
+                    )
 
     def validate_disallow(self, disallow, instance, schema):
         for disallowed in _list(disallow):
@@ -360,94 +380,320 @@ class Draft3Validator(object):
             for error in self.iter_errors(instance, subschema):
                 yield error
 
-    def validate_ref(self, ref, instance, schema):
-        with self.resolver.resolving(ref) as resolved:
-            for error in self.iter_errors(instance, resolved):
+    validate_divisibleBy = _Draft34Common._validate_multipleOf
+
+
+    META_SCHEMA = {
+        "$schema" : "http://json-schema.org/draft-03/schema#",
+        "id" : "http://json-schema.org/draft-03/schema#",
+        "type" : "object",
+
+        "properties" : {
+            "type" : {
+                "type" : ["string", "array"],
+                "items" : {"type" : ["string", {"$ref" : "#"}]},
+                "uniqueItems" : True,
+                "default" : "any"
+            },
+            "properties" : {
+                "type" : "object",
+                "additionalProperties" : {"$ref" : "#", "type": "object"},
+                "default" : {}
+            },
+            "patternProperties" : {
+                "type" : "object",
+                "additionalProperties" : {"$ref" : "#"},
+                "default" : {}
+            },
+            "additionalProperties" : {
+                "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
+            },
+            "items" : {
+                "type" : [{"$ref" : "#"}, "array"],
+                "items" : {"$ref" : "#"},
+                "default" : {}
+            },
+            "additionalItems" : {
+                "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
+            },
+            "required" : {"type" : "boolean", "default" : False},
+            "dependencies" : {
+                "type" : ["string", "array", "object"],
+                "additionalProperties" : {
+                    "type" : ["string", "array", {"$ref" : "#"}],
+                    "items" : {"type" : "string"}
+                },
+                "default" : {}
+            },
+            "minimum" : {"type" : "number"},
+            "maximum" : {"type" : "number"},
+            "exclusiveMinimum" : {"type" : "boolean", "default" : False},
+            "exclusiveMaximum" : {"type" : "boolean", "default" : False},
+            "minItems" : {"type" : "integer", "minimum" : 0, "default" : 0},
+            "maxItems" : {"type" : "integer", "minimum" : 0},
+            "uniqueItems" : {"type" : "boolean", "default" : False},
+            "pattern" : {"type" : "string", "format" : "regex"},
+            "minLength" : {"type" : "integer", "minimum" : 0, "default" : 0},
+            "maxLength" : {"type" : "integer"},
+            "enum" : {"type" : "array", "minItems" : 1, "uniqueItems" : True},
+            "default" : {"type" : "any"},
+            "title" : {"type" : "string"},
+            "description" : {"type" : "string"},
+            "format" : {"type" : "string"},
+            "maxDecimal" : {"type" : "number", "minimum" : 0},
+            "divisibleBy" : {
+                "type" : "number",
+                "minimum" : 0,
+                "exclusiveMinimum" : True,
+                "default" : 1
+            },
+            "disallow" : {
+                "type" : ["string", "array"],
+                "items" : {"type" : ["string", {"$ref" : "#"}]},
+                "uniqueItems" : True
+            },
+            "extends" : {
+                "type" : [{"$ref" : "#"}, "array"],
+                "items" : {"$ref" : "#"},
+                "default" : {}
+            },
+            "id" : {"type" : "string", "format" : "uri"},
+            "$ref" : {"type" : "string", "format" : "uri"},
+            "$schema" : {"type" : "string", "format" : "uri"},
+        },
+        "dependencies" : {
+            "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
+        },
+    }
+
+
+@validates("draft4")
+class Draft4Validator(_Draft34Common):
+    """
+    A validator for JSON Schema draft 4.
+
+    """
+
+    def validate_type(self, types, instance, schema):
+        types = _list(types)
+
+        if not any(self.is_type(instance, type) for type in types):
+            yield ValidationError(_types_msg(instance, types))
+
+    def validate_properties(self, properties, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
+        for property, subschema in iteritems(properties):
+            if property in instance:
+                for error in self.iter_errors(instance[property], subschema):
+                    error.path.append(property)
+                    yield error
+
+    def validate_required(self, required, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+        for property in required:
+            if property not in instance:
+                yield ValidationError("%r is required property" % property)
+
+    def validate_minProperties(self, mP, instance, schema):
+        if self.is_type(instance, "object") and len(instance) < mP:
+            yield ValidationError("%r is too short" % (instance,))
+
+    def validate_maxProperties(self, mP, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+        if self.is_type(instance, "object") and len(instance) > mP:
+            yield ValidationError("%r is too short" % (instance,))
+
+    def validate_allOf(self, allOf, instance, schema):
+        for subschema in allOf:
+            for error in self.iter_errors(instance, subschema):
                 yield error
 
+    def validate_oneOf(self, oneOf, instance, schema):
+        one_valid = False
+        for subschema in oneOf:
+            if self.is_valid(instance, subschema):
+                if one_valid:
+                    # TODO: Better error message?
+                    yield ValidationError(
+                        "more than one schema was valid"
+                    )
+                one_valid = True
+        if not one_valid:
+            # TODO: Better error message?
+            yield ValidationError(
+                "none of the schemas were valid"
+            )
 
-Draft3Validator.META_SCHEMA = {
-    "$schema" : "http://json-schema.org/draft-03/schema#",
-    "id" : "http://json-schema.org/draft-03/schema#",
-    "type" : "object",
+    def validate_anyOf(self, anyOf, instance, schema):
+        if not any(self.is_valid(instance, subschema) for subschema in anyOf):
+            # TODO: Better error message?
+            yield ValidationError(
+                "none of the schemas were valid"
+            )
 
-    "properties" : {
-        "type" : {
-            "type" : ["string", "array"],
-            "items" : {"type" : ["string", {"$ref" : "#"}]},
-            "uniqueItems" : True,
-            "default" : "any"
-        },
-        "properties" : {
-            "type" : "object",
-            "additionalProperties" : {"$ref" : "#", "type": "object"},
-            "default" : {}
-        },
-        "patternProperties" : {
-            "type" : "object",
-            "additionalProperties" : {"$ref" : "#"},
-            "default" : {}
-        },
-        "additionalProperties" : {
-            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
-        },
-        "items" : {
-            "type" : [{"$ref" : "#"}, "array"],
-            "items" : {"$ref" : "#"},
-            "default" : {}
-        },
-        "additionalItems" : {
-            "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
-        },
-        "required" : {"type" : "boolean", "default" : False},
-        "dependencies" : {
-            "type" : ["string", "array", "object"],
-            "additionalProperties" : {
-                "type" : ["string", "array", {"$ref" : "#"}],
-                "items" : {"type" : "string"}
+    def validate_not(self, not_schema, instance, schema):
+        if self.is_valid(instance, not_schema):
+            yield ValidationError(
+                "%r is not allowed for %r" % (not_schema, instance)
+            )
+
+    validate_multipleOf = _Draft34Common._validate_multipleOf
+
+
+    META_SCHEMA = {
+        "id": "http://json-schema.org/draft-04/schema#",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "description": "Core schema meta-schema",
+        "definitions": {
+            "schemaArray": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"$ref": "#"}
             },
-            "default" : {}
+            "positiveInteger": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "positiveIntegerDefault0": {
+                "allOf": [{"$ref": "#/definitions/positiveInteger"}, {"default": 0}]
+            },
+            "simpleTypes": {
+                "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
+            },
+            "stringArray": {
+                "type": "array",
+                "items": {"type": "string"},
+                "minItems": 1,
+                "uniqueItems": True
+            }
         },
-        "minimum" : {"type" : "number"},
-        "maximum" : {"type" : "number"},
-        "exclusiveMinimum" : {"type" : "boolean", "default" : False},
-        "exclusiveMaximum" : {"type" : "boolean", "default" : False},
-        "minItems" : {"type" : "integer", "minimum" : 0, "default" : 0},
-        "maxItems" : {"type" : "integer", "minimum" : 0},
-        "uniqueItems" : {"type" : "boolean", "default" : False},
-        "pattern" : {"type" : "string", "format" : "regex"},
-        "minLength" : {"type" : "integer", "minimum" : 0, "default" : 0},
-        "maxLength" : {"type" : "integer"},
-        "enum" : {"type" : "array", "minItems" : 1, "uniqueItems" : True},
-        "default" : {"type" : "any"},
-        "title" : {"type" : "string"},
-        "description" : {"type" : "string"},
-        "format" : {"type" : "string"},
-        "maxDecimal" : {"type" : "number", "minimum" : 0},
-        "divisibleBy" : {
-            "type" : "number",
-            "minimum" : 0,
-            "exclusiveMinimum" : True,
-            "default" : 1
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+                "format": "uri"
+            },
+            "$schema": {
+                "type": "string",
+                "format": "uri"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "default": {},
+            "multipleOf": {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMinimum": True
+            },
+            "maximum": {
+                "type": "number"
+            },
+            "exclusiveMaximum": {
+                "type": "boolean",
+                "default": False
+            },
+            "minimum": {
+                "type": "number"
+            },
+            "exclusiveMinimum": {
+                "type": "boolean",
+                "default": False
+            },
+            "maxLength": {"$ref": "#/definitions/positiveInteger"},
+            "minLength": {"$ref": "#/definitions/positiveIntegerDefault0"},
+            "pattern": {
+                "type": "string",
+                "format": "regex"
+            },
+            "additionalItems": {
+                "anyOf": [
+                    {"type": "boolean"},
+                    {"$ref": "#"}
+                ],
+                "default": {}
+            },
+            "items": {
+                "anyOf": [
+                    {"$ref": "#"},
+                    {"$ref": "#/definitions/schemaArray"}
+                ],
+                "default": {}
+            },
+            "maxItems": {"$ref": "#/definitions/positiveInteger"},
+            "minItems": {"$ref": "#/definitions/positiveIntegerDefault0"},
+            "uniqueItems": {
+                "type": "boolean",
+                "default": False
+            },
+            "maxProperties": {"$ref": "#/definitions/positiveInteger"},
+            "minProperties": {"$ref": "#/definitions/positiveIntegerDefault0"},
+            "required": {"$ref": "#/definitions/stringArray"},
+            "additionalProperties": {
+                "anyOf": [
+                    {"type": "boolean"},
+                    {"$ref": "#"}
+                ],
+                "default": {}
+            },
+            "definitions": {
+                "type": "object",
+                "additionalProperties": {"$ref": "#"},
+                "default": {}
+            },
+            "properties": {
+                "type": "object",
+                "additionalProperties": {"$ref": "#"},
+                "default": {}
+            },
+            "patternProperties": {
+                "type": "object",
+                "additionalProperties": {"$ref": "#"},
+                "default": {}
+            },
+            "dependencies": {
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {"$ref": "#"},
+                        {"$ref": "#/definitions/stringArray"}
+                    ]
+                }
+            },
+            "enum": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": True
+            },
+            "type": {
+                "anyOf": [
+                    {"$ref": "#/definitions/simpleTypes"},
+                    {
+                        "type": "array",
+                        "items": {"$ref": "#/definitions/simpleTypes"},
+                        "minItems": 1,
+                        "uniqueItems": True
+                    }
+                ]
+            },
+            "allOf": {"$ref": "#/definitions/schemaArray"},
+            "anyOf": {"$ref": "#/definitions/schemaArray"},
+            "oneOf": {"$ref": "#/definitions/schemaArray"},
+            "not": {"$ref": "#"}
         },
-        "disallow" : {
-            "type" : ["string", "array"],
-            "items" : {"type" : ["string", {"$ref" : "#"}]},
-            "uniqueItems" : True
+        "dependencies": {
+            "exclusiveMaximum": ["maximum"],
+            "exclusiveMinimum": ["minimum"]
         },
-        "extends" : {
-            "type" : [{"$ref" : "#"}, "array"],
-            "items" : {"$ref" : "#"},
-            "default" : {}
-        },
-        "id" : {"type" : "string", "format" : "uri"},
-        "$ref" : {"type" : "string", "format" : "uri"},
-        "$schema" : {"type" : "string", "format" : "uri"},
-    },
-    "dependencies" : {
-        "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
-    },
-}
+        "default": {}
+    }
 
 
 class FormatChecker(object):
@@ -469,7 +715,7 @@ class FormatChecker(object):
                                 can be used to limit which formats will be used
                                 during validation.
 
-        >>> checker = FormatChecker(formats=("date", "regex"))
+        >>> checker = FormatChecker(formats=("date-time", "regex"))
 
     """
 
@@ -512,31 +758,13 @@ class FormatChecker(object):
         return True
 
 
-@FormatChecker.cls_checks("date")
-def is_date(instance):
-    try:
-        datetime.datetime.strptime(instance, "%Y-%m-%d")
-        return True
-    except ValueError:
-        return False
-
-
-@FormatChecker.cls_checks("time")
-def is_time(instance):
-    try:
-        datetime.datetime.strptime(instance, "%H:%M:%S")
-        return True
-    except ValueError:
-        return False
-
-
 @FormatChecker.cls_checks("email")
 def is_email(instance):
     return "@" in instance
 
 
-@FormatChecker.cls_checks("ip-address")
-def is_ip_address(instance):
+@FormatChecker.cls_checks("ipv4")
+def is_ipv4(instance):
     try:
         socket.inet_aton(instance)
         return True
@@ -554,7 +782,7 @@ if hasattr(socket, "inet_pton"):
             return False
 
 
-@FormatChecker.cls_checks("host-name")
+@FormatChecker.cls_checks("hostname")
 def is_host_name(instance):
     pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
     if not re.match(pattern, instance):
@@ -603,6 +831,30 @@ else:
             return False
 
 
+draft4_format_checker = FormatChecker()
+draft3_format_checker = FormatChecker()
+draft3_format_checker.checks('ip-address')(is_ipv4)
+draft3_format_checker.checks('host-name')(is_host_name)
+
+
+@draft3_format_checker.checks("date")
+def is_date(instance):
+    try:
+        datetime.datetime.strptime(instance, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+
+
+@draft3_format_checker.checks("time")
+def is_time(instance):
+    try:
+        datetime.datetime.strptime(instance, "%H:%M:%S")
+        return True
+    except ValueError:
+        return False
+
+
 try:
     import webcolors
 except ImportError:
@@ -616,7 +868,7 @@ else:
         return True
 
 
-    @FormatChecker.cls_checks("color")
+    @draft3_format_checker.checks("color")
     def is_css21_color(instance):
         if instance.lower() in webcolors.css21_names_to_hex:
             return True
@@ -979,6 +1231,11 @@ def _uniq(container):
     return True
 
 
-def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
+def validate(instance, schema, cls=None, *args, **kwargs):
+    if not cls:
+        if schema.get("$schema") in validators:
+            cls = validators[schema["$schema"]]
+        else:
+            cls = Draft4Validator
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)

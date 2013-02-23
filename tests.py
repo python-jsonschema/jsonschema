@@ -27,7 +27,8 @@ except ImportError:
 
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, FormatChecker, RefResolver, validate
+    Draft3Validator, Draft4Validator, FormatChecker, draft3_format_checker,
+    draft4_format_checker, RefResolver, validate
 )
 
 
@@ -36,7 +37,7 @@ TESTS_DIR = os.path.join(THIS_DIR, "json", "tests")
 
 JSONSCHEMA_SUITE = os.path.join(THIS_DIR, "json", "bin", "jsonschema_suite")
 
-REMOTES = subprocess.Popen([JSONSCHEMA_SUITE, "remotes"], stdout=PIPE).stdout
+REMOTES = subprocess.Popen(["python", JSONSCHEMA_SUITE, "remotes"], stdout=PIPE).stdout
 if PY3:
     REMOTES = io.TextIOWrapper(REMOTES)
 REMOTES = json.load(REMOTES)
@@ -120,21 +121,19 @@ class DecimalMixin(object):
                 validator.validate(invalid)
 
 
-def missing_format(case):
-    format = case["schema"].get("format")
-    return format not in FormatChecker.checkers or (
-        # datetime.datetime is overzealous about typechecking in <=1.9
-        format == "date-time" and
-        pypy_version_info is not None and
-        pypy_version_info[:2] <= (1, 9)
-    )
+def missing_format(checker):
+    def missing_format(case):
+        format = case["schema"].get("format")
+        return format not in checker.checkers or (
+            # datetime.datetime is overzealous about typechecking in <=1.9
+            format == "date-time" and
+            pypy_version_info is not None and
+            pypy_version_info[:2] <= (1, 9)
+        )
+    return missing_format
 
 
-@load_json_cases("draft3/optional/format.json", skip=missing_format)
 class FormatMixin(object):
-
-    validator_kwargs = {"format_checker" : FormatChecker()}
-
     def test_it_does_not_validate_formats_by_default(self):
         validator = self.validator_class({})
         self.assertIsNone(validator.format_checker)
@@ -156,12 +155,18 @@ class FormatMixin(object):
             validator.validate("bar")
 
 
-@load_json_cases("draft3/*.json", ignore_glob="draft3/refRemote.json")
+@load_json_cases("draft3/*.json",
+                 ignore_glob=os.path.join("draft3", "refRemote.json"))
 @load_json_cases("draft3/optional/bignum.json")
 @load_json_cases("draft3/optional/zeroTerminatedFloats.json")
-class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+@load_json_cases("draft3/optional/format.json",
+                 skip=missing_format(draft3_format_checker))
+class TestDraft3(
+    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
+):
 
     validator_class = Draft3Validator
+    validator_kwargs = {"format_checker" : draft3_format_checker}
 
     def test_any_type_is_valid_for_type_any(self):
         validator = self.validator_class({"type" : "any"})
@@ -170,17 +175,40 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
         with self.assertRaises(SchemaError):
-            validate({}, {"properties": {"test": True}})
+            validate({}, {"properties": {"test": True}},
+                     cls=self.validator_class)
 
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
-            validate([1], {"minItems" : "1"})  # needs to be an integer
+            # needs to be an integer
+            validate([1], {"minItems" : "1"}, cls=self.validator_class)
 
 
-@load_json_cases("draft3/refRemote.json")
-class TestDraft3RemoteRefResolution(unittest.TestCase):
+@load_json_cases("draft4/*.json",
+                 ignore_glob=os.path.join("draft4", "refRemote.json"))
+@load_json_cases("draft4/optional/bignum.json")
+@load_json_cases("draft4/optional/zeroTerminatedFloats.json")
+@load_json_cases("draft4/optional/format.json",
+                 skip=missing_format(draft4_format_checker))
+class TestDraft4(
+    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
+):
+    validator_class = Draft4Validator
+    validator_kwargs = {"format_checker" : draft4_format_checker}
 
-    validator_class = Draft3Validator
+    # TODO: we're in need of more meta schema tests
+    def test_invalid_properties(self):
+        with self.assertRaises(SchemaError):
+            validate({}, {"properties": {"test": True}},
+                     cls=self.validator_class)
+
+    def test_minItems_invalid_string(self):
+        with self.assertRaises(SchemaError):
+            # needs to be an integer
+            validate([1], {"minItems" : "1"}, cls=self.validator_class)
+
+
+class RemoteRefResolution(unittest.TestCase):
 
     def setUp(self):
         patch = mock.patch("jsonschema.requests")
@@ -191,6 +219,18 @@ class TestDraft3RemoteRefResolution(unittest.TestCase):
     def resolve(self, reference):
         _, _, reference = reference.partition("http://localhost:1234/")
         return mock.Mock(**{"json.return_value" : REMOTES.get(reference)})
+
+
+@load_json_cases("draft3/refRemote.json")
+class Draft3RemoteResolution(RemoteRefResolution):
+
+    validator_class = Draft3Validator
+
+
+@load_json_cases("draft4/refRemote.json")
+class Draft4RemoteResolution(RemoteRefResolution):
+
+    validator_class = Draft4Validator
 
 
 class TestIterErrors(unittest.TestCase):
@@ -229,6 +269,7 @@ class TestIterErrors(unittest.TestCase):
 
 class TestValidationErrorMessages(unittest.TestCase):
     def message_for(self, instance, schema, *args, **kwargs):
+        kwargs.setdefault("cls", Draft3Validator)
         with self.assertRaises(ValidationError) as e:
             validate(instance, schema, *args, **kwargs)
         return e.exception.message
@@ -409,12 +450,12 @@ class TestErrorTree(unittest.TestCase):
         self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
 
 
-class TestDraft3Validator(unittest.TestCase):
+class ValidatorTestMixin(object):
     def setUp(self):
         self.instance = mock.Mock()
         self.schema = {}
         self.resolver = mock.Mock()
-        self.validator = Draft3Validator(self.schema)
+        self.validator = self.validator_class(self.schema)
 
     def test_valid_instances_are_valid(self):
         errors = iter([])
@@ -454,7 +495,7 @@ class TestDraft3Validator(unittest.TestCase):
         with mock.patch.object(resolver, "resolving") as resolve:
             resolve.return_value = resolving()
             with self.assertRaises(ValidationError):
-                Draft3Validator(schema, resolver=resolver).validate(None)
+                self.validator_class(schema, resolver=resolver).validate(None)
 
         resolve.assert_called_once_with(schema["$ref"])
 
@@ -464,20 +505,42 @@ class TestDraft3Validator(unittest.TestCase):
     def test_is_type_is_false_for_invalid_type(self):
         self.assertFalse(self.validator.is_type("foo", "array"))
 
-    def test_is_type_is_true_for_any_type(self):
-        self.assertTrue(self.validator.is_type(mock.Mock(), "any"))
-
     def test_is_type_evades_bool_inheriting_from_int(self):
         self.assertFalse(self.validator.is_type(True, "integer"))
         self.assertFalse(self.validator.is_type(True, "number"))
 
-    def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
-        self.assertTrue(self.validator.is_type(True, "boolean"))
-        self.assertTrue(self.validator.is_type(True, "any"))
-
     def test_is_type_raises_exception_for_unknown_type(self):
         with self.assertRaises(UnknownType):
             self.validator.is_type("foo", object())
+
+
+class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
+    validator_class = Draft3Validator
+
+    def test_is_type_is_true_for_any_type(self):
+        self.assertTrue(self.validator.is_valid(mock.Mock(), {"type": "any"}))
+
+    def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
+        self.assertTrue(self.validator.is_type(True, "boolean"))
+        self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
+
+
+class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
+    validator_class = Draft4Validator
+
+
+class TestValidate(unittest.TestCase):
+    def test_draft3_validator_is_chosen(self):
+        schema = {"$schema" : "http://json-schema.org/draft-03/schema#"}
+        with mock.patch.object(Draft3Validator, "check_schema") as chk_schema:
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
+
+    def test_draft4_validator_is_chosen(self):
+        schema = {"$schema" : "http://json-schema.org/draft-04/schema#"}
+        with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
 
 
 class TestRefResolver(unittest.TestCase):
