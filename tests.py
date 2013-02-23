@@ -445,12 +445,12 @@ class TestErrorTree(unittest.TestCase):
         self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
 
 
-class TestDraft3Validator(unittest.TestCase):
+class ValidatorTestMixin(object):
     def setUp(self):
         self.instance = mock.Mock()
         self.schema = {}
         self.resolver = mock.Mock()
-        self.validator = Draft3Validator(self.schema)
+        self.validator = self.validator_class(self.schema)
 
     def test_valid_instances_are_valid(self):
         errors = iter([])
@@ -490,7 +490,7 @@ class TestDraft3Validator(unittest.TestCase):
         with mock.patch.object(resolver, "resolving") as resolve:
             resolve.return_value = resolving()
             with self.assertRaises(ValidationError):
-                Draft3Validator(schema, resolver=resolver).validate(None)
+                self.validator_class(schema, resolver=resolver).validate(None)
 
         resolve.assert_called_once_with(schema["$ref"])
 
@@ -500,20 +500,28 @@ class TestDraft3Validator(unittest.TestCase):
     def test_is_type_is_false_for_invalid_type(self):
         self.assertFalse(self.validator.is_type("foo", "array"))
 
-    def test_is_type_is_true_for_any_type(self):
-        self.assertTrue(self.validator.is_valid(mock.Mock(), {"type": "any"}))
-
     def test_is_type_evades_bool_inheriting_from_int(self):
         self.assertFalse(self.validator.is_type(True, "integer"))
         self.assertFalse(self.validator.is_type(True, "number"))
+
+    def test_is_type_raises_exception_for_unknown_type(self):
+        with self.assertRaises(UnknownType):
+            self.validator.is_type("foo", object())
+
+
+class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
+    validator_class = Draft3Validator
+
+    def test_is_type_is_true_for_any_type(self):
+        self.assertTrue(self.validator.is_valid(mock.Mock(), {"type": "any"}))
 
     def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
         self.assertTrue(self.validator.is_type(True, "boolean"))
         self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
 
-    def test_is_type_raises_exception_for_unknown_type(self):
-        with self.assertRaises(UnknownType):
-            self.validator.is_type("foo", object())
+
+class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
+    validator_class = Draft4Validator
 
 
 class TestRefResolver(unittest.TestCase):
