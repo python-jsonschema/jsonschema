@@ -1,26 +1,46 @@
 from __future__ import unicode_literals
 from decimal import Decimal
+from subprocess import PIPE
+import contextlib
 import glob
+import io
+import json
 import os
 import re
+import subprocess
 import sys
-import json
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
-    from unittest2 import TestCase, skipIf
+    import unittest2 as unittest
 else:
-    from unittest import TestCase, skipIf
+    import unittest
 
 try:
     from unittest import mock
 except ImportError:
     import mock
 
+try:
+    from sys import pypy_version_info
+except ImportError:
+    pypy_version_info = None
+
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
     Draft3Validator, Draft4Validator, FormatChecker, draft3_format_checker,
     draft4_format_checker, RefResolver, validate
 )
+
+
+THIS_DIR = os.path.dirname(__file__)
+TESTS_DIR = os.path.join(THIS_DIR, "json", "tests")
+
+JSONSCHEMA_SUITE = os.path.join(THIS_DIR, "json", "bin", "jsonschema_suite")
+
+REMOTES = subprocess.Popen(["python", JSONSCHEMA_SUITE, "remotes"], stdout=PIPE).stdout
+if PY3:
+    REMOTES = io.TextIOWrapper(REMOTES)
+REMOTES = json.load(REMOTES)
 
 
 def make_case(schema, data, valid):
@@ -36,9 +56,17 @@ def make_case(schema, data, valid):
     return test_case
 
 
-def load_json_cases(tests_glob, basedir=os.path.dirname(__file__)):
+def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
+    if ignore_glob:
+        ignore_glob = os.path.join(basedir, ignore_glob)
+
     def add_test_methods(test_class):
+        ignored = set(glob.iglob(ignore_glob))
+
         for filename in glob.iglob(os.path.join(basedir, tests_glob)):
+            if filename in ignored:
+                continue
+
             validating, _ = os.path.splitext(os.path.basename(filename))
 
             with open(filename) as test_file:
@@ -61,14 +89,19 @@ def load_json_cases(tests_glob, basedir=os.path.dirname(__file__)):
                             test_name = test_name.encode("utf-8")
                         a_test.__name__ = test_name
 
+                        if skip is not None and skip(case):
+                            a_test = unittest.skip("Checker not present.")(
+                                a_test
+                            )
+
                         setattr(test_class, test_name, a_test)
 
         return test_class
     return add_test_methods
 
 
-class BytesMixin(object):
-    @skipIf(PY3, "The JSON module in Python 3 always produces unicode")
+class TypesMixin(object):
+    @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
         self.validator_class({"type" : "string"}).validate(b"foo")
 
@@ -88,15 +121,16 @@ class DecimalMixin(object):
                 validator.validate(invalid)
 
 
-class AnyTypeMixin(object):
-    def test_any_type_is_valid_for_type_any(self):
-        validator = self.validator_class({"type" : "any"})
-        validator.validate(mock.Mock())
-
-
-@load_json_cases("json/tests/draft3/optional/bignum.json")
-class BigNumMixin(object):
-    pass
+def missing_format(checker):
+    def missing_format(case):
+        format = case["schema"].get("format")
+        return format not in checker.checkers or (
+            # datetime.datetime is overzealous about typechecking in <=1.9
+            format == "date-time" and
+            pypy_version_info is not None and
+            pypy_version_info[:2] <= (1, 9)
+        )
+    return missing_format
 
 
 class FormatMixin(object):
@@ -121,22 +155,22 @@ class FormatMixin(object):
             validator.validate("bar")
 
 
-@load_json_cases("json/tests/draft3/optional/format.json")
-class Draft3FormatMixin(object):
+@load_json_cases("draft3/*.json",
+                 ignore_glob=os.path.join("draft3", "refRemote.json"))
+@load_json_cases("draft3/optional/bignum.json")
+@load_json_cases("draft3/optional/zeroTerminatedFloats.json")
+@load_json_cases("draft3/optional/format.json",
+                 skip=missing_format(draft3_format_checker))
+class TestDraft3(
+    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
+):
+
+    validator_class = Draft3Validator
     validator_kwargs = {"format_checker" : draft3_format_checker}
 
-
-@load_json_cases("json/tests/draft4/optional/format.json")
-class Draft4FormatMixin(object):
-    validator_kwargs = {"format_checker" : draft4_format_checker}
-
-
-@load_json_cases("json/tests/draft3/*.json")
-class TestDraft3(
-    TestCase, BytesMixin, DecimalMixin, AnyTypeMixin, Draft3FormatMixin,
-    BigNumMixin
-):
-    validator_class = Draft3Validator
+    def test_any_type_is_valid_for_type_any(self):
+        validator = self.validator_class({"type" : "any"})
+        validator.validate(mock.Mock())
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
@@ -148,11 +182,17 @@ class TestDraft3(
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
 
-@load_json_cases("json/tests/draft4/*.json")
+@load_json_cases("draft4/*.json",
+                 ignore_glob=os.path.join("draft4", "refRemote.json"))
+@load_json_cases("draft4/optional/bignum.json")
+@load_json_cases("draft4/optional/zeroTerminatedFloats.json")
+@load_json_cases("draft4/optional/format.json",
+                 skip=missing_format(draft4_format_checker))
 class TestDraft4(
-    TestCase, BytesMixin, DecimalMixin, Draft4FormatMixin, BigNumMixin
+    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
 ):
     validator_class = Draft4Validator
+    validator_kwargs = {"format_checker" : draft4_format_checker}
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
@@ -164,7 +204,32 @@ class TestDraft4(
             validate([1], {"minItems" : "1"})  # needs to be an integer
 
 
-class TestIterErrors(TestCase):
+class RemoteRefResolution(unittest.TestCase):
+
+    def setUp(self):
+        patch = mock.patch("jsonschema.requests")
+        requests = patch.start()
+        requests.get.side_effect = self.resolve
+        self.addCleanup(patch.stop)
+
+    def resolve(self, reference):
+        _, _, reference = reference.partition("http://localhost:1234/")
+        return mock.Mock(**{"json.return_value" : REMOTES.get(reference)})
+
+
+@load_json_cases("draft3/refRemote.json")
+class Draft3RemoteResolution(RemoteRefResolution):
+
+    validator_class = Draft3Validator
+
+
+@load_json_cases("draft4/refRemote.json")
+class Draft4RemoteResolution(RemoteRefResolution):
+
+    validator_class = Draft4Validator
+
+
+class TestIterErrors(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
@@ -198,7 +263,7 @@ class TestIterErrors(TestCase):
         self.assertEqual(len(errors), 4)
 
 
-class TestValidationErrorMessages(TestCase):
+class TestValidationErrorMessages(unittest.TestCase):
     def message_for(self, instance, schema, *args, **kwargs):
         with self.assertRaises(ValidationError) as e:
             validate(instance, schema, *args, **kwargs)
@@ -272,7 +337,7 @@ class TestValidationErrorMessages(TestCase):
         self.assertIn("is not a", message)
 
 
-class TestValidationErrorDetails(TestCase):
+class TestValidationErrorDetails(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
@@ -338,7 +403,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e6.validator, "enum")
 
 
-class TestErrorTree(TestCase):
+class TestErrorTree(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
@@ -380,7 +445,7 @@ class TestErrorTree(TestCase):
         self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
 
 
-class TestDraft3Validator(TestCase):
+class TestDraft3Validator(unittest.TestCase):
     def setUp(self):
         self.instance = mock.Mock()
         self.schema = {}
@@ -415,14 +480,19 @@ class TestDraft3Validator(TestCase):
         self.assertIsInstance(self.validator.resolver, RefResolver)
 
     def test_it_delegates_to_a_ref_resolver(self):
-        resolver = mock.Mock()
-        resolver.resolve.return_value = {"type" : "integer"}
+        resolver = RefResolver("", {})
         schema = {"$ref" : mock.Mock()}
 
-        with self.assertRaises(ValidationError):
-            Draft3Validator(schema, resolver=resolver).validate(None)
+        @contextlib.contextmanager
+        def resolving():
+            yield {"type": "integer"}
 
-        resolver.resolve.assert_called_once_with(schema["$ref"])
+        with mock.patch.object(resolver, "resolving") as resolve:
+            resolve.return_value = resolving()
+            with self.assertRaises(ValidationError):
+                Draft3Validator(schema, resolver=resolver).validate(None)
+
+        resolve.assert_called_once_with(schema["$ref"])
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
@@ -446,7 +516,7 @@ class TestDraft3Validator(TestCase):
             self.validator.is_type("foo", object())
 
 
-class TestRefResolver(TestCase):
+class TestRefResolver(unittest.TestCase):
     def setUp(self):
         self.base_uri = ""
         self.referrer = {}
@@ -456,31 +526,41 @@ class TestRefResolver(TestCase):
     def test_it_does_not_retrieve_schema_urls_from_the_network(self):
         ref = Draft3Validator.META_SCHEMA["id"]
         with mock.patch.object(self.resolver, "resolve_remote") as remote:
-            resolved = self.resolver.resolve(ref)
-
-        self.assertEqual(resolved, Draft3Validator.META_SCHEMA)
+            with self.resolver.resolving(ref) as resolved:
+                self.assertEqual(resolved, Draft3Validator.META_SCHEMA)
         self.assertFalse(remote.called)
 
     def test_it_resolves_local_refs(self):
         ref = "#/properties/foo"
         self.referrer["properties"] = {"foo" : object()}
-        resolved = self.resolver.resolve(ref)
-        self.assertEqual(resolved, self.referrer["properties"]["foo"])
+        with self.resolver.resolving(ref) as resolved:
+            self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
     def test_it_retrieves_stored_refs(self):
         self.resolver.store["cached_ref"] = {"foo" : 12}
-        resolved = self.resolver.resolve("cached_ref#/foo")
-        self.assertEqual(resolved, 12)
+        with self.resolver.resolving("cached_ref#/foo") as resolved:
+            self.assertEqual(resolved, 12)
+
+    def test_it_retrieves_unstored_refs_via_requests(self):
+        ref = "http://bar#baz"
+        schema = {"baz" : 12}
+
+        with mock.patch("jsonschema.requests") as requests:
+            requests.get.return_value.json.return_value = schema
+            with self.resolver.resolving(ref) as resolved:
+                self.assertEqual(resolved, 12)
+        requests.get.assert_called_once_with("http://bar")
 
     def test_it_retrieves_unstored_refs_via_urlopen(self):
         ref = "http://bar#baz"
         schema = {"baz" : 12}
 
-        with mock.patch("jsonschema.urlopen") as urlopen:
-            urlopen.return_value.read.return_value = json.dumps(schema)
-            resolved = self.resolver.resolve(ref)
-
-        self.assertEqual(resolved, 12)
+        with mock.patch("jsonschema.requests", None):
+            with mock.patch("jsonschema.urlopen") as urlopen:
+                urlopen.return_value.read.return_value = (
+                    json.dumps(schema).encode("utf8"))
+                with self.resolver.resolving(ref) as resolved:
+                    self.assertEqual(resolved, 12)
         urlopen.assert_called_once_with("http://bar")
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
@@ -495,8 +575,39 @@ class TestRefResolver(TestCase):
         self.assertEqual(resolver.base_uri, "")
         self.assertEqual(resolver.referrer, schema)
 
+    def test_custom_uri_scheme_handlers(self):
+        schema = {"foo": "bar"}
+        ref = "foo://bar"
+        foo_handler = mock.Mock(return_value=schema)
+        resolver = RefResolver("", {}, handlers={"foo": foo_handler})
+        with resolver.resolving(ref) as resolved:
+            self.assertEqual(resolved, schema)
+        foo_handler.assert_called_once_with(ref)
 
-class TestFormatChecker(TestCase):
+    def test_cache_remote_on(self):
+        ref = "foo://bar"
+        foo_handler = mock.Mock()
+        resolver = RefResolver("", {}, cache_remote=True,
+                               handlers={"foo": foo_handler})
+        with resolver.resolving(ref):
+            pass
+        with resolver.resolving(ref):
+            pass
+        foo_handler.assert_called_once_with(ref)
+
+    def test_cache_remote_off(self):
+        ref = "foo://bar"
+        foo_handler = mock.Mock()
+        resolver = RefResolver("", {}, cache_remote=False,
+                               handlers={"foo": foo_handler})
+        with resolver.resolving(ref):
+            pass
+        with resolver.resolving(ref):
+            pass
+        self.assertEqual(foo_handler.call_count, 2)
+
+
+class TestFormatChecker(unittest.TestCase):
     def setUp(self):
         self.fn = mock.Mock()
 
@@ -506,7 +617,7 @@ class TestFormatChecker(TestCase):
 
     def test_it_raises_a_key_error_for_unknown_formats(self):
         with self.assertRaises(KeyError):
-            checker = FormatChecker(formats=["o noes"])
+            FormatChecker(formats=["o noes"])
 
     def test_it_can_register_cls_checkers(self):
         with mock.patch.dict(FormatChecker.checkers, clear=True):
@@ -523,5 +634,6 @@ class TestFormatChecker(TestCase):
 
 
 def sorted_errors(errors):
-    def key(error) : return ([str(e) for e in error.path], error.validator)
+    def key(error):
+        return [str(e) for e in error.path], error.validator
     return sorted(errors, key=key)

@@ -12,6 +12,7 @@ instance under a schema, and will create a validator for you.
 from __future__ import division, unicode_literals
 
 import collections
+import contextlib
 import datetime
 import itertools
 import json
@@ -22,10 +23,9 @@ import socket
 import sys
 
 try:
-    import webcolors
+    import requests
 except ImportError:
-    webcolors = None
-
+    requests = None
 
 __version__ = "1.0.0-dev"
 
@@ -36,6 +36,7 @@ if PY3:
     from urllib.parse import unquote
     from urllib.request import urlopen
     basestring = unicode = str
+    long = int
     iteritems = operator.methodcaller("items")
 else:
     from itertools import izip as zip
@@ -47,6 +48,23 @@ else:
 
 FLOAT_TOLERANCE = 10 ** -15
 validators = {}
+
+
+class _Error(Exception):
+    def __init__(self, message, validator=None, path=()):
+        super(_Error, self).__init__(message, validator, path)
+        self.message = message
+        self.path = list(path)
+        self.validator = validator
+
+    def __str__(self):
+        return self.message
+
+
+class SchemaError(_Error): pass
+class ValidationError(_Error): pass
+class RefResolutionError(Exception): pass
+class UnknownType(Exception): pass
 
 
 def validates(version):
@@ -67,63 +85,6 @@ def validates(version):
     return _validates
 
 
-class UnknownType(Exception):
-    """
-    An attempt was made to check if an instance was of an unknown type.
-
-    """
-
-
-class RefResolutionError(Exception):
-    """
-    A JSON reference failed to resolve.
-
-    """
-
-
-class SchemaError(Exception):
-    """
-    The provided schema is malformed.
-
-    The same attributes are present as for :exc:`ValidationError`\s.
-
-    """
-
-    def __init__(self, message, validator=None, path=()):
-        super(SchemaError, self).__init__(message, validator, path)
-        self.message = message
-        self.path = list(path)
-        self.validator = validator
-
-    def __str__(self):
-        return self.message
-
-
-class ValidationError(Exception):
-    """
-    The instance didn't properly validate under the provided schema.
-
-    Relevant attributes are:
-        * ``message`` : a human readable message explaining the error
-        * ``path`` : a list containing the path to the offending element (or []
-                     if the error happened globally) in *reverse* order (i.e.
-                     deepest index first).
-
-    """
-
-    def __init__(self, message, validator=None, path=()):
-        # Any validator that recurses (e.g. properties and items) must append
-        # to the ValidationError's path to properly maintain where in the
-        # instance the error occurred
-        super(ValidationError, self).__init__(message, validator, path)
-        self.message = message
-        self.path = list(path)
-        self.validator = validator
-
-    def __str__(self):
-        return self.message
-
-
 class ValidatorMixin(object):
     """
     Concretely implements IValidator.
@@ -131,7 +92,7 @@ class ValidatorMixin(object):
     """
 
     DEFAULT_TYPES = {
-        "array" : list, "boolean" : bool, "integer" : numbers.Integral,
+        "array" : list, "boolean" : bool, "integer" : (int, long),
         "null" : type(None), "number" : numbers.Number, "object" : dict,
         "string" : basestring,
     }
@@ -175,18 +136,21 @@ class ValidatorMixin(object):
         if _schema is None:
             _schema = self.schema
 
-        for k, v in iteritems(_schema):
-            validator = getattr(self, "validate_%s" % (k.lstrip("$"),), None)
+        with self.resolver.in_scope(_schema.get("id", "")):
+            for k, v in iteritems(_schema):
+                validator_attr = "validate_%s" % (k.lstrip("$"),)
+                validator = getattr(self, validator_attr, None)
 
-            if validator is None:
-                continue
+                if validator is None:
+                    continue
 
-            errors = validator(v, instance, _schema) or ()
-            for error in errors:
-                # set the validator if it wasn't already set by the called fn
-                if error.validator is None:
-                    error.validator = k
-                yield error
+                errors = validator(v, instance, _schema) or ()
+                for error in errors:
+                    # set the validator if it wasn't already set by the
+                    # called function
+                    if error.validator is None:
+                        error.validator = k
+                    yield error
 
     def validate(self, *args, **kwargs):
         for error in self.iter_errors(*args, **kwargs):
@@ -358,10 +322,9 @@ class _Draft34Common(ValidatorMixin):
             yield ValidationError("%r is not one of %r" % (instance, enums))
 
     def validate_ref(self, ref, instance, schema):
-        resolved = self.resolver.resolve(ref)
-        for error in self.iter_errors(instance, resolved):
-            yield error
-
+        with self.resolver.resolving(ref) as resolved:
+            for error in self.iter_errors(instance, resolved):
+                yield error
 
 @validates("draft3")
 class Draft3Validator(_Draft34Common):
@@ -750,7 +713,7 @@ class FormatChecker(object):
                                 can be used to limit which formats will be used
                                 during validation.
 
-        >>> checker = FormatChecker(formats=("uri", "regex"))
+        >>> checker = FormatChecker(formats=("date-time", "regex"))
 
     """
 
@@ -793,113 +756,13 @@ class FormatChecker(object):
         return True
 
 
-@FormatChecker.cls_checks("date-time")
-def is_date_time(instance):
-    """
-    Check whether the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_date_time("1970-01-01T00:00:00.0")
-        True
-        >>> is_date_time("1970-01-01 00:00:00 GMT")
-        False
-        >>> is_date_time("0000-58-59T60:61:62")
-        False
-
-    """
-
-    try:
-        datetime.datetime.strptime(instance, "%Y-%m-%dT%H:%M:%S.%f")
-        return True
-    except ValueError:
-        return False
-
-
-@FormatChecker.cls_checks("uri")
-def is_uri(instance):
-    """
-    Check whether the instance is a valid URI.
-
-    Also supports relative URIs.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
-        True
-        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
-        True
-        >>> is_uri(r"\\\\WINDOWS\My Files")
-        False
-        >>> is_uri("#/properties/foo")
-        True
-
-    """
-
-    # URI regex from http://snipplr.com/view/6889/
-    abs_uri = (r"^([A-Za-z0-9+.-]+):(?://(?:((?:[A-Za-z0-9-._~!$&'()*+,;=:"
-               r"]|%[0-9A-Fa-f]{2})*)@)?((?:[A-Za-z0-9-._~!$&'()*+,;=]|%[0"
-               r"-9A-Fa-f]{2})*)(?::(\d*))?(/(?:[A-Za-z0-9-._~!$&'()*+,;=:"
-               r"@/]|%[0-9A-Fa-f]{2})*)?|(/?(?:[A-Za-z0-9-._~!$&'()*+,;=:@"
-               r"]|%[0-9A-Fa-f]{2})+(?:[A-Za-z0-9-._~!$&'()*+,;=:@/]|%[0-9"
-               r"A-Fa-f]{2})*)?)(?:\?((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%["
-               r"0-9A-Fa-f]{2})*))?(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|"
-               r"%[0-9A-Fa-f]{2})*))?$")
-    if re.match(abs_uri, instance):
-        return True
-    rel_uri = r"^(?:#((?:[A-Za-z0-9-._~!$&'()*+,;=:/?@]|%[0-9A-Fa-f]{2})*))?$"
-    return bool(re.match(rel_uri, instance))
-
-
 @FormatChecker.cls_checks("email")
 def is_email(instance):
-    """
-    Check whether the instance is a valid e-mail address.
-
-    Checking is based on `RFC 2822`_
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_email("joe.bloggs@example.com")
-        True
-        >>> is_email("joe.bloggs")
-        False
-
-    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
-
-    """
-
-    pattern = (r"^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_"
-               r"`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b"
-               r"\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z"
-               r"0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0"
-               r"-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
-               r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9"
-               r"]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x"
-               r"01-\x09\x0b\x0c\x0e-\x7f])+)\])$")
-    return bool(re.match(pattern, instance))
+    return "@" in instance
 
 
 @FormatChecker.cls_checks("ipv4")
 def is_ipv4(instance):
-    """
-    Check whether the instance is a valid IP address.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_ipv4("192.168.0.1")
-        True
-        >>> is_ipv4("::1")
-        False
-        >>> is_ipv4("256.256.256.256")
-        False
-
-    """
-
     try:
         socket.inet_aton(instance)
         return True
@@ -910,21 +773,6 @@ def is_ipv4(instance):
 if hasattr(socket, "inet_pton"):
     @FormatChecker.cls_checks("ipv6")
     def is_ipv6(instance):
-        """
-        Check whether the instance is a valid IPv6 address.
-
-        :argument str instance: the instance to check
-        :rtype: bool
-
-            >>> is_ipv6("::1")
-            True
-            >>> is_ipv6("192.168.0.1")
-            False
-            >>> is_ipv6("1:1:1:1:1:1:1:1:1")
-            False
-
-        """
-
         try:
             socket.inet_pton(socket.AF_INET6, instance)
             return True
@@ -934,26 +782,6 @@ if hasattr(socket, "inet_pton"):
 
 @FormatChecker.cls_checks("hostname")
 def is_host_name(instance):
-    """
-    Check if the instance is a valid host name.
-
-        >>> is_host_name("www.example.com")
-        True
-        >>> is_host_name("my laptop")
-        False
-        >>> is_host_name(
-        ...     "a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrryyyyyyyy"
-        ...     "yyyyyyyyy.long.host.name"
-        ... )
-        False
-
-    .. note:: Does not perform a DNS lookup.
-
-        >>> is_host_name("www.example.doesnotexist")
-        True
-
-    """
-
     pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
     if not re.match(pattern, instance):
         return False
@@ -966,24 +794,39 @@ def is_host_name(instance):
 
 @FormatChecker.cls_checks("regex")
 def is_regex(instance):
-    """
-    Check if the instance is a well-formed regular expression.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_regex("^(bob)?cat$")
-        True
-        >>> is_ipv6("^(bob?cat$")
-        False
-
-    """
-
     try:
         re.compile(instance)
         return True
     except re.error:
         return False
+
+
+try:
+    import rfc3987
+except ImportError:
+    pass
+else:
+    @FormatChecker.cls_checks("uri")
+    def is_uri(instance):
+        try:
+            rfc3987.parse(instance, rule="URI_reference")
+        except ValueError:
+            return False
+        return True
+
+
+try:
+    import isodate
+except ImportError:
+    pass
+else:
+    @FormatChecker.cls_checks("date-time")
+    def is_date_time(instance):
+        try:
+            isodate.parse_datetime(instance)
+            return True
+        except (ValueError, isodate.ISO8601Error):
+            return False
 
 
 draft4_format_checker = FormatChecker()
@@ -994,21 +837,6 @@ draft3_format_checker.checks('host-name')(is_host_name)
 
 @draft3_format_checker.checks("date")
 def is_date(instance):
-    """
-    Check whether the instance matches a date in ``YYYY-MM-DD`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_date("1970-12-31")
-        True
-        >>> is_date("12/31/1970")
-        False
-        >>> is_date("0000-13-32")
-        False
-
-    """
-
     try:
         datetime.datetime.strptime(instance, "%Y-%m-%d")
         return True
@@ -1018,21 +846,6 @@ def is_date(instance):
 
 @draft3_format_checker.checks("time")
 def is_time(instance):
-    """
-    Check whether the instance matches a time in ``hh:mm:ss`` format.
-
-    :argument str instance: the instance to check
-    :rtype: bool
-
-        >>> is_time("23:59:59")
-        True
-        >>> is_time("11:59:59 PM")
-        False
-        >>> is_time("59:60:61")
-        False
-
-    """
-
     try:
         datetime.datetime.strptime(instance, "%H:%M:%S")
         return True
@@ -1040,7 +853,11 @@ def is_time(instance):
         return False
 
 
-if webcolors is not None:
+try:
+    import webcolors
+except ImportError:
+    pass
+else:
     def is_css_color_code(instance):
         try:
             webcolors.normalize_hex(instance)
@@ -1069,13 +886,21 @@ class RefResolver(object):
     :argument str base_uri: URI of the referring document
     :argument referrer: the actual referring document
     :argument dict store: a mapping from URIs to documents to cache
+    :argument bool cache_remote: whether remote refs should be cached after
+        first resolution
+    :argument dict handlers: a mapping from URI schemes to functions that
+        should be used to retrieve them
 
     """
 
-    def __init__(self, base_uri, referrer, store=()):
+    def __init__(self, base_uri, referrer, store=(), cache_remote=True,
+                 handlers=()):
         self.base_uri = base_uri
+        self.resolution_scope = base_uri
         self.referrer = referrer
         self.store = dict(store, **_meta_schemas())
+        self.cache_remote = cache_remote
+        self.handlers = dict(handlers)
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -1089,17 +914,27 @@ class RefResolver(object):
 
         return cls(schema.get("id", ""), schema, *args, **kwargs)
 
-    def resolve(self, ref):
+    @contextlib.contextmanager
+    def in_scope(self, scope):
+        old_scope = self.resolution_scope
+        self.resolution_scope = urlparse.urljoin(old_scope, scope)
+        try:
+            yield
+        finally:
+            self.resolution_scope = old_scope
+
+    @contextlib.contextmanager
+    def resolving(self, ref):
         """
-        Resolve a JSON ``ref``.
+        Context manager which resolves a JSON ``ref`` and enters the
+        resolution scope of this ref.
 
         :argument str ref: reference to resolve
-        :returns: the referrant document
 
         """
 
-        base_uri = self.base_uri
-        uri, fragment = urlparse.urldefrag(urlparse.urljoin(base_uri, ref))
+        full_uri = urlparse.urljoin(self.resolution_scope, ref)
+        uri, fragment = urlparse.urldefrag(full_uri)
 
         if uri in self.store:
             document = self.store[uri]
@@ -1108,7 +943,13 @@ class RefResolver(object):
         else:
             document = self.resolve_remote(uri)
 
-        return self.resolve_fragment(document, fragment.lstrip("/"))
+        old_base_uri, old_referrer = self.base_uri, self.referrer
+        self.base_uri, self.referrer = uri, document
+        try:
+            with self.in_scope(uri):
+                yield self.resolve_fragment(document, fragment)
+        finally:
+            self.base_uri, self.referrer = old_base_uri, old_referrer
 
     def resolve_fragment(self, document, fragment):
         """
@@ -1119,6 +960,7 @@ class RefResolver(object):
 
         """
 
+        fragment = fragment.lstrip("/")
         parts = unquote(fragment).split("/") if fragment else []
 
         for part in parts:
@@ -1139,12 +981,44 @@ class RefResolver(object):
 
         Does not check the store first.
 
+        .. note::
+
+            If the requests_ library is present, ``jsonschema`` will use it to
+            request the remote ``uri``, so that the correct encoding is
+            detected and used.
+
+            If it isn't, or if the scheme of the ``uri`` is not ``http`` or
+            ``https``, UTF-8 is assumed.
+
         :argument str uri: the URI to resolve
         :returns: the retrieved document
 
+        .. _requests: http://pypi.python.org/pypi/requests/
+
         """
 
-        return json.load(urlopen(uri))
+        scheme = urlparse.urlsplit(uri).scheme
+
+        if scheme in self.handlers:
+            result = self.handlers[scheme](uri)
+        elif (
+            scheme in ["http", "https"] and
+            requests and
+            getattr(requests.Response, "json", None) is not None
+        ):
+            # Requests has support for detecting the correct encoding of
+            # json over http
+            if callable(requests.Response.json):
+                result = requests.get(uri).json()
+            else:
+                result = requests.get(uri).json
+        else:
+            # Otherwise, pass off to urllib and assume utf-8
+            result = json.loads(urlopen(uri).read().decode("utf-8"))
+
+        if self.cache_remote:
+            self.store[uri] = result
+        return result
 
 
 class ErrorTree(object):
@@ -1356,32 +1230,5 @@ def _uniq(container):
 
 
 def validate(instance, schema, cls=Draft3Validator, *args, **kwargs):
-    """
-    Validate an ``instance`` under the given ``schema``.
-
-        >>> validate([2, 3, 4], {"maxItems" : 2})
-        Traceback (most recent call last):
-            ...
-        ValidationError: [2, 3, 4] is too long
-
-    :func:`validate` will first verify that the provided schema is itself
-    valid, since not doing so can lead to less obvious error messages and fail
-    in less obvious or consistent ways. If you know you have a valid schema
-    already or don't care, you might prefer using the ``validate`` method
-    directly on a specific validator (e.g. :meth:`Draft3Validator.validate`).
-
-    ``cls`` is a validator class that will be used to validate the instance.
-    By default this is a draft 3 validator.  Any other provided positional and
-    keyword arguments will be provided to this class when constructing a
-    validator.
-
-    :raises:
-        :exc:`ValidationError` if the instance is invalid
-
-        :exc:`SchemaError` if the schema itself is invalid
-
-    """
-
-
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)

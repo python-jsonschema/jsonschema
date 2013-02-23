@@ -7,3 +7,7 @@ Resolving JSON References
 
 .. autoclass:: RefResolver
     :members:
+
+.. autoexception:: RefResolutionError
+
+    A JSON reference failed to resolve.

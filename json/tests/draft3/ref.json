@@ -80,5 +80,44 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "nested refs",
+        "schema": {
+            "definitions": {
+                "a": {"type": "integer"},
+                "b": {"$ref": "#/definitions/a"},
+                "c": {"$ref": "#/definitions/b"}
+            },
+            "$ref": "#/definitions/c"
+        },
+        "tests": [
+            {
+                "description": "nested ref valid",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "nested ref invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "remote ref, containing refs itself",
+        "schema": {"$ref": "http://json-schema.org/draft-03/schema#"},
+        "tests": [
+            {
+                "description": "remote ref valid",
+                "data": {"items": {"type": "integer"}},
+                "valid": true
+            },
+            {
+                "description": "remote ref invalid",
+                "data": {"items": {"type": 1}},
+                "valid": false
+            }
+        ]
     }
 ]

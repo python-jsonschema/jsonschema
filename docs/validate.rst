@@ -14,6 +14,29 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. autofunction:: validate
 
+    Validate an ``instance`` under the given ``schema``.
+
+        >>> validate([2, 3, 4], {"maxItems" : 2})
+        Traceback (most recent call last):
+            ...
+        ValidationError: [2, 3, 4] is too long
+
+    :func:`validate` will first verify that the provided schema is itself
+    valid, since not doing so can lead to less obvious error messages and fail
+    in less obvious or consistent ways. If you know you have a valid schema
+    already or don't care, you might prefer using the ``validate`` method
+    directly on a specific validator (e.g. :meth:`Draft3Validator.validate`).
+
+    ``cls`` is a validator class that will be used to validate the instance.
+    By default this is a draft 3 validator.  Any other provided positional and
+    keyword arguments will be provided to this class when constructing a
+    validator.
+
+    :raises:
+        :exc:`ValidationError` if the instance is invalid
+
+        :exc:`SchemaError` if the schema itself is invalid
+
 
 The Validator Interface
 -----------------------
@@ -71,6 +94,7 @@ adhere to.
 
         :type type: str
         :rtype: bool
+        :raises: :exc:`UnknownType` if ``type`` is not a known type.
 
         The special type ``"any"`` is valid for any given instance.
 
@@ -131,24 +155,37 @@ a ``types`` argument on construction that specifies additional types, or which
 can be used to specify a different set of Python types to map to a given JSON
 type.
 
-For instance, JSON defines a ``number`` type, which can be validated with a
-schema such as ``{"type" : "number"}``. By default, this will validate
-correctly for Python :class:`int`\s and :class:`float`\s. If you wanted to
-additionally validate :class:`decimal.Decimal` objects, you'd use
+``jsonschema`` tries to strike a balance between performance in the common case
+and generality. For instance, JSON defines a ``number`` type, which can be
+validated with a schema such as ``{"type" : "number"}``. By default, this will
+accept instances of Python :class:`number.Number`. This includes in particular
+:class:`int`\s and :class:`float`\s, along with `decimal.Decimal` objects,
+:class:`complex` numbers etc. See the numbers_ module documentation for more
+details. For ``integer`` and ``object``, however, rather than checking for
+``number.Integral`` and ``collections.Mapping``, ``jsonschema`` simply checks
+for ``int`` and ``dict``, since the former can introduce significant slowdown.
+
+If you *do* want the generality, or just want to add a few specific additional
+types as being acceptible for a validator, :class:`IValidator`\s have a
+``types`` argument that can be used to provide additional or new types.
 
 .. code-block:: python
 
+    class MyInteger(object):
+        ...
+
     Draft3Validator(
         schema={"type" : "number"},
-        types={"number" : (int, float, decimal.Decimal)},
+        types={"number" : (numbers.Number, MyInteger)},
     )
 
 The list of default Python types for each JSON type is available on each
 validator in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note that you
 need to specify all types to match if you override one of the existing JSON
-types, so you may want to access the set of default types to add it to the
-ones being appended.
+types, so you may want to access the set of default types when specifying your
+additional type.
 
+.. _numbers: http://docs.python.org/3.3/library/numbers.html
 
 .. _versioned-validators:
 
@@ -235,28 +272,137 @@ any use for them. They are listed below, along with any limitations they come
 with.
 
 
-.. autofunction:: is_date_time
-
 .. autofunction:: is_date
+
+    Check if the instance is a date in ``YYYY-MM-DD`` format.
+
+        >>> is_date("1970-12-31")
+        True
+        >>> is_date("12/31/1970")
+        False
+        >>> is_date("0000-13-32")
+        False
 
 .. autofunction:: is_time
 
+    Check if the instance is a time in ``hh:mm:ss`` format.
+
+        >>> is_time("23:59:59")
+        True
+        >>> is_time("11:59:59 PM")
+        False
+        >>> is_time("59:60:61")
+        False
+
 .. autofunction:: is_regex
 
-.. autofunction:: is_uri
+    Check if the instance is a well-formed regular expression.
+
+        >>> is_regex("^(bob)?cat$")
+        True
+        >>> is_ipv6("^(bob?cat$")
+        False
 
 .. autofunction:: is_email
 
-.. autofunction:: is_ip_address
+    Check if the instance is a valid e-mail address.
 
-.. autofunction:: is_ipv6
+        >>> is_email("joe.bloggs@example.com")
+        True
+        >>> is_email("joe.bloggs")
+        False
+
+    .. note::
+
+        This is *not* done in strict compliance of `RFC 2822`_ and / or `RFC
+        5322`_.
+
+        The only constraint is that the instance contain an ``@`` sign. If you
+        want stricter compliance, either change what you want or add and
+        register your own checker.
+
+    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
+    .. _RFC 5322: http://tools.ietf.org/html/rfc5322
 
 .. autofunction:: is_host_name
+
+    Check if the instance is a valid host name.
+
+        >>> is_host_name("www.example.com")
+        True
+        >>> is_host_name("my laptop")
+        False
+        >>> is_host_name(
+        ...     "a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrryyyyyyyy"
+        ...     "yyyyyyyyy.long.host.name"
+        ... )
+        False
+
+    .. note:: Does not perform a DNS lookup.
+
+        >>> is_host_name("www.example.doesnotexist")
+        True
+
+.. autofunction:: is_ipv4
+
+    Check if the instance is a valid IP address.
+
+        >>> is_ipv4("192.168.0.1")
+        True
+        >>> is_ipv4("::1")
+        False
+        >>> is_ipv4("256.256.256.256")
+        False
+
+On OSes with the ``socket.inet_pton`` function, an additional checker for
+``ipv6`` will be enabled:
+
+.. function:: is_ipv6(instance)
+
+    Check if the instance is a valid IPv6 address.
+
+        >>> is_ipv6("::1")
+        True
+        >>> is_ipv6("192.168.0.1")
+        False
+        >>> is_ipv6("1:1:1:1:1:1:1:1:1")
+        False
+
+
+If the rfc3987_ library is present, a checker for URIs will be present.
+
+.. function:: is_uri
+
+    Check if the instance is a valid URI.
+
+    Also supports relative URIs.
+
+        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
+        True
+        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
+        True
+        >>> is_uri(r"\\\\WINDOWS\My Files")
+        False
+        >>> is_uri("#/properties/foo")
+        True
+
+
+If the isodate_ library is present, a date-time checker will also be present.
+
+.. function:: is_date_time(instance)
+
+    Check if the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
+
+        >>> is_date_time("1970-01-01T00:00:00.0Z")
+        True
+        >>> is_date_time("0000-58-59T60:61:62")
+        False
+
 
 Additionally, if the webcolors_ library is present, some checkers related to
 CSS will be enabled:
 
-.. function:: is_css21_color
+.. function:: is_css21_color(instance)
 
     Check if the instance is a valid CSS 2.1 color name or code.
 
@@ -267,7 +413,7 @@ CSS will be enabled:
         >>> is_css_color_code("#CC8899")
         True
 
-.. function:: is_css3_color
+.. function:: is_css3_color(instance)
 
     Check if the instance is a valid CSS 3 color name or code.
 
@@ -278,4 +424,6 @@ CSS will be enabled:
         >>> is_css_color_code("#CC8899")
         True
 
+.. _isodate: http://pypi.python.org/pypi/isodate/
+.. _rfc3987: http://pypi.python.org/pypi/rfc3987/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
