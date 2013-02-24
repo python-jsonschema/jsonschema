@@ -337,6 +337,7 @@ class _Draft34CommonMixin(object):
             for error in self.iter_errors(instance, resolved):
                 yield error
 
+
 @validates("draft3")
 class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
