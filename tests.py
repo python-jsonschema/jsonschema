@@ -155,12 +155,14 @@ class FormatMixin(object):
             validator.validate("bar")
 
 
-@load_json_cases("draft3/*.json",
-                 ignore_glob=os.path.join("draft3", "refRemote.json"))
+@load_json_cases(
+    "draft3/*.json", ignore_glob=os.path.join("draft3", "refRemote.json")
+)
+@load_json_cases(
+    "draft3/optional/format.json", skip=missing_format(draft3_format_checker)
+)
 @load_json_cases("draft3/optional/bignum.json")
 @load_json_cases("draft3/optional/zeroTerminatedFloats.json")
-@load_json_cases("draft3/optional/format.json",
-                 skip=missing_format(draft3_format_checker))
 class TestDraft3(
     unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
 ):
@@ -184,12 +186,14 @@ class TestDraft3(
             validate([1], {"minItems" : "1"}, cls=self.validator_class)
 
 
-@load_json_cases("draft4/*.json",
-                 ignore_glob=os.path.join("draft4", "refRemote.json"))
+@load_json_cases(
+    "draft4/*.json", ignore_glob=os.path.join("draft4", "refRemote.json")
+)
+@load_json_cases(
+    "draft4/optional/format.json", skip=missing_format(draft4_format_checker)
+)
 @load_json_cases("draft4/optional/bignum.json")
 @load_json_cases("draft4/optional/zeroTerminatedFloats.json")
-@load_json_cases("draft4/optional/format.json",
-                 skip=missing_format(draft4_format_checker))
 class TestDraft4(
     unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
 ):
