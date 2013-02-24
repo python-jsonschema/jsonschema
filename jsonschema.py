@@ -382,7 +382,6 @@ class Draft3Validator(_Draft34Common):
 
     validate_divisibleBy = _Draft34Common._validate_multipleOf
 
-
     META_SCHEMA = {
         "$schema" : "http://json-schema.org/draft-03/schema#",
         "id" : "http://json-schema.org/draft-03/schema#",
@@ -543,7 +542,6 @@ class Draft4Validator(_Draft34Common):
 
     validate_multipleOf = _Draft34Common._validate_multipleOf
 
-
     META_SCHEMA = {
         "id": "http://json-schema.org/draft-04/schema#",
         "$schema": "http://json-schema.org/draft-04/schema#",
@@ -559,10 +557,20 @@ class Draft4Validator(_Draft34Common):
                 "minimum": 0
             },
             "positiveIntegerDefault0": {
-                "allOf": [{"$ref": "#/definitions/positiveInteger"}, {"default": 0}]
+                "allOf": [
+                    {"$ref": "#/definitions/positiveInteger"}, {"default": 0}
+                ]
             },
             "simpleTypes": {
-                "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
+                "enum": [
+                    "array",
+                    "boolean",
+                    "integer",
+                    "null",
+                    "number",
+                    "object",
+                    "string",
+                ]
             },
             "stringArray": {
                 "type": "array",
