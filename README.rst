@@ -32,9 +32,10 @@ for Python (supporting 2.6+ including Python 3).
 Features
 --------
 
-* `Full support <https://python-jsonschema.readthedocs.org/en/latest/#jsonschema.Draft3Validator>`_
-  for `Draft 3 <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_ of the
-  schema
+* Full support for
+  `Draft 3 <https://python-jsonschema.readthedocs.org/en/latest/validate.html#jsonschema.Draft3Validator>`_
+  and **`Draft 4 <https://python-jsonschema.readthedocs.org/en/latest/validate.html#jsonschema.Draft4Validator>`_**
+  of the schema.
 
 * `Lazy validation <https://python-jsonschema.readthedocs.org/en/latest/validate.html#jsonschema.IValidator.iter_errors>`_
   that can iteratively report *all* validation errors.

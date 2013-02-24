@@ -199,6 +199,8 @@ implements.
 
 .. autoclass:: Draft3Validator
 
+.. autoclass:: Draft4Validator
+
 
 Validating Formats
 ------------------
