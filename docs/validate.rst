@@ -210,13 +210,13 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
 
 .. doctest::
 
-    >>> validate("tomorrow", {"format" : "date"})
+    >>> validate("localhost", {"format" : "hostname"})
     >>> validate(
-    ...     "tomorrow", {"format" : "date"}, format_checker=FormatChecker(),
+    ...     "-12", {"format" : "hostname"}, format_checker=FormatChecker(),
     ... )
     Traceback (most recent call last):
         ...
-    ValidationError: "tomorrow" is not a "date"
+    ValidationError: "-12" is not a "hostname"
 
 .. autoclass:: FormatChecker
     :members:
