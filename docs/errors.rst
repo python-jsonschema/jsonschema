@@ -21,8 +21,8 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: path
 
-        A list containing the path to the offending element (or [] if the error
-        happened globally) in *reverse* order (i.e. deepest index first).
+        A deque containing the path to the offending element (or an empty deque
+        if the error happened globally).
 
 
 In case an invalid schema itself is encountered, a :exc:`SchemaError` is

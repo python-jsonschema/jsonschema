@@ -365,10 +365,10 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = self.validator.iter_errors(instance, schema)
         e1, e2, e3, e4 = sorted_errors(errors)
 
-        self.assertEqual(e1.path, ["bar"])
-        self.assertEqual(e2.path, ["baz"])
-        self.assertEqual(e3.path, ["baz"])
-        self.assertEqual(e4.path, ["foo"])
+        self.assertItemsEqual(e1.path, ["bar"])
+        self.assertItemsEqual(e2.path, ["baz"])
+        self.assertItemsEqual(e3.path, ["baz"])
+        self.assertItemsEqual(e4.path, ["foo"])
 
         self.assertEqual(e1.validator, "minItems")
         self.assertEqual(e2.validator, "enum")
@@ -397,12 +397,12 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = self.validator.iter_errors(instance, schema)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
-        self.assertEqual(e1.path, [])
-        self.assertEqual(e2.path, [0])
-        self.assertEqual(e3.path, ["bar", 1])
-        self.assertEqual(e4.path, ["bar", "bar", 1])
-        self.assertEqual(e5.path, ["baz", "bar", 1])
-        self.assertEqual(e6.path, ["foo", 1])
+        self.assertItemsEqual(e1.path, [])
+        self.assertItemsEqual(e2.path, [0])
+        self.assertItemsEqual(e3.path, [1, "bar"])
+        self.assertItemsEqual(e4.path, [1, "bar", "bar"])
+        self.assertItemsEqual(e5.path, [1, "bar", "baz"])
+        self.assertItemsEqual(e6.path, [1, "foo"])
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "type")
@@ -439,7 +439,7 @@ class TestErrorTree(unittest.TestCase):
     def test_it_creates_a_child_tree_for_each_nested_path(self):
         errors = [
             ValidationError("a bar message", path=["bar"]),
-            ValidationError("a bar -> 0 message", path=[0, "bar"]),
+            ValidationError("a bar -> 0 message", path=["bar", 0]),
         ]
         tree = ErrorTree(errors)
         self.assertIn(0, tree["bar"])
@@ -447,8 +447,8 @@ class TestErrorTree(unittest.TestCase):
 
     def test_children_have_their_errors_dicts_built(self):
         e1, e2 = (
-            ValidationError("message 1", validator="foo", path=[0, "bar"]),
-            ValidationError("message 2", validator="quux", path=[0, "bar"]),
+            ValidationError("message 1", validator="foo", path=["bar", 0]),
+            ValidationError("message 2", validator="quux", path=["bar", 0]),
         )
         tree = ErrorTree([e1, e2])
         self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})

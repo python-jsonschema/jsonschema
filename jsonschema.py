@@ -55,7 +55,7 @@ class _Error(Exception):
     def __init__(self, message, validator=None, path=()):
         super(_Error, self).__init__(message, validator, path)
         self.message = message
-        self.path = list(path)
+        self.path = collections.deque(path)
         self.validator = validator
 
     def __str__(self):
@@ -202,12 +202,12 @@ class _Draft34CommonMixin(object):
         if self.is_type(items, "object"):
             for index, item in enumerate(instance):
                 for error in self.iter_errors(item, items):
-                    error.path.append(index)
+                    error.path.appendleft(index)
                     yield error
         else:
             for (index, item), subschema in zip(enumerate(instance), items):
                 for error in self.iter_errors(item, subschema):
-                    error.path.append(index)
+                    error.path.appendleft(index)
                     yield error
 
     def validate_additionalItems(self, aI, instance, schema):
@@ -366,7 +366,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
         for property, subschema in iteritems(properties):
             if property in instance:
                 for error in self.iter_errors(instance[property], subschema):
-                    error.path.append(property)
+                    error.path.appendleft(property)
                     yield error
             elif subschema.get("required", False):
                 yield ValidationError(
@@ -495,7 +495,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
         for property, subschema in iteritems(properties):
             if property in instance:
                 for error in self.iter_errors(instance[property], subschema):
-                    error.path.append(property)
+                    error.path.appendleft(property)
                     yield error
 
     def validate_required(self, required, instance, schema):
@@ -1054,7 +1054,7 @@ class ErrorTree(object):
 
         for error in errors:
             container = self
-            for element in reversed(error.path):
+            for element in error.path:
                 container = container[element]
             container.errors[error.validator] = error
 
