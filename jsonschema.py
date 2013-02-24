@@ -273,7 +273,9 @@ class _Draft34CommonMixin(object):
             failed = instance % dB
 
         if failed:
-            yield ValidationError("%r is not multiple of %r" % (instance, dB))
+            yield ValidationError(
+                "%r is not a multiple of %r" % (instance, dB)
+            )
 
     def validate_minItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) < mI:
@@ -539,9 +541,8 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
     def validate_anyOf(self, anyOf, instance, schema):
         if not any(self.is_valid(instance, subschema) for subschema in anyOf):
-            # TODO: Better error message?
             yield ValidationError(
-                "none of the schemas were valid"
+                "The instance is not valid under any of the given schemas."
             )
 
     def validate_not(self, not_schema, instance, schema):
