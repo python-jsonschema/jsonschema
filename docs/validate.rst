@@ -25,12 +25,24 @@ The simplest way to validate an instance under a given schema is to use the
     valid, since not doing so can lead to less obvious error messages and fail
     in less obvious or consistent ways. If you know you have a valid schema
     already or don't care, you might prefer using the ``validate`` method
-    directly on a specific validator (e.g. :meth:`Draft3Validator.validate`).
+    directly on a specific validator (e.g. :meth:`Draft4Validator.validate`).
 
-    ``cls`` is a validator class that will be used to validate the instance.
-    By default this is a draft 3 validator.  Any other provided positional and
-    keyword arguments will be provided to this class when constructing a
-    validator.
+
+    :argument instance: the instance to validate
+    :argument schema: the schema to validate with
+    :argument cls: an :class:`IValidator` class that will be used to validate
+                   the instance.
+
+    If the ``cls`` argument is not provided, two things will happen in
+    accordance with the specification. First, if the ``schema`` has a
+    ``$schema`` property containing a known meta-schema (known by a validator
+    registered with :func:`validates`), then the proper validator will be used.
+    The specification recommends that all schemas contain ``$schema``
+    properties for this reason. If no ``$schema`` property is found, the
+    default validator class is :class:`Draft4Validator`.
+
+    Any other provided positional and keyword arguments will be passed on when
+    instantiating the ``cls``.
 
     :raises:
         :exc:`ValidationError` if the instance is invalid
