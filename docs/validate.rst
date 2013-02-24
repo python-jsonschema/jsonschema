@@ -244,29 +244,6 @@ There are a number of default checkers that :class:`FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
 :attr:`FormatChecker.checkers` attribute.
 
-.. testsetup::
-
-    from pprint import pprint
-
-.. testcode::
-
-    pprint(sorted(FormatChecker.checkers))
-
-.. testoutput::
-    :options: +NORMALIZE_WHITESPACE
-
-    [...'color',
-     ...'date',
-     ...'date-time',
-     ...'email',
-     ...'host-name',
-     ...'ip-address',
-     ...'ipv6',
-     ...'regex',
-     ...'time',
-     ...'uri']
-
-
 The actual functions that do the validation are also exposed, in case there is
 any use for them. They are listed below, along with any limitations they come
 with.
