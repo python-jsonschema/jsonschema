@@ -365,10 +365,10 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = self.validator.iter_errors(instance, schema)
         e1, e2, e3, e4 = sorted_errors(errors)
 
-        self.assertItemsEqual(e1.path, ["bar"])
-        self.assertItemsEqual(e2.path, ["baz"])
-        self.assertItemsEqual(e3.path, ["baz"])
-        self.assertItemsEqual(e4.path, ["foo"])
+        self.assertEqual(list(e1.path), ["bar"])
+        self.assertEqual(list(e2.path), ["baz"])
+        self.assertEqual(list(e3.path), ["baz"])
+        self.assertEqual(list(e4.path), ["foo"])
 
         self.assertEqual(e1.validator, "minItems")
         self.assertEqual(e2.validator, "enum")
@@ -397,12 +397,12 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = self.validator.iter_errors(instance, schema)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
-        self.assertItemsEqual(e1.path, [])
-        self.assertItemsEqual(e2.path, [0])
-        self.assertItemsEqual(e3.path, [1, "bar"])
-        self.assertItemsEqual(e4.path, [1, "bar", "bar"])
-        self.assertItemsEqual(e5.path, [1, "bar", "baz"])
-        self.assertItemsEqual(e6.path, [1, "foo"])
+        self.assertEqual(list(e1.path), [])
+        self.assertEqual(list(e2.path), [0])
+        self.assertEqual(list(e3.path), [1, "bar"])
+        self.assertEqual(list(e4.path), [1, "bar", "bar"])
+        self.assertEqual(list(e5.path), [1, "bar", "baz"])
+        self.assertEqual(list(e6.path), [1, "foo"])
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "type")
