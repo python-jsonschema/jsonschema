@@ -519,20 +519,23 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 yield error
 
     def validate_oneOf(self, oneOf, instance, schema):
-        one_valid = False
-        for subschema in oneOf:
-            if self.is_valid(instance, subschema):
-                if one_valid:
-                    # TODO: Better error message?
-                    yield ValidationError(
-                        "more than one schema was valid"
-                    )
-                one_valid = True
-        if not one_valid:
-            # TODO: Better error message?
+        subschemas = iter(oneOf)
+        first_valid = next(
+            (s for s in subschemas if self.is_valid(instance, s)), None,
+        )
+
+        if first_valid is None:
             yield ValidationError(
-                "none of the schemas were valid"
+                "%r is not valid under any of the given schemas." % (instance,)
             )
+        else:
+            more_valid = [s for s in subschemas if self.is_valid(instance, s)]
+            if more_valid:
+                more_valid.append(first_valid)
+                reprs = ", ".join(repr(schema) for schema in more_valid)
+                yield ValidationError(
+                    "%r is valid under each of %s" % (instance, reprs)
+                )
 
     def validate_anyOf(self, anyOf, instance, schema):
         if not any(self.is_valid(instance, subschema) for subschema in anyOf):
