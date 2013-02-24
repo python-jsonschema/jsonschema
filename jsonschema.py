@@ -346,7 +346,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
         types = _list(types)
 
         for type in types:
-            if type == 'any':
+            if type == "any":
                 return
             if self.is_type(type, "object"):
                 if self.is_valid(instance, type):
@@ -371,7 +371,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                     "%r is a required property" % (property,),
                     validator="required",
                     path=[property],
-                    )
+                )
 
     def validate_disallow(self, disallow, instance, schema):
         for disallowed in _list(disallow):
@@ -848,8 +848,8 @@ else:
 
 draft4_format_checker = FormatChecker()
 draft3_format_checker = FormatChecker()
-draft3_format_checker.checks('ip-address')(is_ipv4)
-draft3_format_checker.checks('host-name')(is_host_name)
+draft3_format_checker.checks("ip-address")(is_ipv4)
+draft3_format_checker.checks("host-name")(is_host_name)
 
 
 @draft3_format_checker.checks("date")
