@@ -155,8 +155,7 @@ class ValidatorMixin(object):
 
                 errors = validator(v, instance, _schema) or ()
                 for error in errors:
-                    # set the validator if it wasn't already set by the
-                    # called function
+                    # set validator if it wasn't already set by the called fn
                     if error.validator is None:
                         error.validator = k
                     yield error
