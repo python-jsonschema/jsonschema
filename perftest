@@ -9,20 +9,30 @@ import argparse
 import textwrap
 import timeit
 
+
+IMPORT = "from jsonschema import Draft3Validator, Draft4Validator, validate\n"
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--number", type=int, default=100)
 arguments = parser.parse_args()
 
-results = timeit.timeit(
-    number=arguments.number,
-    # Validate the Draft 3 meta-schema against itself without meta-validating
-    stmt="validate(instance, schema)",
-    setup=textwrap.dedent("""
-    from jsonschema import Draft3Validator, validate
-    instance = schema = Draft3Validator.META_SCHEMA
-    """),
-)
 
-print(
-    "Validated %s times. Finished in %s seconds." % (arguments.number, results)
-)
+print("Validating {0} times.".format(arguments.number))
+
+
+for name, benchmark in (
+    (
+        "Meta schema", """
+        validator = Draft3Validator(Draft3Validator.META_SCHEMA)
+        instance = validator.META_SCHEMA
+        """
+    ),
+):
+    results = timeit.timeit(
+        number=arguments.number,
+        setup=IMPORT + textwrap.dedent(benchmark),
+        stmt="validator.validate(instance)",
+    )
+
+    print("{0:15}: {1} seconds".format(name, results))
