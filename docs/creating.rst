@@ -6,6 +6,8 @@ Creating or Extending Validators
 
 .. currentmodule:: jsonschema
 
+.. autoclass:: ValidatorMixin
+
 .. autofunction:: validates
 
 

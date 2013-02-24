@@ -90,7 +90,13 @@ def validates(version):
 
 class ValidatorMixin(object):
     """
-    Concretely implements IValidator.
+    Concrete implementation of :class:`IValidator`.
+
+    Provides default implementations of each method. Validation of schema
+    properties is dispatched to ``validate_property`` methods. E.g., to
+    implement a validator for a ``maximum`` property, create a
+    ``validate_maximum`` method. Validator methods should yield zero or more
+    :exc:`ValidationError``\s to signal failed validation.
 
     """
 
@@ -160,7 +166,7 @@ class ValidatorMixin(object):
             raise error
 
 
-class _Draft34Common(ValidatorMixin):
+class _Draft34CommonMixin(object):
     """
     Contains the validator methods common to both JSON schema drafts.
 
@@ -330,7 +336,7 @@ class _Draft34Common(ValidatorMixin):
                 yield error
 
 @validates("draft3")
-class Draft3Validator(_Draft34Common):
+class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
     A validator for JSON Schema draft 3.
 
@@ -381,7 +387,7 @@ class Draft3Validator(_Draft34Common):
             for error in self.iter_errors(instance, subschema):
                 yield error
 
-    validate_divisibleBy = _Draft34Common._validate_multipleOf
+    validate_divisibleBy = _Draft34CommonMixin._validate_multipleOf
 
     META_SCHEMA = {
         "$schema" : "http://json-schema.org/draft-03/schema#",
@@ -468,7 +474,7 @@ class Draft3Validator(_Draft34Common):
 
 
 @validates("draft4")
-class Draft4Validator(_Draft34Common):
+class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
     A validator for JSON Schema draft 4.
 
@@ -541,7 +547,7 @@ class Draft4Validator(_Draft34Common):
                 "%r is not allowed for %r" % (not_schema, instance)
             )
 
-    validate_multipleOf = _Draft34Common._validate_multipleOf
+    validate_multipleOf = _Draft34CommonMixin._validate_multipleOf
 
     META_SCHEMA = {
         "id": "http://json-schema.org/draft-04/schema#",
