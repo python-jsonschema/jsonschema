@@ -213,8 +213,8 @@ class _Draft34CommonMixin(object):
 
     def validate_additionalItems(self, aI, instance, schema):
         if (
-                not self.is_type(instance, "array") or
-                self.is_type(schema.get("items", {}), "object")
+            not self.is_type(instance, "array") or
+            self.is_type(schema.get("items", {}), "object")
         ):
             return
 
