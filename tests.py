@@ -542,6 +542,11 @@ class TestValidate(unittest.TestCase):
             validate({}, schema)
             chk_schema.assert_called_once_with(schema)
 
+    def test_draft4_validator_is_the_default(self):
+        with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
+            validate({}, {})
+            chk_schema.assert_called_once_with({})
+
 
 class TestRefResolver(unittest.TestCase):
     def setUp(self):

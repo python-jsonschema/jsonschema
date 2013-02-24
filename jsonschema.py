@@ -48,6 +48,7 @@ else:
 
 FLOAT_TOLERANCE = 10 ** -15
 validators = {}
+meta_schemas = {}
 
 
 class _Error(Exception):
@@ -82,7 +83,7 @@ def validates(version):
     def _validates(cls):
         validators[version] = cls
         if "id" in cls.META_SCHEMA:
-            validators[cls.META_SCHEMA["id"]] = cls
+            meta_schemas[cls.META_SCHEMA["id"]] = cls
         return cls
     return _validates
 
@@ -1240,10 +1241,7 @@ def _uniq(container):
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):
-    if not cls:
-        if schema.get("$schema") in validators:
-            cls = validators[schema["$schema"]]
-        else:
-            cls = Draft4Validator
+    if cls is None:
+        cls = meta_schemas.get(schema.get("$schema"), Draft4Validator)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
