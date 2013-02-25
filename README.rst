@@ -49,18 +49,26 @@ Features
 Release Notes
 -------------
 
-``v0.8.0`` introduces full support for JSON references via the ``RefResolver``
-object. It also removes all of the deprecated code from ``v0.7``.
+``v1.0.0`` is a new major release of ``jsonschema``.
 
-Other notable fixes are a fix for improper support of ``uniqueItems`` for
-``True`` and ``False`` (#34) and ``any`` for unknown types (#47).
+It includes two major new features: `support for the newly released draft 4 <https://python-jsonschema.readthedocs.org/en/latest/validate.html#jsonschema.Draft4Validator>`_
+of the specification (thanks to Chase Sterling) and
+`optional support for format
+<https://python-jsonschema.readthedocs.org/en/latest/validate.html#validating-formats>`_
+(thanks to Norman Hooper).
 
-Notably, there now exists some documentation (woo hoo!). It can be found at:
+It also contains two major backwards incompatible changes: draft 4 is now the
+default for schemas without ``$schema`` specified, and ``ValidationError``\s
+now have ``path`` in sequential order.
 
-    http://python-jsonschema.readthedocs.org
+It also fixes a minor issue with ``long``\s not being recognized as
+``integer``\s and a number of issues with the support for ``$ref``.
 
-There are still a few incomplete sections, but it's mostly there. Patches
-welcome for weak points.
+Also, ``ValidatorMixin`` can be used to construct concrete validators for users
+who wish to create their own from scratch.
+
+As always, see `the documentation <http://python-jsonschema.readthedocs.org>`_
+for details.
 
 
 Running the Test Suite

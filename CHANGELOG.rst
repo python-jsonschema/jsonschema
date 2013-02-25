@@ -1,3 +1,15 @@
+v1.0.0
+------
+
+* Support for Draft 4
+* Support for format
+* Longs are ints too!
+* Fixed a number of issues with ``$ref`` support (#66)
+* Draft4Validator is now the default
+* ``ValidationError.path`` is now in sequential order
+* Added ``ValidatorMixin``
+
+
 v0.8.0
 ------
 
