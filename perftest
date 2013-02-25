@@ -23,6 +23,14 @@ print("Validating {0} times.".format(arguments.number))
 
 for name, benchmark in (
     (
+        "Simple", """
+        validator = Draft3Validator(
+            {"type" : "object", "properties" : {"foo" : {"required" : True}}}
+        )
+        instance = {"foo" : 12, "bar" : 13}
+        """
+    ),
+    (
         "Meta schema", """
         validator = Draft3Validator(Draft3Validator.META_SCHEMA)
         instance = validator.META_SCHEMA
