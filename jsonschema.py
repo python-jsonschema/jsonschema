@@ -1191,23 +1191,6 @@ def _list(thing):
     return thing
 
 
-def _delist(thing):
-    """
-    Unwrap ``thing`` to a single element if its a single str in a list.
-
-    Otherwise, return it unchanged.
-
-    """
-
-    if (
-        isinstance(thing, list) and
-        len(thing) == 1
-        and isinstance(thing[0], basestring)
-    ):
-        return thing[0]
-    return thing
-
-
 def _unbool(element, true=object(), false=object()):
     """
     A hack to make True and 1 and False and 0 unique for _uniq.
