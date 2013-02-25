@@ -2,4 +2,4 @@ include *.rst
 include COPYING
 include tests.py
 include tox.ini
-recursive-include json *.json
+recursive-include json *
