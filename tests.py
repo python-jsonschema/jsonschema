@@ -135,6 +135,12 @@ def missing_format(checker):
 
 
 class FormatMixin(object):
+    def test_it_returns_true_for_formats_it_does_not_know_about(self):
+        validator = self.validator_class(
+            {"format" : "carrot"}, format_checker=FormatChecker(),
+        )
+        validator.validate("bugs")
+
     def test_it_does_not_validate_formats_by_default(self):
         validator = self.validator_class({})
         self.assertIsNone(validator.format_checker)
