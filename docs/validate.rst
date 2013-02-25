@@ -68,9 +68,9 @@ adhere to.
                      class objects that will be checked via ``isinstance``. See
                      :ref:`validating-types` for details.
     :type types: dict or iterable of 2-tuples
-    :argument resolver: an object with a ``resolve()`` method that will be used
+    :argument resolver: an instance of :class:`RefResolver` that will be used
                         to resolve ``$ref`` properties (JSON references). If
-                        unprovided, a :class:`RefResolver` is created and used.
+                        unprovided, one will be created.
     :argument format_checker: an object with a ``conform()`` method that will
                               be called to check and see if instances conform
                               to each ``format`` property present in the
