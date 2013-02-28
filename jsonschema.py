@@ -293,12 +293,15 @@ class _Draft34CommonMixin(object):
             yield ValidationError("%r does not match %r" % (instance, patrn))
 
     def validate_format(self, format, instance, schema):
-        if (
-            self.format_checker is not None and
-            self.is_type(instance, "string") and
-            not self.format_checker.conforms(instance, format)
-        ):
-            yield ValidationError("%r is not a %r" % (instance, format))
+        try:
+            if (
+                self.format_checker is not None and
+                self.is_type(instance, "string") and
+                not self.format_checker.conforms(instance, format)
+            ):
+                yield ValidationError("%r is not a %r" % (instance, format))
+        except ValidationError as e:
+            yield e
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:

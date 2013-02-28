@@ -161,6 +161,16 @@ class FormatMixin(object):
         with self.assertRaises(ValidationError):
             validator.validate("bar")
 
+    def test_it_raises_custom_errors_from_format_checkers(self):
+        message = "This is the custom error"
+        checker = mock.Mock(spec=FormatChecker)
+        validator = self.validator_class(
+            {"format": "foo"}, format_checker=checker
+        )
+        checker.conforms.side_effect = ValidationError(message)
+        with self.assertRaisesRegexp(ValidationError, message):
+            validator.validate("bar")
+
 
 @load_json_cases(
     "draft3/*.json", ignore_glob=os.path.join("draft3", "refRemote.json")
