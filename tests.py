@@ -27,7 +27,7 @@ except ImportError:
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
     Draft3Validator, Draft4Validator, FormatChecker, draft3_format_checker,
-    draft4_format_checker, RefResolver, validate
+    draft4_format_checker, RefResolver, validate, FormatError
 )
 
 
@@ -156,7 +156,7 @@ class FormatMixin(object):
 
         checker.conforms.assert_called_once_with("bar", "foo")
 
-        checker.conforms.return_value = False
+        checker.conforms.side_effect = FormatError
 
         with self.assertRaises(ValidationError):
             validator.validate("bar")
@@ -338,9 +338,10 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertIn(repr("bar"), message)
         self.assertIn("were unexpected)", message)
 
-    def test_invalid_format(self):
-        checker = mock.Mock(spec=FormatChecker)
-        checker.conforms.return_value = False
+    def test_invalid_format_default_message(self):
+        checker = FormatChecker(formats=())
+        check_fn = mock.Mock(return_value=False)
+        checker.checks("thing")(check_fn)
 
         schema = {"format" : "thing"}
         message = self.message_for("bla", schema, format_checker=checker)
@@ -348,6 +349,16 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertIn(repr("bla"), message)
         self.assertIn(repr("thing"), message)
         self.assertIn("is not a", message)
+
+    def test_invalid_format_custom_message(self):
+        checker = FormatChecker(formats=())
+        check_fn = mock.Mock(side_effect=ValueError("custom error"))
+        checker.checks("thing", raises=ValueError)(check_fn)
+
+        schema = {"format" : "thing"}
+        message = self.message_for("bla", schema, format_checker=checker)
+
+        self.assertIn("custom error", message)
 
 
 class TestValidationErrorDetails(unittest.TestCase):
@@ -662,15 +673,28 @@ class TestFormatChecker(unittest.TestCase):
     def test_it_can_register_cls_checkers(self):
         with mock.patch.dict(FormatChecker.checkers, clear=True):
             FormatChecker.cls_checks("new")(self.fn)
-            self.assertEqual(FormatChecker.checkers, {"new" : self.fn})
+            self.assertEqual(FormatChecker.checkers, {"new" : (self.fn, None)})
 
     def test_it_can_register_checkers(self):
         checker = FormatChecker()
         checker.checks("new")(self.fn)
         self.assertEqual(
             checker.checkers,
-            dict(FormatChecker.checkers, new=self.fn)
+            dict(FormatChecker.checkers, new=(self.fn, None))
         )
+
+    def test_it_catches_registered_errors(self):
+        checker = FormatChecker()
+        checker.checks("foo", raises=ValueError)(self.fn)
+        # Registered errors should be caught and turned into FormatErrors
+        self.fn.side_effect = ValueError
+        with self.assertRaises(FormatError):
+            checker.conforms("bar", "foo")
+        # Unregistered errors should not be caught
+        self.fn.side_effect = AttributeError
+        with self.assertRaises(AttributeError):
+            checker.conforms("bar", "foo")
+
 
 
 def sorted_errors(errors):

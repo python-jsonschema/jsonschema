@@ -238,12 +238,13 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
 
     .. attribute:: checkers
 
-        A mapping of currently known formats to functions that validate them.
-        New checkers can be added and removed either per-instance or globally
-        for all checkers using the :meth:`FormatChecker.checks` or
+        A mapping of currently known formats to tuple of functions that
+        validate them and errors that should be caught. New checkers can be
+        added and removed either per-instance or globally for all checkers
+        using the :meth:`FormatChecker.checks` or
         :meth:`FormatChecker.cls_checks` decorators respectively.
 
-    .. method:: cls_checks(format)
+    .. method:: cls_checks(format, raises=None)
 
         Register a decorated function as *globally* validating a new format.
 
@@ -251,6 +252,8 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
         supplied checker.
 
         :argument str format: the format that the decorated function will check
+        :argument raises: Exception that will be caught and used as the
+                error message
 
 
 

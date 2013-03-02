@@ -66,6 +66,7 @@ class SchemaError(_Error): pass
 class ValidationError(_Error): pass
 class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
+class FormatError(Exception): pass
 
 
 def validates(version):
@@ -295,10 +296,12 @@ class _Draft34CommonMixin(object):
     def validate_format(self, format, instance, schema):
         if (
             self.format_checker is not None and
-            self.is_type(instance, "string") and
-            not self.format_checker.conforms(instance, format)
+            self.is_type(instance, "string")
         ):
-            yield ValidationError("%r is not a %r" % (instance, format))
+            try:
+                self.format_checker.conforms(instance, format)
+            except FormatError as e:
+                yield ValidationError(unicode(e))
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
@@ -746,16 +749,18 @@ class FormatChecker(object):
         else:
             self.checkers = dict((k, self.checkers[k]) for k in formats)
 
-    def checks(self, format):
+    def checks(self, format, raises=None):
         """
         Register a decorated function as validating a new format.
 
         :argument str format: the format that the decorated function will check
+        :argument raises: Exception that will be caught and used as the
+            error message
 
         """
 
         def _checks(func):
-            self.checkers[format] = func
+            self.checkers[format] = (func, raises)
             return func
         return _checks
 
@@ -769,11 +774,18 @@ class FormatChecker(object):
         :type: any primitive type (str, number, bool)
         :argument str format: the format that instance should conform to
         :rtype: bool
+        :raises: :exc:`FormatError` if instance does not conform to format
 
         """
 
         if format in self.checkers:
-            return self.checkers[format](instance)
+            func, raises = self.checkers[format]
+            try:
+                result = func(instance)
+            except raises as e:
+                raise FormatError(unicode(e))
+            if not result:
+                raise FormatError("%r is not a %r" % (instance, format))
         return True
 
 
