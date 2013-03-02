@@ -415,6 +415,55 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e5.validator, "minItems")
         self.assertEqual(e6.validator, "enum")
 
+    def test_additionalProperties(self):
+        instance = {"bar": "bar", "foo": 2}
+        schema = {
+            "additionalProperties" : {"type": "integer", "minimum": 5}
+        }
+
+        errors = self.validator.iter_errors(instance, schema)
+        e1, e2 = sorted_errors(errors)
+
+        self.assertEqual(list(e1.path), ["bar"])
+        self.assertEqual(list(e2.path), ["foo"])
+
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
+
+    def test_patternProperties(self):
+        instance = {"bar": 1, "foo": 2}
+        schema = {
+            "patternProperties" : {
+                "bar": {"type": "string"},
+                "foo": {"minimum": 5}
+            }
+        }
+
+        errors = self.validator.iter_errors(instance, schema)
+        e1, e2 = sorted_errors(errors)
+
+        self.assertEqual(list(e1.path), ["bar"])
+        self.assertEqual(list(e2.path), ["foo"])
+
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
+
+    def test_additionalItems(self):
+        instance = ["foo", 1]
+        schema = {
+            "items": [],
+            "additionalItems" : {"type": "integer", "minimum": 5}
+        }
+
+        errors = self.validator.iter_errors(instance, schema)
+        e1, e2 = sorted_errors(errors)
+
+        self.assertEqual(list(e1.path), [0])
+        self.assertEqual(list(e2.path), [1])
+
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
+
 
 class TestErrorTree(unittest.TestCase):
     def setUp(self):
