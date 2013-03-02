@@ -68,6 +68,18 @@ class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
 
 
+def _canonical_uri(uri):
+    """
+    Return the canonical form of ``uri``.
+    Adds an empty fragment if no fragment is present.
+
+    """
+
+    if uri:
+        uri, fragment = urlparse.urldefrag(uri)
+        return uri + "#" + fragment
+
+
 def validates(version):
     """
     Register the decorated validator for a ``version`` of the specification.
@@ -83,7 +95,7 @@ def validates(version):
     def _validates(cls):
         validators[version] = cls
         if "id" in cls.META_SCHEMA:
-            meta_schemas[cls.META_SCHEMA["id"]] = cls
+            meta_schemas[_canonical_uri(cls.META_SCHEMA["id"])] = cls
         return cls
     return _validates
 
@@ -1235,6 +1247,7 @@ def _uniq(container):
 
 def validate(instance, schema, cls=None, *args, **kwargs):
     if cls is None:
-        cls = meta_schemas.get(schema.get("$schema"), Draft4Validator)
+        cls = meta_schemas.get(_canonical_uri(schema.get("$schema")),
+            Draft4Validator)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
