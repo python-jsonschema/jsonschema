@@ -273,7 +273,7 @@ If the rfc3987_ library is present, a checker for ``uri`` will be present.
 If the isodate_ library is present, a ``date-time`` checker will also be
 present.
 
-Additionally, if the webcolors_ library is present, a checker for ``colors``
+Additionally, if the webcolors_ library is present, a checker for ``color``
 related to CSS will be present.
 
 
