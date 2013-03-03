@@ -48,7 +48,6 @@ else:
 
 FLOAT_TOLERANCE = 10 ** -15
 validators = {}
-meta_schemas = {}
 
 
 class _Error(Exception):
@@ -68,16 +67,40 @@ class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
 
 
-def _canonical_uri(uri):
+class URIDict(collections.MutableMapping):
     """
-    Return the canonical form of ``uri``.
-    Adds an empty fragment if no fragment is present.
+    Dictionary which uses normalized URIs as keys.
 
     """
 
-    if uri:
-        uri, fragment = urlparse.urldefrag(uri)
-        return uri + "#" + fragment
+    def normalize(self, uri):
+        return urlparse.urlsplit(uri).geturl()
+
+    def __init__(self, *args, **kwargs):
+        self.store = dict()
+        for key, value in iteritems(dict(*args, **kwargs)):
+            self[key] = value
+
+    def __getitem__(self, uri):
+        return self.store[self.normalize(uri)]
+
+    def __setitem__(self, uri, value):
+        self.store[self.normalize(uri)] = value
+
+    def __delitem__(self, uri):
+        del self.store[self.normalize(uri)]
+
+    def __iter__(self):
+        return iter(self.store)
+
+    def __len__(self):
+        return len(self.store)
+
+    def __repr__(self):
+        return repr(self.store)
+
+
+meta_schemas = URIDict()
 
 
 def validates(version):
@@ -95,7 +118,7 @@ def validates(version):
     def _validates(cls):
         validators[version] = cls
         if "id" in cls.META_SCHEMA:
-            meta_schemas[_canonical_uri(cls.META_SCHEMA["id"])] = cls
+            meta_schemas[cls.META_SCHEMA["id"]] = cls
         return cls
     return _validates
 
@@ -931,7 +954,7 @@ class RefResolver(object):
         self.base_uri = base_uri
         self.resolution_scope = base_uri
         self.referrer = referrer
-        self.store = dict(store, **_meta_schemas())
+        self.store = URIDict(store, **_meta_schemas())
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
@@ -1247,7 +1270,7 @@ def _uniq(container):
 
 def validate(instance, schema, cls=None, *args, **kwargs):
     if cls is None:
-        cls = meta_schemas.get(_canonical_uri(schema.get("$schema")),
+        cls = meta_schemas.get(schema.get("$schema"),
             Draft4Validator)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
