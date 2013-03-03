@@ -179,6 +179,7 @@ class _Draft34CommonMixin(object):
             for k, v in iteritems(instance):
                 if re.search(pattern, k):
                     for error in self.iter_errors(v, subschema):
+                        error.path.appendleft(k)
                         yield error
 
     def validate_additionalProperties(self, aP, instance, schema):
@@ -190,6 +191,7 @@ class _Draft34CommonMixin(object):
         if self.is_type(aP, "object"):
             for extra in extras:
                 for error in self.iter_errors(instance[extra], aP):
+                    error.path.appendleft(extra)
                     yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
@@ -218,8 +220,10 @@ class _Draft34CommonMixin(object):
             return
 
         if self.is_type(aI, "object"):
-            for item in instance[len(schema):]:
+            for index, item in enumerate(
+                    instance[len(schema.get("items", [])):]):
                 for error in self.iter_errors(item, aI):
+                    error.path.appendleft(index)
                     yield error
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
