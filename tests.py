@@ -592,6 +592,11 @@ class TestValidate(unittest.TestCase):
         with mock.patch.object(Draft3Validator, "check_schema") as chk_schema:
             validate({}, schema)
             chk_schema.assert_called_once_with(schema)
+        # Make sure it works without the empty fragment
+        schema = {"$schema" : "http://json-schema.org/draft-03/schema"}
+        with mock.patch.object(Draft3Validator, "check_schema") as chk_schema:
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
 
     def test_draft4_validator_is_chosen(self):
         schema = {"$schema" : "http://json-schema.org/draft-04/schema#"}
