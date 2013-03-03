@@ -52,11 +52,22 @@ meta_schemas = {}
 
 
 class _Error(Exception):
-    def __init__(self, message, validator=None, path=()):
+    def __init__(self, message, validator=None, path=(), cause=None):
         super(_Error, self).__init__(message, validator, path)
         self.message = message
         self.path = collections.deque(path)
         self.validator = validator
+        self.cause = cause
+
+    def __str__(self):
+        return self.message
+
+
+class FormatError(Exception):
+    def __init__(self, message, cause=None):
+        super(FormatError, self).__init__(message, cause)
+        self.message = message
+        self.cause = cause
 
     def __str__(self):
         return self.message
@@ -66,7 +77,6 @@ class SchemaError(_Error): pass
 class ValidationError(_Error): pass
 class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
-class FormatError(Exception): pass
 
 
 def validates(version):
@@ -299,9 +309,9 @@ class _Draft34CommonMixin(object):
             self.is_type(instance, "string")
         ):
             try:
-                self.format_checker.conforms(instance, format)
+                self.format_checker.check(instance, format)
             except FormatError as e:
-                yield ValidationError(unicode(e))
+                yield ValidationError(unicode(e), cause=e.cause)
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
@@ -766,6 +776,28 @@ class FormatChecker(object):
 
     cls_checks = classmethod(checks)
 
+    def check(self, instance, format):
+        """
+        Check whether the instance conforms to the given format.
+
+        :argument instance: the instance to check
+        :type: any primitive type (str, number, bool)
+        :argument str format: the format that instance should conform to
+        :raises: :exc:`FormatError` if instance does not conform to format
+
+        """
+
+        if format in self.checkers:
+            func, raises = self.checkers[format]
+            result, cause = None, None
+            try:
+                result = func(instance)
+            except raises as e:
+                cause = e
+            if not result:
+                raise FormatError(
+                    "%r is not a %r" % (instance, format), cause=cause)
+
     def conforms(self, instance, format):
         """
         Check whether the instance conforms to the given format.
@@ -774,19 +806,15 @@ class FormatChecker(object):
         :type: any primitive type (str, number, bool)
         :argument str format: the format that instance should conform to
         :rtype: bool
-        :raises: :exc:`FormatError` if instance does not conform to format
 
         """
 
-        if format in self.checkers:
-            func, raises = self.checkers[format]
-            try:
-                result = func(instance)
-            except raises as e:
-                raise FormatError(unicode(e))
-            if not result:
-                raise FormatError("%r is not a %r" % (instance, format))
-        return True
+        try:
+            self.check(instance, format)
+        except FormatError:
+            return False
+        else:
+            return True
 
 
 @FormatChecker.cls_checks("email")

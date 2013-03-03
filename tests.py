@@ -147,19 +147,24 @@ class FormatMixin(object):
 
     def test_it_validates_formats_if_a_checker_is_provided(self):
         checker = mock.Mock(spec=FormatChecker)
-        checker.conforms.return_value = True
         validator = self.validator_class(
             {"format" : "foo"}, format_checker=checker,
         )
 
         validator.validate("bar")
 
-        checker.conforms.assert_called_once_with("bar", "foo")
+        checker.check.assert_called_once_with("bar", "foo")
 
-        checker.conforms.side_effect = FormatError
+        cause = ValueError()
+        checker.check.side_effect = FormatError('aoeu', cause=cause)
 
         with self.assertRaises(ValidationError):
-            validator.validate("bar")
+            try:
+                validator.validate("bar")
+            except ValidationError as e:
+                # Make sure original cause is attached
+                self.assertEqual(e.cause, cause)
+                raise
 
 
 @load_json_cases(
@@ -349,16 +354,6 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertIn(repr("bla"), message)
         self.assertIn(repr("thing"), message)
         self.assertIn("is not a", message)
-
-    def test_invalid_format_custom_message(self):
-        checker = FormatChecker(formats=())
-        check_fn = mock.Mock(side_effect=ValueError("custom error"))
-        checker.checks("thing", raises=ValueError)(check_fn)
-
-        schema = {"format" : "thing"}
-        message = self.message_for("bla", schema, format_checker=checker)
-
-        self.assertIn("custom error", message)
 
 
 class TestValidationErrorDetails(unittest.TestCase):
@@ -687,13 +682,19 @@ class TestFormatChecker(unittest.TestCase):
         checker = FormatChecker()
         checker.checks("foo", raises=ValueError)(self.fn)
         # Registered errors should be caught and turned into FormatErrors
-        self.fn.side_effect = ValueError
+        cause = ValueError()
+        self.fn.side_effect = cause
         with self.assertRaises(FormatError):
-            checker.conforms("bar", "foo")
+            try:
+                checker.check("bar", "foo")
+            except FormatError as e:
+                # Original exception should be attached to cause attribute
+                self.assertEqual(e.cause, cause)
+                raise
         # Unregistered errors should not be caught
         self.fn.side_effect = AttributeError
         with self.assertRaises(AttributeError):
-            checker.conforms("bar", "foo")
+            checker.check("bar", "foo")
 
 
 
