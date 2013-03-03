@@ -252,8 +252,10 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
         supplied checker.
 
         :argument str format: the format that the decorated function will check
-        :argument raises: Exception that will be caught and used as the
-                error message
+        :argument Exception raises: the exception(s) raised by the decorated
+            function when an invalid instance is found. The exception object
+            will be accessible as the :attr:`ValidationError.cause` attribute
+            of the resulting validation error.
 
 
 

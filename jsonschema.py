@@ -60,7 +60,13 @@ class _Error(Exception):
         self.cause = cause
 
     def __str__(self):
+        return self.message.encode("utf-8")
+
+    def __unicode__(self):
         return self.message
+
+    if PY3:
+        __str__ = __unicode__
 
 
 class FormatError(Exception):
@@ -70,7 +76,13 @@ class FormatError(Exception):
         self.cause = cause
 
     def __str__(self):
+        return self.message.encode("utf-8")
+
+    def __unicode__(self):
         return self.message
+
+    if PY3:
+        __str__ = __unicode__
 
 
 class SchemaError(_Error): pass
@@ -759,13 +771,15 @@ class FormatChecker(object):
         else:
             self.checkers = dict((k, self.checkers[k]) for k in formats)
 
-    def checks(self, format, raises=None):
+    def checks(self, format, raises=()):
         """
         Register a decorated function as validating a new format.
 
         :argument str format: the format that the decorated function will check
-        :argument raises: Exception that will be caught and used as the
-            error message
+        :argument Exception raises: the exception(s) raised by the decorated
+            function when an invalid instance is found. The exception object
+            will be accessible as the :attr:`ValidationError.cause` attribute
+            of the resulting validation error.
 
         """
 

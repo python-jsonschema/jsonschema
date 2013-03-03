@@ -158,13 +158,10 @@ class FormatMixin(object):
         cause = ValueError()
         checker.check.side_effect = FormatError('aoeu', cause=cause)
 
-        with self.assertRaises(ValidationError):
-            try:
-                validator.validate("bar")
-            except ValidationError as e:
-                # Make sure original cause is attached
-                self.assertEqual(e.cause, cause)
-                raise
+        with self.assertRaises(ValidationError) as cm:
+            validator.validate("bar")
+        # Make sure original cause is attached
+        self.assertIs(cm.exception.cause, cause)
 
 
 @load_json_cases(
@@ -668,14 +665,14 @@ class TestFormatChecker(unittest.TestCase):
     def test_it_can_register_cls_checkers(self):
         with mock.patch.dict(FormatChecker.checkers, clear=True):
             FormatChecker.cls_checks("new")(self.fn)
-            self.assertEqual(FormatChecker.checkers, {"new" : (self.fn, None)})
+            self.assertEqual(FormatChecker.checkers, {"new" : (self.fn, ())})
 
     def test_it_can_register_checkers(self):
         checker = FormatChecker()
         checker.checks("new")(self.fn)
         self.assertEqual(
             checker.checkers,
-            dict(FormatChecker.checkers, new=(self.fn, None))
+            dict(FormatChecker.checkers, new=(self.fn, ()))
         )
 
     def test_it_catches_registered_errors(self):
@@ -684,13 +681,10 @@ class TestFormatChecker(unittest.TestCase):
         # Registered errors should be caught and turned into FormatErrors
         cause = ValueError()
         self.fn.side_effect = cause
-        with self.assertRaises(FormatError):
-            try:
-                checker.check("bar", "foo")
-            except FormatError as e:
-                # Original exception should be attached to cause attribute
-                self.assertEqual(e.cause, cause)
-                raise
+        with self.assertRaises(FormatError) as cm:
+            checker.check("bar", "foo")
+        # Original exception should be attached to cause attribute
+        self.assertIs(cm.exception.cause, cause)
         # Unregistered errors should not be caught
         self.fn.side_effect = AttributeError
         with self.assertRaises(AttributeError):
