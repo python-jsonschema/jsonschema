@@ -244,7 +244,7 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
         using the :meth:`FormatChecker.checks` or
         :meth:`FormatChecker.cls_checks` decorators respectively.
 
-    .. method:: cls_checks(format, raises=None)
+    .. method:: cls_checks(format, raises=())
 
         Register a decorated function as *globally* validating a new format.
 
