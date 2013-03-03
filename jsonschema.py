@@ -56,14 +56,37 @@ validators = {}
 
 
 class _Error(Exception):
-    def __init__(self, message, validator=None, path=()):
+    def __init__(self, message, validator=None, path=(), cause=None):
         super(_Error, self).__init__(message, validator, path)
         self.message = message
         self.path = collections.deque(path)
         self.validator = validator
+        self.cause = cause
 
     def __str__(self):
+        return self.message.encode("utf-8")
+
+    def __unicode__(self):
         return self.message
+
+    if PY3:
+        __str__ = __unicode__
+
+
+class FormatError(Exception):
+    def __init__(self, message, cause=None):
+        super(FormatError, self).__init__(message, cause)
+        self.message = message
+        self.cause = cause
+
+    def __str__(self):
+        return self.message.encode("utf-8")
+
+    def __unicode__(self):
+        return self.message
+
+    if PY3:
+        __str__ = __unicode__
 
 
 class SchemaError(_Error): pass
@@ -338,10 +361,12 @@ class _Draft34CommonMixin(object):
     def validate_format(self, format, instance, schema):
         if (
             self.format_checker is not None and
-            self.is_type(instance, "string") and
-            not self.format_checker.conforms(instance, format)
+            self.is_type(instance, "string")
         ):
-            yield ValidationError("%r is not a %r" % (instance, format))
+            try:
+                self.format_checker.check(instance, format)
+            except FormatError as e:
+                yield ValidationError(unicode(e), cause=e.cause)
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
@@ -789,20 +814,46 @@ class FormatChecker(object):
         else:
             self.checkers = dict((k, self.checkers[k]) for k in formats)
 
-    def checks(self, format):
+    def checks(self, format, raises=()):
         """
         Register a decorated function as validating a new format.
 
         :argument str format: the format that the decorated function will check
+        :argument Exception raises: the exception(s) raised by the decorated
+            function when an invalid instance is found. The exception object
+            will be accessible as the :attr:`ValidationError.cause` attribute
+            of the resulting validation error.
 
         """
 
         def _checks(func):
-            self.checkers[format] = func
+            self.checkers[format] = (func, raises)
             return func
         return _checks
 
     cls_checks = classmethod(checks)
+
+    def check(self, instance, format):
+        """
+        Check whether the instance conforms to the given format.
+
+        :argument instance: the instance to check
+        :type: any primitive type (str, number, bool)
+        :argument str format: the format that instance should conform to
+        :raises: :exc:`FormatError` if instance does not conform to format
+
+        """
+
+        if format in self.checkers:
+            func, raises = self.checkers[format]
+            result, cause = None, None
+            try:
+                result = func(instance)
+            except raises as e:
+                cause = e
+            if not result:
+                raise FormatError(
+                    "%r is not a %r" % (instance, format), cause=cause)
 
     def conforms(self, instance, format):
         """
@@ -815,9 +866,12 @@ class FormatChecker(object):
 
         """
 
-        if format in self.checkers:
-            return self.checkers[format](instance)
-        return True
+        try:
+            self.check(instance, format)
+        except FormatError:
+            return False
+        else:
+            return True
 
 
 @FormatChecker.cls_checks("email")
@@ -825,23 +879,13 @@ def is_email(instance):
     return "@" in instance
 
 
-@FormatChecker.cls_checks("ipv4")
-def is_ipv4(instance):
-    try:
-        socket.inet_aton(instance)
-        return True
-    except socket.error:
-        return False
+FormatChecker.cls_checks("ipv4", raises=socket.error)(socket.inet_aton)
 
 
 if hasattr(socket, "inet_pton"):
-    @FormatChecker.cls_checks("ipv6")
+    @FormatChecker.cls_checks("ipv6", raises=socket.error)
     def is_ipv6(instance):
-        try:
-            socket.inet_pton(socket.AF_INET6, instance)
-            return True
-        except socket.error:
-            return False
+        return socket.inet_pton(socket.AF_INET6, instance)
 
 
 @FormatChecker.cls_checks("hostname")
@@ -856,13 +900,7 @@ def is_host_name(instance):
     return True
 
 
-@FormatChecker.cls_checks("regex")
-def is_regex(instance):
-    try:
-        re.compile(instance)
-        return True
-    except re.error:
-        return False
+FormatChecker.cls_checks("regex", raises=re.error)(re.compile)
 
 
 try:
@@ -870,13 +908,9 @@ try:
 except ImportError:
     pass
 else:
-    @FormatChecker.cls_checks("uri")
+    @FormatChecker.cls_checks("uri", raises=ValueError)
     def is_uri(instance):
-        try:
-            rfc3987.parse(instance, rule="URI_reference")
-        except ValueError:
-            return False
-        return True
+        return rfc3987.parse(instance, rule="URI_reference")
 
 
 try:
@@ -884,37 +918,25 @@ try:
 except ImportError:
     pass
 else:
-    @FormatChecker.cls_checks("date-time")
-    def is_date_time(instance):
-        try:
-            isodate.parse_datetime(instance)
-            return True
-        except (ValueError, isodate.ISO8601Error):
-            return False
+    FormatChecker.cls_checks("date-time",
+        raises=(ValueError, isodate.ISO8601Error))(isodate.parse_datetime)
 
 
 draft4_format_checker = FormatChecker()
 draft3_format_checker = FormatChecker()
-draft3_format_checker.checks("ip-address")(is_ipv4)
+draft3_format_checker.checks("ip-address",
+    raises=socket.error)(socket.inet_aton)
 draft3_format_checker.checks("host-name")(is_host_name)
 
 
-@draft3_format_checker.checks("date")
+@draft3_format_checker.checks("date", raises=ValueError)
 def is_date(instance):
-    try:
-        datetime.datetime.strptime(instance, "%Y-%m-%d")
-        return True
-    except ValueError:
-        return False
+    return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
-@draft3_format_checker.checks("time")
+@draft3_format_checker.checks("time", raises=ValueError)
 def is_time(instance):
-    try:
-        datetime.datetime.strptime(instance, "%H:%M:%S")
-        return True
-    except ValueError:
-        return False
+    return datetime.datetime.strptime(instance, "%H:%M:%S")
 
 
 try:
@@ -923,14 +945,10 @@ except ImportError:
     pass
 else:
     def is_css_color_code(instance):
-        try:
-            webcolors.normalize_hex(instance)
-        except (ValueError, TypeError):
-            return False
-        return True
+        return webcolors.normalize_hex(instance)
 
 
-    @draft3_format_checker.checks("color")
+    @draft3_format_checker.checks("color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if instance.lower() in webcolors.css21_names_to_hex:
             return True
