@@ -79,8 +79,7 @@ class _URIDict(MutableMapping):
     """
 
     def normalize(self, uri):
-        if uri is not None:
-            return urlparse.urlsplit(uri).geturl()
+        return urlparse.urlsplit(uri).geturl()
 
     def __init__(self, *args, **kwargs):
         self.store = dict()
@@ -1275,6 +1274,6 @@ def _uniq(container):
 
 def validate(instance, schema, cls=None, *args, **kwargs):
     if cls is None:
-        cls = meta_schemas.get(schema.get("$schema"), Draft4Validator)
+        cls = meta_schemas.get(schema.get("$schema", ""), Draft4Validator)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
