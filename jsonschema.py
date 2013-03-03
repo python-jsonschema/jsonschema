@@ -23,6 +23,11 @@ import socket
 import sys
 
 try:
+    from collections import MutableMapping
+except ImportError:
+    from collections.abc import MutableMapping
+
+try:
     import requests
 except ImportError:
     requests = None
@@ -67,19 +72,19 @@ class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
 
 
-class URIDict(collections.MutableMapping):
+class _URIDict(MutableMapping):
     """
     Dictionary which uses normalized URIs as keys.
 
     """
 
     def normalize(self, uri):
-        return urlparse.urlsplit(uri).geturl()
+        if uri is not None:
+            return urlparse.urlsplit(uri).geturl()
 
     def __init__(self, *args, **kwargs):
         self.store = dict()
-        for key, value in iteritems(dict(*args, **kwargs)):
-            self[key] = value
+        self.store.update(*args, **kwargs)
 
     def __getitem__(self, uri):
         return self.store[self.normalize(uri)]
@@ -100,7 +105,7 @@ class URIDict(collections.MutableMapping):
         return repr(self.store)
 
 
-meta_schemas = URIDict()
+meta_schemas = _URIDict()
 
 
 def validates(version):
@@ -954,7 +959,7 @@ class RefResolver(object):
         self.base_uri = base_uri
         self.resolution_scope = base_uri
         self.referrer = referrer
-        self.store = URIDict(store, **_meta_schemas())
+        self.store = _URIDict(store, **_meta_schemas())
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
@@ -1270,7 +1275,6 @@ def _uniq(container):
 
 def validate(instance, schema, cls=None, *args, **kwargs):
     if cls is None:
-        cls = meta_schemas.get(schema.get("$schema"),
-            Draft4Validator)
+        cls = meta_schemas.get(schema.get("$schema"), Draft4Validator)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
