@@ -238,12 +238,13 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
 
     .. attribute:: checkers
 
-        A mapping of currently known formats to functions that validate them.
-        New checkers can be added and removed either per-instance or globally
-        for all checkers using the :meth:`FormatChecker.checks` or
+        A mapping of currently known formats to tuple of functions that
+        validate them and errors that should be caught. New checkers can be
+        added and removed either per-instance or globally for all checkers
+        using the :meth:`FormatChecker.checks` or
         :meth:`FormatChecker.cls_checks` decorators respectively.
 
-    .. method:: cls_checks(format)
+    .. method:: cls_checks(format, raises=())
 
         Register a decorated function as *globally* validating a new format.
 
@@ -251,169 +252,30 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
         supplied checker.
 
         :argument str format: the format that the decorated function will check
+        :argument Exception raises: the exception(s) raised by the decorated
+            function when an invalid instance is found. The exception object
+            will be accessible as the :attr:`ValidationError.cause` attribute
+            of the resulting validation error.
 
 
 
 There are a number of default checkers that :class:`FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
-:attr:`FormatChecker.checkers` attribute.
+:attr:`FormatChecker.checkers` attribute. Certain checkers will only be
+available if an appropriate package is available for use, these are listed
+below.
 
-The actual functions that do the validation are also exposed, in case there is
-any use for them. They are listed below, along with any limitations they come
-with.
+On OSes with the ``socket.inet_pton`` function, a checker for
+``ipv6`` will be present.
 
+If the rfc3987_ library is present, a checker for ``uri`` will be present.
 
-.. autofunction:: is_date
+If the isodate_ library is present, a ``date-time`` checker will also be
+present.
 
-    Check if the instance is a date in ``YYYY-MM-DD`` format.
+Additionally, if the webcolors_ library is present, a checker for ``color``
+related to CSS will be present.
 
-        >>> is_date("1970-12-31")
-        True
-        >>> is_date("12/31/1970")
-        False
-        >>> is_date("0000-13-32")
-        False
-
-.. autofunction:: is_time
-
-    Check if the instance is a time in ``hh:mm:ss`` format.
-
-        >>> is_time("23:59:59")
-        True
-        >>> is_time("11:59:59 PM")
-        False
-        >>> is_time("59:60:61")
-        False
-
-.. autofunction:: is_regex
-
-    Check if the instance is a well-formed regular expression.
-
-        >>> is_regex("^(bob)?cat$")
-        True
-        >>> is_ipv6("^(bob?cat$")
-        False
-
-.. autofunction:: is_email
-
-    Check if the instance is a valid e-mail address.
-
-        >>> is_email("joe.bloggs@example.com")
-        True
-        >>> is_email("joe.bloggs")
-        False
-
-    .. note::
-
-        This is *not* done in strict compliance of `RFC 2822`_ and / or `RFC
-        5322`_.
-
-        The only constraint is that the instance contain an ``@`` sign. If you
-        want stricter compliance, either change what you want or add and
-        register your own checker.
-
-    .. _RFC 2822: http://tools.ietf.org/html/rfc2822
-    .. _RFC 5322: http://tools.ietf.org/html/rfc5322
-
-.. autofunction:: is_host_name
-
-    Check if the instance is a valid host name.
-
-        >>> is_host_name("www.example.com")
-        True
-        >>> is_host_name("my laptop")
-        False
-        >>> is_host_name(
-        ...     "a.vvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrryyyyyyyy"
-        ...     "yyyyyyyyy.long.host.name"
-        ... )
-        False
-
-    .. note:: Does not perform a DNS lookup.
-
-        >>> is_host_name("www.example.doesnotexist")
-        True
-
-.. autofunction:: is_ipv4
-
-    Check if the instance is a valid IP address.
-
-        >>> is_ipv4("192.168.0.1")
-        True
-        >>> is_ipv4("::1")
-        False
-        >>> is_ipv4("256.256.256.256")
-        False
-
-On OSes with the ``socket.inet_pton`` function, an additional checker for
-``ipv6`` will be enabled:
-
-.. function:: is_ipv6(instance)
-
-    Check if the instance is a valid IPv6 address.
-
-        >>> is_ipv6("::1")
-        True
-        >>> is_ipv6("192.168.0.1")
-        False
-        >>> is_ipv6("1:1:1:1:1:1:1:1:1")
-        False
-
-
-If the rfc3987_ library is present, a checker for URIs will be present.
-
-.. function:: is_uri
-
-    Check if the instance is a valid URI.
-
-    Also supports relative URIs.
-
-        >>> is_uri("ftp://joe.bloggs@www2.example.com:8080/pub/os/")
-        True
-        >>> is_uri("http://www2.example.com:8000/pub/#os?user=joe.bloggs")
-        True
-        >>> is_uri(r"\\\\WINDOWS\My Files")
-        False
-        >>> is_uri("#/properties/foo")
-        True
-
-
-If the isodate_ library is present, a date-time checker will also be present.
-
-.. function:: is_date_time(instance)
-
-    Check if the instance is in ISO 8601 ``YYYY-MM-DDThh:mm:ssZ`` format.
-
-        >>> is_date_time("1970-01-01T00:00:00.0Z")
-        True
-        >>> is_date_time("0000-58-59T60:61:62")
-        False
-
-
-Additionally, if the webcolors_ library is present, some checkers related to
-CSS will be enabled:
-
-.. function:: is_css21_color(instance)
-
-    Check if the instance is a valid CSS 2.1 color name or code.
-
-        >>> is_css21_color("fuchsia")
-        True
-        >>> is_css21_color("pink")
-        False
-        >>> is_css_color_code("#CC8899")
-        True
-
-.. function:: is_css3_color(instance)
-
-    Check if the instance is a valid CSS 3 color name or code.
-
-        >>> is_css3_color("pink")
-        True
-        >>> is_css3_color("puce")
-        False
-        >>> is_css_color_code("#CC8899")
-        True
 
 .. _isodate: http://pypi.python.org/pypi/isodate/
 .. _rfc3987: http://pypi.python.org/pypi/rfc3987/
