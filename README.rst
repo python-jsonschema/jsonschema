@@ -70,6 +70,10 @@ who wish to create their own from scratch.
 As always, see `the documentation <http://python-jsonschema.readthedocs.org>`_
 for details.
 
+``v1.1.0`` fixes a bug whereby URIs were not canonicalized when stored and
+looked up (#70) and also allows for registering exceptions that can be accessed
+from ``ValidationError``\s when validating ``format`` properties (#77).
+
 
 Running the Test Suite
 ----------------------

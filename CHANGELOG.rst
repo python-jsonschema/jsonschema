@@ -1,3 +1,9 @@
+v1.1.0
+------
+
+* Canonicalize URIs (#70)
+* Allow attaching exceptions to ``format`` errors (#77)
+
 v1.0.0
 ------
 
