@@ -836,23 +836,13 @@ def is_email(instance):
     return "@" in instance
 
 
-@FormatChecker.cls_checks("ipv4")
-def is_ipv4(instance):
-    try:
-        socket.inet_aton(instance)
-        return True
-    except socket.error:
-        return False
+FormatChecker.cls_checks("ipv4", raises=socket.error)(socket.inet_aton)
 
 
 if hasattr(socket, "inet_pton"):
-    @FormatChecker.cls_checks("ipv6")
+    @FormatChecker.cls_checks("ipv6", raises=socket.error)
     def is_ipv6(instance):
-        try:
-            socket.inet_pton(socket.AF_INET6, instance)
-            return True
-        except socket.error:
-            return False
+        return socket.inet_pton(socket.AF_INET6, instance)
 
 
 @FormatChecker.cls_checks("hostname")
@@ -867,13 +857,7 @@ def is_host_name(instance):
     return True
 
 
-@FormatChecker.cls_checks("regex")
-def is_regex(instance):
-    try:
-        re.compile(instance)
-        return True
-    except re.error:
-        return False
+FormatChecker.cls_checks("regex", raises=re.error)(re.compile)
 
 
 try:
@@ -881,13 +865,9 @@ try:
 except ImportError:
     pass
 else:
-    @FormatChecker.cls_checks("uri")
+    @FormatChecker.cls_checks("uri", raises=ValueError)
     def is_uri(instance):
-        try:
-            rfc3987.parse(instance, rule="URI_reference")
-        except ValueError:
-            return False
-        return True
+        return rfc3987.parse(instance, rule="URI_reference")
 
 
 try:
@@ -895,37 +875,25 @@ try:
 except ImportError:
     pass
 else:
-    @FormatChecker.cls_checks("date-time")
-    def is_date_time(instance):
-        try:
-            isodate.parse_datetime(instance)
-            return True
-        except (ValueError, isodate.ISO8601Error):
-            return False
+    FormatChecker.cls_checks("date-time",
+        raises=(ValueError, isodate.ISO8601Error))(isodate.parse_datetime)
 
 
 draft4_format_checker = FormatChecker()
 draft3_format_checker = FormatChecker()
-draft3_format_checker.checks("ip-address")(is_ipv4)
+draft3_format_checker.checks("ip-address",
+    raises=socket.error)(socket.inet_aton)
 draft3_format_checker.checks("host-name")(is_host_name)
 
 
-@draft3_format_checker.checks("date")
+@draft3_format_checker.checks("date", raises=ValueError)
 def is_date(instance):
-    try:
-        datetime.datetime.strptime(instance, "%Y-%m-%d")
-        return True
-    except ValueError:
-        return False
+    return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
-@draft3_format_checker.checks("time")
+@draft3_format_checker.checks("time", raises=ValueError)
 def is_time(instance):
-    try:
-        datetime.datetime.strptime(instance, "%H:%M:%S")
-        return True
-    except ValueError:
-        return False
+    return datetime.datetime.strptime(instance, "%H:%M:%S")
 
 
 try:
@@ -934,14 +902,10 @@ except ImportError:
     pass
 else:
     def is_css_color_code(instance):
-        try:
-            webcolors.normalize_hex(instance)
-        except (ValueError, TypeError):
-            return False
-        return True
+        return webcolors.normalize_hex(instance)
 
 
-    @draft3_format_checker.checks("color")
+    @draft3_format_checker.checks("color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if instance.lower() in webcolors.css21_names_to_hex:
             return True
