@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from collections import OrderedDict
 from decimal import Decimal
 import contextlib
 import glob
@@ -27,7 +28,7 @@ except ImportError:
 from jsonschema import (
     PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
     Draft3Validator, Draft4Validator, FormatChecker, draft3_format_checker,
-    draft4_format_checker, RefResolver, validate
+    draft4_format_checker, RefResolver, validate, serialize
 )
 
 
@@ -48,7 +49,8 @@ def make_case(schema, data, valid):
     if valid:
         def test_case(self):
             kwargs = getattr(self, "validator_kwargs", {})
-            validate(data, schema, cls=self.validator_class, **kwargs)
+            result = serialize(data, schema, cls=self.validator_class, **kwargs)
+            self.assertEquals(data, result)
     else:
         def test_case(self):
             kwargs = getattr(self, "validator_kwargs", {})
@@ -162,6 +164,38 @@ class FormatMixin(object):
             validator.validate("bar")
 
 
+class SerializeMixin(object):
+    def test_it_serializes_default_properties(self):
+        schema = {"properties": {"foo": {"default": "bar"}}}
+        result = self.validator_class(schema).serialize({})
+        self.assertEquals(result, {"foo": "bar"})
+
+    def test_it_serializes_default_properties_in_items(self):
+        schema = {"items": {"properties": {"foo": {"default": "bar"}}}}
+        result = self.validator_class(schema).serialize([{}])
+        self.assertEquals(result, [{"foo": "bar"}])
+
+    def test_it_serializes_properties_in_order(self):
+        schema = {"properties": OrderedDict([("foo", {}), ("bar", {})])}
+        validator = self.validator_class(
+            schema, types={"object": OrderedDict}
+        )
+        value = OrderedDict([("bar", 1), ("foo", 2)])
+        result = validator.serialize(value)
+        self.assertIsInstance(result, OrderedDict)
+        self.assertEquals(list(result), ["foo", "bar"])
+
+    def test_it_serializes_properties_in_order_with_dict(self):
+        schema = {"properties": OrderedDict([("foo", {}), ("bar", {})])}
+        validator = self.validator_class(
+            schema, types={"object": (OrderedDict, dict)}
+        )
+        value = dict([("bar", 1), ("foo", 2)])
+        result = validator.serialize(value)
+        self.assertIsInstance(result, OrderedDict)
+        self.assertEquals(list(result), ["foo", "bar"])
+
+
 @load_json_cases(
     "draft3/*.json", ignore_glob=os.path.join("draft3", "refRemote.json")
 )
@@ -171,7 +205,7 @@ class FormatMixin(object):
 @load_json_cases("draft3/optional/bignum.json")
 @load_json_cases("draft3/optional/zeroTerminatedFloats.json")
 class TestDraft3(
-    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
+    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin, SerializeMixin
 ):
 
     validator_class = Draft3Validator
@@ -202,7 +236,7 @@ class TestDraft3(
 @load_json_cases("draft4/optional/bignum.json")
 @load_json_cases("draft4/optional/zeroTerminatedFloats.json")
 class TestDraft4(
-    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin
+    unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin, SerializeMixin
 ):
     validator_class = Draft4Validator
     validator_kwargs = {"format_checker" : draft4_format_checker}

@@ -13,6 +13,7 @@ from __future__ import division, unicode_literals
 
 import collections
 import contextlib
+import copy
 import datetime
 import itertools
 import json
@@ -50,7 +51,7 @@ else:
     import urlparse
     iteritems = operator.methodcaller("iteritems")
 
-
+MODE_SERIALIZE = 'serialize'
 FLOAT_TOLERANCE = 10 ** -15
 validators = {}
 
@@ -145,6 +146,10 @@ class ValidatorMixin(object):
         "string" : basestring,
     }
 
+    _mode = None
+    _copy_parent = None
+    _validated = None
+
     def __init__(self, schema, types=(), resolver=None, format_checker=None):
         self._types = dict(self.DEFAULT_TYPES)
         self._types.update(types)
@@ -180,12 +185,37 @@ class ValidatorMixin(object):
                 error.message, validator=error.validator, path=error.path,
             )
 
-    def iter_errors(self, instance, _schema=None):
+    def iter_errors(self, instance, _schema=None, _mode=None):
         if _schema is None:
             _schema = self.schema
 
+        additional = ()
+        if _mode is MODE_SERIALIZE:
+            if self.is_type(instance, "object"):
+                # Validator can be set to use an OrderedDict
+                factory = self._types["object"]
+                if not isinstance(factory, type):
+                    factory = factory[0]
+                validated_instance = factory()
+                # Ensure the properties validator is called
+                if 'properties' not in _schema:
+                    additional = [('properties', {})]
+            elif self.is_type(instance, "array"):
+                factory = self._types["array"]
+                if not isinstance(factory, type):
+                    factory = factory[0]
+                validated_instance = factory()
+                if 'items' not in _schema:
+                    additional = [('items', {})]
+            else:
+                validated_instance = copy.deepcopy(instance)
+            self._validated.append(validated_instance)
+        elif self._mode is MODE_SERIALIZE:
+            # Switch back to the non-copying validator
+            self = self._copy_parent
+
         with self.resolver.in_scope(_schema.get("id", "")):
-            for k, v in iteritems(_schema):
+            for k, v in itertools.chain(iteritems(_schema), additional):
                 validator_attr = "validate_%s" % (k.lstrip("$"),)
                 validator = getattr(self, validator_attr, None)
 
@@ -202,6 +232,22 @@ class ValidatorMixin(object):
     def validate(self, *args, **kwargs):
         for error in self.iter_errors(*args, **kwargs):
             raise error
+
+    def _copier(self, _mode):
+        # Copy the current class instance and prepare it to receive
+        # validated data.
+        new = copy.copy(self)
+        new._mode = _mode
+        new._validated = []
+        new._copy_parent = self
+        return new
+
+    def serialize(self, *args, **kwargs):
+        new = self._copier(MODE_SERIALIZE)
+        for error in new.iter_errors(*args, _mode=MODE_SERIALIZE, **kwargs):
+            raise error
+
+        return new._validated[0]
 
 
 class _Draft34CommonMixin(object):
@@ -232,6 +278,7 @@ class _Draft34CommonMixin(object):
                 for error in self.iter_errors(instance[extra], aP):
                     error.path.appendleft(extra)
                     yield error
+
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
             yield ValidationError(error % _extras_msg(extras))
@@ -240,16 +287,26 @@ class _Draft34CommonMixin(object):
         if not self.is_type(instance, "array"):
             return
 
+        if self._mode is MODE_SERIALIZE:
+            validated_instance = self._validated[-1]
+
         if self.is_type(items, "object"):
             for index, item in enumerate(instance):
-                for error in self.iter_errors(item, items):
+                for error in self.iter_errors(item, items, _mode=self._mode):
                     error.path.appendleft(index)
                     yield error
+                if self._mode is MODE_SERIALIZE:
+                    validated_instance.append(self._validated.pop())
         else:
             for (index, item), subschema in zip(enumerate(instance), items):
-                for error in self.iter_errors(item, subschema):
+                for error in self.iter_errors(item, subschema, _mode=self._mode):
                     error.path.appendleft(index)
                     yield error
+                if self._mode is MODE_SERIALIZE:
+                    validated_instance.append(self._validated.pop())
+            if self._mode is MODE_SERIALIZE:
+                for item in instance[len(validated_instance):]:
+                    validated_instance.append(copy.deepcopy(item))
 
     def validate_additionalItems(self, aI, instance, schema):
         if (
@@ -406,17 +463,29 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
         if not self.is_type(instance, "object"):
             return
 
+        if self._mode is MODE_SERIALIZE:
+            validated_instance = self._validated[-1]
+
         for property, subschema in iteritems(properties):
             if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
+                for error in self.iter_errors(instance[property], subschema, _mode=self._mode):
                     error.path.appendleft(property)
                     yield error
+                if self._mode is MODE_SERIALIZE:
+                    validated_instance[property] = self._validated.pop()
             elif subschema.get("required", False):
                 yield ValidationError(
                     "%r is a required property" % (property,),
                     validator="required",
                     path=[property],
                 )
+            elif self._mode is MODE_SERIALIZE and "default" in subschema:
+                validated_instance[property] = copy.deepcopy(subschema["default"])
+
+        if self._mode is MODE_SERIALIZE:
+            for property, value in iteritems(instance):
+                if property not in properties:
+                    validated_instance[property] = copy.deepcopy(value)
 
     def validate_disallow(self, disallow, instance, schema):
         for disallowed in _list(disallow):
@@ -535,11 +604,23 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
         if not self.is_type(instance, "object"):
             return
 
+        if self._mode is MODE_SERIALIZE:
+            validated_instance = self._validated[-1]
+
         for property, subschema in iteritems(properties):
             if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
+                for error in self.iter_errors(instance[property], subschema, _mode=self._mode):
                     error.path.appendleft(property)
                     yield error
+                if self._mode is MODE_SERIALIZE:
+                    validated_instance[property] = self._validated.pop()
+            elif self._mode is MODE_SERIALIZE and "default" in subschema:
+                validated_instance[property] = copy.deepcopy(subschema["default"])
+
+        if self._mode is MODE_SERIALIZE:
+            for property, value in iteritems(instance):
+                if property not in properties:
+                    validated_instance[property] = copy.deepcopy(value)
 
     def validate_required(self, required, instance, schema):
         if not self.is_type(instance, "object"):
@@ -1281,3 +1362,10 @@ def validate(instance, schema, cls=None, *args, **kwargs):
         cls = meta_schemas.get(schema.get("$schema", ""), Draft4Validator)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
+
+
+def serialize(instance, schema, cls=None, *args, **kwargs):
+    if cls is None:
+        cls = meta_schemas.get(schema.get("$schema"), Draft4Validator)
+    cls.check_schema(schema)
+    return cls(schema, *args, **kwargs).serialize(instance)
