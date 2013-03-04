@@ -56,11 +56,16 @@ validators = {}
 
 
 class _Error(Exception):
-    def __init__(self, message, validator=None, path=(), cause=None):
+    def __init__(
+            self, message, validator=None, path=(), cause=None, instance=None,
+            validator_value=None
+    ):
         super(_Error, self).__init__(message, validator, path)
         self.message = message
         self.path = collections.deque(path)
+        self.instance = instance
         self.validator = validator
+        self.validator_value = validator_value
         self.cause = cause
 
     def __str__(self):
@@ -217,9 +222,14 @@ class ValidatorMixin(object):
 
                 errors = validator(v, instance, _schema) or ()
                 for error in errors:
-                    # set validator if it wasn't already set by the called fn
+                    # set validator attributes if they weren't already set by
+                    # the called function
                     if error.validator is None:
                         error.validator = k
+                    if error.validator_value is None:
+                        error.validator_value = v
+                    if error.instance is None:
+                        error.instance = instance
                     yield error
 
     def validate(self, *args, **kwargs):
