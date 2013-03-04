@@ -382,6 +382,16 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e3.validator, "maximum")
         self.assertEqual(e4.validator, "type")
 
+        self.assertEqual(e1.validator_value, 2)
+        self.assertEqual(e2.validator_value, [2, 4, 6, 8])
+        self.assertEqual(e3.validator_value, 10)
+        self.assertEqual(e4.validator_value, "string")
+
+        self.assertEqual(e1.instance, [1])
+        self.assertEqual(e2.instance, 15)
+        self.assertEqual(e3.instance, 15)
+        self.assertEqual(e4.instance, 2)
+
     def test_multiple_nesting(self):
         instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
         schema = {
