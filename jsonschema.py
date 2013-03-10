@@ -208,7 +208,13 @@ class ValidatorMixin(object):
             _schema = self.schema
 
         with self.resolver.in_scope(_schema.get("id", "")):
-            for k, v in iteritems(_schema):
+            ref = _schema.get("$ref")
+            if ref is not None:
+                validators = [("$ref", ref)]
+            else:
+                validators = iteritems(_schema)
+
+            for k, v in validators:
                 validator_attr = "validate_%s" % (k.lstrip("$"),)
                 validator = getattr(self, validator_attr, None)
 

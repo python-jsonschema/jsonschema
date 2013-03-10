@@ -25,9 +25,9 @@ except ImportError:
     pypy_version_info = None
 
 from jsonschema import (
-    PY3, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, Draft4Validator, FormatChecker, draft3_format_checker,
-    draft4_format_checker, RefResolver, validate, FormatError
+    PY3, FormatError, SchemaError, UnknownType, ValidationError, ErrorTree,
+    Draft3Validator, Draft4Validator, FormatChecker, RefResolver,
+    ValidatorMixin, draft3_format_checker, draft4_format_checker, validate,
 )
 
 
@@ -611,6 +611,18 @@ class TestValidate(unittest.TestCase):
         with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
             validate({}, {})
             chk_schema.assert_called_once_with({})
+
+
+class TestValidatorMixin(unittest.TestCase):
+    def test_if_ref_is_present_then_the_schema_is_replaced(self):
+        class Validator(ValidatorMixin):
+            validate_ref = mock.Mock(return_value=[])
+            validate_type = mock.Mock(return_value=[])
+
+        Validator({"$ref" : "foo", "type" : "quux"}).validate(1)
+
+        self.assertTrue(Validator.validate_ref.called)
+        self.assertFalse(Validator.validate_type.called)
 
 
 class TestRefResolver(unittest.TestCase):
