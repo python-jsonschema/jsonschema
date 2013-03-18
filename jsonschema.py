@@ -60,6 +60,7 @@ class _Error(Exception):
         super(_Error, self).__init__(message, validator, path)
         self.message = message
         self.path = collections.deque(path)
+        self.schema_path = collections.deque()
         self.validator = validator
         self.cause = cause
 
@@ -226,6 +227,8 @@ class ValidatorMixin(object):
                     # set validator if it wasn't already set by the called fn
                     if error.validator is None:
                         error.validator = k
+                    if k != "$ref":
+                        error.schema_path.appendleft(k)
                     yield error
 
     def validate(self, *args, **kwargs):
@@ -248,6 +251,7 @@ class _Draft34CommonMixin(object):
                 if re.search(pattern, k):
                     for error in self.iter_errors(v, subschema):
                         error.path.appendleft(k)
+                        error.schema_path.appendleft(pattern)
                         yield error
 
     def validate_additionalProperties(self, aP, instance, schema):
@@ -278,6 +282,7 @@ class _Draft34CommonMixin(object):
             for (index, item), subschema in zip(enumerate(instance), items):
                 for error in self.iter_errors(item, subschema):
                     error.path.appendleft(index)
+                    error.schema_path.appendleft(index)
                     yield error
 
     def validate_additionalItems(self, aI, instance, schema):
@@ -392,6 +397,7 @@ class _Draft34CommonMixin(object):
 
             if self.is_type(dependency, "object"):
                 for error in self.iter_errors(instance, dependency):
+                    error.schema_path.appendleft(property)
                     yield error
             else:
                 dependencies = _list(dependency)
@@ -441,6 +447,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
             if property in instance:
                 for error in self.iter_errors(instance[property], subschema):
                     error.path.appendleft(property)
+                    error.schema_path.appendleft(property)
                     yield error
             elif subschema.get("required", False):
                 yield ValidationError(
@@ -457,10 +464,13 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 )
 
     def validate_extends(self, extends, instance, schema):
+        _extends = extends
         if self.is_type(extends, "object"):
-            extends = [extends]
-        for subschema in extends:
+            _extends = [extends]
+        for index, subschema in enumerate(_extends):
             for error in self.iter_errors(instance, subschema):
+                if not self.is_type(extends, "object"):
+                    error.schema_path.appendleft(index)
                 yield error
 
     validate_divisibleBy = _Draft34CommonMixin._validate_multipleOf
@@ -570,6 +580,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             if property in instance:
                 for error in self.iter_errors(instance[property], subschema):
                     error.path.appendleft(property)
+                    error.schema_path.appendleft(property)
                     yield error
 
     def validate_required(self, required, instance, schema):
@@ -590,8 +601,9 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             yield ValidationError("%r is too short" % (instance,))
 
     def validate_allOf(self, allOf, instance, schema):
-        for subschema in allOf:
+        for index, subschema in enumerate(allOf):
             for error in self.iter_errors(instance, subschema):
+                error.schema_path.appendleft(index)
                 yield error
 
     def validate_oneOf(self, oneOf, instance, schema):
