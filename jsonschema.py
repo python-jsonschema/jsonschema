@@ -56,12 +56,18 @@ validators = {}
 
 
 class _Error(Exception):
-    def __init__(self, message, validator=None, path=(), cause=None):
+    def __init__(
+            self, message, validator=None, path=(), cause=None, context=()
+    ):
         super(_Error, self).__init__(message, validator, path)
         self.message = message
         self.path = collections.deque(path)
         self.schema_path = collections.deque()
         self.validator = validator
+        self.validator_arg = None
+        self.instance = None
+        self.subschema = None
+        self.context = list(context)
         self.cause = cause
 
     def __str__(self):
@@ -229,6 +235,9 @@ class ValidatorMixin(object):
                         error.validator = k
                     if k != "$ref":
                         error.schema_path.appendleft(k)
+                    error.validator_arg = v
+                    error.instance = instance
+                    error.subschema = _schema
                     yield error
 
     def validate(self, *args, **kwargs):
@@ -427,17 +436,24 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     def validate_type(self, types, instance, schema):
         types = _list(types)
 
-        for type in types:
+        all_errors = []
+        for index, type in enumerate(types):
             if type == "any":
                 return
             if self.is_type(type, "object"):
-                if self.is_valid(instance, type):
+                errors = list(self.iter_errors(instance, type))
+                if not errors:
                     return
+                for error in errors:
+                    error.schema_path.appendleft(index)
+                    all_errors.append(error)
             elif self.is_type(type, "string"):
                 if self.is_type(instance, type):
                     return
         else:
-            yield ValidationError(_types_msg(instance, types))
+            yield ValidationError(
+                _types_msg(instance, types), context=all_errors
+            )
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -607,28 +623,43 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 yield error
 
     def validate_oneOf(self, oneOf, instance, schema):
-        subschemas = iter(oneOf)
-        first_valid = next(
-            (s for s in subschemas if self.is_valid(instance, s)), None,
-        )
-
-        if first_valid is None:
-            yield ValidationError(
-                "%r is not valid under any of the given schemas." % (instance,)
-            )
+        subschemas = enumerate(oneOf)
+        all_errors = []
+        for index, s in subschemas:
+            errors = list(self.iter_errors(instance, s))
+            if not errors:
+                first_valid = s
+                break
+            for error in errors:
+                error.schema_path.appendleft(index)
+                all_errors.append(error)
         else:
-            more_valid = [s for s in subschemas if self.is_valid(instance, s)]
-            if more_valid:
-                more_valid.append(first_valid)
-                reprs = ", ".join(repr(schema) for schema in more_valid)
-                yield ValidationError(
-                    "%r is valid under each of %s" % (instance, reprs)
-                )
+            yield ValidationError(
+                "%r is not valid under any of the given schemas" % (instance,),
+                context=all_errors
+            )
+
+        more_valid = [s for i, s in subschemas if self.is_valid(instance, s)]
+        if more_valid:
+            more_valid.append(first_valid)
+            reprs = ", ".join(repr(schema) for schema in more_valid)
+            yield ValidationError(
+                "%r is valid under each of %s" % (instance, reprs)
+            )
 
     def validate_anyOf(self, anyOf, instance, schema):
-        if not any(self.is_valid(instance, subschema) for subschema in anyOf):
+        all_errors = []
+        for index, subschema in enumerate(anyOf):
+            errors = list(self.iter_errors(instance, subschema))
+            if not errors:
+                break
+            for error in errors:
+                error.schema_path.appendleft(index)
+                all_errors.append(error)
+        else:
             yield ValidationError(
-                "The instance is not valid under any of the given schemas."
+                "The instance is not valid under any of the given schemas",
+                context=all_errors
             )
 
     def validate_not(self, not_schema, instance, schema):
