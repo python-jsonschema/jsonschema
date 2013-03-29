@@ -359,6 +359,56 @@ class TestValidationErrorDetails(unittest.TestCase):
 
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
+    def test_type(self):
+        instance = {"foo": 1}
+        schema = {
+            "type": [
+                {"type": "integer"},
+                {
+                    "type": "object",
+                    "properties": {
+                        "foo": {"enum": [2]}
+                    }
+                }
+            ]
+        }
+
+        errors = list(self.validator.iter_errors(instance, schema))
+        self.assertEqual(len(errors), 1)
+        e = errors[0]
+
+        self.assertEqual(e.validator, "type")
+        self.assertEqual(list(e.schema_path), ["type"])
+        self.assertEqual(e.validator_arg, schema["type"])
+        self.assertEqual(e.instance, instance)
+        self.assertEqual(e.subschema, schema)
+        self.assertEqual(list(e.path), [])
+        self.assertEqual(len(e.context), 2)
+
+        e1, e2 = sorted_errors(e.context)
+
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(list(e1.schema_path), [0, "type"])
+        self.assertEqual(e1.validator_arg, schema["type"][0]["type"])
+        self.assertEqual(e1.instance, instance)
+        self.assertEqual(e1.subschema, schema["type"][0])
+        self.assertEqual(list(e1.path), [])
+        self.assertEqual(len(e1.context), 0)
+
+        self.assertEqual(e2.validator, "enum")
+        self.assertEqual(
+            list(e2.schema_path),
+            [1, "properties", "foo", "enum"]
+        )
+        self.assertEqual(
+            e2.validator_arg,
+            schema["type"][1]["properties"]["foo"]["enum"]
+        )
+        self.assertEqual(e2.instance, instance["foo"])
+        self.assertEqual(e2.subschema, schema["type"][1]["properties"]["foo"])
+        self.assertEqual(list(e2.path), ["foo"])
+        self.assertEqual(len(e2.context), 0)
+
     def test_single_nesting(self):
         instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
         schema = {

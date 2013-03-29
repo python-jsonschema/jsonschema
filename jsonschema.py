@@ -233,11 +233,11 @@ class ValidatorMixin(object):
                     # set validator if it wasn't already set by the called fn
                     if error.validator is None:
                         error.validator = k
+                        error.validator_arg = v
+                        error.instance = instance
+                        error.subschema = _schema
                     if k != "$ref":
                         error.schema_path.appendleft(k)
-                    error.validator_arg = v
-                    error.instance = instance
-                    error.subschema = _schema
                     yield error
 
     def validate(self, *args, **kwargs):
