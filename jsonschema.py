@@ -21,6 +21,7 @@ import operator
 import re
 import socket
 import sys
+import warnings
 
 try:
     from collections import MutableMapping
@@ -56,19 +57,34 @@ validators = {}
 
 
 class _Error(Exception):
-    def __init__(
-            self, message, validator=None, path=(), cause=None, context=()
-    ):
-        super(_Error, self).__init__(message, validator, path)
+    def __init__(self, message, cause=None, context=()):
+        super(_Error, self).__init__(message)
         self.message = message
-        self.path = collections.deque(path)
+        self.path = collections.deque()
         self.schema_path = collections.deque()
-        self.validator = validator
-        self.validator_arg = None
-        self.instance = None
-        self.subschema = None
         self.context = list(context)
         self.cause = cause
+        self._details_set = False
+        self.validator_keyword = None
+        self.validator_value = None
+        self.instance = None
+        self.schema = None
+
+    @property
+    def validator(self):
+        warnings.warn(
+            "'validator' has been replaced with 'validator_keyword'",
+            DeprecationWarning
+        )
+        return self.validator_keyword
+
+    def set_details(self, keyword, value, instance, schema):
+        if not self._details_set:
+            self.validator_keyword = keyword
+            self.validator_value = value
+            self.instance = instance
+            self.schema = schema
+            self._details_set = True
 
     def __str__(self):
         return self.message.encode("utf-8")
@@ -206,9 +222,9 @@ class ValidatorMixin(object):
     @classmethod
     def check_schema(cls, schema):
         for error in cls(cls.META_SCHEMA).iter_errors(schema):
-            raise SchemaError(
-                error.message, validator=error.validator, path=error.path,
-            )
+            schema_error = SchemaError(error.message)
+            schema_error.__dict__.update(error.__dict__)
+            raise schema_error
 
     def iter_errors(self, instance, _schema=None):
         if _schema is None:
@@ -230,12 +246,8 @@ class ValidatorMixin(object):
 
                 errors = validator(v, instance, _schema) or ()
                 for error in errors:
-                    # set validator if it wasn't already set by the called fn
-                    if error.validator is None:
-                        error.validator = k
-                        error.validator_arg = v
-                        error.instance = instance
-                        error.subschema = _schema
+                    # set details if they weren't already set by the called fn
+                    error.set_details(k, v, instance, _schema)
                     if k != "$ref":
                         error.schema_path.appendleft(k)
                     yield error
@@ -466,11 +478,13 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                     error.schema_path.appendleft(property)
                     yield error
             elif subschema.get("required", False):
-                yield ValidationError(
-                    "%r is a required property" % (property,),
-                    validator="required",
-                    path=[property],
+                error = ValidationError("%r is a required property" % property)
+                error.set_details(
+                    "required", subschema["required"], instance, schema
                 )
+                error.path.appendleft(property)
+                error.schema_path.extend([property, "required"])
+                yield error
 
     def validate_disallow(self, disallow, instance, schema):
         for disallowed in _list(disallow):
@@ -1166,7 +1180,7 @@ class ErrorTree(object):
             container = self
             for element in error.path:
                 container = container[element]
-            container.errors[error.validator] = error
+            container.errors[error.validator_keyword] = error
 
     def __contains__(self, k):
         return k in self._contents
