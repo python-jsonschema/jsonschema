@@ -15,14 +15,37 @@ raised or returned, depending on which method or function is used.
 
         A human readable message explaining the error.
 
-    .. attribute:: validator
+    .. attribute:: validator_keyword
 
         The failed validator.
+
+    .. attribute:: validator_value
+
+        The value for the failed validator in the schema.
+
+    .. attribute:: schema
+
+        The full (sub)schema that this error came from.
+
+    .. attribute:: schema_path
+
+        A deque containing the path to the failed validator within the schema.
 
     .. attribute:: path
 
         A deque containing the path to the offending element (or an empty deque
         if the error happened globally).
+
+    .. attribute:: instance
+
+        The instance that was being validated.
+
+    .. attribute:: context
+
+        If the error was caused by errors in subschemas, the list of errors
+        from the subschemas will be available on this property. The
+        ``schema_path`` and ``path`` of these errors will be relative to the
+        parent error.
 
 
 In case an invalid schema itself is encountered, a :exc:`SchemaError` is
