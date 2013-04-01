@@ -359,6 +359,46 @@ class TestValidationErrorDetails(unittest.TestCase):
 
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
+    def test_anyOf(self):
+        instance = 5
+        schema = {
+            "anyOf": [
+                {"minimum": 20},
+                {"type": "string"}
+            ]
+        }
+
+        validator = Draft4Validator(schema)
+        errors = list(validator.iter_errors(instance))
+        self.assertEqual(len(errors), 1)
+        e = errors[0]
+
+        self.assertEqual(e.validator_keyword, "anyOf")
+        self.assertEqual(list(e.schema_path), ["anyOf"])
+        self.assertEqual(e.validator_value, schema["anyOf"])
+        self.assertEqual(e.instance, instance)
+        self.assertEqual(e.schema, schema)
+        self.assertEqual(list(e.path), [])
+        self.assertEqual(len(e.context), 2)
+
+        e1, e2 = sorted_errors(e.context)
+
+        self.assertEqual(e1.validator_keyword, "minimum")
+        self.assertEqual(list(e1.schema_path), [0, "minimum"])
+        self.assertEqual(e1.validator_value, schema["anyOf"][0]["minimum"])
+        self.assertEqual(e1.instance, instance)
+        self.assertEqual(e1.schema, schema["anyOf"][0])
+        self.assertEqual(list(e1.path), [])
+        self.assertEqual(len(e1.context), 0)
+
+        self.assertEqual(e2.validator_keyword, "type")
+        self.assertEqual(list(e2.schema_path), [1, "type"])
+        self.assertEqual(e2.validator_value, schema["anyOf"][1]["type"])
+        self.assertEqual(e2.instance, instance)
+        self.assertEqual(e2.schema, schema["anyOf"][1])
+        self.assertEqual(list(e2.path), [])
+        self.assertEqual(len(e2.context), 0)
+
     def test_type(self):
         instance = {"foo": 1}
         schema = {
