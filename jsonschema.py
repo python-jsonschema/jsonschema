@@ -255,7 +255,9 @@ class ValidatorMixin(object):
                 errors = validator(v, instance, _schema) or ()
                 for error in errors:
                     # set details if they weren't already set by the called fn
-                    error.set_details(k, v, instance, _schema)
+                    error.set_details(
+                        keyword=k, value=v, instance=instance, schema=_schema
+                    )
                     if k != "$ref":
                         error.schema_path.appendleft(k)
                     yield error
