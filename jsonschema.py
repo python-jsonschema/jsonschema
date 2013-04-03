@@ -223,7 +223,15 @@ class ValidatorMixin(object):
     def check_schema(cls, schema):
         for error in cls(cls.META_SCHEMA).iter_errors(schema):
             schema_error = SchemaError(error.message)
-            schema_error.__dict__.update(error.__dict__)
+            schema_error.path = error.path
+            schema_error.schema_path = error.schema_path
+            schema_error.context = error.context
+            schema_error.cause = error.cause
+            schema_error._details_set = error._details_set
+            schema_error.validator_keyword = error.validator_keyword
+            schema_error.validator_value = error.validator_value
+            schema_error.instance = error.instance
+            schema_error.schema = error.schema
             raise schema_error
 
     def iter_errors(self, instance, _schema=None):
