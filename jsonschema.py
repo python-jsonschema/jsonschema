@@ -924,14 +924,15 @@ try:
 except ImportError:
     pass
 else:
-    FormatChecker.cls_checks("date-time",
-        raises=(ValueError, isodate.ISO8601Error))(isodate.parse_datetime)
+    _err = (ValueError, isodate.ISO8601Error)
+    FormatChecker.cls_checks("date-time", raises=_err)(isodate.parse_datetime)
 
 
 draft4_format_checker = FormatChecker()
 draft3_format_checker = FormatChecker()
-draft3_format_checker.checks("ip-address",
-    raises=socket.error)(socket.inet_aton)
+draft3_format_checker.checks("ip-address", raises=socket.error)(
+    socket.inet_aton
+)
 draft3_format_checker.checks("host-name")(is_host_name)
 
 
@@ -981,8 +982,9 @@ class RefResolver(object):
 
     """
 
-    def __init__(self, base_uri, referrer, store=(), cache_remote=True,
-                 handlers=()):
+    def __init__(
+        self, base_uri, referrer, store=(), cache_remote=True, handlers=(),
+    ):
         self.base_uri = base_uri
         self.resolution_scope = base_uri
         self.referrer = referrer
