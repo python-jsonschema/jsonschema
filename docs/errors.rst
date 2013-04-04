@@ -47,6 +47,70 @@ raised or returned, depending on which method or function is used.
         ``schema_path`` and ``path`` of these errors will be relative to the
         parent error.
 
+These attributes can be clarified with a short example:
+
+.. code-block:: python
+
+    >>> from jsonschema import Draft4Validator
+    >>> schema = {
+    ...     "items": {
+    ...         "anyOf": [
+    ...             {"type": "string", "maxLength": 2},
+    ...             {"type": "integer", "minimum": 5}
+    ...         ]
+    ...     }
+    ... }
+    >>> instance = [{}, 3, "foo"]
+    >>> v = Draft4Validator(schema)
+    >>> errors = list(v.iter_errors(instance))
+
+The error messages in this situation are not very helpful on their own:
+
+.. code-block:: python
+
+    >>> for e in errors:
+    ...     print e.message
+    The instance is not valid under any of the given schemas
+    The instance is not valid under any of the given schemas
+    The instance is not valid under any of the given schemas
+
+If we look at the :attr:`ValidationError.path` attribute, we can find out which
+elements in the instance we are validating are causing each of the errors. In
+this example, :attr:`ValidationError.path` will have only one element, which
+will be the index in our list.
+
+.. code-block:: python
+
+    >>> for e in errors:
+    ...     print list(e.path)
+    [0]
+    [1]
+    [2]
+
+Since our schema contained nested subschemas, it can be helpful to look at
+the specific part of the instance and subschema that caused each of the errors.
+This can be seen with the :attr:`ValidationError.instance` and
+:attr:`ValidationError.schema` attributes.
+
+With validators like ``anyOf``, the :attr:`ValidationError.context`` attribute
+can be used to see the sub-errors which caused the failure. Since these errors
+actually came from two separate subschemas, so it can be helpful to look at the
+:attr:`ValidationError.schema_path` attribute as well to see where exactly in
+the schema each of these errors come from. In the case of sub-errors from the
+:attr:`ValidationError.context` attribute, this path will be relative to the
+:attr:`ValidationError.schema_path` of the parent error.
+
+.. code-block:: python
+
+    >>> for e in errors:
+    ...     for sube in e.context:
+    ...         print list(sube.schema_path), sube
+    [0, 'type'] {} is not of type 'string'
+    [1, 'type'] {} is not of type 'integer'
+    [0, 'type'] 3 is not of type 'string'
+    [1, 'minimum'] 3.0 is less than the minimum of 5
+    [0, 'maxLength'] 'foo' is too long
+    [1, 'type'] 'foo' is not of type 'integer'
 
 In case an invalid schema itself is encountered, a :exc:`SchemaError` is
 raised.
