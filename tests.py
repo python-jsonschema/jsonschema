@@ -697,8 +697,9 @@ class TestRefResolver(unittest.TestCase):
     def test_cache_remote_on(self):
         ref = "foo://bar"
         foo_handler = mock.Mock()
-        resolver = RefResolver("", {}, cache_remote=True,
-                               handlers={"foo": foo_handler})
+        resolver = RefResolver(
+            "", {}, cache_remote=True, handlers={"foo" : foo_handler},
+        )
         with resolver.resolving(ref):
             pass
         with resolver.resolving(ref):
@@ -708,8 +709,9 @@ class TestRefResolver(unittest.TestCase):
     def test_cache_remote_off(self):
         ref = "foo://bar"
         foo_handler = mock.Mock()
-        resolver = RefResolver("", {}, cache_remote=False,
-                               handlers={"foo": foo_handler})
+        resolver = RefResolver(
+            "", {}, cache_remote=False, handlers={"foo" : foo_handler},
+        )
         with resolver.resolving(ref):
             pass
         with resolver.resolving(ref):
@@ -719,8 +721,7 @@ class TestRefResolver(unittest.TestCase):
     def test_if_you_give_it_junk_you_get_a_resolution_error(self):
         ref = "foo://bar"
         foo_handler = mock.Mock(side_effect=ValueError("Oh no! What's this?"))
-        resolver = RefResolver("", {}, cache_remote=True,
-                               handlers={"foo": foo_handler})
+        resolver = RefResolver("", {}, handlers={"foo" : foo_handler})
         with self.assertRaises(RefResolutionError) as err:
             with resolver.resolving(ref):
                 pass
