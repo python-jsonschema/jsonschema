@@ -988,9 +988,14 @@ class RefResolver(object):
         self.base_uri = base_uri
         self.resolution_scope = base_uri
         self.referrer = referrer
-        self.store = _URIDict(store, **_meta_schemas())
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
+
+        self.store = _URIDict(
+            (id, validator.META_SCHEMA)
+            for id, validator in iteritems(meta_schemas)
+        )
+        self.store.update(store)
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -1163,16 +1168,6 @@ class ErrorTree(object):
 
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
-
-
-def _meta_schemas():
-    """
-    Collect the urls and meta schemas from each known validator.
-
-    """
-
-    meta_schemas = (v.META_SCHEMA for v in validators.values())
-    return dict((urlparse.urldefrag(m["id"])[0], m) for m in meta_schemas)
 
 
 def _find_additional_properties(instance, schema):
