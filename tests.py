@@ -627,10 +627,14 @@ class TestValidatorMixin(unittest.TestCase):
 
 
 class TestRefResolver(unittest.TestCase):
+
+    base_uri = ""
+    stored_uri = "foo://stored"
+    stored_schema = {"stored" : "schema"}
+
     def setUp(self):
-        self.base_uri = ""
         self.referrer = {}
-        self.store = {}
+        self.store = {self.stored_uri : self.stored_schema}
         self.resolver = RefResolver(self.base_uri, self.referrer, self.store)
 
     def test_it_does_not_retrieve_schema_urls_from_the_network(self):
@@ -647,6 +651,9 @@ class TestRefResolver(unittest.TestCase):
             self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
     def test_it_retrieves_stored_refs(self):
+        with self.resolver.resolving(self.stored_uri) as resolved:
+            self.assertIs(resolved, self.stored_schema)
+
         self.resolver.store["cached_ref"] = {"foo" : 12}
         with self.resolver.resolving("cached_ref#/foo") as resolved:
             self.assertEqual(resolved, 12)
