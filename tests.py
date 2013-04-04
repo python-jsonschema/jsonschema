@@ -221,7 +221,7 @@ class TestDraft4(
             validate([1], {"minItems" : "1"}, cls=self.validator_class)
 
 
-class RemoteRefResolution(unittest.TestCase):
+class RemoteRefResolutionMixin(object):
     def setUp(self):
         patch = mock.patch("jsonschema.requests")
         requests = patch.start()
@@ -234,12 +234,12 @@ class RemoteRefResolution(unittest.TestCase):
 
 
 @load_json_cases("draft3/refRemote.json")
-class Draft3RemoteResolution(RemoteRefResolution):
+class Draft3RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
     validator_class = Draft3Validator
 
 
 @load_json_cases("draft4/refRemote.json")
-class Draft4RemoteResolution(RemoteRefResolution):
+class Draft4RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
     validator_class = Draft4Validator
 
 
