@@ -266,6 +266,14 @@ class ValidatorMixin(object):
                         error.schema_path.appendleft(k)
                     yield error
 
+    def descend(self, instance, schema, path=None, schema_path=None):
+        for error in self.iter_errors(instance, schema):
+            if path is not None:
+                error.path.appendleft(path)
+            if schema_path is not None:
+                error.schema_path.appendleft(schema_path)
+            yield error
+
     def validate(self, *args, **kwargs):
         for error in self.iter_errors(*args, **kwargs):
             raise error
@@ -284,9 +292,9 @@ class _Draft34CommonMixin(object):
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
                 if re.search(pattern, k):
-                    for error in self.iter_errors(v, subschema):
-                        error.path.appendleft(k)
-                        error.schema_path.appendleft(pattern)
+                    for error in self.descend(
+                            v, subschema, path=k, schema_path=pattern
+                    ):
                         yield error
 
     def validate_additionalProperties(self, aP, instance, schema):
@@ -297,8 +305,7 @@ class _Draft34CommonMixin(object):
 
         if self.is_type(aP, "object"):
             for extra in extras:
-                for error in self.iter_errors(instance[extra], aP):
-                    error.path.appendleft(extra)
+                for error in self.descend(instance[extra], aP, path=extra):
                     yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
@@ -310,14 +317,13 @@ class _Draft34CommonMixin(object):
 
         if self.is_type(items, "object"):
             for index, item in enumerate(instance):
-                for error in self.iter_errors(item, items):
-                    error.path.appendleft(index)
+                for error in self.descend(item, items, path=index):
                     yield error
         else:
             for (index, item), subschema in zip(enumerate(instance), items):
-                for error in self.iter_errors(item, subschema):
-                    error.path.appendleft(index)
-                    error.schema_path.appendleft(index)
+                for error in self.descend(
+                        item, subschema, path=index, schema_path=index
+                ):
                     yield error
 
     def validate_additionalItems(self, aI, instance, schema):
@@ -330,8 +336,7 @@ class _Draft34CommonMixin(object):
         if self.is_type(aI, "object"):
             for index, item in enumerate(
                     instance[len(schema.get("items", [])):]):
-                for error in self.iter_errors(item, aI):
-                    error.path.appendleft(index)
+                for error in self.descend(item, aI, path=index):
                     yield error
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
@@ -431,8 +436,9 @@ class _Draft34CommonMixin(object):
                 continue
 
             if self.is_type(dependency, "object"):
-                for error in self.iter_errors(instance, dependency):
-                    error.schema_path.appendleft(property)
+                for error in self.descend(
+                        instance, dependency, schema_path=property
+                ):
                     yield error
             else:
                 dependencies = _list(dependency)
@@ -448,7 +454,7 @@ class _Draft34CommonMixin(object):
 
     def validate_ref(self, ref, instance, schema):
         with self.resolver.resolving(ref) as resolved:
-            for error in self.iter_errors(instance, resolved):
+            for error in self.descend(instance, resolved):
                 yield error
 
 
@@ -467,12 +473,10 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
             if type == "any":
                 return
             if self.is_type(type, "object"):
-                errors = list(self.iter_errors(instance, type))
+                errors = list(self.descend(instance, type, schema_path=index))
                 if not errors:
                     return
-                for error in errors:
-                    error.schema_path.appendleft(index)
-                    all_errors.append(error)
+                all_errors.extend(errors)
             elif self.is_type(type, "string"):
                 if self.is_type(instance, type):
                     return
@@ -487,9 +491,10 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
         for property, subschema in iteritems(properties):
             if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
-                    error.path.appendleft(property)
-                    error.schema_path.appendleft(property)
+                for error in self.descend(
+                        instance[property], subschema, path=property,
+                        schema_path=property
+                ):
                     yield error
             elif subschema.get("required", False):
                 error = ValidationError("%r is a required property" % property)
@@ -508,13 +513,12 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 )
 
     def validate_extends(self, extends, instance, schema):
-        _extends = extends
         if self.is_type(extends, "object"):
-            _extends = [extends]
-        for index, subschema in enumerate(_extends):
-            for error in self.iter_errors(instance, subschema):
-                if not self.is_type(extends, "object"):
-                    error.schema_path.appendleft(index)
+            for error in self.descend(instance, extends):
+                yield error
+            return
+        for index, subschema in enumerate(extends):
+            for error in self.descend(instance, subschema, schema_path=index):
                 yield error
 
     validate_divisibleBy = _Draft34CommonMixin._validate_multipleOf
@@ -622,9 +626,10 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
         for property, subschema in iteritems(properties):
             if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
-                    error.path.appendleft(property)
-                    error.schema_path.appendleft(property)
+                for error in self.descend(
+                        instance[property], subschema, path=property,
+                        schema_path=property
+                ):
                     yield error
 
     def validate_required(self, required, instance, schema):
@@ -646,21 +651,18 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
     def validate_allOf(self, allOf, instance, schema):
         for index, subschema in enumerate(allOf):
-            for error in self.iter_errors(instance, subschema):
-                error.schema_path.appendleft(index)
+            for error in self.descend(instance, subschema, schema_path=index):
                 yield error
 
     def validate_oneOf(self, oneOf, instance, schema):
         subschemas = enumerate(oneOf)
         all_errors = []
         for index, s in subschemas:
-            errors = list(self.iter_errors(instance, s))
+            errors = list(self.descend(instance, s, schema_path=index))
             if not errors:
                 first_valid = s
                 break
-            for error in errors:
-                error.schema_path.appendleft(index)
-                all_errors.append(error)
+            all_errors.extend(errors)
         else:
             yield ValidationError(
                 "%r is not valid under any of the given schemas" % (instance,),
@@ -678,12 +680,10 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
     def validate_anyOf(self, anyOf, instance, schema):
         all_errors = []
         for index, subschema in enumerate(anyOf):
-            errors = list(self.iter_errors(instance, subschema))
+            errors = list(self.descend(instance, subschema, schema_path=index))
             if not errors:
                 break
-            for error in errors:
-                error.schema_path.appendleft(index)
-                all_errors.append(error)
+            all_errors.extend(errors)
         else:
             yield ValidationError(
                 "The instance is not valid under any of the given schemas",
