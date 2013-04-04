@@ -1029,7 +1029,10 @@ class RefResolver(object):
         elif not uri or uri == self.base_uri:
             document = self.referrer
         else:
-            document = self.resolve_remote(uri)
+            try:
+                document = self.resolve_remote(uri)
+            except Exception as exc:
+                raise RefResolutionError(exc)
 
         old_base_uri, old_referrer = self.base_uri, self.referrer
         self.base_uri, self.referrer = uri, document
@@ -1067,7 +1070,8 @@ class RefResolver(object):
         """
         Resolve a remote ``uri``.
 
-        Does not check the store first.
+        Does not check the store first, but stores the retrieved document in
+        the store if :attr:`RefResolver.cache_remote` is True.
 
         .. note::
 

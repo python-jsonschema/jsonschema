@@ -25,9 +25,10 @@ except ImportError:
     pypy_version_info = None
 
 from jsonschema import (
-    PY3, FormatError, SchemaError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, Draft4Validator, FormatChecker, RefResolver,
-    ValidatorMixin, draft3_format_checker, draft4_format_checker, validate,
+    PY3, FormatError, RefResolutionError, SchemaError, UnknownType,
+    ValidationError, ErrorTree, Draft3Validator, Draft4Validator,
+    FormatChecker, RefResolver, ValidatorMixin, draft3_format_checker,
+    draft4_format_checker, validate,
 )
 
 
@@ -714,6 +715,16 @@ class TestRefResolver(unittest.TestCase):
         with resolver.resolving(ref):
             pass
         self.assertEqual(foo_handler.call_count, 2)
+
+    def test_if_you_give_it_junk_you_get_a_resolution_error(self):
+        ref = "foo://bar"
+        foo_handler = mock.Mock(side_effect=ValueError("Oh no! What's this?"))
+        resolver = RefResolver("", {}, cache_remote=True,
+                               handlers={"foo": foo_handler})
+        with self.assertRaises(RefResolutionError) as err:
+            with resolver.resolving(ref):
+                pass
+        self.assertEqual(str(err.exception), "Oh no! What's this?")
 
 
 class TestFormatChecker(unittest.TestCase):
