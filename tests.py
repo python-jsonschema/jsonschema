@@ -855,5 +855,5 @@ class TestFormatChecker(unittest.TestCase):
 
 def sorted_errors(errors):
     def key(error):
-        return [str(e) for e in error.path], error.validator_keyword
+        return error.path, error.schema_path
     return sorted(errors, key=key)
