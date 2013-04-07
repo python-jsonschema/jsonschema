@@ -103,7 +103,7 @@ the schema each of these errors come from. In the case of sub-errors from the
 .. code-block:: python
 
     >>> for e in errors:
-    ...     for sube in sorted(e.context, key=lambda e: e.schema_path:
+    ...     for sube in sorted(e.context, key=lambda e: e.schema_path):
     ...         print list(sube.schema_path), sube
     [0, 'type'] {} is not of type 'string'
     [1, 'type'] {} is not of type 'integer'
