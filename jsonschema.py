@@ -58,7 +58,7 @@ validators = {}
 
 class _Error(Exception):
     def __init__(self, message, cause=None, context=()):
-        super(_Error, self).__init__(message)
+        super(_Error, self).__init__(message, cause, context)
         self.message = message
         self.path = collections.deque()
         self.schema_path = collections.deque()
