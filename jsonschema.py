@@ -70,6 +70,18 @@ class _Error(Exception):
         self.instance = None
         self.schema = None
 
+    @classmethod
+    def create_from(cls, other):
+        new_error = cls(other.message, other.cause, other.context)
+        new_error.path = other.path
+        new_error.schema_path = other.schema_path
+        new_error._details_set = other._details_set
+        new_error.validator_keyword = other.validator_keyword
+        new_error.validator_value = other.validator_value
+        new_error.instance = other.instance
+        new_error.schema = other.schema
+        return new_error
+
     @property
     def validator(self):
         warnings.warn(
@@ -112,22 +124,8 @@ class FormatError(Exception):
         __str__ = __unicode__
 
 
-class ValidationError(_Error):
-    def to_schema_error(self):
-        schema_error = SchemaError(self.message)
-        schema_error.path = self.path
-        schema_error.schema_path = self.schema_path
-        schema_error.context = self.context
-        schema_error.cause = self.cause
-        schema_error._details_set = self._details_set
-        schema_error.validator_keyword = self.validator_keyword
-        schema_error.validator_value = self.validator_value
-        schema_error.instance = self.instance
-        schema_error.schema = self.schema
-        return schema_error
-
-
 class SchemaError(_Error): pass
+class ValidationError(_Error): pass
 class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
 
@@ -236,7 +234,7 @@ class ValidatorMixin(object):
     @classmethod
     def check_schema(cls, schema):
         for error in cls(cls.META_SCHEMA).iter_errors(schema):
-            raise error.to_schema_error()
+            raise SchemaError.create_from(error)
 
     def iter_errors(self, instance, _schema=None):
         if _schema is None:
