@@ -67,7 +67,10 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-doctest_global_setup = "from jsonschema import *"
+doctest_global_setup = (
+    "from __future__ import print_function\n"
+    "from jsonschema import *"
+)
 
 
 # -- Options for HTML output ---------------------------------------------------

@@ -21,6 +21,7 @@ import operator
 import re
 import socket
 import sys
+import warnings
 
 try:
     from collections import MutableMapping
@@ -56,12 +57,46 @@ validators = {}
 
 
 class _Error(Exception):
-    def __init__(self, message, validator=None, path=(), cause=None):
-        super(_Error, self).__init__(message, validator, path)
+    def __init__(self, message, cause=None, context=()):
+        super(_Error, self).__init__(message, cause, context)
         self.message = message
-        self.path = collections.deque(path)
-        self.validator = validator
+        self.path = collections.deque()
+        self.schema_path = collections.deque()
+        self.context = list(context)
         self.cause = cause
+        self._details_set = False
+        self.validator_keyword = None
+        self.validator_value = None
+        self.instance = None
+        self.schema = None
+
+    @classmethod
+    def create_from(cls, other):
+        new_error = cls(other.message, other.cause, other.context)
+        new_error.path = other.path
+        new_error.schema_path = other.schema_path
+        new_error._details_set = other._details_set
+        new_error.validator_keyword = other.validator_keyword
+        new_error.validator_value = other.validator_value
+        new_error.instance = other.instance
+        new_error.schema = other.schema
+        return new_error
+
+    @property
+    def validator(self):
+        warnings.warn(
+            "'validator' has been replaced with 'validator_keyword'",
+            DeprecationWarning
+        )
+        return self.validator_keyword
+
+    def set_details(self, keyword, value, instance, schema):
+        if not self._details_set:
+            self.validator_keyword = keyword
+            self.validator_value = value
+            self.instance = instance
+            self.schema = schema
+            self._details_set = True
 
     def __str__(self):
         return self.message.encode("utf-8")
@@ -199,9 +234,7 @@ class ValidatorMixin(object):
     @classmethod
     def check_schema(cls, schema):
         for error in cls(cls.META_SCHEMA).iter_errors(schema):
-            raise SchemaError(
-                error.message, validator=error.validator, path=error.path,
-            )
+            raise SchemaError.create_from(error)
 
     def iter_errors(self, instance, _schema=None):
         if _schema is None:
@@ -223,10 +256,21 @@ class ValidatorMixin(object):
 
                 errors = validator(v, instance, _schema) or ()
                 for error in errors:
-                    # set validator if it wasn't already set by the called fn
-                    if error.validator is None:
-                        error.validator = k
+                    # set details if they weren't already set by the called fn
+                    error.set_details(
+                        keyword=k, value=v, instance=instance, schema=_schema
+                    )
+                    if k != "$ref":
+                        error.schema_path.appendleft(k)
                     yield error
+
+    def descend(self, instance, schema, path=None, schema_path=None):
+        for error in self.iter_errors(instance, schema):
+            if path is not None:
+                error.path.appendleft(path)
+            if schema_path is not None:
+                error.schema_path.appendleft(schema_path)
+            yield error
 
     def validate(self, *args, **kwargs):
         for error in self.iter_errors(*args, **kwargs):
@@ -246,8 +290,9 @@ class _Draft34CommonMixin(object):
         for pattern, subschema in iteritems(patternProperties):
             for k, v in iteritems(instance):
                 if re.search(pattern, k):
-                    for error in self.iter_errors(v, subschema):
-                        error.path.appendleft(k)
+                    for error in self.descend(
+                            v, subschema, path=k, schema_path=pattern
+                    ):
                         yield error
 
     def validate_additionalProperties(self, aP, instance, schema):
@@ -258,8 +303,7 @@ class _Draft34CommonMixin(object):
 
         if self.is_type(aP, "object"):
             for extra in extras:
-                for error in self.iter_errors(instance[extra], aP):
-                    error.path.appendleft(extra)
+                for error in self.descend(instance[extra], aP, path=extra):
                     yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
@@ -271,13 +315,13 @@ class _Draft34CommonMixin(object):
 
         if self.is_type(items, "object"):
             for index, item in enumerate(instance):
-                for error in self.iter_errors(item, items):
-                    error.path.appendleft(index)
+                for error in self.descend(item, items, path=index):
                     yield error
         else:
             for (index, item), subschema in zip(enumerate(instance), items):
-                for error in self.iter_errors(item, subschema):
-                    error.path.appendleft(index)
+                for error in self.descend(
+                        item, subschema, path=index, schema_path=index
+                ):
                     yield error
 
     def validate_additionalItems(self, aI, instance, schema):
@@ -290,8 +334,7 @@ class _Draft34CommonMixin(object):
         if self.is_type(aI, "object"):
             for index, item in enumerate(
                     instance[len(schema.get("items", [])):]):
-                for error in self.iter_errors(item, aI):
-                    error.path.appendleft(index)
+                for error in self.descend(item, aI, path=index):
                     yield error
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
@@ -391,7 +434,9 @@ class _Draft34CommonMixin(object):
                 continue
 
             if self.is_type(dependency, "object"):
-                for error in self.iter_errors(instance, dependency):
+                for error in self.descend(
+                        instance, dependency, schema_path=property
+                ):
                     yield error
             else:
                 dependencies = _list(dependency)
@@ -407,7 +452,7 @@ class _Draft34CommonMixin(object):
 
     def validate_ref(self, ref, instance, schema):
         with self.resolver.resolving(ref) as resolved:
-            for error in self.iter_errors(instance, resolved):
+            for error in self.descend(instance, resolved):
                 yield error
 
 
@@ -421,17 +466,22 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     def validate_type(self, types, instance, schema):
         types = _list(types)
 
-        for type in types:
+        all_errors = []
+        for index, type in enumerate(types):
             if type == "any":
                 return
             if self.is_type(type, "object"):
-                if self.is_valid(instance, type):
+                errors = list(self.descend(instance, type, schema_path=index))
+                if not errors:
                     return
+                all_errors.extend(errors)
             elif self.is_type(type, "string"):
                 if self.is_type(instance, type):
                     return
         else:
-            yield ValidationError(_types_msg(instance, types))
+            yield ValidationError(
+                _types_msg(instance, types), context=all_errors
+            )
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -439,15 +489,19 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
         for property, subschema in iteritems(properties):
             if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
-                    error.path.appendleft(property)
+                for error in self.descend(
+                        instance[property], subschema, path=property,
+                        schema_path=property
+                ):
                     yield error
             elif subschema.get("required", False):
-                yield ValidationError(
-                    "%r is a required property" % (property,),
-                    validator="required",
-                    path=[property],
+                error = ValidationError("%r is a required property" % property)
+                error.set_details(
+                    "required", subschema["required"], instance, schema
                 )
+                error.path.appendleft(property)
+                error.schema_path.extend([property, "required"])
+                yield error
 
     def validate_disallow(self, disallow, instance, schema):
         for disallowed in _list(disallow):
@@ -458,9 +512,11 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
     def validate_extends(self, extends, instance, schema):
         if self.is_type(extends, "object"):
-            extends = [extends]
-        for subschema in extends:
-            for error in self.iter_errors(instance, subschema):
+            for error in self.descend(instance, extends):
+                yield error
+            return
+        for index, subschema in enumerate(extends):
+            for error in self.descend(instance, subschema, schema_path=index):
                 yield error
 
     validate_divisibleBy = _Draft34CommonMixin._validate_multipleOf
@@ -568,8 +624,10 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
         for property, subschema in iteritems(properties):
             if property in instance:
-                for error in self.iter_errors(instance[property], subschema):
-                    error.path.appendleft(property)
+                for error in self.descend(
+                        instance[property], subschema, path=property,
+                        schema_path=property
+                ):
                     yield error
 
     def validate_required(self, required, instance, schema):
@@ -590,33 +648,44 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             yield ValidationError("%r is too short" % (instance,))
 
     def validate_allOf(self, allOf, instance, schema):
-        for subschema in allOf:
-            for error in self.iter_errors(instance, subschema):
+        for index, subschema in enumerate(allOf):
+            for error in self.descend(instance, subschema, schema_path=index):
                 yield error
 
     def validate_oneOf(self, oneOf, instance, schema):
-        subschemas = iter(oneOf)
-        first_valid = next(
-            (s for s in subschemas if self.is_valid(instance, s)), None,
-        )
-
-        if first_valid is None:
-            yield ValidationError(
-                "%r is not valid under any of the given schemas." % (instance,)
-            )
+        subschemas = enumerate(oneOf)
+        all_errors = []
+        for index, s in subschemas:
+            errors = list(self.descend(instance, s, schema_path=index))
+            if not errors:
+                first_valid = s
+                break
+            all_errors.extend(errors)
         else:
-            more_valid = [s for s in subschemas if self.is_valid(instance, s)]
-            if more_valid:
-                more_valid.append(first_valid)
-                reprs = ", ".join(repr(schema) for schema in more_valid)
-                yield ValidationError(
-                    "%r is valid under each of %s" % (instance, reprs)
-                )
+            yield ValidationError(
+                "%r is not valid under any of the given schemas" % (instance,),
+                context=all_errors
+            )
+
+        more_valid = [s for i, s in subschemas if self.is_valid(instance, s)]
+        if more_valid:
+            more_valid.append(first_valid)
+            reprs = ", ".join(repr(schema) for schema in more_valid)
+            yield ValidationError(
+                "%r is valid under each of %s" % (instance, reprs)
+            )
 
     def validate_anyOf(self, anyOf, instance, schema):
-        if not any(self.is_valid(instance, subschema) for subschema in anyOf):
+        all_errors = []
+        for index, subschema in enumerate(anyOf):
+            errors = list(self.descend(instance, subschema, schema_path=index))
+            if not errors:
+                break
+            all_errors.extend(errors)
+        else:
             yield ValidationError(
-                "The instance is not valid under any of the given schemas."
+                "The instance is not valid under any of the given schemas",
+                context=all_errors
             )
 
     def validate_not(self, not_schema, instance, schema):
@@ -1134,7 +1203,7 @@ class ErrorTree(object):
             container = self
             for element in error.path:
                 container = container[element]
-            container.errors[error.validator] = error
+            container.errors[error.validator_keyword] = error
 
     def __contains__(self, k):
         return k in self._contents
