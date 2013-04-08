@@ -69,7 +69,7 @@ The error messages in this situation are not very helpful on their own:
 .. code-block:: python
 
     >>> for e in errors:
-    ...     print e.message
+    ...     print(e.message)
     The instance is not valid under any of the given schemas
     The instance is not valid under any of the given schemas
     The instance is not valid under any of the given schemas
@@ -82,7 +82,7 @@ will be the index in our list.
 .. code-block:: python
 
     >>> for e in errors:
-    ...     print list(e.path)
+    ...     print(list(e.path))
     [0]
     [1]
     [2]
@@ -104,7 +104,7 @@ the schema each of these errors come from. In the case of sub-errors from the
 
     >>> for e in errors:
     ...     for sube in sorted(e.context, key=lambda e: e.schema_path):
-    ...         print list(sube.schema_path), sube
+    ...         print(list(sube.schema_path), sube)
     [0, 'type'] {} is not of type 'string'
     [1, 'type'] {} is not of type 'integer'
     [0, 'type'] 3 is not of type 'string'
@@ -149,7 +149,7 @@ For clarity's sake, the given instance has three errors under this schema:
 
     >>> v = Draft3Validator(schema)
     >>> for error in sorted(v.iter_errors(["spam", 2]), key=str):
-    ...     print error
+    ...     print(error)
     'spam' is not of type 'number'
     'spam' is not one of [1, 2, 3]
     ['spam', 2] is too short
