@@ -569,39 +569,34 @@ class TestErrorTree(unittest.TestCase):
         self.assertEqual(tree.total_errors, 8)
 
     def test_it_contains_an_item_if_the_item_had_an_error(self):
-        error = ValidationError("a message")
-        error.path = ["bar"]
-        tree = ErrorTree([error])
+        errors = [ValidationError("a message", path=["bar"])]
+        tree = ErrorTree(errors)
         self.assertIn("bar", tree)
 
     def test_it_does_not_contain_an_item_if_the_item_had_no_error(self):
-        error = ValidationError("a message")
-        error.path = ["bar"]
-        tree = ErrorTree([error])
+        errors = [ValidationError("a message", path=["bar"])]
+        tree = ErrorTree(errors)
         self.assertNotIn("foo", tree)
 
     def test_validators_that_failed_appear_in_errors_dict(self):
-        error = ValidationError("a message")
-        error.validator_keyword = "foo"
+        error = ValidationError("a message", validator="foo")
         tree = ErrorTree([error])
         self.assertEqual(tree.errors, {"foo" : error})
 
     def test_it_creates_a_child_tree_for_each_nested_path(self):
-        e1 = ValidationError("a bar message")
-        e1.path = ["bar"]
-        e2 = ValidationError("a bar -> 0 message")
-        e2.path = ["bar", 0]
-        tree = ErrorTree([e1, e2])
+        errors = [
+            ValidationError("a bar message", path=["bar"]),
+            ValidationError("a bar -> 0 message", path=["bar", 0]),
+        ]
+        tree = ErrorTree(errors)
         self.assertIn(0, tree["bar"])
         self.assertNotIn(1, tree["bar"])
 
     def test_children_have_their_errors_dicts_built(self):
-        e1 = ValidationError("message 1")
-        e1.validator_keyword = "foo"
-        e1.path = ["bar", 0]
-        e2 = ValidationError("message 2")
-        e2.validator_keyword = "quux"
-        e2.path = ["bar", 0]
+        e1, e2 = (
+            ValidationError("message 1", validator="foo", path=["bar", 0]),
+            ValidationError("message 2", validator="quux", path=["bar", 0]),
+        )
         tree = ErrorTree([e1, e2])
         self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
 

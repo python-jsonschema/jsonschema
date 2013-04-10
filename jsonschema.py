@@ -57,30 +57,34 @@ validators = {}
 
 
 class _Error(Exception):
-    def __init__(self, message, cause=None, context=()):
-        super(_Error, self).__init__(message, cause, context)
+    def __init__(
+        self, message, validator=None, path=(), cause=None, context=(),
+        validator_value=None, instance=None, schema=None, schema_path=(),
+    ):
         self.message = message
-        self.path = collections.deque()
-        self.schema_path = collections.deque()
+        self.path = collections.deque(path)
+        self.schema_path = collections.deque(schema_path)
         self.context = list(context)
         self.cause = cause
         self._details_set = False
-        self.validator_keyword = None
-        self.validator_value = None
-        self.instance = None
-        self.schema = None
+        self.validator_keyword = validator
+        self.validator_value = validator_value
+        self.instance = instance
+        self.schema = schema
 
     @classmethod
     def create_from(cls, other):
-        new_error = cls(other.message, other.cause, other.context)
-        new_error.path = other.path
-        new_error.schema_path = other.schema_path
-        new_error._details_set = other._details_set
-        new_error.validator_keyword = other.validator_keyword
-        new_error.validator_value = other.validator_value
-        new_error.instance = other.instance
-        new_error.schema = other.schema
-        return new_error
+        return cls(
+            message=other.message,
+            cause=other.cause,
+            context=other.context,
+            path=other.path,
+            schema_path=other.schema_path,
+            validator=other.validator_keyword,
+            validator_value=other.validator_value,
+            instance=other.instance,
+            schema=other.schema,
+        )
 
     @property
     def validator(self):
