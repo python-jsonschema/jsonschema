@@ -38,7 +38,7 @@ raised or returned, depending on which method or function is used.
 
         A :class:`collections.deque` containing the path to the offending
         element within the instance. The deque can be empty if the error
-        happened globally.
+        happened at the root of the instance.
 
     .. attribute:: instance
 
