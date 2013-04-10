@@ -15,15 +15,102 @@ raised or returned, depending on which method or function is used.
 
         A human readable message explaining the error.
 
-    .. attribute:: validator
+    .. attribute:: validator_keyword
 
         The failed validator.
+
+    .. attribute:: validator_value
+
+        The value for the failed validator in the schema.
+
+    .. attribute:: schema
+
+        The full (sub)schema that this error came from.
+
+    .. attribute:: schema_path
+
+        A deque containing the path to the failed validator within the schema.
 
     .. attribute:: path
 
         A deque containing the path to the offending element (or an empty deque
         if the error happened globally).
 
+    .. attribute:: instance
+
+        The instance that was being validated.
+
+    .. attribute:: context
+
+        If the error was caused by errors in subschemas, the list of errors
+        from the subschemas will be available on this property. The
+        ``schema_path`` and ``path`` of these errors will be relative to the
+        parent error.
+
+These attributes can be clarified with a short example:
+
+.. code-block:: python
+
+    >>> from jsonschema import Draft4Validator
+    >>> schema = {
+    ...     "items": {
+    ...         "anyOf": [
+    ...             {"type": "string", "maxLength": 2},
+    ...             {"type": "integer", "minimum": 5}
+    ...         ]
+    ...     }
+    ... }
+    >>> instance = [{}, 3, "foo"]
+    >>> v = Draft4Validator(schema)
+    >>> errors = sorted(v.iter_errors(instance), key=lambda e: e.path)
+
+The error messages in this situation are not very helpful on their own:
+
+.. code-block:: python
+
+    >>> for e in errors:
+    ...     print(e.message)
+    The instance is not valid under any of the given schemas
+    The instance is not valid under any of the given schemas
+    The instance is not valid under any of the given schemas
+
+If we look at the :attr:`ValidationError.path` attribute, we can find out which
+elements in the instance we are validating are causing each of the errors. In
+this example, :attr:`ValidationError.path` will have only one element, which
+will be the index in our list.
+
+.. code-block:: python
+
+    >>> for e in errors:
+    ...     print(list(e.path))
+    [0]
+    [1]
+    [2]
+
+Since our schema contained nested subschemas, it can be helpful to look at
+the specific part of the instance and subschema that caused each of the errors.
+This can be seen with the :attr:`ValidationError.instance` and
+:attr:`ValidationError.schema` attributes.
+
+With validators like ``anyOf``, the :attr:`ValidationError.context`` attribute
+can be used to see the sub-errors which caused the failure. Since these errors
+actually came from two separate subschemas, so it can be helpful to look at the
+:attr:`ValidationError.schema_path` attribute as well to see where exactly in
+the schema each of these errors come from. In the case of sub-errors from the
+:attr:`ValidationError.context` attribute, this path will be relative to the
+:attr:`ValidationError.schema_path` of the parent error.
+
+.. code-block:: python
+
+    >>> for e in errors:
+    ...     for sube in sorted(e.context, key=lambda e: e.schema_path):
+    ...         print(list(sube.schema_path), sube)
+    [0, 'type'] {} is not of type 'string'
+    [1, 'type'] {} is not of type 'integer'
+    [0, 'type'] 3 is not of type 'string'
+    [1, 'minimum'] 3.0 is less than the minimum of 5
+    [0, 'maxLength'] 'foo' is too long
+    [1, 'type'] 'foo' is not of type 'integer'
 
 In case an invalid schema itself is encountered, a :exc:`SchemaError` is
 raised.
@@ -62,7 +149,7 @@ For clarity's sake, the given instance has three errors under this schema:
 
     >>> v = Draft3Validator(schema)
     >>> for error in sorted(v.iter_errors(["spam", 2]), key=str):
-    ...     print error
+    ...     print(error)
     'spam' is not of type 'number'
     'spam' is not one of [1, 2, 3]
     ['spam', 2] is too short
