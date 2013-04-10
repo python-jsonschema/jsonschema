@@ -42,7 +42,12 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: instance
 
-        The instance that was being validated.
+        The instance that was being validated. This will differ from the
+        instance originally passed into validate if the validator was in the
+        process of validating a (possibly nested) element within the top-level
+        instance. The path within the top-level instance (i.e.
+        :attr:`ValidationError.path`) could be used to find this object, but it
+        is provided for convenience.
 
     .. attribute:: context
 
