@@ -19,8 +19,9 @@ sys.path.insert(0, os.path.abspath(os.path.pardir))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
     'sphinx.ext.coverage',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
 ]
 
@@ -72,6 +73,8 @@ doctest_global_setup = dedent("""
     from __future__ import print_function
     from jsonschema import *
 """)
+
+i}ntersphinx_mapping = {"python": ("http://docs.python.org/3.2", None)}
 
 
 # -- Options for HTML output ---------------------------------------------------
