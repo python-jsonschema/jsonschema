@@ -25,16 +25,20 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: schema
 
-        The full (sub)schema that this error came from.
+        The full schema that this error came from. This is potentially a
+        subschema from within the schema that was passed into the validator, or
+        even an entirely different schema if a ``$ref`` was followed.
 
     .. attribute:: schema_path
 
-        A deque containing the path to the failed validator within the schema.
+        A :cls:`collections.deque` containing the path to the failed validator
+        within the schema.
 
     .. attribute:: path
 
-        A deque containing the path to the offending element (or an empty deque
-        if the error happened globally).
+        A :cls:`collections.deque` containing the path to the offending element
+        within the instance. The deque can be empty if the error happened
+        globally.
 
     .. attribute:: instance
 
@@ -46,6 +50,12 @@ raised or returned, depending on which method or function is used.
         from the subschemas will be available on this property. The
         ``schema_path`` and ``path`` of these errors will be relative to the
         parent error.
+
+    .. attribute:: cause
+
+        If the error was caused by a *non*-validation error, the exception
+        object will be here. Currently this is only used for the exception
+        raised by a failed format checker in :meth:`FormatChecker.check`.
 
 These attributes can be clarified with a short example:
 
