@@ -494,7 +494,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                     return
         else:
             yield ValidationError(
-                _types_msg(instance, types), context=all_errors
+                _types_msg(instance, types), context=all_errors,
             )
 
     def validate_properties(self, properties, instance, schema):
@@ -504,8 +504,10 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
         for property, subschema in iteritems(properties):
             if property in instance:
                 for error in self.descend(
-                        instance[property], subschema, path=property,
-                        schema_path=property
+                    instance[property],
+                    subschema,
+                    path=property,
+                    schema_path=property,
                 ):
                     yield error
             elif subschema.get("required", False):
@@ -642,8 +644,10 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
         for property, subschema in iteritems(properties):
             if property in instance:
                 for error in self.descend(
-                        instance[property], subschema, path=property,
-                        schema_path=property
+                    instance[property],
+                    subschema,
+                    path=property,
+                    schema_path=property,
                 ):
                     yield error
 
@@ -672,16 +676,16 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
     def validate_oneOf(self, oneOf, instance, schema):
         subschemas = enumerate(oneOf)
         all_errors = []
-        for index, s in subschemas:
-            errors = list(self.descend(instance, s, schema_path=index))
+        for index, subschema in subschemas:
+            errors = list(self.descend(instance, subschema, schema_path=index))
             if not errors:
-                first_valid = s
+                first_valid = subschema
                 break
             all_errors.extend(errors)
         else:
             yield ValidationError(
                 "%r is not valid under any of the given schemas" % (instance,),
-                context=all_errors
+                context=all_errors,
             )
 
         more_valid = [s for i, s in subschemas if self.is_valid(instance, s)]
@@ -701,8 +705,8 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             all_errors.extend(errors)
         else:
             yield ValidationError(
-                "The instance is not valid under any of the given schemas",
-                context=all_errors
+                "%r is not valid under any of the given schemas" % (instance,),
+                context=all_errors,
             )
 
     def validate_not(self, not_schema, instance, schema):
