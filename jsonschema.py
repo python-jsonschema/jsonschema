@@ -56,17 +56,27 @@ FLOAT_TOLERANCE = 10 ** -15
 validators = {}
 
 
+class _Unset(object):
+    """
+    An as-of-yet unset attribute.
+
+    """
+
+    def __repr__(self):
+        return "<unset>"
+_unset = _Unset()
+
+
 class _Error(Exception):
     def __init__(
-        self, message, validator=None, path=(), cause=None, context=(),
-        validator_value=None, instance=None, schema=None, schema_path=(),
+        self, message, validator=_unset, path=(), cause=None, context=(),
+        validator_value=_unset, instance=_unset, schema=_unset, schema_path=(),
     ):
         self.message = message
         self.path = collections.deque(path)
         self.schema_path = collections.deque(schema_path)
         self.context = list(context)
         self.cause = cause
-        self._details_set = False
         self.validator_keyword = validator
         self.validator_value = validator_value
         self.instance = instance
@@ -94,13 +104,10 @@ class _Error(Exception):
         )
         return self.validator_keyword
 
-    def set_details(self, keyword, value, instance, schema):
-        if not self._details_set:
-            self.validator_keyword = keyword
-            self.validator_value = value
-            self.instance = instance
-            self.schema = schema
-            self._details_set = True
+    def _set(self, **kwargs):
+        for k, v in iteritems(kwargs):
+            if getattr(self, k) is _unset:
+                setattr(self, k, v)
 
     def __str__(self):
         return self.message.encode("utf-8")
@@ -261,8 +268,11 @@ class ValidatorMixin(object):
                 errors = validator(v, instance, _schema) or ()
                 for error in errors:
                     # set details if they weren't already set by the called fn
-                    error.set_details(
-                        keyword=k, value=v, instance=instance, schema=_schema
+                    error._set(
+                        validator_keyword=k,
+                        validator_value=v,
+                        instance=instance,
+                        schema=_schema,
                     )
                     if k != "$ref":
                         error.schema_path.appendleft(k)
@@ -500,8 +510,11 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                     yield error
             elif subschema.get("required", False):
                 error = ValidationError("%r is a required property" % property)
-                error.set_details(
-                    "required", subschema["required"], instance, schema
+                error._set(
+                    validator_keyword="required",
+                    validator_value=subschema["required"],
+                    instance=instance,
+                    schema=schema,
                 )
                 error.path.appendleft(property)
                 error.schema_path.extend([property, "required"])
