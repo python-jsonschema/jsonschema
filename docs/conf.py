@@ -2,6 +2,7 @@
 #
 # This file is execfile()d with the current directory set to its containing dir.
 
+from textwrap import dedent
 import sys, os
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -67,10 +68,10 @@ pygments_style = 'sphinx'
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
-doctest_global_setup = (
-    "from __future__ import print_function\n"
-    "from jsonschema import *"
-)
+doctest_global_setup = dedent("""
+    from __future__ import print_function
+    from jsonschema import *
+""")
 
 
 # -- Options for HTML output ---------------------------------------------------
