@@ -963,12 +963,20 @@ class FormatChecker(object):
 
 _draft_checkers = {"draft3": [], "draft4": []}
 
-def _checks_drafts(format, drafts=("draft3", "draft4"), raises=()):
-    if isinstance(drafts, basestring):
-        drafts = [drafts]
-    for draft in drafts:
-        _draft_checkers[draft].append(format)
-    return FormatChecker.cls_checks(format, raises=raises)
+
+def _checks_drafts(both=None, draft3=None, draft4=None, raises=()):
+    draft3 = draft3 or both
+    draft4 = draft4 or both
+
+    def wrap(func):
+        if draft3:
+            _draft_checkers["draft3"].append(draft3)
+            func = FormatChecker.cls_checks(draft3, raises)(func)
+        if draft4:
+            _draft_checkers["draft4"].append(draft4)
+            func = FormatChecker.cls_checks(draft4, raises)(func)
+        return func
+    return wrap
 
 
 @_checks_drafts("email")
@@ -976,8 +984,9 @@ def is_email(instance):
     return "@" in instance
 
 
-_checks_drafts("ip-address", "draft3", raises=socket.error)(socket.inet_aton)
-_checks_drafts("ipv4", "draft4", raises=socket.error)(socket.inet_aton)
+_checks_drafts(draft3="ip-address", draft4="ipv4", raises=socket.error)(
+    socket.inet_aton
+)
 
 
 if hasattr(socket, "inet_pton"):
@@ -986,8 +995,7 @@ if hasattr(socket, "inet_pton"):
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
-@_checks_drafts("host-name", "draft3")
-@_checks_drafts("hostname", "draft4")
+@_checks_drafts(draft3="host-name", draft4="hostname")
 def is_host_name(instance):
     pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
     if not re.match(pattern, instance):
@@ -1018,15 +1026,15 @@ else:
     _checks_drafts("date-time", raises=_err)(isodate.parse_datetime)
 
 
-_checks_drafts("regex", "draft3", raises=re.error)(re.compile)
+_checks_drafts(draft3="regex", raises=re.error)(re.compile)
 
 
-@_checks_drafts("date", "draft3", raises=ValueError)
+@_checks_drafts(draft3="date", raises=ValueError)
 def is_date(instance):
     return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
-@_checks_drafts("time", "draft3", raises=ValueError)
+@_checks_drafts(draft3="time", raises=ValueError)
 def is_time(instance):
     return datetime.datetime.strptime(instance, "%H:%M:%S")
 
@@ -1040,7 +1048,7 @@ else:
         return webcolors.normalize_hex(instance)
 
 
-    @_checks_drafts("color", "draft3", raises=(ValueError, TypeError))
+    @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if instance.lower() in webcolors.css21_names_to_hex:
             return True
