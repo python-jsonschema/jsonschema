@@ -961,21 +961,33 @@ class FormatChecker(object):
             return True
 
 
-@FormatChecker.cls_checks("email")
+_draft_checkers = {"draft3": [], "draft4": []}
+
+def _checks_drafts(format, drafts=("draft3", "draft4"), raises=()):
+    if isinstance(drafts, basestring):
+        drafts = [drafts]
+    for draft in drafts:
+        _draft_checkers[draft].append(format)
+    return FormatChecker.cls_checks(format, raises=raises)
+
+
+@_checks_drafts("email")
 def is_email(instance):
     return "@" in instance
 
 
-FormatChecker.cls_checks("ipv4", raises=socket.error)(socket.inet_aton)
+_checks_drafts("ip-address", "draft3", raises=socket.error)(socket.inet_aton)
+_checks_drafts("ipv4", "draft4", raises=socket.error)(socket.inet_aton)
 
 
 if hasattr(socket, "inet_pton"):
-    @FormatChecker.cls_checks("ipv6", raises=socket.error)
+    @_checks_drafts("ipv6", raises=socket.error)
     def is_ipv6(instance):
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
-@FormatChecker.cls_checks("hostname")
+@_checks_drafts("host-name", "draft3")
+@_checks_drafts("hostname", "draft4")
 def is_host_name(instance):
     pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
     if not re.match(pattern, instance):
@@ -987,15 +999,12 @@ def is_host_name(instance):
     return True
 
 
-FormatChecker.cls_checks("regex", raises=re.error)(re.compile)
-
-
 try:
     import rfc3987
 except ImportError:
     pass
 else:
-    @FormatChecker.cls_checks("uri", raises=ValueError)
+    @_checks_drafts("uri", raises=ValueError)
     def is_uri(instance):
         return rfc3987.parse(instance, rule="URI_reference")
 
@@ -1006,23 +1015,18 @@ except ImportError:
     pass
 else:
     _err = (ValueError, isodate.ISO8601Error)
-    FormatChecker.cls_checks("date-time", raises=_err)(isodate.parse_datetime)
+    _checks_drafts("date-time", raises=_err)(isodate.parse_datetime)
 
 
-draft4_format_checker = FormatChecker()
-draft3_format_checker = FormatChecker()
-draft3_format_checker.checks("ip-address", raises=socket.error)(
-    socket.inet_aton
-)
-draft3_format_checker.checks("host-name")(is_host_name)
+_checks_drafts("regex", "draft3", raises=re.error)(re.compile)
 
 
-@draft3_format_checker.checks("date", raises=ValueError)
+@_checks_drafts("date", "draft3", raises=ValueError)
 def is_date(instance):
     return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
-@draft3_format_checker.checks("time", raises=ValueError)
+@_checks_drafts("time", "draft3", raises=ValueError)
 def is_time(instance):
     return datetime.datetime.strptime(instance, "%H:%M:%S")
 
@@ -1036,7 +1040,7 @@ else:
         return webcolors.normalize_hex(instance)
 
 
-    @draft3_format_checker.checks("color", raises=(ValueError, TypeError))
+    @_checks_drafts("color", "draft3", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if instance.lower() in webcolors.css21_names_to_hex:
             return True
@@ -1047,6 +1051,10 @@ else:
         if instance.lower() in webcolors.css3_names_to_hex:
             return True
         return is_css_color_code(instance)
+
+
+draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
+draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
 
 
 class RefResolver(object):
