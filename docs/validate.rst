@@ -265,20 +265,20 @@ to validate. Their names can be viewed by inspecting the
 available if an appropriate package is available for use. The available
 checkers, along with their requirement (if any,) are listed below.
 
-==========  ============
-Checker     Requirement
-==========  ============
+==========  ====================
+Checker     Notes
+==========  ====================
 hostname
 ipv4
 ipv6        OS must have ``socket.inet_pton`` function
 email
-uri         rfc3987_
-date-time   isodate_
+uri         requires rfc3987_
+date-time   requires isodate_
 date
 time
 regex
-color       webcolors_
-==========  ============
+color       requires webcolors_
+==========  ====================
 
 
 .. _isodate: http://pypi.python.org/pypi/isodate/
