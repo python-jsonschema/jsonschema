@@ -21,7 +21,6 @@ import operator
 import re
 import socket
 import sys
-import warnings
 
 try:
     from collections import MutableMapping
@@ -77,7 +76,7 @@ class _Error(Exception):
         self.schema_path = collections.deque(schema_path)
         self.context = list(context)
         self.cause = cause
-        self.validator_keyword = validator
+        self.validator = validator
         self.validator_value = validator_value
         self.instance = instance
         self.schema = schema
@@ -90,19 +89,11 @@ class _Error(Exception):
             context=other.context,
             path=other.path,
             schema_path=other.schema_path,
-            validator=other.validator_keyword,
+            validator=other.validator,
             validator_value=other.validator_value,
             instance=other.instance,
             schema=other.schema,
         )
-
-    @property
-    def validator(self):
-        warnings.warn(
-            "'validator' has been replaced with 'validator_keyword'",
-            DeprecationWarning
-        )
-        return self.validator_keyword
 
     def _set(self, **kwargs):
         for k, v in iteritems(kwargs):
@@ -269,7 +260,7 @@ class ValidatorMixin(object):
                 for error in errors:
                     # set details if they weren't already set by the called fn
                     error._set(
-                        validator_keyword=k,
+                        validator=k,
                         validator_value=v,
                         instance=instance,
                         schema=_schema,
@@ -513,7 +504,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
             elif subschema.get("required", False):
                 error = ValidationError("%r is a required property" % property)
                 error._set(
-                    validator_keyword="required",
+                    validator="required",
                     validator_value=subschema["required"],
                     instance=instance,
                     schema=schema,
@@ -1224,7 +1215,7 @@ class ErrorTree(object):
             container = self
             for element in error.path:
                 container = container[element]
-            container.errors[error.validator_keyword] = error
+            container.errors[error.validator] = error
 
     def __contains__(self, k):
         return k in self._contents

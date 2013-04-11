@@ -15,7 +15,7 @@ raised or returned, depending on which method or function is used.
 
         A human readable message explaining the error.
 
-    .. attribute:: validator_keyword
+    .. attribute:: validator
 
         The failed validator.
 

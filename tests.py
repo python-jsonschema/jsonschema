@@ -374,7 +374,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         e = errors[0]
 
-        self.assertEqual(e.validator_keyword, "anyOf")
+        self.assertEqual(e.validator, "anyOf")
         self.assertEqual(list(e.schema_path), ["anyOf"])
         self.assertEqual(e.validator_value, schema["anyOf"])
         self.assertEqual(e.instance, instance)
@@ -384,7 +384,7 @@ class TestValidationErrorDetails(unittest.TestCase):
 
         e1, e2 = sorted_errors(e.context)
 
-        self.assertEqual(e1.validator_keyword, "minimum")
+        self.assertEqual(e1.validator, "minimum")
         self.assertEqual(list(e1.schema_path), [0, "minimum"])
         self.assertEqual(e1.validator_value, schema["anyOf"][0]["minimum"])
         self.assertEqual(e1.instance, instance)
@@ -392,7 +392,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e1.path), [])
         self.assertEqual(len(e1.context), 0)
 
-        self.assertEqual(e2.validator_keyword, "type")
+        self.assertEqual(e2.validator, "type")
         self.assertEqual(list(e2.schema_path), [1, "type"])
         self.assertEqual(e2.validator_value, schema["anyOf"][1]["type"])
         self.assertEqual(e2.instance, instance)
@@ -418,7 +418,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         e = errors[0]
 
-        self.assertEqual(e.validator_keyword, "type")
+        self.assertEqual(e.validator, "type")
         self.assertEqual(list(e.schema_path), ["type"])
         self.assertEqual(e.validator_value, schema["type"])
         self.assertEqual(e.instance, instance)
@@ -428,7 +428,7 @@ class TestValidationErrorDetails(unittest.TestCase):
 
         e1, e2 = sorted_errors(e.context)
 
-        self.assertEqual(e1.validator_keyword, "type")
+        self.assertEqual(e1.validator, "type")
         self.assertEqual(list(e1.schema_path), [0, "type"])
         self.assertEqual(e1.validator_value, schema["type"][0]["type"])
         self.assertEqual(e1.instance, instance)
@@ -436,7 +436,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e1.path), [])
         self.assertEqual(len(e1.context), 0)
 
-        self.assertEqual(e2.validator_keyword, "enum")
+        self.assertEqual(e2.validator, "enum")
         self.assertEqual(
             list(e2.schema_path),
             [1, "properties", "foo", "enum"]
@@ -468,10 +468,10 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e3.path), ["baz"])
         self.assertEqual(list(e4.path), ["foo"])
 
-        self.assertEqual(e1.validator_keyword, "minItems")
-        self.assertEqual(e2.validator_keyword, "enum")
-        self.assertEqual(e3.validator_keyword, "maximum")
-        self.assertEqual(e4.validator_keyword, "type")
+        self.assertEqual(e1.validator, "minItems")
+        self.assertEqual(e2.validator, "enum")
+        self.assertEqual(e3.validator, "maximum")
+        self.assertEqual(e4.validator, "type")
 
     def test_multiple_nesting(self):
         instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
@@ -502,12 +502,12 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e5.path), [1, "bar", "baz"])
         self.assertEqual(list(e6.path), [1, "foo"])
 
-        self.assertEqual(e1.validator_keyword, "type")
-        self.assertEqual(e2.validator_keyword, "type")
-        self.assertEqual(e3.validator_keyword, "type")
-        self.assertEqual(e4.validator_keyword, "required")
-        self.assertEqual(e5.validator_keyword, "minItems")
-        self.assertEqual(e6.validator_keyword, "enum")
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "type")
+        self.assertEqual(e3.validator, "type")
+        self.assertEqual(e4.validator, "required")
+        self.assertEqual(e5.validator, "minItems")
+        self.assertEqual(e6.validator, "enum")
 
     def test_additionalProperties(self):
         instance = {"bar": "bar", "foo": 2}
@@ -521,8 +521,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e1.path), ["bar"])
         self.assertEqual(list(e2.path), ["foo"])
 
-        self.assertEqual(e1.validator_keyword, "type")
-        self.assertEqual(e2.validator_keyword, "minimum")
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
 
     def test_patternProperties(self):
         instance = {"bar": 1, "foo": 2}
@@ -539,8 +539,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e1.path), ["bar"])
         self.assertEqual(list(e2.path), ["foo"])
 
-        self.assertEqual(e1.validator_keyword, "type")
-        self.assertEqual(e2.validator_keyword, "minimum")
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
 
     def test_additionalItems(self):
         instance = ["foo", 1]
@@ -555,8 +555,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e1.path), [0])
         self.assertEqual(list(e2.path), [1])
 
-        self.assertEqual(e1.validator_keyword, "type")
-        self.assertEqual(e2.validator_keyword, "minimum")
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
 
 
 class TestErrorTree(unittest.TestCase):
