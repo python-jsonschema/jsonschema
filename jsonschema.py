@@ -647,7 +647,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             return
         for property in required:
             if property not in instance:
-                yield ValidationError("%r is required property" % property)
+                yield ValidationError("%r is a required property" % property)
 
     def validate_minProperties(self, mP, instance, schema):
         if self.is_type(instance, "object") and len(instance) < mP:
