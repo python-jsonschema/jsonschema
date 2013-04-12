@@ -49,30 +49,20 @@ Features
 Release Notes
 -------------
 
-``v1.0.0`` is a new major release of ``jsonschema``.
+``v1.2.0`` adds a number of new attributes to provide information that is
+useful for programmatially inspecting draft4's ``anyOf``, ``oneOf`` and
+``allOf`` validators.
 
-It includes two major new features: `support for the newly released draft 4 <https://python-jsonschema.readthedocs.org/en/latest/validate.html#jsonschema.Draft4Validator>`_
-of the specification (thanks to Chase Sterling) and
-`optional support for format
-<https://python-jsonschema.readthedocs.org/en/latest/validate.html#validating-formats>`_
-(thanks to Norman Hooper).
+See https://python-jsonschema.readthedocs.org/en/latest/errors.html for
+examples.
 
-It also contains two major backwards incompatible changes: draft 4 is now the
-default for schemas without ``$schema`` specified, and ``ValidationError``\s
-now have ``path`` in sequential order.
+``ValidatorMixin`` also gained a ``descend`` method which is useful for
+implementing validation methods that recurse into an instance while maintaining
+the paths within the instance and schema. It isn't documented yet though
+(patches welcome.)
 
-It also fixes a minor issue with ``long``\s not being recognized as
-``integer``\s and a number of issues with the support for ``$ref``.
-
-Also, ``ValidatorMixin`` can be used to construct concrete validators for users
-who wish to create their own from scratch.
-
-As always, see `the documentation <http://python-jsonschema.readthedocs.org>`_
-for details.
-
-``v1.1.0`` fixes a bug whereby URIs were not canonicalized when stored and
-looked up (#70) and also allows for registering exceptions that can be accessed
-from ``ValidationError``\s when validating ``format`` properties (#77).
+There's also a fix for a minor issue where failing ref resolutions had poor
+error messages.
 
 
 Running the Test Suite
