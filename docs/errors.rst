@@ -128,7 +128,7 @@ the schema each of these errors come from. In the case of sub-errors from the
 .. code-block:: python
 
     >>> for error in errors:
-    ...     for suberror in sorted(errorcontext, key=lambda e: e.schema_path):
+    ...     for suberror in sorted(error.context, key=lambda e: e.schema_path):
     ...         print(list(suberror.schema_path), suberror, sep=",")
     [0, 'type'], {} is not of type 'string'
     [1, 'type'], {} is not of type 'integer'
