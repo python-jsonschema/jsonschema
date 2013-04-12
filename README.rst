@@ -90,6 +90,13 @@ order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
 the tests on that version.
 
 
+Community
+---------
+
+There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_ for this implementation on Google Groups.
+
+Please join, and feel free to send questions there.
+
 Contributing
 ------------
 
