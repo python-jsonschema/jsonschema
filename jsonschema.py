@@ -33,7 +33,7 @@ try:
 except ImportError:
     requests = None
 
-__version__ = "1.2.0-dev"
+__version__ = "1.2.0"
 
 PY3 = sys.version_info[0] >= 3
 
