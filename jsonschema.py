@@ -101,6 +101,9 @@ class _Error(Exception):
             if getattr(self, k) is _unset:
                 setattr(self, k, v)
 
+    def __repr__(self):
+        return "<%s: %r>" % (self.__class__.__name__, self.message)
+
     def __str__(self):
         return unicode(self).encode("utf-8")
 

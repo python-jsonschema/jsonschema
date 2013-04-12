@@ -354,6 +354,14 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertIn("is not a", message)
 
 
+class TestErrorReprStr(unittest.TestCase):
+    def test_repr(self):
+        message = "hello"
+        error = ValidationError(message=message)
+        self.assertEqual(repr(error), "<ValidationError: %r>" % message)
+
+
+
 class TestValidationErrorDetails(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
