@@ -256,7 +256,7 @@ class TestIterErrors(unittest.TestCase):
             "minItems" : 3
         }
 
-        got = (str(e) for e in self.validator.iter_errors(instance, schema))
+        got = (e.message for e in self.validator.iter_errors(instance, schema))
         expected = [
             "%r is disallowed for [1, 2]" % (schema["disallow"],),
             "[1, 2] is too short",
