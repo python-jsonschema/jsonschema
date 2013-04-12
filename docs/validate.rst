@@ -262,19 +262,23 @@ be enabled by hooking in a format-checking object into an :class:`IValidator`.
 There are a number of default checkers that :class:`FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
 :attr:`FormatChecker.checkers` attribute. Certain checkers will only be
-available if an appropriate package is available for use, these are listed
-below.
+available if an appropriate package is available for use. The available
+checkers, along with their requirement (if any,) are listed below.
 
-On OSes with the ``socket.inet_pton`` function, a checker for
-``ipv6`` will be present.
-
-If the rfc3987_ library is present, a checker for ``uri`` will be present.
-
-If the isodate_ library is present, a ``date-time`` checker will also be
-present.
-
-Additionally, if the webcolors_ library is present, a checker for ``color``
-related to CSS will be present.
+==========  ====================
+Checker     Notes
+==========  ====================
+hostname
+ipv4
+ipv6        OS must have ``socket.inet_pton`` function
+email
+uri         requires rfc3987_
+date-time   requires isodate_
+date
+time
+regex
+color       requires webcolors_
+==========  ====================
 
 
 .. _isodate: http://pypi.python.org/pypi/isodate/
