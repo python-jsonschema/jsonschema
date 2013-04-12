@@ -1030,7 +1030,7 @@ else:
     _checks_drafts("date-time", raises=_err)(isodate.parse_datetime)
 
 
-_checks_drafts(draft3="regex", raises=re.error)(re.compile)
+_checks_drafts("regex", raises=re.error)(re.compile)
 
 
 @_checks_drafts(draft3="date", raises=ValueError)
