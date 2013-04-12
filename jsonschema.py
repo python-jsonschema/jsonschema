@@ -21,6 +21,7 @@ import operator
 import re
 import socket
 import sys
+import textwrap
 
 try:
     from collections import MutableMapping
@@ -101,7 +102,7 @@ class _Error(Exception):
                 setattr(self, k, v)
 
     def __str__(self):
-        return self.message.encode("utf-8")
+        return unicode(self).encode("utf-8")
 
     def __unicode__(self):
         return self.message
