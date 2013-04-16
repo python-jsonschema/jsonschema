@@ -130,9 +130,9 @@ class _Error(Exception):
         """) % (
             self.__class__.__name__, self.message,
             self.validator, schema_path,
-            textwrap.indent(pschema, " " * 8),
+            '\n'.join(" " * 8 + line for line in  pschema.splitlines()),
             path,
-            textwrap.indent(pinstance, " " * 8)
+            '\n'.join(" " * 8 + line for line in  pinstance.splitlines()),
         )
 
     if PY3:
