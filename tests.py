@@ -363,84 +363,85 @@ class TestErrorReprStr(unittest.TestCase):
 
 
 class TestErrorStr(unittest.TestCase):
-    def test_just_message(self):
-        error = ValidationError("message")
-        message = textwrap.dedent("""\
-            ValidationError: message
-                Failed validating '<unset>' in schema:
-                    <unset>
-                On instance:
-                    <unset>
-        """)
-        self.assertEqual(str(error), message)
+    def make_error(self, **kwargs):
+        # Creates an error with all the required attributes set
+        default = {
+            "message": "message",
+            "validator": "type",
+            "validator_value": "string",
+            "instance": 5,
+            "schema": {"type": "string"}
+        }
+        default.update(kwargs)
+        return ValidationError(**default)
 
-    def test_just_message(self):
-        error = ValidationError("message", validator="additionalProperties")
-        message = textwrap.dedent("""\
-            ValidationError: message
-                Failed validating 'additionalProperties' in schema:
-                    <unset>
-                On instance:
-                    <unset>
-        """)
-        self.assertEqual(str(error), message)
+    def prep_message(self, message):
+        # Strips leading whitespace, dedents, replaces u' with ' on py3
+        if PY3:
+            message = message.replace("u'", "'")
+        return textwrap.dedent(message).lstrip()
+
+    def test_unset_error(self):
+        error = ValidationError("message")
+        self.assertEqual(str(error), "message")
+        kwargs = {
+            "validator": "type",
+            "validator_value": "string",
+            "instance": 5,
+            "schema": {"type": "string"}
+        }
+        # Just the message should show if any of the attributes are unset
+        for attr in kwargs:
+            k = dict(kwargs)
+            del k[attr]
+            error = ValidationError("message", **k)
+            self.assertEqual(str(error), "message")
 
     def test_empty_paths(self):
-        error = ValidationError("message", path=[], schema_path=[])
-        message = textwrap.dedent("""\
+        error = self.make_error(path=[], schema_path=[])
+        message = self.prep_message("""
             ValidationError: message
-                Failed validating '<unset>' in schema:
-                    <unset>
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
                 On instance:
-                    <unset>
+                    5
         """)
         self.assertEqual(str(error), message)
 
     def test_one_item_paths(self):
-        error = ValidationError("message", path=[0], schema_path=["items"])
-        message = textwrap.dedent("""\
+        error = self.make_error(path=[0], schema_path=["items"])
+        message = self.prep_message("""
             ValidationError: message
-                Failed validating '<unset>' in schema:
-                    <unset>
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
                 On instance[0]:
-                    <unset>
+                    5
         """)
         self.assertEqual(str(error), message)
 
     def test_two_item_paths(self):
-        error = ValidationError(
-            "message", path=[0, 1], schema_path=["items", "additionalItems"]
+        error = self.make_error(
+            path=[0, 1], schema_path=["items", "additionalItems"]
         )
-        message = textwrap.dedent("""\
+        message = self.prep_message("""
             ValidationError: message
-                Failed validating '<unset>' in schema['items']:
-                    <unset>
+                Failed validating 'type' in schema[u'items']:
+                    {u'type': u'string'}
                 On instance[0][1]:
-                    <unset>
+                    5
         """)
         self.assertEqual(str(error), message)
 
     def test_mixed_type_paths(self):
-        error = ValidationError(
-            "message", path=["a", 1, "b"], schema_path=["anyOf", 5, "type"]
+        error = self.make_error(
+            path=["a", 1, "b"], schema_path=["anyOf", 5, "type"]
         )
-        message = textwrap.dedent("""\
+        message = self.prep_message("""
             ValidationError: message
-                Failed validating '<unset>' in schema['anyOf'][5]:
-                    <unset>
-                On instance['a'][1]['b']:
-                    <unset>
-        """)
-        self.assertEqual(str(error), message)
-
-    def test_simple_schema(self):
-        error = ValidationError("message", schema={"type": "string"})
-        message = textwrap.dedent("""\
-            ValidationError: message
-                Failed validating '<unset>' in schema:
-                    {'type': 'string'}
-                On instance:
-                    <unset>
+                Failed validating 'type' in schema[u'anyOf'][5]:
+                    {u'type': u'string'}
+                On instance[u'a'][1][u'b']:
+                    5
         """)
         self.assertEqual(str(error), message)
 
@@ -456,29 +457,18 @@ class TestErrorStr(unittest.TestCase):
                 ]
             }
         }
-        error = ValidationError("message", schema=schema)
-        message = textwrap.dedent("""\
+        error = self.make_error(schema=schema)
+        message = self.prep_message("""
             ValidationError: message
-                Failed validating '<unset>' in schema:
-                    {'items': {'allOf': [{'maxLength': 2, 'type': 'string'},
-                                         {'minimum': 5, 'type': 'integer'},
-                                         {'items': [{'type': 'string'},
-                                                    {'type': 'integer'}],
-                                          'type': 'array'}]},
-                     'type': ['string']}
+                Failed validating 'type' in schema:
+                    {u'items': {u'allOf': [{u'maxLength': 2, u'type': u'string'},
+                                           {u'minimum': 5, u'type': u'integer'},
+                                           {u'items': [{u'type': u'string'},
+                                                       {u'type': u'integer'}],
+                                            u'type': u'array'}]},
+                     u'type': [u'string']}
                 On instance:
-                    <unset>
-        """)
-        self.assertEqual(str(error), message)
-
-    def test_simple_instance(self):
-        error = ValidationError("message", instance=["foo", {"bar": 42}])
-        message = textwrap.dedent("""\
-            ValidationError: message
-                Failed validating '<unset>' in schema:
-                    <unset>
-                On instance:
-                    ['foo', {'bar': 42}]
+                    5
         """)
         self.assertEqual(str(error), message)
 
@@ -494,36 +484,22 @@ class TestErrorStr(unittest.TestCase):
                 ]
             }
         }
-        error = ValidationError("message", instance=instance)
-        message = textwrap.dedent("""\
+        error = self.make_error(instance=instance)
+        message = self.prep_message("""
             ValidationError: message
-                Failed validating '<unset>' in schema:
-                    <unset>
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
                 On instance:
-                    {'items': {'allOf': [{'maxLength': 2, 'type': 'string'},
-                                         {'minimum': 5, 'type': 'integer'},
-                                         {'items': [{'type': 'string'},
-                                                    {'type': 'integer'}],
-                                          'type': 'array'}]},
-                     'type': ['string']}
+                    {u'items': {u'allOf': [{u'maxLength': 2, u'type': u'string'},
+                                           {u'minimum': 5, u'type': u'integer'},
+                                           {u'items': [{u'type': u'string'},
+                                                       {u'type': u'integer'}],
+                                            u'type': u'array'}]},
+                     u'type': [u'string']}
         """)
+        print(error)
+        print(message)
         self.assertEqual(str(error), message)
-
-    def test_all_values(self):
-        error = ValidationError(
-            "the message", validator="type", path=[3, 0], cause=Exception(),
-            context=[ValidationError("b")], validator_value="string",
-            instance=3, schema={"type": "string"},
-            schema_path=["items", "allOf", 2, "type"]
-        )
-        message = textwrap.dedent("""\
-            ValidationError: the message
-                Failed validating 'type' in schema['items']['allOf'][2]:
-                    {'type': 'string'}
-                On instance[3][0]:
-                    3
-        """)
-        assert str(error) == message
 
 
 class TestValidationErrorDetails(unittest.TestCase):
