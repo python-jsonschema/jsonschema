@@ -109,6 +109,10 @@ class _Error(Exception):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
+        if any(attr is _unset for attr in (
+            self.validator, self.validator_value, self.instance, self.schema
+        )):
+            return self.message
         schema_path = ""
         if len(self.schema_path) > 1:
             schema_path = (
