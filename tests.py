@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+import textwrap
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
     import unittest2 as unittest
@@ -360,6 +361,169 @@ class TestErrorReprStr(unittest.TestCase):
         error = ValidationError(message=message)
         self.assertEqual(repr(error), "<ValidationError: %r>" % message)
 
+
+class TestErrorStr(unittest.TestCase):
+    def test_just_message(self):
+        error = ValidationError("message")
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema:
+                    <unset>
+                On instance:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_just_message(self):
+        error = ValidationError("message", validator="additionalProperties")
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating 'additionalProperties' in schema:
+                    <unset>
+                On instance:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_empty_paths(self):
+        error = ValidationError("message", path=[], schema_path=[])
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema:
+                    <unset>
+                On instance:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_one_item_paths(self):
+        error = ValidationError("message", path=[0], schema_path=["items"])
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema:
+                    <unset>
+                On instance[0]:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_two_item_paths(self):
+        error = ValidationError(
+            "message", path=[0, 1], schema_path=["items", "additionalItems"]
+        )
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema['items']:
+                    <unset>
+                On instance[0][1]:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_mixed_type_paths(self):
+        error = ValidationError(
+            "message", path=["a", 1, "b"], schema_path=["anyOf", 5, "type"]
+        )
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema['anyOf'][5]:
+                    <unset>
+                On instance['a'][1]['b']:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_simple_schema(self):
+        error = ValidationError("message", schema={"type": "string"})
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema:
+                    {'type': 'string'}
+                On instance:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_pprint_schema(self):
+        schema = {
+            "type": ["string"],
+            "items": {
+                "allOf": [
+                    {"type": "string", "maxLength": 2},
+                    {"type": "integer", "minimum": 5},
+                    {"items": [{"type": "string"}, {"type": "integer"}],
+                     "type": "array"}
+                ]
+            }
+        }
+        error = ValidationError("message", schema=schema)
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema:
+                    {'items': {'allOf': [{'maxLength': 2, 'type': 'string'},
+                                         {'minimum': 5, 'type': 'integer'},
+                                         {'items': [{'type': 'string'},
+                                                    {'type': 'integer'}],
+                                          'type': 'array'}]},
+                     'type': ['string']}
+                On instance:
+                    <unset>
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_simple_instance(self):
+        error = ValidationError("message", instance=["foo", {"bar": 42}])
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema:
+                    <unset>
+                On instance:
+                    ['foo', {'bar': 42}]
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_pprint_instance(self):
+        instance = {
+            "type": ["string"],
+            "items": {
+                "allOf": [
+                    {"type": "string", "maxLength": 2},
+                    {"type": "integer", "minimum": 5},
+                    {"items": [{"type": "string"}, {"type": "integer"}],
+                     "type": "array"}
+                ]
+            }
+        }
+        error = ValidationError("message", instance=instance)
+        message = textwrap.dedent("""\
+            ValidationError: message
+                Failed validating '<unset>' in schema:
+                    <unset>
+                On instance:
+                    {'items': {'allOf': [{'maxLength': 2, 'type': 'string'},
+                                         {'minimum': 5, 'type': 'integer'},
+                                         {'items': [{'type': 'string'},
+                                                    {'type': 'integer'}],
+                                          'type': 'array'}]},
+                     'type': ['string']}
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_all_values(self):
+        error = ValidationError(
+            "the message", validator="type", path=[3, 0], cause=Exception(),
+            context=[ValidationError("b")], validator_value="string",
+            instance=3, schema={"type": "string"},
+            schema_path=["items", "allOf", 2, "type"]
+        )
+        message = textwrap.dedent("""\
+            ValidationError: the message
+                Failed validating 'type' in schema['items']['allOf'][2]:
+                    {'type': 'string'}
+                On instance[3][0]:
+                    3
+        """)
+        assert str(error) == message
 
 
 class TestValidationErrorDetails(unittest.TestCase):
