@@ -95,9 +95,9 @@ The error messages in this situation are not very helpful on their own:
 
     >>> for error in errors:
     ...     print(error.message)
-    The instance is not valid under any of the given schemas
-    The instance is not valid under any of the given schemas
-    The instance is not valid under any of the given schemas
+    {} is not valid under any of the given schemas
+    3 is not valid under any of the given schemas
+    'foo' is not valid under any of the given schemas
 
 If we look at :attr:`ValidationError.path` on each of the errors, we can find
 out which elements in the instance correspond to each of the errors. In
@@ -129,7 +129,7 @@ the schema each of these errors come from. In the case of sub-errors from the
 
     >>> for error in errors:
     ...     for suberror in sorted(error.context, key=lambda e: e.schema_path):
-    ...         print(list(suberror.schema_path), suberror, sep=",")
+    ...         print(list(suberror.schema_path), suberror.message, sep=", ")
     [0, 'type'], {} is not of type 'string'
     [1, 'type'], {} is not of type 'integer'
     [0, 'type'], 3 is not of type 'string'
@@ -137,6 +137,19 @@ the schema each of these errors come from. In the case of sub-errors from the
     [0, 'maxLength'], 'foo' is too long
     [1, 'type'], 'foo' is not of type 'integer'
 
+The string representation of an error combines some of these attributes for
+easier debugging.
+
+.. code-block:: python
+
+    >>> print(errors[1])
+    ValidationError: 3 is not valid under any of the given schemas
+        Failed validating 'anyOf' in schema['items']:
+            {'anyOf': [{'maxLength': 2, 'type': 'string'},
+                       {'minimum': 5, 'type': 'integer'}]}
+        On instance[1]:
+            3
+    <BLANKLINE>
 
 ErrorTrees
 ----------
