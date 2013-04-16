@@ -397,6 +397,18 @@ class TestErrorStr(unittest.TestCase):
             error = ValidationError("message", **k)
             self.assertEqual(str(error), "message")
 
+    def test_basic_message(self):
+        # Make sure all the defaults from make_error print correctly
+        error = self.make_error()
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
+                On instance:
+                    5
+        """)
+        self.assertEqual(str(error), message)
+
     def test_empty_paths(self):
         error = self.make_error(path=[], schema_path=[])
         message = self.prep_message("""
@@ -497,8 +509,6 @@ class TestErrorStr(unittest.TestCase):
                                             u'type': u'array'}]},
                      u'type': [u'string']}
         """)
-        print(error)
-        print(message)
         self.assertEqual(str(error), message)
 
 
