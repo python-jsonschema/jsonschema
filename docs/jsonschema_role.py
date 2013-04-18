@@ -2,7 +2,11 @@ from datetime import datetime
 from docutils import nodes
 import errno
 import os
-import urllib2
+
+try:
+    import urllib2 as urllib
+except ImportError:
+    import urllib.request as urllib
 
 from lxml import html
 
@@ -49,11 +53,11 @@ def fetch_or_load(spec_path):
         if error.errno != errno.ENOENT:
             raise
 
-    request = urllib2.Request(VALIDATION_SPEC, headers=headers)
-    response = urllib2.urlopen(request)
+    request = urllib.Request(VALIDATION_SPEC, headers=headers)
+    response = urllib.urlopen(request)
 
     if response.code == 200:
-        with open(spec_path, "w+") as spec:
+        with open(spec_path, "w+b") as spec:
             spec.writelines(response)
             spec.seek(0)
             return html.parse(spec)
@@ -72,6 +76,8 @@ def docutils_sucks(spec):
     """
 
     base_url = VALIDATION_SPEC
+    ref_url = "http://json-schema.org/latest/json-schema-core.html#anchor25"
+    schema_url = "http://json-schema.org/latest/json-schema-core.html#anchor22"
 
     def validator(name, raw_text, text, lineno, inliner):
         """
@@ -88,8 +94,14 @@ def docutils_sucks(spec):
 
         """
 
+        if text == "$ref":
+            return [nodes.reference(raw_text, text, refuri=ref_url)], []
+        elif text == "$schema":
+            return [nodes.reference(raw_text, text, refuri=schema_url)], []
+
+        xpath = "//h3[re:match(text(), '(^|\W)\"?{0}\"?($|\W,)', 'i')]"
         header = spec.xpath(
-            "//h3[re:match(text(), '(^|\W){0}($|\W,)', 'i')]".format(text),
+            xpath.format(text),
             namespaces={"re": "http://exslt.org/regular-expressions"},
         )
 
@@ -100,7 +112,7 @@ def docutils_sucks(spec):
             uri = base_url
         else:
             if len(header) > 1:
-                inliner.reporter.warning(
+                inliner.reporter.info(
                     "Found multiple targets for {0}".format(text),
                 )
             uri = base_url + "#" + header[0].getprevious().attrib["name"]
