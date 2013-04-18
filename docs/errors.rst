@@ -17,7 +17,8 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: validator
 
-        The failed validator.
+        The failed `validator
+        <http://json-schema.org/latest/json-schema-validation.html#anchor12>`_.
 
     .. attribute:: validator_value
 
@@ -27,7 +28,7 @@ raised or returned, depending on which method or function is used.
 
         The full schema that this error came from. This is potentially a
         subschema from within the schema that was passed into the validator, or
-        even an entirely different schema if a ``$ref`` was followed.
+        even an entirely different schema if a :validator:`$ref` was followed.
 
     .. attribute:: schema_path
 
@@ -53,8 +54,8 @@ raised or returned, depending on which method or function is used.
 
         If the error was caused by errors in subschemas, the list of errors
         from the subschemas will be available on this property. The
-        ``schema_path`` and ``path`` of these errors will be relative to the
-        parent error.
+        :attr:`.schema_path` and :attr:`.path` of these errors will be relative
+        to the parent error.
 
     .. attribute:: cause
 
@@ -99,9 +100,9 @@ The error messages in this situation are not very helpful on their own:
     The instance is not valid under any of the given schemas
     The instance is not valid under any of the given schemas
 
-If we look at :attr:`ValidationError.path` on each of the errors, we can find
+If we look at :attr:`~ValidationError.path` on each of the errors, we can find
 out which elements in the instance correspond to each of the errors. In
-this example, :attr:`ValidationError.path` will have only one element, which
+this example, :attr:`~ValidationError.path` will have only one element, which
 will be the index in our list.
 
 .. code-block:: python
@@ -114,16 +115,16 @@ will be the index in our list.
 
 Since our schema contained nested subschemas, it can be helpful to look at
 the specific part of the instance and subschema that caused each of the errors.
-This can be seen with the :attr:`ValidationError.instance` and
-:attr:`ValidationError.schema` attributes.
+This can be seen with the :attr:`~ValidationError.instance` and
+:attr:`~ValidationError.schema` attributes.
 
-With validators like ``anyOf``, the :attr:`ValidationError.context` attribute
-can be used to see the sub-errors which caused the failure. Since these errors
-actually came from two separate subschemas, it can be helpful to look at the
-:attr:`ValidationError.schema_path` attribute as well to see where exactly in
-the schema each of these errors come from. In the case of sub-errors from the
-:attr:`ValidationError.context` attribute, this path will be relative to the
-:attr:`ValidationError.schema_path` of the parent error.
+With validators like :validator:`anyOf`, the :attr:`~ValidationError.context`
+attribute can be used to see the sub-errors which caused the failure. Since
+these errors actually came from two separate subschemas, it can be helpful to
+look at the :attr:`~ValidationError.schema_path` attribute as well to see where
+exactly in the schema each of these errors come from. In the case of sub-errors
+from the :attr:`~ValidationError.context` attribute, this path will be relative
+to the :attr:`~ValidationError.schema_path` of the parent error.
 
 .. code-block:: python
 
@@ -180,11 +181,11 @@ more easily than by just iterating over the error objects.
 
 As you can see, :class:`ErrorTree` takes an iterable of
 :class:`ValidationError`\s when constructing a tree so you can directly pass it
-the return value of a validator's ``iter_errors`` method.
+the return value of a validator's :attr:`~IValidator.iter_errors` method.
 
 :class:`ErrorTree`\s support a number of useful operations. The first one we
 might want to perform is to check whether a given element in our instance
-failed validation. We do so using the ``in`` operator:
+failed validation. We do so using the :keyword:`in` operator:
 
 .. code-block:: python
 
@@ -199,16 +200,17 @@ did have an error (in fact it had 2), while the 1th index (``2``) did not (i.e.
 it was valid).
 
 If we want to see which errors a child had, we index into the tree and look at
-the ``errors`` attribute.
+the :attr:`~ErrorTree.errors` attribute.
 
 .. code-block:: python
 
     >>> sorted(tree[0].errors)
     ['enum', 'type']
 
-Here we see that the ``enum`` and ``type`` validators failed for index 0. In
-fact ``errors`` is a dict, whose values are the :class:`ValidationError`\s, so
-we can get at those directly if we want them.
+Here we see that the :validator:`enum` and :validator:`type` validators failed
+for index ``0``. In fact :attr:`~ErrorTree.errors` is a dict, whose values are
+the :class:`ValidationError`\s, so we can get at those directly if we want
+them.
 
 .. code-block:: python
 
@@ -216,7 +218,7 @@ we can get at those directly if we want them.
     'spam' is not of type 'number'
 
 Of course this means that if we want to know if a given validator failed for a
-given index, we check for its presence in ``errors``:
+given index, we check for its presence in :attr:`~ErrorTree.errors`:
 
 .. code-block:: python
 
@@ -227,9 +229,9 @@ given index, we check for its presence in ``errors``:
     False
 
 Finally, if you were paying close enough attention, you'll notice that we
-haven't seen our ``minItems`` error appear anywhere yet. This is because
-``minItems`` is an error that applies globally to the instance itself. So it
-appears in the root node of the tree.
+haven't seen our :validator:`minItems` error appear anywhere yet. This is
+because :validator:`minItems` is an error that applies globally to the instance
+itself. So it appears in the root node of the tree.
 
 .. code-block:: python
 
@@ -240,5 +242,5 @@ That's all you need to know to use error trees.
 
 To summarize, each tree contains child trees that can be accessed by indexing
 the tree to get the corresponding child tree for a given index into the
-instance. Each tree and child has a ``errors`` attribute, a dict, that maps the
-failed validator to the corresponding validation error.
+instance. Each tree and child has a :attr:`~ErrorTree.errors` attribute, a
+dict, that maps the failed validator to the corresponding validation error.

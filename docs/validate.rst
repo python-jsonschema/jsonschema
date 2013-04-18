@@ -14,7 +14,7 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. autofunction:: validate
 
-    Validate an ``instance`` under the given ``schema``.
+    Validate an instance under the given schema.
 
         >>> validate([2, 3, 4], {"maxItems" : 2})
         Traceback (most recent call last):
@@ -24,8 +24,9 @@ The simplest way to validate an instance under a given schema is to use the
     :func:`validate` will first verify that the provided schema is itself
     valid, since not doing so can lead to less obvious error messages and fail
     in less obvious or consistent ways. If you know you have a valid schema
-    already or don't care, you might prefer using the ``validate`` method
-    directly on a specific validator (e.g. :meth:`Draft4Validator.validate`).
+    already or don't care, you might prefer using the
+    :meth:`~IValidator.validate` method directly on a specific validator
+    (e.g. :meth:`Draft4Validator.validate`).
 
 
     :argument instance: the instance to validate
@@ -34,12 +35,12 @@ The simplest way to validate an instance under a given schema is to use the
                    the instance.
 
     If the ``cls`` argument is not provided, two things will happen in
-    accordance with the specification. First, if the ``schema`` has a
-    ``$schema`` property containing a known meta-schema (known by a validator
-    registered with :func:`validates`), then the proper validator will be used.
-    The specification recommends that all schemas contain ``$schema``
-    properties for this reason. If no ``$schema`` property is found, the
-    default validator class is :class:`Draft4Validator`.
+    accordance with the specification. First, if the schema has a
+    :validator:`$schema` property containing a known meta-schema [#]_ then the
+    proper validator will be used.  The specification recommends that all
+    schemas contain :validator:`$schema` properties for this reason. If no
+    :validator:`$schema` property is found, the default validator class is
+    :class:`Draft4Validator`.
 
     Any other provided positional and keyword arguments will be passed on when
     instantiating the ``cls``.
@@ -48,6 +49,9 @@ The simplest way to validate an instance under a given schema is to use the
         :exc:`ValidationError` if the instance is invalid
 
         :exc:`SchemaError` if the schema itself is invalid
+
+    .. rubric:: Footnotes
+    .. [#] known by a validator registered with :func:`validates`
 
 
 The Validator Interface
@@ -64,25 +68,25 @@ adhere to.
                            :meth:`IValidator.check_schema` to validate a schema
                            first.
     :argument types: Override or extend the list of known types when validating
-                     the ``type`` property. Should map strings (type names) to
-                     class objects that will be checked via ``isinstance``. See
-                     :ref:`validating-types` for details.
+                     the :validator:`type` property. Should map strings (type
+                     names) to class objects that will be checked via
+                     :func:`isinstance`. See :ref:`validating-types` for
+                     details.
     :type types: dict or iterable of 2-tuples
     :argument resolver: an instance of :class:`RefResolver` that will be used
-                        to resolve ``$ref`` properties (JSON references). If
-                        unprovided, one will be created.
-    :argument format_checker: an object with a ``conform()`` method that will
-                              be called to check and see if instances conform
-                              to each ``format`` property present in the
+                        to resolve :validator:`$ref` properties (JSON
+                        references). If unprovided, one will be created.
+    :argument format_checker: an instance of :class:`FormatChecker` whose
+                              :meth:`~conforms` method will be called to check
+                              and see if instances conform to each
+                              :validator:`format` property present in the
                               schema. If unprovided, no validation will be done
-                              for ``format``. :class:`FormatChecker` is a
-                              concrete implementation of an object of this form
-                              that can be used for common formats.
+                              for :validator:`format`.
 
     .. attribute:: DEFAULT_TYPES
 
         The default mapping of JSON types to Python types used when validating
-        ``type`` properties in JSON schemas.
+        :validator:`type` properties in JSON schemas.
 
     .. attribute:: META_SCHEMA
 
@@ -162,20 +166,21 @@ Validating With Additional Types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Occasionally it can be useful to provide additional or alternate types when
-validating the JSON Schema's ``type`` property. Validators allow this by taking
-a ``types`` argument on construction that specifies additional types, or which
-can be used to specify a different set of Python types to map to a given JSON
-type.
+validating the JSON Schema's :validator:`type` property. Validators allow this
+by taking a ``types`` argument on construction that specifies additional types,
+or which can be used to specify a different set of Python types to map to a
+given JSON type.
 
-``jsonschema`` tries to strike a balance between performance in the common case
-and generality. For instance, JSON defines a ``number`` type, which can be
-validated with a schema such as ``{"type" : "number"}``. By default, this will
-accept instances of Python :class:`number.Number`. This includes in particular
-:class:`int`\s and :class:`float`\s, along with `decimal.Decimal` objects,
-:class:`complex` numbers etc. See the numbers_ module documentation for more
-details. For ``integer`` and ``object``, however, rather than checking for
-``number.Integral`` and ``collections.Mapping``, ``jsonschema`` simply checks
-for ``int`` and ``dict``, since the former can introduce significant slowdown.
+:mod:`jsonschema` tries to strike a balance between performance in the common
+case and generality. For instance, JSON Schema defines a ``number`` type, which
+can be validated with a schema such as ``{"type" : "number"}``. By default,
+this will accept instances of Python :class:`number.Number`. This includes in
+particular :class:`int`\s and :class:`float`\s, along with `decimal.Decimal`
+objects, :class:`complex` numbers etc. For ``integer`` and ``object``, however,
+rather than checking for :class:`number.Integral` and
+:class:`collections.Mapping`, :mod:`jsonschema` simply checks for :class:`int`
+and :class:`dict`, since the former can introduce significant slowdown in these
+common cases.
 
 If you *do* want the generality, or just want to add a few specific additional
 types as being acceptible for a validator, :class:`IValidator`\s have a
@@ -197,8 +202,6 @@ need to specify all types to match if you override one of the existing JSON
 types, so you may want to access the set of default types when specifying your
 additional type.
 
-.. _numbers: http://docs.python.org/3.3/library/numbers.html
-
 .. _versioned-validators:
 
 Versioned Validators
@@ -217,10 +220,11 @@ implements.
 Validating Formats
 ------------------
 
-JSON Schema defines the ``format`` property which can be used to check if
-primitive types (``str``\s, ``number``\s, ``bool``\s) conform to well-defined
-formats. By default, no validation is enforced, but optionally, validation can
-be enabled by hooking in a format-checking object into an :class:`IValidator`.
+JSON Schema defines the :validator:`format` property which can be used to check
+if primitive types (``string``\s, ``number``\s, ``boolean``\s) conform to
+well-defined formats. By default, no validation is enforced, but optionally,
+validation can be enabled by hooking in a format-checking object into an
+:class:`IValidator`.
 
 .. doctest::
 
@@ -270,7 +274,7 @@ Checker     Notes
 ==========  ====================
 hostname
 ipv4
-ipv6        OS must have ``socket.inet_pton`` function
+ipv6        OS must have :func:`socket.inet_pton` function
 email
 uri         requires rfc3987_
 date-time   requires isodate_

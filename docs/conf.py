@@ -23,7 +23,10 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'jsonschema_role',
 ]
+
+cache_path = "_cache"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -58,7 +61,7 @@ version = release.partition("-")[0]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ['_build', "_cache", "_static", "_templates"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
