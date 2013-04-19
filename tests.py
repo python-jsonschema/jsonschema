@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+import textwrap
 
 if sys.version_info[:2] < (2, 7):  # pragma: no cover
     import unittest2 as unittest
@@ -360,6 +361,155 @@ class TestErrorReprStr(unittest.TestCase):
         error = ValidationError(message=message)
         self.assertEqual(repr(error), "<ValidationError: %r>" % message)
 
+
+class TestErrorStr(unittest.TestCase):
+    def make_error(self, **kwargs):
+        # Creates an error with all the required attributes set
+        default = {
+            "message": "message",
+            "validator": "type",
+            "validator_value": "string",
+            "instance": 5,
+            "schema": {"type": "string"}
+        }
+        default.update(kwargs)
+        return ValidationError(**default)
+
+    def prep_message(self, message):
+        # Strips leading whitespace, dedents, replaces u' with ' on py3
+        if PY3:
+            message = message.replace("u'", "'")
+        return textwrap.dedent(message).lstrip()
+
+    def test_unset_error(self):
+        error = ValidationError("message")
+        self.assertEqual(str(error), "message")
+        kwargs = {
+            "validator": "type",
+            "validator_value": "string",
+            "instance": 5,
+            "schema": {"type": "string"}
+        }
+        # Just the message should show if any of the attributes are unset
+        for attr in kwargs:
+            k = dict(kwargs)
+            del k[attr]
+            error = ValidationError("message", **k)
+            self.assertEqual(str(error), "message")
+
+    def test_basic_message(self):
+        # Make sure all the defaults from make_error print correctly
+        error = self.make_error()
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
+                On instance:
+                    5
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_empty_paths(self):
+        error = self.make_error(path=[], schema_path=[])
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
+                On instance:
+                    5
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_one_item_paths(self):
+        error = self.make_error(path=[0], schema_path=["items"])
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
+                On instance[0]:
+                    5
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_two_item_paths(self):
+        error = self.make_error(
+            path=[0, 1], schema_path=["items", "additionalItems"]
+        )
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema[u'items']:
+                    {u'type': u'string'}
+                On instance[0][1]:
+                    5
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_mixed_type_paths(self):
+        error = self.make_error(
+            path=["a", 1, "b"], schema_path=["anyOf", 5, "type"]
+        )
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema[u'anyOf'][5]:
+                    {u'type': u'string'}
+                On instance[u'a'][1][u'b']:
+                    5
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_pprint_schema(self):
+        schema = {
+            "type": ["string"],
+            "items": {
+                "allOf": [
+                    {"type": "string", "maxLength": 2},
+                    {"type": "integer", "minimum": 5},
+                    {"items": [{"type": "string"}, {"type": "integer"}],
+                     "type": "array"}
+                ]
+            }
+        }
+        error = self.make_error(schema=schema)
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema:
+                    {u'items': {u'allOf': [{u'maxLength': 2, u'type': u'string'},
+                                           {u'minimum': 5, u'type': u'integer'},
+                                           {u'items': [{u'type': u'string'},
+                                                       {u'type': u'integer'}],
+                                            u'type': u'array'}]},
+                     u'type': [u'string']}
+                On instance:
+                    5
+        """)
+        self.assertEqual(str(error), message)
+
+    def test_pprint_instance(self):
+        instance = {
+            "type": ["string"],
+            "items": {
+                "allOf": [
+                    {"type": "string", "maxLength": 2},
+                    {"type": "integer", "minimum": 5},
+                    {"items": [{"type": "string"}, {"type": "integer"}],
+                     "type": "array"}
+                ]
+            }
+        }
+        error = self.make_error(instance=instance)
+        message = self.prep_message("""
+            ValidationError: message
+                Failed validating 'type' in schema:
+                    {u'type': u'string'}
+                On instance:
+                    {u'items': {u'allOf': [{u'maxLength': 2, u'type': u'string'},
+                                           {u'minimum': 5, u'type': u'integer'},
+                                           {u'items': [{u'type': u'string'},
+                                                       {u'type': u'integer'}],
+                                            u'type': u'array'}]},
+                     u'type': [u'string']}
+        """)
+        self.assertEqual(str(error), message)
 
 
 class TestValidationErrorDetails(unittest.TestCase):

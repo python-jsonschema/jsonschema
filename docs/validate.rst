@@ -137,7 +137,7 @@ adhere to.
             ... }
             >>> v = Draft3Validator(schema)
             >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
-            ...     print(error)
+            ...     print(error.message)
             4 is not one of [1, 2, 3]
             [2, 3, 4] is too long
 
