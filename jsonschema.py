@@ -1228,6 +1228,8 @@ class ErrorTree(object):
 
     """
 
+    _instance = _unset
+
     def __init__(self, errors=()):
         self.errors = {}
         self._contents = collections.defaultdict(self.__class__)
@@ -1238,6 +1240,8 @@ class ErrorTree(object):
                 container = container[element]
             container.errors[error.validator] = error
 
+            self._instance = error.instance
+
     def __contains__(self, k):
         return k in self._contents
 
@@ -1245,8 +1249,14 @@ class ErrorTree(object):
         """
         Retrieve the child tree with key ``k``.
 
+        If the key is not in the instance that this tree corresponds to,
+        whatever error would be raised by ``instance.__getitem__`` will be
+        propagated (usually this is some subclass of :class:`LookupError`.
+
         """
 
+        if self._instance is not _unset:
+            self._instance[k]
         return self._contents[k]
 
     def __setitem__(self, k, v):

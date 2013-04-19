@@ -608,6 +608,13 @@ class TestErrorTree(unittest.TestCase):
         tree = ErrorTree([e1, e2])
         self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
 
+    def test_it_does_not_contain_subtrees_that_are_not_in_the_instance(self):
+        error = ValidationError("a message", validator="foo", instance=[])
+        tree = ErrorTree([error])
+
+        with self.assertRaises(IndexError):
+            tree[0]
+
 
 class ValidatorTestMixin(object):
     def setUp(self):
