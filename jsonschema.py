@@ -76,7 +76,7 @@ class _Error(Exception):
         self.path = collections.deque(path)
         self.schema_path = collections.deque(schema_path)
         self.context = list(context)
-        self.cause = cause
+        self.cause = self.__cause__ = cause
         self.validator = validator
         self.validator_value = validator_value
         self.instance = instance
@@ -118,7 +118,7 @@ class FormatError(Exception):
     def __init__(self, message, cause=None):
         super(FormatError, self).__init__(message, cause)
         self.message = message
-        self.cause = cause
+        self.cause = self.__cause__ = cause
 
     def __str__(self):
         return self.message.encode("utf-8")
@@ -423,8 +423,8 @@ class _Draft34CommonMixin(object):
         ):
             try:
                 self.format_checker.check(instance, format)
-            except FormatError as e:
-                yield ValidationError(unicode(e), cause=e.cause)
+            except FormatError as error:
+                yield ValidationError(error.message, cause=error.cause)
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
@@ -944,7 +944,8 @@ class FormatChecker(object):
                 cause = e
             if not result:
                 raise FormatError(
-                    "%r is not a %r" % (instance, format), cause=cause)
+                    "%r is not a %r" % (instance, format), cause=cause,
+                )
 
     def conforms(self, instance, format):
         """

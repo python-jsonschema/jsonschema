@@ -860,19 +860,31 @@ class TestFormatChecker(unittest.TestCase):
 
     def test_it_catches_registered_errors(self):
         checker = FormatChecker()
+        cause = self.fn.side_effect = ValueError()
+
         checker.checks("foo", raises=ValueError)(self.fn)
-        # Registered errors should be caught and turned into FormatErrors
-        cause = ValueError()
-        self.fn.side_effect = cause
+
         with self.assertRaises(FormatError) as cm:
             checker.check("bar", "foo")
-        # Original exception should be attached to cause attribute
+
         self.assertIs(cm.exception.cause, cause)
+        self.assertIs(cm.exception.__cause__, cause)
+
         # Unregistered errors should not be caught
         self.fn.side_effect = AttributeError
         with self.assertRaises(AttributeError):
             checker.check("bar", "foo")
 
+    def test_format_error_causes_become_validation_error_causes(self):
+        checker = FormatChecker()
+        checker.checks("foo", raises=ValueError)(self.fn)
+        cause = self.fn.side_effect = ValueError()
+        validator = Draft4Validator({"format" : "foo"}, format_checker=checker)
+
+        with self.assertRaises(ValidationError) as cm:
+            validator.validate("bar")
+
+        self.assertIs(cm.exception.__cause__, cause)
 
 
 def sorted_errors(errors):
