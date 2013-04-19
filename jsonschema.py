@@ -109,20 +109,14 @@ class _Error(Exception):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        if any(attr is _unset for attr in (
-            self.validator, self.validator_value, self.instance, self.schema
-        )):
+        if _unset in (
+            self.validator, self.validator_value, self.instance, self.schema,
+        ):
             return self.message
-        schema_path = ""
-        if len(self.schema_path) > 1:
-            schema_path = (
-                "[%s]" % "][".join(
-                    map(repr, list(self.schema_path)[:-1])
-                )
-            )
-        path = ""
-        if self.path:
-            path = "[%s]" % "][".join(map(repr, self.path))
+
+        path = _format_as_index(self.path)
+        schema_path = _format_as_index(list(self.schema_path)[:-1])
+
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""\
@@ -1310,6 +1304,21 @@ class ErrorTree(object):
 
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
+
+
+def _format_as_index(indices):
+    """
+    Construct a single string containing indexing operations for the indices.
+
+    For example, [1, 2, "foo"] -> [1][2]["foo"]
+
+    :type indices: sequence
+
+    """
+
+    if not indices:
+        return ""
+    return "[%s]" % "][".join(repr(index) for index in indices)
 
 
 def _find_additional_properties(instance, schema):
