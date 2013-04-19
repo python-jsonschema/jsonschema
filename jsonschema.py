@@ -18,6 +18,7 @@ import itertools
 import json
 import numbers
 import operator
+import pprint
 import re
 import socket
 import sys
@@ -108,7 +109,35 @@ class _Error(Exception):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        return self.message
+        if any(attr is _unset for attr in (
+            self.validator, self.validator_value, self.instance, self.schema
+        )):
+            return self.message
+        schema_path = ""
+        if len(self.schema_path) > 1:
+            schema_path = (
+                "[%s]" % "][".join(
+                    map(repr, list(self.schema_path)[:-1])
+                )
+            )
+        path = ""
+        if self.path:
+            path = "[%s]" % "][".join(map(repr, self.path))
+        pschema = pprint.pformat(self.schema, width=72)
+        pinstance = pprint.pformat(self.instance, width=72)
+        return textwrap.dedent("""\
+            %s: %s
+                Failed validating '%s' in schema%s:
+            %s
+                On instance%s:
+            %s
+        """) % (
+            self.__class__.__name__, self.message,
+            self.validator, schema_path,
+            '\n'.join(" " * 8 + line for line in  pschema.splitlines()),
+            path,
+            '\n'.join(" " * 8 + line for line in  pinstance.splitlines()),
+        )
 
     if PY3:
         __str__ = __unicode__
