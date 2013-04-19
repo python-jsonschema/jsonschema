@@ -119,18 +119,20 @@ class _Error(Exception):
 
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
-        return textwrap.dedent("""\
-            %s: %s
-                Failed validating '%s' in schema%s:
+        return self.message + textwrap.dedent("""
+
+            Failed validating %r in schema%s:
             %s
-                On instance%s:
+
+            On instance%s:
             %s
-        """) % (
-            self.__class__.__name__, self.message,
-            self.validator, schema_path,
-            '\n'.join(" " * 8 + line for line in  pschema.splitlines()),
+            """.rstrip()
+        ) % (
+            self.validator,
+            schema_path,
+            _indent(pschema),
             path,
-            '\n'.join(" " * 8 + line for line in  pinstance.splitlines()),
+            _indent(pinstance),
         )
 
     if PY3:
@@ -1305,6 +1307,14 @@ class ErrorTree(object):
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
 
+
+def _indent(string, times=1):
+    """
+    A dumb version of :func:`textwrap.indent` from Python 3.3.
+
+    """
+
+    return "\n".join(" " * (4 * times) + line for line in string.splitlines())
 
 def _format_as_index(indices):
     """
