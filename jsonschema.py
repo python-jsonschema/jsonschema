@@ -1249,13 +1249,14 @@ class ErrorTree(object):
         """
         Retrieve the child tree with key ``k``.
 
-        If the key is not in the instance that this tree corresponds to,
-        whatever error would be raised by ``instance.__getitem__`` will be
-        propagated (usually this is some subclass of :class:`LookupError`.
+        If the key is not in the instance that this tree corresponds to and is
+        not known by this tree, whatever error would be raised by
+        ``instance.__getitem__`` will be propagated (usually this is some
+        subclass of :class:`LookupError`.
 
         """
 
-        if self._instance is not _unset:
+        if self._instance is not _unset and k not in self:
             self._instance[k]
         return self._contents[k]
 

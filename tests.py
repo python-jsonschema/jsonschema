@@ -615,6 +615,20 @@ class TestErrorTree(unittest.TestCase):
         with self.assertRaises(IndexError):
             tree[0]
 
+    def test_if_its_in_the_tree_anyhow_it_does_not_raise_an_error(self):
+        """
+        If a validator is dumb (like :validator:`required` in draft 3) and
+        refers to a path that isn't in the instance, the tree still properly
+        returns a subtree for that path.
+
+        """
+
+        error = ValidationError(
+            "a message", validator="foo", instance={}, path=["foo"],
+        )
+        tree = ErrorTree([error])
+        self.assertIsInstance(tree["foo"], ErrorTree)
+
 
 class ValidatorTestMixin(object):
     def setUp(self):
