@@ -1,3 +1,17 @@
+v1.3.0
+------
+
+* Better error tracebacks (#83)
+* Raise exceptions in ``ErrorTree``\s for keys not in the instance (#92)
+* __cause__ (#93)
+
+v1.2.0
+------
+
+* More attributes for ValidationError (#86)
+* Added ``ValidatorMixin.descend``
+* Fixed bad ``RefResolutionError`` message (#82)
+
 v1.1.0
 ------
 

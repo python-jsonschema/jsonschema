@@ -49,20 +49,15 @@ Features
 Release Notes
 -------------
 
-``v1.2.0`` adds a number of new attributes to provide information that is
-useful for programmatially inspecting draft4's ``anyOf``, ``oneOf`` and
-``allOf`` validators.
+``v1.3.0`` adds better, more verbose tracebacks for validation errors that give
+some actual possibility of seeing what went wrong, particularly for the new 
+``anyOf``, ``oneOf`` and ``allOf`` validators in draft 4.
 
-See https://python-jsonschema.readthedocs.org/en/latest/errors.html for
-examples.
+The other notable change is that ``ErrorTree``\s now raise exceptions for keys
+that aren't in the instance, to prevent typos.
 
-``ValidatorMixin`` also gained a ``descend`` method which is useful for
-implementing validation methods that recurse into an instance while maintaining
-the paths within the instance and schema. It isn't documented yet though
-(patches welcome.)
-
-There's also a fix for a minor issue where failing ref resolutions had poor
-error messages.
+``__cause__`` is also implemented on Py3 for format errors, if that floats your
+boat.
 
 
 Running the Test Suite
