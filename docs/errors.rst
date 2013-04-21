@@ -76,26 +76,31 @@ raised.
 
 These attributes can be clarified with a short example:
 
-.. code-block:: python
+.. testcode::
 
-    >>> schema = {
-    ...     "items": {
-    ...         "anyOf": [
-    ...             {"type": "string", "maxLength": 2},
-    ...             {"type": "integer", "minimum": 5}
-    ...         ]
-    ...     }
-    ... }
-    >>> instance = [{}, 3, "foo"]
-    >>> v = Draft4Validator(schema)
-    >>> errors = sorted(v.iter_errors(instance), key=lambda e: e.path)
+    schema = {
+        "items": {
+            "anyOf": [
+                {"type": "string", "maxLength": 2},
+                {"type": "integer", "minimum": 5}
+            ]
+        }
+    }
+    instance = [{}, 3, "foo"]
+    v = Draft4Validator(schema)
+    errors = sorted(v.iter_errors(instance), key=lambda e: e.path)
 
-The error messages in this situation are not very helpful on their own:
+The error messages in this situation are not very helpful on their own.
 
-.. code-block:: python
+.. testcode::
 
-    >>> for error in errors:
-    ...     print(error.message)
+    for error in errors:
+        print(error.message)
+
+outputs:
+
+.. testoutput::
+
     {} is not valid under any of the given schemas
     3 is not valid under any of the given schemas
     'foo' is not valid under any of the given schemas
@@ -105,10 +110,13 @@ out which elements in the instance correspond to each of the errors. In
 this example, :attr:`~ValidationError.path` will have only one element, which
 will be the index in our list.
 
-.. code-block:: python
+.. testcode::
 
-    >>> for error in errors:
-    ...     print(list(error.path))
+    for error in errors:
+        print(list(error.path))
+
+.. testoutput::
+
     [0]
     [1]
     [2]
@@ -126,11 +134,14 @@ exactly in the schema each of these errors come from. In the case of sub-errors
 from the :attr:`~ValidationError.context` attribute, this path will be relative
 to the :attr:`~ValidationError.schema_path` of the parent error.
 
-.. code-block:: python
+.. testcode::
 
-    >>> for error in errors:
-    ...     for suberror in sorted(error.context, key=lambda e: e.schema_path):
-    ...         print(list(suberror.schema_path), suberror.message, sep=", ")
+    for error in errors:
+        for suberror in sorted(error.context, key=lambda e: e.schema_path):
+            print(list(suberror.schema_path), suberror.message, sep=", ")
+
+.. testoutput::
+
     [0, 'type'], {} is not of type 'string'
     [1, 'type'], {} is not of type 'integer'
     [0, 'type'], 3 is not of type 'string'
@@ -141,16 +152,20 @@ to the :attr:`~ValidationError.schema_path` of the parent error.
 The string representation of an error combines some of these attributes for
 easier debugging.
 
-.. code-block:: python
+.. testcode::
 
-    >>> print(errors[1])
-    ValidationError: 3 is not valid under any of the given schemas
-        Failed validating 'anyOf' in schema['items']:
-            {'anyOf': [{'maxLength': 2, 'type': 'string'},
-                       {'minimum': 5, 'type': 'integer'}]}
-        On instance[1]:
-            3
-    <BLANKLINE>
+    print(errors[1])
+
+.. testoutput::
+
+    3 is not valid under any of the given schemas
+
+    Failed validating 'anyOf' in schema['items']:
+        {'anyOf': [{'maxLength': 2, 'type': 'string'},
+                   {'minimum': 5, 'type': 'integer'}]}
+
+    On instance[1]:
+        3
 
 ErrorTrees
 ----------
@@ -164,23 +179,25 @@ failed when validating a given instance, you probably will want to do so using
 
 Consider the following example:
 
-.. code-block:: python
+.. testcode::
 
-    >>> from jsonschema import ErrorTree, Draft3Validator
-    >>> schema = {
-    ...     "type" : "array",
-    ...     "items" : {"type" : "number", "enum" : [1, 2, 3]},
-    ...     "minItems" : 3,
-    ... }
-    >>> instance = ["spam", 2]
+    schema = {
+        "type" : "array",
+        "items" : {"type" : "number", "enum" : [1, 2, 3]},
+        "minItems" : 3,
+    }
+    instance = ["spam", 2]
 
 For clarity's sake, the given instance has three errors under this schema:
 
-.. code-block:: python
+.. testcode::
 
-    >>> v = Draft3Validator(schema)
-    >>> for error in sorted(v.iter_errors(["spam", 2]), key=str):
-    ...     print(error)
+    v = Draft3Validator(schema)
+    for error in sorted(v.iter_errors(["spam", 2]), key=str):
+        print(error.message)
+
+.. testoutput::
+
     'spam' is not of type 'number'
     'spam' is not one of [1, 2, 3]
     ['spam', 2] is too short
@@ -188,9 +205,9 @@ For clarity's sake, the given instance has three errors under this schema:
 Let's construct an :class:`ErrorTree` so that we can query the errors a bit
 more easily than by just iterating over the error objects.
 
-.. code-block:: python
+.. testcode::
 
-    >>> tree = ErrorTree(v.iter_errors(instance))
+    tree = ErrorTree(v.iter_errors(instance))
 
 As you can see, :class:`ErrorTree` takes an iterable of
 :class:`ValidationError`\s when constructing a tree so you can directly pass it
@@ -200,7 +217,7 @@ the return value of a validator's :attr:`~IValidator.iter_errors` method.
 might want to perform is to check whether a given element in our instance
 failed validation. We do so using the :keyword:`in` operator:
 
-.. code-block:: python
+.. doctest::
 
     >>> 0 in tree
     True
@@ -215,7 +232,7 @@ it was valid).
 If we want to see which errors a child had, we index into the tree and look at
 the :attr:`~ErrorTree.errors` attribute.
 
-.. code-block:: python
+.. doctest::
 
     >>> sorted(tree[0].errors)
     ['enum', 'type']
@@ -225,7 +242,7 @@ for index ``0``. In fact :attr:`~ErrorTree.errors` is a dict, whose values are
 the :class:`ValidationError`\s, so we can get at those directly if we want
 them.
 
-.. code-block:: python
+.. doctest::
 
     >>> print(tree[0].errors["type"].message)
     'spam' is not of type 'number'
@@ -233,7 +250,7 @@ them.
 Of course this means that if we want to know if a given validator failed for a
 given index, we check for its presence in :attr:`~ErrorTree.errors`:
 
-.. code-block:: python
+.. doctest::
 
     >>> "enum" in tree[0].errors
     True
@@ -246,7 +263,7 @@ haven't seen our :validator:`minItems` error appear anywhere yet. This is
 because :validator:`minItems` is an error that applies globally to the instance
 itself. So it appears in the root node of the tree.
 
-.. code-block:: python
+.. doctest::
 
     >>> "minItems" in tree.errors
     True
