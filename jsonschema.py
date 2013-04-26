@@ -25,9 +25,9 @@ import sys
 import textwrap
 
 try:
-    from collections import MutableMapping
+    from collections import MutableMapping, Sequence
 except ImportError:
-    from collections.abc import MutableMapping
+    from collections.abc import MutableMapping, Sequence
 
 try:
     import requests
@@ -1191,12 +1191,18 @@ class RefResolver(object):
         for part in parts:
             part = part.replace("~1", "/").replace("~0", "~")
 
-            if part not in document:
+            if isinstance(document, Sequence):
+                # Array indexes should be turned into integers
+                try:
+                    part = int(part)
+                except ValueError:
+                    pass
+            try:
+                document = document[part]
+            except (TypeError, LookupError):
                 raise RefResolutionError(
                     "Unresolvable JSON pointer: %r" % fragment
                 )
-
-            document = document[part]
 
         return document
 
