@@ -7,5 +7,5 @@ python:
 install:
     - python setup.py -q install
 script: 
-    - nosetests
+    - py.test --tb=native tests.py
     - python -m doctest README.rst
