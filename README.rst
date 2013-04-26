@@ -82,6 +82,7 @@ There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_ f
 
 Please join, and feel free to send questions there.
 
+
 Contributing
 ------------
 
