@@ -89,6 +89,10 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
                             re.sub(r"[\W ]+", "_", test["description"]),
                         )
 
+                        # Make sure method name is unique
+                        while hasattr(test_class, test_name):
+                            test_name += 'I'
+
                         if not PY3:
                             test_name = test_name.encode("utf-8")
                         a_test.__name__ = test_name
