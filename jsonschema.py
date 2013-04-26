@@ -1316,6 +1316,7 @@ def _indent(string, times=1):
 
     return "\n".join(" " * (4 * times) + line for line in string.splitlines())
 
+
 def _format_as_index(indices):
     """
     Construct a single string containing indexing operations for the indices.
