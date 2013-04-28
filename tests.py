@@ -3,6 +3,7 @@ from decimal import Decimal
 import contextlib
 import glob
 import io
+import itertools
 import json
 import os
 import pprint
@@ -72,6 +73,7 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
                 continue
 
             validating, _ = os.path.splitext(os.path.basename(filename))
+            id = itertools.count(1)
 
             with open(filename) as test_file:
                 data = json.load(test_file)
@@ -84,8 +86,9 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
                             test["valid"],
                         )
 
-                        test_name = "test_%s_%s" % (
+                        test_name = "test_%s_%s_%s" % (
                             validating,
+                            next(id),
                             re.sub(r"[\W ]+", "_", test["description"]),
                         )
 
@@ -98,6 +101,7 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
                                 a_test
                             )
 
+                        assert not hasattr(test_class, test_name), test_name
                         setattr(test_class, test_name, a_test)
 
         return test_class
