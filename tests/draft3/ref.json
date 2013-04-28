@@ -31,7 +31,7 @@
         ]
     },
     {
-        "description": "relative pointer ref",
+        "description": "relative pointer ref to object",
         "schema": {
             "properties": {
                 "foo": {"type": "integer"},
@@ -47,6 +47,27 @@
             {
                 "description": "mismatch",
                 "data": {"bar": true},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "relative pointer ref to array",
+        "schema": {
+            "items": [
+                {"type": "integer"},
+                {"$ref": "#/items/0"}
+            ]
+        },
+        "tests": [
+            {
+                "description": "match array",
+                "data": [1, 2],
+                "valid": true
+            },
+            {
+                "description": "mismatch array",
+                "data": [1, "foo"],
                 "valid": false
             }
         ]
