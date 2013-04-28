@@ -450,9 +450,6 @@ class TestErrorReprStr(unittest.TestCase):
 
 
 class TestValidationErrorDetails(unittest.TestCase):
-    def setUp(self):
-        self.validator = Draft3Validator({})
-
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
     def test_anyOf(self):
@@ -509,7 +506,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             ]
         }
 
-        errors = list(self.validator.iter_errors(instance, schema))
+        validator = Draft3Validator(schema)
+        errors = list(validator.iter_errors(instance))
         self.assertEqual(len(errors), 1)
         e = errors[0]
 
@@ -555,7 +553,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             }
         }
 
-        errors = self.validator.iter_errors(instance, schema)
+        validator = Draft3Validator(schema)
+        errors = validator.iter_errors(instance)
         e1, e2, e3, e4 = sorted_errors(errors)
 
         self.assertEqual(list(e1.path), ["bar"])
@@ -587,7 +586,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             }
         }
 
-        errors = self.validator.iter_errors(instance, schema)
+        validator = Draft3Validator(schema)
+        errors = validator.iter_errors(instance)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
         self.assertEqual(list(e1.path), [])
@@ -610,7 +610,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             "additionalProperties" : {"type": "integer", "minimum": 5}
         }
 
-        errors = self.validator.iter_errors(instance, schema)
+        validator = Draft3Validator(schema)
+        errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
         self.assertEqual(list(e1.path), ["bar"])
@@ -628,7 +629,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             }
         }
 
-        errors = self.validator.iter_errors(instance, schema)
+        validator = Draft3Validator(schema)
+        errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
         self.assertEqual(list(e1.path), ["bar"])
@@ -644,7 +646,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             "additionalItems" : {"type": "integer", "minimum": 5}
         }
 
-        errors = self.validator.iter_errors(instance, schema)
+        validator = Draft3Validator(schema)
+        errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
         self.assertEqual(list(e1.path), [0])
