@@ -267,6 +267,10 @@ class ValidatorMixin(object):
         for error in cls(cls.META_SCHEMA).iter_errors(schema):
             raise SchemaError.create_from(error)
 
+    def validator_for(self, validator):
+        validator_attr = "validate_%s" % (validator.lstrip("$"),)
+        return getattr(self, validator_attr, None)
+
     def iter_errors(self, instance, _schema=None):
         if _schema is None:
             _schema = self.schema
@@ -279,9 +283,7 @@ class ValidatorMixin(object):
                 validators = iteritems(_schema)
 
             for k, v in validators:
-                validator_attr = "validate_%s" % (k.lstrip("$"),)
-                validator = getattr(self, validator_attr, None)
-
+                validator = self.validator_for(k)
                 if validator is None:
                     continue
 

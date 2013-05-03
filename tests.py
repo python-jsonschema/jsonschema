@@ -834,6 +834,24 @@ class TestValidatorMixin(unittest.TestCase):
         self.assertTrue(Validator.validate_ref.called)
         self.assertFalse(Validator.validate_type.called)
 
+    def test_validator_for(self):
+        class Validator(ValidatorMixin):
+            validate_type = mock.Mock()
+        validator = Validator({})
+        self.assertEqual(
+            validator.validator_for("type"), validator.validate_type,
+        )
+
+    def test_redefined_validator_for(self):
+        v = mock.Mock(return_value=[])
+
+        class Validator(ValidatorMixin):
+            def validator_for(self, validator):
+                return v
+
+        Validator({"foo" : 12}).validate(42)
+        v.assert_called_once_with(12, 42, {"foo" : 12})
+
 
 class TestRefResolver(unittest.TestCase):
 
