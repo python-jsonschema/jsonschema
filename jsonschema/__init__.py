@@ -25,32 +25,22 @@ import sys
 import textwrap
 
 try:
-    from collections import MutableMapping, Sequence
-except ImportError:
-    from collections.abc import MutableMapping, Sequence
-
-try:
     import requests
 except ImportError:
     requests = None
 
 __version__ = "1.4.0-dev"
 
-PY3 = sys.version_info[0] >= 3
-
-if PY3:
-    from urllib import parse as urlparse
-    from urllib.parse import unquote
-    from urllib.request import urlopen
-    basestring = unicode = str
-    long = int
-    iteritems = operator.methodcaller("items")
-else:
-    from itertools import izip as zip
-    from urllib import unquote
-    from urllib2 import urlopen
-    import urlparse
-    iteritems = operator.methodcaller("iteritems")
+from .compat import (
+    PY3, MutableMapping, Sequence,
+    urlparse, unquote, urlopen,
+    basestring, unicode, long,
+    iteritems,
+)
+from ._utils import (
+    _indent, _format_as_index, _find_additional_properties, _extras_msg,
+    _types_msg, _flatten, _list, _unbool, _uniq,
+)
 
 
 FLOAT_TOLERANCE = 10 ** -15
@@ -1312,161 +1302,6 @@ class ErrorTree(object):
 
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
-
-
-def _indent(string, times=1):
-    """
-    A dumb version of :func:`textwrap.indent` from Python 3.3.
-
-    """
-
-    return "\n".join(" " * (4 * times) + line for line in string.splitlines())
-
-
-def _format_as_index(indices):
-    """
-    Construct a single string containing indexing operations for the indices.
-
-    For example, [1, 2, "foo"] -> [1][2]["foo"]
-
-    :type indices: sequence
-
-    """
-
-    if not indices:
-        return ""
-    return "[%s]" % "][".join(repr(index) for index in indices)
-
-
-def _find_additional_properties(instance, schema):
-    """
-    Return the set of additional properties for the given ``instance``.
-
-    Weeds out properties that should have been validated by ``properties`` and
-    / or ``patternProperties``.
-
-    Assumes ``instance`` is dict-like already.
-
-    """
-
-    properties = schema.get("properties", {})
-    patterns = "|".join(schema.get("patternProperties", {}))
-    for property in instance:
-        if property not in properties:
-            if patterns and re.search(patterns, property):
-                continue
-            yield property
-
-
-def _extras_msg(extras):
-    """
-    Create an error message for extra items or properties.
-
-    """
-
-    if len(extras) == 1:
-        verb = "was"
-    else:
-        verb = "were"
-    return ", ".join(repr(extra) for extra in extras), verb
-
-
-def _types_msg(instance, types):
-    """
-    Create an error message for a failure to match the given types.
-
-    If the ``instance`` is an object and contains a ``name`` property, it will
-    be considered to be a description of that object and used as its type.
-
-    Otherwise the message is simply the reprs of the given ``types``.
-
-    """
-
-    reprs = []
-    for type in types:
-        try:
-            reprs.append(repr(type["name"]))
-        except Exception:
-            reprs.append(repr(type))
-    return "%r is not of type %s" % (instance, ", ".join(reprs))
-
-
-def _flatten(suitable_for_isinstance):
-    """
-    isinstance() can accept a bunch of really annoying different types:
-        * a single type
-        * a tuple of types
-        * an arbitrary nested tree of tuples
-
-    Return a flattened tuple of the given argument.
-
-    """
-
-    types = set()
-
-    if not isinstance(suitable_for_isinstance, tuple):
-        suitable_for_isinstance = (suitable_for_isinstance,)
-    for thing in suitable_for_isinstance:
-        if isinstance(thing, tuple):
-            types.update(_flatten(thing))
-        else:
-            types.add(thing)
-    return tuple(types)
-
-
-def _list(thing):
-    """
-    Wrap ``thing`` in a list if it's a single str.
-
-    Otherwise, return it unchanged.
-
-    """
-
-    if isinstance(thing, basestring):
-        return [thing]
-    return thing
-
-
-def _unbool(element, true=object(), false=object()):
-    """
-    A hack to make True and 1 and False and 0 unique for _uniq.
-
-    """
-
-    if element is True:
-        return true
-    elif element is False:
-        return false
-    return element
-
-
-def _uniq(container):
-    """
-    Check if all of a container's elements are unique.
-
-    Successively tries first to rely that the elements are hashable, then
-    falls back on them being sortable, and finally falls back on brute
-    force.
-
-    """
-
-    try:
-        return len(set(_unbool(i) for i in container)) == len(container)
-    except TypeError:
-        try:
-            sort = sorted(_unbool(i) for i in container)
-            sliced = itertools.islice(sort, 1, None)
-            for i, j in zip(sort, sliced):
-                if i == j:
-                    return False
-        except (NotImplementedError, TypeError):
-            seen = []
-            for e in container:
-                e = _unbool(e)
-                if e in seen:
-                    return False
-                seen.append(e)
-    return True
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):

@@ -1,0 +1,28 @@
+from __future__ import unicode_literals
+import sys
+import operator
+
+try:
+    from collections import MutableMapping, Sequence
+except ImportError:
+    from collections.abc import MutableMapping, Sequence
+
+PY3 = sys.version_info[0] >= 3
+
+if PY3:
+    zip = zip
+    from urllib import parse as urlparse
+    from urllib.parse import unquote
+    from urllib.request import urlopen
+    basestring = unicode = str
+    long = int
+    iteritems = operator.methodcaller("items")
+else:
+    from itertools import izip as zip
+    import urlparse
+    from urllib import unquote
+    from urllib2 import urlopen
+    basestring = basestring
+    unicode = unicode
+    long = long
+    iteritems = operator.methodcaller("iteritems")
