@@ -37,10 +37,7 @@ from .compat import (
     basestring, unicode, long,
     iteritems,
 )
-from ._utils import (
-    _indent, _format_as_index, _find_additional_properties, _extras_msg,
-    _types_msg, _flatten, _list, _unbool, _uniq,
-)
+from . import _utils
 
 
 FLOAT_TOLERANCE = 10 ** -15
@@ -104,8 +101,8 @@ class _Error(Exception):
         ):
             return self.message
 
-        path = _format_as_index(self.path)
-        schema_path = _format_as_index(list(self.schema_path)[:-1])
+        path = _utils.format_as_index(self.path)
+        schema_path = _utils.format_as_index(list(self.schema_path)[:-1])
 
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
@@ -120,9 +117,9 @@ class _Error(Exception):
         ) % (
             self.validator,
             schema_path,
-            _indent(pschema),
+            _utils.indent(pschema),
             path,
-            _indent(pinstance),
+            _utils.indent(pinstance),
         )
 
     if PY3:
@@ -242,7 +239,7 @@ class ValidatorMixin(object):
 
         # bool inherits from int, so ensure bools aren't reported as integers
         if isinstance(instance, bool):
-            pytypes = _flatten(pytypes)
+            pytypes = _utils.flatten(pytypes)
             num = any(issubclass(pytype, numbers.Number) for pytype in pytypes)
             if num and bool not in pytypes:
                 return False
@@ -323,7 +320,7 @@ class _Draft34CommonMixin(object):
         if not self.is_type(instance, "object"):
             return
 
-        extras = set(_find_additional_properties(instance, schema))
+        extras = set(_utils.find_additional_properties(instance, schema))
 
         if self.is_type(aP, "object"):
             for extra in extras:
@@ -331,7 +328,7 @@ class _Draft34CommonMixin(object):
                     yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % _extras_msg(extras))
+            yield ValidationError(error % _utils.extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
@@ -363,7 +360,7 @@ class _Draft34CommonMixin(object):
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
             yield ValidationError(
-                error % _extras_msg(instance[len(schema.get("items", [])):])
+                error % _utils.extras_msg(instance[len(schema.get("items", [])):])
             )
 
     def validate_minimum(self, minimum, instance, schema):
@@ -424,7 +421,11 @@ class _Draft34CommonMixin(object):
             yield ValidationError("%r is too long" % (instance,))
 
     def validate_uniqueItems(self, uI, instance, schema):
-        if uI and self.is_type(instance, "array") and not _uniq(instance):
+        if (
+            uI and
+            self.is_type(instance, "array") and
+            not _utils.uniq(instance)
+        ):
             yield ValidationError("%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):
@@ -463,7 +464,7 @@ class _Draft34CommonMixin(object):
                 ):
                     yield error
             else:
-                dependencies = _list(dependency)
+                dependencies = _utils.mklist(dependency)
                 for dependency in dependencies:
                     if dependency not in instance:
                         yield ValidationError(
@@ -488,7 +489,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _list(types)
+        types = _utils.mklist(types)
 
         all_errors = []
         for index, type in enumerate(types):
@@ -504,7 +505,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                     return
         else:
             yield ValidationError(
-                _types_msg(instance, types), context=all_errors,
+                _utils.types_msg(instance, types), context=all_errors,
             )
 
     def validate_properties(self, properties, instance, schema):
@@ -533,7 +534,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 yield error
 
     def validate_disallow(self, disallow, instance, schema):
-        for disallowed in _list(disallow):
+        for disallowed in _utils.mklist(disallow):
             if self.is_valid(instance, {"type" : [disallowed]}):
                 yield ValidationError(
                     "%r is disallowed for %r" % (disallowed, instance)
@@ -642,10 +643,10 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _list(types)
+        types = _utils.mklist(types)
 
         if not any(self.is_type(instance, type) for type in types):
-            yield ValidationError(_types_msg(instance, types))
+            yield ValidationError(_utils.types_msg(instance, types))
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):

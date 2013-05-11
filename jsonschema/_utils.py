@@ -4,7 +4,7 @@ import re
 from .compat import basestring
 
 
-def _indent(string, times=1):
+def indent(string, times=1):
     """
     A dumb version of :func:`textwrap.indent` from Python 3.3.
 
@@ -13,7 +13,7 @@ def _indent(string, times=1):
     return "\n".join(" " * (4 * times) + line for line in string.splitlines())
 
 
-def _format_as_index(indices):
+def format_as_index(indices):
     """
     Construct a single string containing indexing operations for the indices.
 
@@ -28,7 +28,7 @@ def _format_as_index(indices):
     return "[%s]" % "][".join(repr(index) for index in indices)
 
 
-def _find_additional_properties(instance, schema):
+def find_additional_properties(instance, schema):
     """
     Return the set of additional properties for the given ``instance``.
 
@@ -48,7 +48,7 @@ def _find_additional_properties(instance, schema):
             yield property
 
 
-def _extras_msg(extras):
+def extras_msg(extras):
     """
     Create an error message for extra items or properties.
 
@@ -61,7 +61,7 @@ def _extras_msg(extras):
     return ", ".join(repr(extra) for extra in extras), verb
 
 
-def _types_msg(instance, types):
+def types_msg(instance, types):
     """
     Create an error message for a failure to match the given types.
 
@@ -81,7 +81,7 @@ def _types_msg(instance, types):
     return "%r is not of type %s" % (instance, ", ".join(reprs))
 
 
-def _flatten(suitable_for_isinstance):
+def flatten(suitable_for_isinstance):
     """
     isinstance() can accept a bunch of really annoying different types:
         * a single type
@@ -98,13 +98,13 @@ def _flatten(suitable_for_isinstance):
         suitable_for_isinstance = (suitable_for_isinstance,)
     for thing in suitable_for_isinstance:
         if isinstance(thing, tuple):
-            types.update(_flatten(thing))
+            types.update(flatten(thing))
         else:
             types.add(thing)
     return tuple(types)
 
 
-def _list(thing):
+def mklist(thing):
     """
     Wrap ``thing`` in a list if it's a single str.
 
@@ -117,9 +117,9 @@ def _list(thing):
     return thing
 
 
-def _unbool(element, true=object(), false=object()):
+def unbool(element, true=object(), false=object()):
     """
-    A hack to make True and 1 and False and 0 unique for _uniq.
+    A hack to make True and 1 and False and 0 unique for ``uniq``.
 
     """
 
@@ -130,7 +130,7 @@ def _unbool(element, true=object(), false=object()):
     return element
 
 
-def _uniq(container):
+def uniq(container):
     """
     Check if all of a container's elements are unique.
 
@@ -141,10 +141,10 @@ def _uniq(container):
     """
 
     try:
-        return len(set(_unbool(i) for i in container)) == len(container)
+        return len(set(unbool(i) for i in container)) == len(container)
     except TypeError:
         try:
-            sort = sorted(_unbool(i) for i in container)
+            sort = sorted(unbool(i) for i in container)
             sliced = itertools.islice(sort, 1, None)
             for i, j in zip(sort, sliced):
                 if i == j:
@@ -152,7 +152,7 @@ def _uniq(container):
         except (NotImplementedError, TypeError):
             seen = []
             for e in container:
-                e = _unbool(e)
+                e = unbool(e)
                 if e in seen:
                     return False
                 seen.append(e)
