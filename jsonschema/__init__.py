@@ -14,14 +14,11 @@ from __future__ import division, unicode_literals
 import collections
 import contextlib
 import datetime
-import itertools
 import json
 import numbers
-import operator
 import pprint
 import re
 import socket
-import sys
 import textwrap
 
 try:
@@ -360,7 +357,8 @@ class _Draft34CommonMixin(object):
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
             yield ValidationError(
-                error % _utils.extras_msg(instance[len(schema.get("items", [])):])
+                error %
+                _utils.extras_msg(instance[len(schema.get("items", [])):])
             )
 
     def validate_minimum(self, minimum, instance, schema):

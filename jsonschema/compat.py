@@ -3,9 +3,9 @@ import sys
 import operator
 
 try:
-    from collections import MutableMapping, Sequence
+    from collections import MutableMapping, Sequence  # noqa
 except ImportError:
-    from collections.abc import MutableMapping, Sequence
+    from collections.abc import MutableMapping, Sequence  # noqa
 
 PY3 = sys.version_info[0] >= 3
 
@@ -18,10 +18,10 @@ if PY3:
     long = int
     iteritems = operator.methodcaller("items")
 else:
-    from itertools import izip as zip
-    import urlparse
-    from urllib import unquote
-    from urllib2 import urlopen
+    from itertools import izip as zip  # noqa
+    import urlparse  # noqa
+    from urllib import unquote  # noqa
+    from urllib2 import urlopen  # noqa
     basestring = basestring
     unicode = unicode
     long = long

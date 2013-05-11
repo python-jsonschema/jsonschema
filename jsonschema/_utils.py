@@ -157,4 +157,3 @@ def uniq(container):
                     return False
                 seen.append(e)
     return True
-
