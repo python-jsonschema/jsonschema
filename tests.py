@@ -27,7 +27,6 @@ try:
 except ImportError:
     pypy_version_info = None
 
-import jsonschema
 from jsonschema import (
     PY3, FormatError, RefResolutionError, SchemaError, UnknownType,
     ValidationError, ErrorTree, Draft3Validator, Draft4Validator,
@@ -998,14 +997,6 @@ class TestFormatChecker(unittest.TestCase):
 
         self.assertIs(cm.exception.__cause__, cause)
 
-
-class TestIsPackage(unittest.TestCase):
-    def test_is_package(self):
-        self.assertIsNotNone(
-            getattr(jsonschema, '__path__', None),
-            msg="Module jsonschema is not a package. Did you forget to "
-                "delete the .pyc?"
-        )
 
 def sorted_errors(errors):
     def key(error):
