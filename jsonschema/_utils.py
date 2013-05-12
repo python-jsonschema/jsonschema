@@ -136,7 +136,7 @@ def flatten(suitable_for_isinstance):
     return tuple(types)
 
 
-def list_wrap_str(thing):
+def ensure_list(thing):
     """
     Wrap ``thing`` in a list if it's a single str.
 

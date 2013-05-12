@@ -430,7 +430,7 @@ class _Draft34CommonMixin(object):
                 ):
                     yield error
             else:
-                dependencies = _utils.list_wrap_str(dependency)
+                dependencies = _utils.ensure_list(dependency)
                 for dependency in dependencies:
                     if dependency not in instance:
                         yield ValidationError(
@@ -455,7 +455,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _utils.list_wrap_str(types)
+        types = _utils.ensure_list(types)
 
         all_errors = []
         for index, type in enumerate(types):
@@ -500,7 +500,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 yield error
 
     def validate_disallow(self, disallow, instance, schema):
-        for disallowed in _utils.list_wrap_str(disallow):
+        for disallowed in _utils.ensure_list(disallow):
             if self.is_valid(instance, {"type" : [disallowed]}):
                 yield ValidationError(
                     "%r is disallowed for %r" % (disallowed, instance)
@@ -609,7 +609,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _utils.list_wrap_str(types)
+        types = _utils.ensure_list(types)
 
         if not any(self.is_type(instance, type) for type in types):
             yield ValidationError(_utils.types_msg(instance, types))
