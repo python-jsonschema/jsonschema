@@ -29,7 +29,7 @@ except ImportError:
 __version__ = "1.4.0-dev"
 
 from .compat import (
-    PY3, MutableMapping, Sequence,
+    PY3, Sequence,
     urlparse, unquote, urlopen,
     basestring, unicode, long,
     iteritems,
@@ -145,39 +145,7 @@ class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
 
 
-class _URIDict(MutableMapping):
-    """
-    Dictionary which uses normalized URIs as keys.
-
-    """
-
-    def normalize(self, uri):
-        return urlparse.urlsplit(uri).geturl()
-
-    def __init__(self, *args, **kwargs):
-        self.store = dict()
-        self.store.update(*args, **kwargs)
-
-    def __getitem__(self, uri):
-        return self.store[self.normalize(uri)]
-
-    def __setitem__(self, uri, value):
-        self.store[self.normalize(uri)] = value
-
-    def __delitem__(self, uri):
-        del self.store[self.normalize(uri)]
-
-    def __iter__(self):
-        return iter(self.store)
-
-    def __len__(self):
-        return len(self.store)
-
-    def __repr__(self):
-        return repr(self.store)
-
-
-meta_schemas = _URIDict()
+meta_schemas = _utils.URIDict()
 
 
 def validates(version):
@@ -462,7 +430,7 @@ class _Draft34CommonMixin(object):
                 ):
                     yield error
             else:
-                dependencies = _utils.mklist(dependency)
+                dependencies = _utils.list_wrap_str(dependency)
                 for dependency in dependencies:
                     if dependency not in instance:
                         yield ValidationError(
@@ -487,7 +455,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _utils.mklist(types)
+        types = _utils.list_wrap_str(types)
 
         all_errors = []
         for index, type in enumerate(types):
@@ -532,7 +500,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 yield error
 
     def validate_disallow(self, disallow, instance, schema):
-        for disallowed in _utils.mklist(disallow):
+        for disallowed in _utils.list_wrap_str(disallow):
             if self.is_valid(instance, {"type" : [disallowed]}):
                 yield ValidationError(
                     "%r is disallowed for %r" % (disallowed, instance)
@@ -641,7 +609,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _utils.mklist(types)
+        types = _utils.list_wrap_str(types)
 
         if not any(self.is_type(instance, type) for type in types):
             yield ValidationError(_utils.types_msg(instance, types))
@@ -1107,7 +1075,7 @@ class RefResolver(object):
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
-        self.store = _URIDict(
+        self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
             for id, validator in iteritems(meta_schemas)
         )
