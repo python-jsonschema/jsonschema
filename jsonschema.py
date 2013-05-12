@@ -1114,6 +1114,8 @@ class RefResolver(object):
     ):
         self.base_uri = base_uri
         self.resolution_scope = base_uri
+        # This attribute is not used, it is for backwards compatibility
+        self.referrer = referrer
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
