@@ -1114,6 +1114,7 @@ class RefResolver(object):
     ):
         self.base_uri = base_uri
         self.resolution_scope = base_uri
+        # This attribute is not used, it is for backwards compatibility
         self.referrer = referrer
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
@@ -1123,6 +1124,7 @@ class RefResolver(object):
             for id, validator in iteritems(meta_schemas)
         )
         self.store.update(store)
+        self.store[base_uri] = referrer
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -1157,24 +1159,23 @@ class RefResolver(object):
 
         full_uri = urlparse.urljoin(self.resolution_scope, ref)
         uri, fragment = urlparse.urldefrag(full_uri)
+        if not uri:
+            uri = self.base_uri
 
         if uri in self.store:
             document = self.store[uri]
-        elif not uri or uri == self.base_uri:
-            document = self.referrer
         else:
             try:
                 document = self.resolve_remote(uri)
             except Exception as exc:
                 raise RefResolutionError(exc)
 
-        old_base_uri, old_referrer = self.base_uri, self.referrer
-        self.base_uri, self.referrer = uri, document
+        old_base_uri, self.base_uri = self.base_uri, uri
         try:
             with self.in_scope(uri):
                 yield self.resolve_fragment(document, fragment)
         finally:
-            self.base_uri, self.referrer = old_base_uri, old_referrer
+            self.base_uri = old_base_uri
 
     def resolve_fragment(self, document, fragment):
         """
