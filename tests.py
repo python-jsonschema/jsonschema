@@ -859,6 +859,14 @@ class TestRefResolver(unittest.TestCase):
         with self.resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
+    def test_it_resolves_local_refs_with_id(self):
+        schema = {"id": "foo://bar/schema#", "a": {"foo": "bar"}}
+        resolver = RefResolver.from_schema(schema)
+        with resolver.resolving("#/a") as resolved:
+            self.assertEqual(resolved, schema["a"])
+        with resolver.resolving("foo://bar/schema#/a") as resolved:
+            self.assertEqual(resolved, schema["a"])
+
     def test_it_retrieves_stored_refs(self):
         with self.resolver.resolving(self.stored_uri) as resolved:
             self.assertIs(resolved, self.stored_schema)
@@ -893,13 +901,23 @@ class TestRefResolver(unittest.TestCase):
         schema = {"id" : "foo"}
         resolver = RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "foo")
-        self.assertEqual(resolver.referrer, schema)
+        with resolver.resolving("") as resolved:
+            self.assertEqual(resolved, schema)
+        with resolver.resolving("#") as resolved:
+            self.assertEqual(resolved, schema)
+        with resolver.resolving("foo") as resolved:
+            self.assertEqual(resolved, schema)
+        with resolver.resolving("foo#") as resolved:
+            self.assertEqual(resolved, schema)
 
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
         resolver = RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "")
-        self.assertEqual(resolver.referrer, schema)
+        with resolver.resolving("") as resolved:
+            self.assertEqual(resolved, schema)
+        with resolver.resolving("#") as resolved:
+            self.assertEqual(resolved, schema)
 
     def test_custom_uri_scheme_handlers(self):
         schema = {"foo": "bar"}
