@@ -949,10 +949,6 @@ class TestFormatChecker(unittest.TestCase):
     def setUp(self):
         self.fn = mock.Mock()
 
-    def test_it_validates_date_time_and_regex(self):
-        # Taken from docstring to avoid doctests outside of sphinxdocs
-        checker = FormatChecker(formats=("date-time", "regex"))
-
     def test_it_can_validate_no_formats(self):
         checker = FormatChecker(formats=())
         self.assertFalse(checker.checkers)
