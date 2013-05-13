@@ -15,7 +15,7 @@ except ImportError:
 
 from jsonschema import _utils
 from jsonschema.compat import (
-    PY3, Sequence, urlparse, unquote, urlopen, str_types, int_types, iteritems,
+    PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen, str_types, int_types, iteritems,
 )
 from jsonschema._format import FormatError
 
@@ -629,7 +629,7 @@ class RefResolver(object):
     @contextlib.contextmanager
     def in_scope(self, scope):
         old_scope = self.resolution_scope
-        self.resolution_scope = urlparse.urljoin(old_scope, scope)
+        self.resolution_scope = urljoin(old_scope, scope)
         try:
             yield
         finally:
@@ -645,8 +645,8 @@ class RefResolver(object):
 
         """
 
-        full_uri = urlparse.urljoin(self.resolution_scope, ref)
-        uri, fragment = urlparse.urldefrag(full_uri)
+        full_uri = urljoin(self.resolution_scope, ref)
+        uri, fragment = urldefrag(full_uri)
         if not uri:
             uri = self.base_uri
 
@@ -718,7 +718,7 @@ class RefResolver(object):
 
         """
 
-        scheme = urlparse.urlsplit(uri).scheme
+        scheme = urlsplit(uri).scheme
 
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
