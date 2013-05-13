@@ -1,3 +1,5 @@
+import os
+import glob
 from distutils.core import setup
 
 from jsonschema import __version__
@@ -29,6 +31,7 @@ setup(
     name="jsonschema",
     version=__version__,
     packages=["jsonschema"],
+    package_data={'jsonschema': ['schemas/*.json']},
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,
