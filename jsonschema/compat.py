@@ -14,15 +14,14 @@ if PY3:
     from urllib import parse as urlparse
     from urllib.parse import unquote
     from urllib.request import urlopen
-    basestring = unicode = str
-    long = int
+    str_types = str,
+    int_types = int,
     iteritems = operator.methodcaller("items")
 else:
     from itertools import izip as zip  # noqa
     import urlparse  # noqa
     from urllib import unquote  # noqa
     from urllib2 import urlopen  # noqa
-    basestring = basestring
-    unicode = unicode
-    long = long
+    str_types = basestring
+    int_types = int, long
     iteritems = operator.methodcaller("iteritems")

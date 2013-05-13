@@ -28,11 +28,12 @@ except ImportError:
     pypy_version_info = None
 
 from jsonschema import (
-    PY3, FormatError, RefResolutionError, SchemaError, UnknownType,
+    FormatError, RefResolutionError, SchemaError, UnknownType,
     ValidationError, ErrorTree, Draft3Validator, Draft4Validator,
     FormatChecker, RefResolver, ValidatorMixin, draft3_format_checker,
     draft4_format_checker, validate,
 )
+from jsonschema.compat import PY3
 
 
 THIS_DIR = os.path.dirname(__file__)
@@ -230,7 +231,7 @@ class TestDraft4(
 
 class RemoteRefResolutionMixin(object):
     def setUp(self):
-        patch = mock.patch("jsonschema.requests")
+        patch = mock.patch("jsonschema.validators.requests")
         requests = patch.start()
         requests.get.side_effect = self.resolve
         self.addCleanup(patch.stop)
@@ -871,7 +872,7 @@ class TestRefResolver(unittest.TestCase):
         ref = "http://bar#baz"
         schema = {"baz" : 12}
 
-        with mock.patch("jsonschema.requests") as requests:
+        with mock.patch("jsonschema.validators.requests") as requests:
             requests.get.return_value.json.return_value = schema
             with self.resolver.resolving(ref) as resolved:
                 self.assertEqual(resolved, 12)
@@ -881,8 +882,8 @@ class TestRefResolver(unittest.TestCase):
         ref = "http://bar#baz"
         schema = {"baz" : 12}
 
-        with mock.patch("jsonschema.requests", None):
-            with mock.patch("jsonschema.urlopen") as urlopen:
+        with mock.patch("jsonschema.validators.requests", None):
+            with mock.patch("jsonschema.validators.urlopen") as urlopen:
                 urlopen.return_value.read.return_value = (
                     json.dumps(schema).encode("utf8"))
                 with self.resolver.resolving(ref) as resolved:

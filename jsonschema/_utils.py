@@ -1,7 +1,7 @@
 import itertools
 import re
 
-from .compat import basestring, urlparse, MutableMapping
+from jsonschema.compat import str_types, urlparse, MutableMapping
 
 
 class URIDict(MutableMapping):
@@ -144,7 +144,7 @@ def ensure_list(thing):
 
     """
 
-    if isinstance(thing, basestring):
+    if isinstance(thing, str_types):
         return [thing]
     return thing
 
