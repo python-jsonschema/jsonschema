@@ -6,6 +6,6 @@ python:
   - "3.3"
 install:
     - python setup.py -q install
-script: 
-    - py.test --tb=native tests.py
+script:
+    - py.test --tb=native test_jsonschema.py
     - python -m doctest README.rst

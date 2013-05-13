@@ -861,11 +861,11 @@ class TestRefResolver(unittest.TestCase):
             self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
     def test_it_resolves_local_refs_with_id(self):
-        schema = {"id": "/bar/schema#", "a": {"foo": "bar"}}
+        schema = {"id": "foo://bar/schema#", "a": {"foo": "bar"}}
         resolver = RefResolver.from_schema(schema)
         with resolver.resolving("#/a") as resolved:
             self.assertEqual(resolved, schema["a"])
-        with resolver.resolving("/bar/schema#/a") as resolved:
+        with resolver.resolving("foo://bar/schema#/a") as resolved:
             self.assertEqual(resolved, schema["a"])
 
     def test_it_retrieves_stored_refs(self):
