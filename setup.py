@@ -28,7 +28,8 @@ classifiers = [
 setup(
     name="jsonschema",
     version=__version__,
-    py_modules=["jsonschema"],
+    packages=["jsonschema"],
+    package_data={'jsonschema': ['schemas/*.json']},
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,

@@ -1,56 +1,23 @@
-"""
-An implementation of JSON Schema for Python
-
-The main functionality is provided by the validator classes for each of the
-supported JSON Schema versions.
-
-Most commonly, :func:`validate` is the quickest way to simply validate a given
-instance under a schema, and will create a validator for you.
-
-"""
-
 from __future__ import division, unicode_literals
 
 import collections
 import contextlib
-import datetime
-import itertools
 import json
 import numbers
-import operator
 import pprint
 import re
-import socket
-import sys
 import textwrap
-
-try:
-    from collections import MutableMapping, Sequence
-except ImportError:
-    from collections.abc import MutableMapping, Sequence
 
 try:
     import requests
 except ImportError:
     requests = None
 
-__version__ = "1.4.0-dev"
-
-PY3 = sys.version_info[0] >= 3
-
-if PY3:
-    from urllib import parse as urlparse
-    from urllib.parse import unquote
-    from urllib.request import urlopen
-    basestring = unicode = str
-    long = int
-    iteritems = operator.methodcaller("items")
-else:
-    from itertools import izip as zip
-    from urllib import unquote
-    from urllib2 import urlopen
-    import urlparse
-    iteritems = operator.methodcaller("iteritems")
+from jsonschema import _utils
+from jsonschema.compat import (
+    PY3, Sequence, urlparse, unquote, urlopen, str_types, int_types, iteritems,
+)
+from jsonschema._format import FormatError
 
 
 FLOAT_TOLERANCE = 10 ** -15
@@ -114,8 +81,8 @@ class _Error(Exception):
         ):
             return self.message
 
-        path = _format_as_index(self.path)
-        schema_path = _format_as_index(list(self.schema_path)[:-1])
+        path = _utils.format_as_index(self.path)
+        schema_path = _utils.format_as_index(list(self.schema_path)[:-1])
 
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
@@ -130,26 +97,10 @@ class _Error(Exception):
         ) % (
             self.validator,
             schema_path,
-            _indent(pschema),
+            _utils.indent(pschema),
             path,
-            _indent(pinstance),
+            _utils.indent(pinstance),
         )
-
-    if PY3:
-        __str__ = __unicode__
-
-
-class FormatError(Exception):
-    def __init__(self, message, cause=None):
-        super(FormatError, self).__init__(message, cause)
-        self.message = message
-        self.cause = self.__cause__ = cause
-
-    def __str__(self):
-        return self.message.encode("utf-8")
-
-    def __unicode__(self):
-        return self.message
 
     if PY3:
         __str__ = __unicode__
@@ -161,39 +112,7 @@ class RefResolutionError(Exception): pass
 class UnknownType(Exception): pass
 
 
-class _URIDict(MutableMapping):
-    """
-    Dictionary which uses normalized URIs as keys.
-
-    """
-
-    def normalize(self, uri):
-        return urlparse.urlsplit(uri).geturl()
-
-    def __init__(self, *args, **kwargs):
-        self.store = dict()
-        self.store.update(*args, **kwargs)
-
-    def __getitem__(self, uri):
-        return self.store[self.normalize(uri)]
-
-    def __setitem__(self, uri, value):
-        self.store[self.normalize(uri)] = value
-
-    def __delitem__(self, uri):
-        del self.store[self.normalize(uri)]
-
-    def __iter__(self):
-        return iter(self.store)
-
-    def __len__(self):
-        return len(self.store)
-
-    def __repr__(self):
-        return repr(self.store)
-
-
-meta_schemas = _URIDict()
+meta_schemas = _utils.URIDict()
 
 
 def validates(version):
@@ -229,9 +148,9 @@ class ValidatorMixin(object):
     """
 
     DEFAULT_TYPES = {
-        "array" : list, "boolean" : bool, "integer" : (int, long),
+        "array" : list, "boolean" : bool, "integer" : int_types,
         "null" : type(None), "number" : numbers.Number, "object" : dict,
-        "string" : basestring,
+        "string" : str_types,
     }
 
     def __init__(self, schema, types=(), resolver=None, format_checker=None):
@@ -252,7 +171,7 @@ class ValidatorMixin(object):
 
         # bool inherits from int, so ensure bools aren't reported as integers
         if isinstance(instance, bool):
-            pytypes = _flatten(pytypes)
+            pytypes = _utils.flatten(pytypes)
             num = any(issubclass(pytype, numbers.Number) for pytype in pytypes)
             if num and bool not in pytypes:
                 return False
@@ -333,7 +252,7 @@ class _Draft34CommonMixin(object):
         if not self.is_type(instance, "object"):
             return
 
-        extras = set(_find_additional_properties(instance, schema))
+        extras = set(_utils.find_additional_properties(instance, schema))
 
         if self.is_type(aP, "object"):
             for extra in extras:
@@ -341,7 +260,7 @@ class _Draft34CommonMixin(object):
                     yield error
         elif not aP and extras:
             error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % _extras_msg(extras))
+            yield ValidationError(error % _utils.extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
@@ -373,7 +292,8 @@ class _Draft34CommonMixin(object):
         elif not aI and len(instance) > len(schema.get("items", [])):
             error = "Additional items are not allowed (%s %s unexpected)"
             yield ValidationError(
-                error % _extras_msg(instance[len(schema.get("items", [])):])
+                error %
+                _utils.extras_msg(instance[len(schema.get("items", [])):])
             )
 
     def validate_minimum(self, minimum, instance, schema):
@@ -434,7 +354,11 @@ class _Draft34CommonMixin(object):
             yield ValidationError("%r is too long" % (instance,))
 
     def validate_uniqueItems(self, uI, instance, schema):
-        if uI and self.is_type(instance, "array") and not _uniq(instance):
+        if (
+            uI and
+            self.is_type(instance, "array") and
+            not _utils.uniq(instance)
+        ):
             yield ValidationError("%r has non-unique elements" % instance)
 
     def validate_pattern(self, patrn, instance, schema):
@@ -473,7 +397,7 @@ class _Draft34CommonMixin(object):
                 ):
                     yield error
             else:
-                dependencies = _list(dependency)
+                dependencies = _utils.ensure_list(dependency)
                 for dependency in dependencies:
                     if dependency not in instance:
                         yield ValidationError(
@@ -498,7 +422,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _list(types)
+        types = _utils.ensure_list(types)
 
         all_errors = []
         for index, type in enumerate(types):
@@ -514,7 +438,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                     return
         else:
             yield ValidationError(
-                _types_msg(instance, types), context=all_errors,
+                _utils.types_msg(instance, types), context=all_errors,
             )
 
     def validate_properties(self, properties, instance, schema):
@@ -543,7 +467,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 yield error
 
     def validate_disallow(self, disallow, instance, schema):
-        for disallowed in _list(disallow):
+        for disallowed in _utils.ensure_list(disallow):
             if self.is_valid(instance, {"type" : [disallowed]}):
                 yield ValidationError(
                     "%r is disallowed for %r" % (disallowed, instance)
@@ -560,88 +484,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
     validate_divisibleBy = _Draft34CommonMixin._validate_multipleOf
 
-    META_SCHEMA = {
-        "$schema" : "http://json-schema.org/draft-03/schema#",
-        "id" : "http://json-schema.org/draft-03/schema#",
-        "type" : "object",
-
-        "properties" : {
-            "type" : {
-                "type" : ["string", "array"],
-                "items" : {"type" : ["string", {"$ref" : "#"}]},
-                "uniqueItems" : True,
-                "default" : "any"
-            },
-            "properties" : {
-                "type" : "object",
-                "additionalProperties" : {"$ref" : "#", "type": "object"},
-                "default" : {}
-            },
-            "patternProperties" : {
-                "type" : "object",
-                "additionalProperties" : {"$ref" : "#"},
-                "default" : {}
-            },
-            "additionalProperties" : {
-                "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
-            },
-            "items" : {
-                "type" : [{"$ref" : "#"}, "array"],
-                "items" : {"$ref" : "#"},
-                "default" : {}
-            },
-            "additionalItems" : {
-                "type" : [{"$ref" : "#"}, "boolean"], "default" : {}
-            },
-            "required" : {"type" : "boolean", "default" : False},
-            "dependencies" : {
-                "type" : ["string", "array", "object"],
-                "additionalProperties" : {
-                    "type" : ["string", "array", {"$ref" : "#"}],
-                    "items" : {"type" : "string"}
-                },
-                "default" : {}
-            },
-            "minimum" : {"type" : "number"},
-            "maximum" : {"type" : "number"},
-            "exclusiveMinimum" : {"type" : "boolean", "default" : False},
-            "exclusiveMaximum" : {"type" : "boolean", "default" : False},
-            "minItems" : {"type" : "integer", "minimum" : 0, "default" : 0},
-            "maxItems" : {"type" : "integer", "minimum" : 0},
-            "uniqueItems" : {"type" : "boolean", "default" : False},
-            "pattern" : {"type" : "string", "format" : "regex"},
-            "minLength" : {"type" : "integer", "minimum" : 0, "default" : 0},
-            "maxLength" : {"type" : "integer"},
-            "enum" : {"type" : "array", "minItems" : 1, "uniqueItems" : True},
-            "default" : {"type" : "any"},
-            "title" : {"type" : "string"},
-            "description" : {"type" : "string"},
-            "format" : {"type" : "string"},
-            "maxDecimal" : {"type" : "number", "minimum" : 0},
-            "divisibleBy" : {
-                "type" : "number",
-                "minimum" : 0,
-                "exclusiveMinimum" : True,
-                "default" : 1
-            },
-            "disallow" : {
-                "type" : ["string", "array"],
-                "items" : {"type" : ["string", {"$ref" : "#"}]},
-                "uniqueItems" : True
-            },
-            "extends" : {
-                "type" : [{"$ref" : "#"}, "array"],
-                "items" : {"$ref" : "#"},
-                "default" : {}
-            },
-            "id" : {"type" : "string", "format" : "uri"},
-            "$ref" : {"type" : "string", "format" : "uri"},
-            "$schema" : {"type" : "string", "format" : "uri"},
-        },
-        "dependencies" : {
-            "exclusiveMinimum" : "minimum", "exclusiveMaximum" : "maximum"
-        },
-    }
+    META_SCHEMA = _utils.load_schema('draft3')
 
 
 @validates("draft4")
@@ -652,10 +495,10 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
     """
 
     def validate_type(self, types, instance, schema):
-        types = _list(types)
+        types = _utils.ensure_list(types)
 
         if not any(self.is_type(instance, type) for type in types):
-            yield ValidationError(_types_msg(instance, types))
+            yield ValidationError(_utils.types_msg(instance, types))
 
     def validate_properties(self, properties, instance, schema):
         if not self.is_type(instance, "object"):
@@ -737,362 +580,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
 
     validate_multipleOf = _Draft34CommonMixin._validate_multipleOf
 
-    META_SCHEMA = {
-        "id": "http://json-schema.org/draft-04/schema#",
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "description": "Core schema meta-schema",
-        "definitions": {
-            "schemaArray": {
-                "type": "array",
-                "minItems": 1,
-                "items": {"$ref": "#"}
-            },
-            "positiveInteger": {
-                "type": "integer",
-                "minimum": 0
-            },
-            "positiveIntegerDefault0": {
-                "allOf": [
-                    {"$ref": "#/definitions/positiveInteger"}, {"default": 0}
-                ]
-            },
-            "simpleTypes": {
-                "enum": [
-                    "array",
-                    "boolean",
-                    "integer",
-                    "null",
-                    "number",
-                    "object",
-                    "string",
-                ]
-            },
-            "stringArray": {
-                "type": "array",
-                "items": {"type": "string"},
-                "minItems": 1,
-                "uniqueItems": True
-            }
-        },
-        "type": "object",
-        "properties": {
-            "id": {
-                "type": "string",
-                "format": "uri"
-            },
-            "$schema": {
-                "type": "string",
-                "format": "uri"
-            },
-            "title": {
-                "type": "string"
-            },
-            "description": {
-                "type": "string"
-            },
-            "default": {},
-            "multipleOf": {
-                "type": "number",
-                "minimum": 0,
-                "exclusiveMinimum": True
-            },
-            "maximum": {
-                "type": "number"
-            },
-            "exclusiveMaximum": {
-                "type": "boolean",
-                "default": False
-            },
-            "minimum": {
-                "type": "number"
-            },
-            "exclusiveMinimum": {
-                "type": "boolean",
-                "default": False
-            },
-            "maxLength": {"$ref": "#/definitions/positiveInteger"},
-            "minLength": {"$ref": "#/definitions/positiveIntegerDefault0"},
-            "pattern": {
-                "type": "string",
-                "format": "regex"
-            },
-            "additionalItems": {
-                "anyOf": [
-                    {"type": "boolean"},
-                    {"$ref": "#"}
-                ],
-                "default": {}
-            },
-            "items": {
-                "anyOf": [
-                    {"$ref": "#"},
-                    {"$ref": "#/definitions/schemaArray"}
-                ],
-                "default": {}
-            },
-            "maxItems": {"$ref": "#/definitions/positiveInteger"},
-            "minItems": {"$ref": "#/definitions/positiveIntegerDefault0"},
-            "uniqueItems": {
-                "type": "boolean",
-                "default": False
-            },
-            "maxProperties": {"$ref": "#/definitions/positiveInteger"},
-            "minProperties": {"$ref": "#/definitions/positiveIntegerDefault0"},
-            "required": {"$ref": "#/definitions/stringArray"},
-            "additionalProperties": {
-                "anyOf": [
-                    {"type": "boolean"},
-                    {"$ref": "#"}
-                ],
-                "default": {}
-            },
-            "definitions": {
-                "type": "object",
-                "additionalProperties": {"$ref": "#"},
-                "default": {}
-            },
-            "properties": {
-                "type": "object",
-                "additionalProperties": {"$ref": "#"},
-                "default": {}
-            },
-            "patternProperties": {
-                "type": "object",
-                "additionalProperties": {"$ref": "#"},
-                "default": {}
-            },
-            "dependencies": {
-                "type": "object",
-                "additionalProperties": {
-                    "anyOf": [
-                        {"$ref": "#"},
-                        {"$ref": "#/definitions/stringArray"}
-                    ]
-                }
-            },
-            "enum": {
-                "type": "array",
-                "minItems": 1,
-                "uniqueItems": True
-            },
-            "type": {
-                "anyOf": [
-                    {"$ref": "#/definitions/simpleTypes"},
-                    {
-                        "type": "array",
-                        "items": {"$ref": "#/definitions/simpleTypes"},
-                        "minItems": 1,
-                        "uniqueItems": True
-                    }
-                ]
-            },
-            "allOf": {"$ref": "#/definitions/schemaArray"},
-            "anyOf": {"$ref": "#/definitions/schemaArray"},
-            "oneOf": {"$ref": "#/definitions/schemaArray"},
-            "not": {"$ref": "#"}
-        },
-        "dependencies": {
-            "exclusiveMaximum": ["maximum"],
-            "exclusiveMinimum": ["minimum"]
-        },
-        "default": {}
-    }
-
-
-class FormatChecker(object):
-    """
-    A ``format`` property checker.
-
-    JSON Schema does not mandate that the ``format`` property actually do any
-    validation. If validation is desired however, instances of this class can
-    be hooked into validators to enable format validation.
-
-    :class:`FormatChecker` objects always return ``True`` when asked about
-    formats that they do not know how to validate.
-
-    To check a custom format using a function that takes an instance and
-    returns a ``bool``, use the :meth:`FormatChecker.checks` or
-    :meth:`FormatChecker.cls_checks` decorators.
-
-    :argument iterable formats: the known formats to validate. This argument
-                                can be used to limit which formats will be used
-                                during validation.
-
-        >>> checker = FormatChecker(formats=("date-time", "regex"))
-
-    """
-
-    checkers = {}
-
-    def __init__(self, formats=None):
-        if formats is None:
-            self.checkers = self.checkers.copy()
-        else:
-            self.checkers = dict((k, self.checkers[k]) for k in formats)
-
-    def checks(self, format, raises=()):
-        """
-        Register a decorated function as validating a new format.
-
-        :argument str format: the format that the decorated function will check
-        :argument Exception raises: the exception(s) raised by the decorated
-            function when an invalid instance is found. The exception object
-            will be accessible as the :attr:`ValidationError.cause` attribute
-            of the resulting validation error.
-
-        """
-
-        def _checks(func):
-            self.checkers[format] = (func, raises)
-            return func
-        return _checks
-
-    cls_checks = classmethod(checks)
-
-    def check(self, instance, format):
-        """
-        Check whether the instance conforms to the given format.
-
-        :argument instance: the instance to check
-        :type: any primitive type (str, number, bool)
-        :argument str format: the format that instance should conform to
-        :raises: :exc:`FormatError` if instance does not conform to format
-
-        """
-
-        if format in self.checkers:
-            func, raises = self.checkers[format]
-            result, cause = None, None
-            try:
-                result = func(instance)
-            except raises as e:
-                cause = e
-            if not result:
-                raise FormatError(
-                    "%r is not a %r" % (instance, format), cause=cause,
-                )
-
-    def conforms(self, instance, format):
-        """
-        Check whether the instance conforms to the given format.
-
-        :argument instance: the instance to check
-        :type: any primitive type (str, number, bool)
-        :argument str format: the format that instance should conform to
-        :rtype: bool
-
-        """
-
-        try:
-            self.check(instance, format)
-        except FormatError:
-            return False
-        else:
-            return True
-
-
-_draft_checkers = {"draft3": [], "draft4": []}
-
-
-def _checks_drafts(both=None, draft3=None, draft4=None, raises=()):
-    draft3 = draft3 or both
-    draft4 = draft4 or both
-
-    def wrap(func):
-        if draft3:
-            _draft_checkers["draft3"].append(draft3)
-            func = FormatChecker.cls_checks(draft3, raises)(func)
-        if draft4:
-            _draft_checkers["draft4"].append(draft4)
-            func = FormatChecker.cls_checks(draft4, raises)(func)
-        return func
-    return wrap
-
-
-@_checks_drafts("email")
-def is_email(instance):
-    return "@" in instance
-
-
-_checks_drafts(draft3="ip-address", draft4="ipv4", raises=socket.error)(
-    socket.inet_aton
-)
-
-
-if hasattr(socket, "inet_pton"):
-    @_checks_drafts("ipv6", raises=socket.error)
-    def is_ipv6(instance):
-        return socket.inet_pton(socket.AF_INET6, instance)
-
-
-@_checks_drafts(draft3="host-name", draft4="hostname")
-def is_host_name(instance):
-    pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
-    if not re.match(pattern, instance):
-        return False
-    components = instance.split(".")
-    for component in components:
-        if len(component) > 63:
-            return False
-    return True
-
-
-try:
-    import rfc3987
-except ImportError:
-    pass
-else:
-    @_checks_drafts("uri", raises=ValueError)
-    def is_uri(instance):
-        return rfc3987.parse(instance, rule="URI_reference")
-
-
-try:
-    import isodate
-except ImportError:
-    pass
-else:
-    _err = (ValueError, isodate.ISO8601Error)
-    _checks_drafts("date-time", raises=_err)(isodate.parse_datetime)
-
-
-_checks_drafts("regex", raises=re.error)(re.compile)
-
-
-@_checks_drafts(draft3="date", raises=ValueError)
-def is_date(instance):
-    return datetime.datetime.strptime(instance, "%Y-%m-%d")
-
-
-@_checks_drafts(draft3="time", raises=ValueError)
-def is_time(instance):
-    return datetime.datetime.strptime(instance, "%H:%M:%S")
-
-
-try:
-    import webcolors
-except ImportError:
-    pass
-else:
-    def is_css_color_code(instance):
-        return webcolors.normalize_hex(instance)
-
-
-    @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
-    def is_css21_color(instance):
-        if instance.lower() in webcolors.css21_names_to_hex:
-            return True
-        return is_css_color_code(instance)
-
-
-    def is_css3_color(instance):
-        if instance.lower() in webcolors.css3_names_to_hex:
-            return True
-        return is_css_color_code(instance)
-
-
-draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
-draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
+    META_SCHEMA = _utils.load_schema('draft4')
 
 
 class RefResolver(object):
@@ -1119,7 +607,7 @@ class RefResolver(object):
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
-        self.store = _URIDict(
+        self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
             for id, validator in iteritems(meta_schemas)
         )
@@ -1313,161 +801,6 @@ class ErrorTree(object):
 
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
-
-
-def _indent(string, times=1):
-    """
-    A dumb version of :func:`textwrap.indent` from Python 3.3.
-
-    """
-
-    return "\n".join(" " * (4 * times) + line for line in string.splitlines())
-
-
-def _format_as_index(indices):
-    """
-    Construct a single string containing indexing operations for the indices.
-
-    For example, [1, 2, "foo"] -> [1][2]["foo"]
-
-    :type indices: sequence
-
-    """
-
-    if not indices:
-        return ""
-    return "[%s]" % "][".join(repr(index) for index in indices)
-
-
-def _find_additional_properties(instance, schema):
-    """
-    Return the set of additional properties for the given ``instance``.
-
-    Weeds out properties that should have been validated by ``properties`` and
-    / or ``patternProperties``.
-
-    Assumes ``instance`` is dict-like already.
-
-    """
-
-    properties = schema.get("properties", {})
-    patterns = "|".join(schema.get("patternProperties", {}))
-    for property in instance:
-        if property not in properties:
-            if patterns and re.search(patterns, property):
-                continue
-            yield property
-
-
-def _extras_msg(extras):
-    """
-    Create an error message for extra items or properties.
-
-    """
-
-    if len(extras) == 1:
-        verb = "was"
-    else:
-        verb = "were"
-    return ", ".join(repr(extra) for extra in extras), verb
-
-
-def _types_msg(instance, types):
-    """
-    Create an error message for a failure to match the given types.
-
-    If the ``instance`` is an object and contains a ``name`` property, it will
-    be considered to be a description of that object and used as its type.
-
-    Otherwise the message is simply the reprs of the given ``types``.
-
-    """
-
-    reprs = []
-    for type in types:
-        try:
-            reprs.append(repr(type["name"]))
-        except Exception:
-            reprs.append(repr(type))
-    return "%r is not of type %s" % (instance, ", ".join(reprs))
-
-
-def _flatten(suitable_for_isinstance):
-    """
-    isinstance() can accept a bunch of really annoying different types:
-        * a single type
-        * a tuple of types
-        * an arbitrary nested tree of tuples
-
-    Return a flattened tuple of the given argument.
-
-    """
-
-    types = set()
-
-    if not isinstance(suitable_for_isinstance, tuple):
-        suitable_for_isinstance = (suitable_for_isinstance,)
-    for thing in suitable_for_isinstance:
-        if isinstance(thing, tuple):
-            types.update(_flatten(thing))
-        else:
-            types.add(thing)
-    return tuple(types)
-
-
-def _list(thing):
-    """
-    Wrap ``thing`` in a list if it's a single str.
-
-    Otherwise, return it unchanged.
-
-    """
-
-    if isinstance(thing, basestring):
-        return [thing]
-    return thing
-
-
-def _unbool(element, true=object(), false=object()):
-    """
-    A hack to make True and 1 and False and 0 unique for _uniq.
-
-    """
-
-    if element is True:
-        return true
-    elif element is False:
-        return false
-    return element
-
-
-def _uniq(container):
-    """
-    Check if all of a container's elements are unique.
-
-    Successively tries first to rely that the elements are hashable, then
-    falls back on them being sortable, and finally falls back on brute
-    force.
-
-    """
-
-    try:
-        return len(set(_unbool(i) for i in container)) == len(container)
-    except TypeError:
-        try:
-            sort = sorted(_unbool(i) for i in container)
-            sliced = itertools.islice(sort, 1, None)
-            for i, j in zip(sort, sliced):
-                if i == j:
-                    return False
-        except (NotImplementedError, TypeError):
-            seen = []
-            for e in container:
-                e = _unbool(e)
-                if e in seen:
-                    return False
-                seen.append(e)
-    return True
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):
