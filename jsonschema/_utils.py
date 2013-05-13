@@ -1,5 +1,7 @@
 import itertools
+import json
 import re
+import os
 
 from jsonschema.compat import str_types, urlparse, MutableMapping
 
@@ -34,6 +36,17 @@ class URIDict(MutableMapping):
 
     def __repr__(self):
         return repr(self.store)
+
+
+def load_schema(name):
+    """
+    Load a schema from ./schemas/``name``.json and return it.
+
+    """
+    schemadir = os.path.join(os.path.dirname(__file__), 'schemas')
+    schemapath = os.path.join(schemadir, '%s.json' % (name,))
+    with open(schemapath) as f:
+        return json.load(f)
 
 
 def indent(string, times=1):
