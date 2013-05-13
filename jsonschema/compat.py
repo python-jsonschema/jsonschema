@@ -25,3 +25,6 @@ else:
     str_types = basestring
     int_types = int, long
     iteritems = operator.methodcaller("iteritems")
+
+
+# flake8: noqa
