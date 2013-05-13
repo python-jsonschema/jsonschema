@@ -40,8 +40,6 @@ class FormatChecker(object):
                                 can be used to limit which formats will be used
                                 during validation.
 
-        >>> checker = FormatChecker(formats=("date-time", "regex"))
-
     """
 
     checkers = {}
@@ -215,5 +213,3 @@ else:
 
 draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
 draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
-
-
