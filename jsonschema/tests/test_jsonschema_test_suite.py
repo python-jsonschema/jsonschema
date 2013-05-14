@@ -43,7 +43,7 @@ if PY3:
 REMOTES = json.load(REMOTES)
 
 
-def make_case(schema, data, valid):
+def make_case(schema, data, valid, name):
     if valid:
         def test_case(self):
             kwargs = getattr(self, "validator_kwargs", {})
@@ -53,7 +53,20 @@ def make_case(schema, data, valid):
             kwargs = getattr(self, "validator_kwargs", {})
             with self.assertRaises(ValidationError):
                 validate(data, schema, cls=self.validator_class, **kwargs)
+
+    if not PY3:
+        name = name.encode("utf-8")
+    test_case.__name__ = name
+
     return test_case
+
+
+def maybe_skip(skip, test, case):
+    if skip is not None:
+        reason = skip(case)
+        if reason is not None:
+            test = unittest.skip(reason)(test)
+    return test
 
 
 def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
@@ -71,33 +84,23 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
             id = itertools.count(1)
 
             with open(filename) as test_file:
-                data = json.load(test_file)
-
-                for case in data:
+                for case in json.load(test_file):
                     for test in case["tests"]:
-                        a_test = make_case(
-                            case["schema"],
-                            test["data"],
-                            test["valid"],
-                        )
-
-                        test_name = "test_%s_%s_%s" % (
+                        name = "test_%s_%s_%s" % (
                             validating,
                             next(id),
                             re.sub(r"[\W ]+", "_", test["description"]),
                         )
+                        assert not hasattr(test_class, name), name
 
-                        if not PY3:
-                            test_name = test_name.encode("utf-8")
-                        a_test.__name__ = test_name
-
-                        if skip is not None and skip(case):
-                            a_test = unittest.skip("Checker not present.")(
-                                a_test
-                            )
-
-                        assert not hasattr(test_class, test_name), test_name
-                        setattr(test_class, test_name, a_test)
+                        test_case = make_case(
+                            data=test["data"],
+                            schema=case["schema"],
+                            valid=test["valid"],
+                            name=name,
+                        )
+                        test_case = maybe_skip(skip, test_case, case)
+                        setattr(test_class, name, test_case)
 
         return test_class
     return add_test_methods
@@ -127,12 +130,13 @@ class DecimalMixin(object):
 def missing_format(checker):
     def missing_format(case):
         format = case["schema"].get("format")
-        return format not in checker.checkers or (
+        if format not in checker.checkers or (
             # datetime.datetime is overzealous about typechecking in <=1.9
             format == "date-time" and
             pypy_version_info is not None and
             pypy_version_info[:2] <= (1, 9)
-        )
+        ):
+            return "Format checker not found."
     return missing_format
 
 
