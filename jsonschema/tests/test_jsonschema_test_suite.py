@@ -1,0 +1,236 @@
+from decimal import Decimal
+import glob
+import json
+import io
+import itertools
+import os
+import re
+import subprocess
+
+try:
+    from sys import pypy_version_info
+except ImportError:
+    pypy_version_info = None
+
+from jsonschema import (
+    FormatError, SchemaError, ValidationError, Draft3Validator,
+    Draft4Validator, FormatChecker, draft3_format_checker,
+    draft4_format_checker, validate,
+)
+from jsonschema.compat import PY3
+from jsonschema.tests.compat import mock, unittest
+import jsonschema
+
+
+REPO_ROOT = os.path.join(os.path.dirname(jsonschema.__file__), os.path.pardir)
+SUITE = os.getenv("JSON_SCHEMA_TEST_SUITE", os.path.join(REPO_ROOT, "json"))
+
+if not os.path.isdir(SUITE):
+    raise ValueError(
+        "Can't find the JSON-Schema-Test-Suite directory. Set the "
+        "'JSON_SCHEMA_TEST_SUITE' environment variable or run the tests from "
+        "alongside a checkout of the suite."
+    )
+
+TESTS_DIR = os.path.join(SUITE, "tests")
+JSONSCHEMA_SUITE = os.path.join(SUITE, "bin", "jsonschema_suite")
+
+REMOTES = subprocess.Popen(
+    ["python", JSONSCHEMA_SUITE, "remotes"], stdout=subprocess.PIPE,
+).stdout
+if PY3:
+    REMOTES = io.TextIOWrapper(REMOTES)
+REMOTES = json.load(REMOTES)
+
+
+def make_case(schema, data, valid):
+    if valid:
+        def test_case(self):
+            kwargs = getattr(self, "validator_kwargs", {})
+            validate(data, schema, cls=self.validator_class, **kwargs)
+    else:
+        def test_case(self):
+            kwargs = getattr(self, "validator_kwargs", {})
+            with self.assertRaises(ValidationError):
+                validate(data, schema, cls=self.validator_class, **kwargs)
+    return test_case
+
+
+def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
+    if ignore_glob:
+        ignore_glob = os.path.join(basedir, ignore_glob)
+
+    def add_test_methods(test_class):
+        ignored = set(glob.iglob(ignore_glob))
+
+        for filename in glob.iglob(os.path.join(basedir, tests_glob)):
+            if filename in ignored:
+                continue
+
+            validating, _ = os.path.splitext(os.path.basename(filename))
+            id = itertools.count(1)
+
+            with open(filename) as test_file:
+                data = json.load(test_file)
+
+                for case in data:
+                    for test in case["tests"]:
+                        a_test = make_case(
+                            case["schema"],
+                            test["data"],
+                            test["valid"],
+                        )
+
+                        test_name = "test_%s_%s_%s" % (
+                            validating,
+                            next(id),
+                            re.sub(r"[\W ]+", "_", test["description"]),
+                        )
+
+                        if not PY3:
+                            test_name = test_name.encode("utf-8")
+                        a_test.__name__ = test_name
+
+                        if skip is not None and skip(case):
+                            a_test = unittest.skip("Checker not present.")(
+                                a_test
+                            )
+
+                        assert not hasattr(test_class, test_name), test_name
+                        setattr(test_class, test_name, a_test)
+
+        return test_class
+    return add_test_methods
+
+
+class TypesMixin(object):
+    @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
+    def test_string_a_bytestring_is_a_string(self):
+        self.validator_class({"type" : "string"}).validate(b"foo")
+
+
+class DecimalMixin(object):
+    def test_it_can_validate_with_decimals(self):
+        schema = {"type" : "number"}
+        validator = self.validator_class(
+            schema, types={"number" : (int, float, Decimal)}
+        )
+
+        for valid in [1, 1.1, Decimal(1) / Decimal(8)]:
+            validator.validate(valid)
+
+        for invalid in ["foo", {}, [], True, None]:
+            with self.assertRaises(ValidationError):
+                validator.validate(invalid)
+
+
+def missing_format(checker):
+    def missing_format(case):
+        format = case["schema"].get("format")
+        return format not in checker.checkers or (
+            # datetime.datetime is overzealous about typechecking in <=1.9
+            format == "date-time" and
+            pypy_version_info is not None and
+            pypy_version_info[:2] <= (1, 9)
+        )
+    return missing_format
+
+
+class FormatMixin(object):
+    def test_it_returns_true_for_formats_it_does_not_know_about(self):
+        validator = self.validator_class(
+            {"format" : "carrot"}, format_checker=FormatChecker(),
+        )
+        validator.validate("bugs")
+
+    def test_it_does_not_validate_formats_by_default(self):
+        validator = self.validator_class({})
+        self.assertIsNone(validator.format_checker)
+
+    def test_it_validates_formats_if_a_checker_is_provided(self):
+        checker = mock.Mock(spec=FormatChecker)
+        validator = self.validator_class(
+            {"format" : "foo"}, format_checker=checker,
+        )
+
+        validator.validate("bar")
+
+        checker.check.assert_called_once_with("bar", "foo")
+
+        cause = ValueError()
+        checker.check.side_effect = FormatError('aoeu', cause=cause)
+
+        with self.assertRaises(ValidationError) as cm:
+            validator.validate("bar")
+        # Make sure original cause is attached
+        self.assertIs(cm.exception.cause, cause)
+
+
+@load_json_cases("draft3/*.json", ignore_glob="draft3/refRemote.json")
+@load_json_cases(
+    "draft3/optional/format.json", skip=missing_format(draft3_format_checker)
+)
+@load_json_cases("draft3/optional/bignum.json")
+@load_json_cases("draft3/optional/zeroTerminatedFloats.json")
+class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+    validator_class = Draft3Validator
+    validator_kwargs = {"format_checker" : draft3_format_checker}
+
+    def test_any_type_is_valid_for_type_any(self):
+        validator = self.validator_class({"type" : "any"})
+        validator.validate(mock.Mock())
+
+    # TODO: we're in need of more meta schema tests
+    def test_invalid_properties(self):
+        with self.assertRaises(SchemaError):
+            validate({}, {"properties": {"test": True}},
+                     cls=self.validator_class)
+
+    def test_minItems_invalid_string(self):
+        with self.assertRaises(SchemaError):
+            # needs to be an integer
+            validate([1], {"minItems" : "1"}, cls=self.validator_class)
+
+
+@load_json_cases("draft4/*.json", ignore_glob="draft4/refRemote.json")
+@load_json_cases(
+    "draft4/optional/format.json", skip=missing_format(draft4_format_checker)
+)
+@load_json_cases("draft4/optional/bignum.json")
+@load_json_cases("draft4/optional/zeroTerminatedFloats.json")
+class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+    validator_class = Draft4Validator
+    validator_kwargs = {"format_checker" : draft4_format_checker}
+
+    # TODO: we're in need of more meta schema tests
+    def test_invalid_properties(self):
+        with self.assertRaises(SchemaError):
+            validate({}, {"properties": {"test": True}},
+                     cls=self.validator_class)
+
+    def test_minItems_invalid_string(self):
+        with self.assertRaises(SchemaError):
+            # needs to be an integer
+            validate([1], {"minItems" : "1"}, cls=self.validator_class)
+
+
+class RemoteRefResolutionMixin(object):
+    def setUp(self):
+        patch = mock.patch("jsonschema.validators.requests")
+        requests = patch.start()
+        requests.get.side_effect = self.resolve
+        self.addCleanup(patch.stop)
+
+    def resolve(self, reference):
+        _, _, reference = reference.partition("http://localhost:1234/")
+        return mock.Mock(**{"json.return_value" : REMOTES.get(reference)})
+
+
+@load_json_cases("draft3/refRemote.json")
+class Draft3RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
+    validator_class = Draft3Validator
+
+
+@load_json_cases("draft4/refRemote.json")
+class Draft4RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
+    validator_class = Draft4Validator
