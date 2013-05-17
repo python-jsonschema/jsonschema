@@ -802,9 +802,11 @@ class ErrorTree(object):
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
         return len(self.errors) + child_errors
 
+def validator_for(schema):
+    return meta_schemas.get(schema.get("$schema", ""), Draft4Validator)
 
 def validate(instance, schema, cls=None, *args, **kwargs):
     if cls is None:
-        cls = meta_schemas.get(schema.get("$schema", ""), Draft4Validator)
+        cls = validator_for(schema)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
