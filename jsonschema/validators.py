@@ -15,7 +15,8 @@ except ImportError:
 
 from jsonschema import _utils
 from jsonschema.compat import (
-    PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen, str_types, int_types, iteritems,
+    PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
+    str_types, int_types, iteritems,
 )
 from jsonschema._format import FormatError
 
