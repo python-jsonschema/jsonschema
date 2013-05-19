@@ -1,3 +1,8 @@
+"""
+Tests for the parts of jsonschema related to the :validator:`format` property.
+
+"""
+
 from jsonschema.tests.compat import mock, unittest
 
 from jsonschema import FormatError, ValidationError, FormatChecker
