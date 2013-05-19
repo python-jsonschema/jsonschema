@@ -1,6 +1,7 @@
 import datetime
 import re
 import socket
+from strings import ErrorStrings as strings
 
 from jsonschema.compat import PY3
 
@@ -89,7 +90,7 @@ class FormatChecker(object):
                 cause = e
             if not result:
                 raise FormatError(
-                    "%r is not a %r" % (instance, format), cause=cause,
+                    strings.is_not_a % (instance, format), cause=cause,
                 )
 
     def conforms(self, instance, format):

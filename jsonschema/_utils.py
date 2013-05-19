@@ -2,6 +2,7 @@ import itertools
 import json
 import re
 import os
+from strings import ErrorStrings as strings
 
 from jsonschema.compat import str_types, MutableMapping, urlsplit
 
@@ -126,7 +127,7 @@ def types_msg(instance, types):
             reprs.append(repr(type["name"]))
         except Exception:
             reprs.append(repr(type))
-    return "%r is not of type %s" % (instance, ", ".join(reprs))
+    return strings.not_a_type_of % (instance, ", ".join(reprs))
 
 
 def flatten(suitable_for_isinstance):
