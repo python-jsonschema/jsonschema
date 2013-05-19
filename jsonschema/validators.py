@@ -7,6 +7,7 @@ import numbers
 import pprint
 import re
 import textwrap
+from strings import ErrorStrings as strings
 
 try:
     import requests
@@ -19,6 +20,9 @@ from jsonschema.compat import (
 )
 from jsonschema._format import FormatError
 
+message_dict = {
+    
+}
 
 FLOAT_TOLERANCE = 10 ** -15
 validators = {}
@@ -259,8 +263,7 @@ class _Draft34CommonMixin(object):
                 for error in self.descend(instance[extra], aP, path=extra):
                     yield error
         elif not aP and extras:
-            error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % _utils.extras_msg(extras))
+            yield ValidationError(strings.additional_properties_not_allowed % _utils.extras_msg(extras))
 
     def validate_items(self, items, instance, schema):
         if not self.is_type(instance, "array"):
@@ -290,7 +293,7 @@ class _Draft34CommonMixin(object):
                 for error in self.descend(item, aI, path=index):
                     yield error
         elif not aI and len(instance) > len(schema.get("items", [])):
-            error = "Additional items are not allowed (%s %s unexpected)"
+            error = strings.additional_items_not_allowed
             yield ValidationError(
                 error %
                 _utils.extras_msg(instance[len(schema.get("items", [])):])
@@ -303,15 +306,16 @@ class _Draft34CommonMixin(object):
         instance = float(instance)
         if schema.get("exclusiveMinimum", False):
             failed = instance <= minimum
-            cmp = "less than or equal to"
+            if failed:
+                yield ValidationError(
+                    strings.minimum_less_than_or_equal % (instance, minimum)
+                )
         else:
             failed = instance < minimum
-            cmp = "less than"
-
-        if failed:
-            yield ValidationError(
-                "%r is %s the minimum of %r" % (instance, cmp, minimum)
-            )
+            if failed:
+                yield ValidationError(
+                    strings.minimum_less_than % (instance, minimum)
+                )
 
     def validate_maximum(self, maximum, instance, schema):
         if not self.is_type(instance, "number"):
@@ -320,15 +324,16 @@ class _Draft34CommonMixin(object):
         instance = float(instance)
         if schema.get("exclusiveMaximum", False):
             failed = instance >= maximum
-            cmp = "greater than or equal to"
+            if failed:
+                yield ValidationError(
+                    strings.maximum_more_than_or_equal % (instance, minimum)
+                )
         else:
             failed = instance > maximum
-            cmp = "greater than"
-
-        if failed:
-            yield ValidationError(
-                "%r is %s the maximum of %r" % (instance, cmp, maximum)
-            )
+            if failed:
+                yield ValidationError(
+                    strings.maximum_more_than % (instance, minimum)
+                )
 
     def _validate_multipleOf(self, dB, instance, schema):
         if not self.is_type(instance, "number"):
@@ -342,16 +347,16 @@ class _Draft34CommonMixin(object):
 
         if failed:
             yield ValidationError(
-                "%r is not a multiple of %r" % (instance, dB)
+                strings.not_multiple_of % (instance, dB)
             )
 
     def validate_minItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) < mI:
-            yield ValidationError("%r is too short" % (instance,))
+            yield ValidationError(strings.too_short % (instance,))
 
     def validate_maxItems(self, mI, instance, schema):
         if self.is_type(instance, "array") and len(instance) > mI:
-            yield ValidationError("%r is too long" % (instance,))
+            yield ValidationError(strings.too_long % (instance,))
 
     def validate_uniqueItems(self, uI, instance, schema):
         if (
@@ -359,11 +364,11 @@ class _Draft34CommonMixin(object):
             self.is_type(instance, "array") and
             not _utils.uniq(instance)
         ):
-            yield ValidationError("%r has non-unique elements" % instance)
+            yield ValidationError(strings.non_unique_items % instance)
 
     def validate_pattern(self, patrn, instance, schema):
         if self.is_type(instance, "string") and not re.search(patrn, instance):
-            yield ValidationError("%r does not match %r" % (instance, patrn))
+            yield ValidationError(strings.does_not_match % (instance, patrn))
 
     def validate_format(self, format, instance, schema):
         if (
@@ -377,11 +382,11 @@ class _Draft34CommonMixin(object):
 
     def validate_minLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) < mL:
-            yield ValidationError("%r is too short" % (instance,))
+            yield ValidationError(strings.too_short % (instance,))
 
     def validate_maxLength(self, mL, instance, schema):
         if self.is_type(instance, "string") and len(instance) > mL:
-            yield ValidationError("%r is too long" % (instance,))
+            yield ValidationError(strings.too_long % (instance,))
 
     def validate_dependencies(self, dependencies, instance, schema):
         if not self.is_type(instance, "object"):
@@ -401,12 +406,12 @@ class _Draft34CommonMixin(object):
                 for dependency in dependencies:
                     if dependency not in instance:
                         yield ValidationError(
-                            "%r is a dependency of %r" % (dependency, property)
+                            strings.is_dependency % (dependency, property)
                         )
 
     def validate_enum(self, enums, instance, schema):
         if instance not in enums:
-            yield ValidationError("%r is not one of %r" % (instance, enums))
+            yield ValidationError(strings.not_one_of % (instance, enums))
 
     def validate_ref(self, ref, instance, schema):
         with self.resolver.resolving(ref) as resolved:
@@ -455,7 +460,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
                 ):
                     yield error
             elif subschema.get("required", False):
-                error = ValidationError("%r is a required property" % property)
+                error = ValidationError(strings.required_property % property)
                 error._set(
                     validator="required",
                     validator_value=subschema["required"],
@@ -470,7 +475,7 @@ class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
         for disallowed in _utils.ensure_list(disallow):
             if self.is_valid(instance, {"type" : [disallowed]}):
                 yield ValidationError(
-                    "%r is disallowed for %r" % (disallowed, instance)
+                    strings.disallowed % (disallowed, instance)
                 )
 
     def validate_extends(self, extends, instance, schema):
@@ -519,17 +524,17 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             return
         for property in required:
             if property not in instance:
-                yield ValidationError("%r is a required property" % property)
+                yield ValidationError(strings.required_property % property)
 
     def validate_minProperties(self, mP, instance, schema):
         if self.is_type(instance, "object") and len(instance) < mP:
-            yield ValidationError("%r is too short" % (instance,))
+            yield ValidationError(strings.too_short % (instance,))
 
     def validate_maxProperties(self, mP, instance, schema):
         if not self.is_type(instance, "object"):
             return
         if self.is_type(instance, "object") and len(instance) > mP:
-            yield ValidationError("%r is too short" % (instance,))
+            yield ValidationError(strings.too_long % (instance,))
 
     def validate_allOf(self, allOf, instance, schema):
         for index, subschema in enumerate(allOf):
@@ -547,7 +552,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             all_errors.extend(errors)
         else:
             yield ValidationError(
-                "%r is not valid under any of the given schemas" % (instance,),
+                strings.not_valid_in_any_schema % (instance,),
                 context=all_errors,
             )
 
@@ -556,7 +561,7 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             more_valid.append(first_valid)
             reprs = ", ".join(repr(schema) for schema in more_valid)
             yield ValidationError(
-                "%r is valid under each of %s" % (instance, reprs)
+                strings.valid_in_all_schemas % (instance, reprs)
             )
 
     def validate_anyOf(self, anyOf, instance, schema):
@@ -568,14 +573,14 @@ class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
             all_errors.extend(errors)
         else:
             yield ValidationError(
-                "%r is not valid under any of the given schemas" % (instance,),
+                strings.not_valid_in_any_schema % (instance,),
                 context=all_errors,
             )
 
     def validate_not(self, not_schema, instance, schema):
         if self.is_valid(instance, not_schema):
             yield ValidationError(
-                "%r is not allowed for %r" % (not_schema, instance)
+                strings.not_allowed % (not_schema, instance)
             )
 
     validate_multipleOf = _Draft34CommonMixin._validate_multipleOf
@@ -690,7 +695,7 @@ class RefResolver(object):
                 document = document[part]
             except (TypeError, LookupError):
                 raise RefResolutionError(
-                    "Unresolvable JSON pointer: %r" % fragment
+                    strings.unresolvable_json_pointer % fragment
                 )
 
         return document
@@ -808,3 +813,16 @@ def validate(instance, schema, cls=None, *args, **kwargs):
         cls = meta_schemas.get(schema.get("$schema", ""), Draft4Validator)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
+
+
+def set_error_strings(error_string_cls):
+    """
+    Set the class containing error strings, so that it can 
+    be changed and local to the application itself. 
+
+    The class should be a subclass of strings.ErrorStrings 
+    and overwrite any strings that the application owner 
+    finds necessary.
+    """
+    global strings
+    strings = error_string_cls
