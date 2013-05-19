@@ -7,5 +7,5 @@ python:
 install:
     - python setup.py -q install
 script:
-    - py.test --tb=native test_jsonschema.py
+    - py.test --tb=native jsonschema
     - python -m doctest README.rst
