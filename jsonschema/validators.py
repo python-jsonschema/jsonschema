@@ -20,9 +20,6 @@ from jsonschema.compat import (
 )
 from jsonschema._format import FormatError
 
-message_dict = {
-    
-}
 
 FLOAT_TOLERANCE = 10 ** -15
 validators = {}
@@ -326,13 +323,13 @@ class _Draft34CommonMixin(object):
             failed = instance >= maximum
             if failed:
                 yield ValidationError(
-                    strings.maximum_more_than_or_equal % (instance, minimum)
+                    strings.maximum_more_than_or_equal % (instance, maximum)
                 )
         else:
             failed = instance > maximum
             if failed:
                 yield ValidationError(
-                    strings.maximum_more_than % (instance, minimum)
+                    strings.maximum_more_than % (instance, maximum)
                 )
 
     def _validate_multipleOf(self, dB, instance, schema):
