@@ -96,10 +96,8 @@ adhere to.
     .. attribute:: VALIDATORS
 
         A mapping of validators (:class:`str`\s) to functions that validate the
-        validator property with that name. Each function should take 4
-        arguments: the validator instance, the value of the current validator
-        property in the instance, the instance, and the schema. For more
-        information see :ref:`creating-validators`.
+        validator property with that name. For more information see
+        :ref:`creating-validators`.
 
     .. attribute:: schema
 
