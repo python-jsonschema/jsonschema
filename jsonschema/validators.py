@@ -136,7 +136,7 @@ def validates(version):
     return _validates
 
 
-def create(meta_schema, validators=(), default_types=None):  # noqa
+def create(meta_schema, validators=(), version=None, default_types=None):  # noqa
     if default_types is None:
         default_types = {
             "array" : list, "boolean" : bool, "integer" : int_types,
@@ -226,6 +226,14 @@ def create(meta_schema, validators=(), default_types=None):  # noqa
         def is_valid(self, instance, _schema=None):
             error = next(self.iter_errors(instance, _schema), None)
             return error is None
+
+    if version is not None:
+        Validator = validates(version)(Validator)
+
+        name = "{0}Validator".format(version.title().replace(" ", ""))
+        if not PY3 and isinstance(name, unicode):
+            name = name.encode("utf-8")
+        Validator.__name__ = name
 
     return Validator
 

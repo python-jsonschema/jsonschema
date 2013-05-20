@@ -10,7 +10,7 @@ from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, ValidationError, ErrorTree,
     Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin,
-    create, validate,
+    meta_schemas, create, validate,
 )
 
 
@@ -51,6 +51,18 @@ class TestCreate(unittest.TestCase):
         self.smelly.assert_called_with(
             self.validator_value, instance, self.schema,
         )
+
+    def test_if_a_version_is_provided_it_is_registered(self):
+        with mock.patch("jsonschema.validators.validates") as validates:
+            validates.side_effect = lambda version : lambda cls : cls
+            Validator = create(meta_schema={"id" : "id"}, version="my version")
+        validates.assert_called_once_with("my version")
+        self.assertEqual(Validator.__name__, "MyVersionValidator")
+
+    def test_if_a_version_is_not_provided_it_is_not_registered(self):
+        with mock.patch("jsonschema.validators.validates") as validates:
+            Validator = create(meta_schema={"id" : "id"})
+        self.assertFalse(validates.called)
 
 
 class TestIterErrors(unittest.TestCase):
