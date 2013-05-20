@@ -9,8 +9,48 @@ from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin, validate,
+    Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin,
+    create, validate,
 )
+
+
+class TestCreate(unittest.TestCase):
+    def setUp(self):
+        self.meta_schema = {"properties" : {"smelly" : {}}}
+        self.smelly = mock.MagicMock()
+        self.validators = {"smelly" : self.smelly}
+        self.types = {"dict" : dict}
+        self.Validator = create(
+            meta_schema=self.meta_schema,
+            validators=self.validators,
+            default_types=self.types,
+        )
+
+        self.validator_value = 12
+        self.schema = {"smelly" : self.validator_value}
+        self.validator = self.Validator(self.schema)
+
+    def test_attrs(self):
+        self.assertEqual(self.Validator.VALIDATORS, self.validators)
+        self.assertEqual(self.Validator.META_SCHEMA, self.meta_schema)
+        self.assertEqual(self.Validator.DEFAULT_TYPES, self.types)
+
+    def test_init(self):
+        self.assertEqual(self.validator.schema, self.schema)
+
+    def test_iter_errors(self):
+        instance = "hello"
+
+        self.smelly.return_value = []
+        self.assertEqual(list(self.validator.iter_errors(instance)), [])
+
+        error = mock.Mock()
+        self.smelly.return_value = [error]
+        self.assertEqual(list(self.validator.iter_errors(instance)), [error])
+
+        self.smelly.assert_called_with(
+            self.validator_value, instance, self.schema,
+        )
 
 
 class TestIterErrors(unittest.TestCase):

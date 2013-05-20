@@ -136,99 +136,110 @@ def validates(version):
     return _validates
 
 
-class ValidatorMixin(object):
-    """
-    Concrete implementation of :class:`IValidator`.
+def create(meta_schema, validators=(), default_types=None):  # noqa
+    if default_types is None:
+        default_types = {
+            "array" : list, "boolean" : bool, "integer" : int_types,
+            "null" : type(None), "number" : numbers.Number, "object" : dict,
+            "string" : str_types,
+        }
 
-    Provides default implementations of each method. Validation of schema
-    properties is dispatched to ``validate_property`` methods. E.g., to
-    implement a validator for a ``maximum`` property, create a
-    ``validate_maximum`` method. Validator methods should yield zero or more
-    :exc:`ValidationError``\s to signal failed validation.
+    class Validator(object):
+        VALIDATORS = dict(validators)
+        META_SCHEMA = dict(meta_schema)
+        DEFAULT_TYPES = dict(default_types)
 
-    """
+        def __init__(
+            self, schema, types=(), resolver=None, format_checker=None,
+        ):
+            self._types = dict(self.DEFAULT_TYPES)
+            self._types.update(types)
 
-    DEFAULT_TYPES = {
-        "array" : list, "boolean" : bool, "integer" : int_types,
-        "null" : type(None), "number" : numbers.Number, "object" : dict,
-        "string" : str_types,
-    }
+            if resolver is None:
+                resolver = RefResolver.from_schema(schema)
 
-    def __init__(self, schema, types=(), resolver=None, format_checker=None):
-        self._types = dict(self.DEFAULT_TYPES)
-        self._types.update(types)
+            self.resolver = resolver
+            self.format_checker = format_checker
+            self.schema = schema
 
-        if resolver is None:
-            resolver = RefResolver.from_schema(schema)
+        @classmethod
+        def check_schema(cls, schema):
+            for error in cls(cls.META_SCHEMA).iter_errors(schema):
+                raise SchemaError.create_from(error)
 
-        self.resolver = resolver
-        self.format_checker = format_checker
-        self.schema = schema
+        def iter_errors(self, instance, _schema=None):
+            if _schema is None:
+                _schema = self.schema
 
-    def is_type(self, instance, type):
-        if type not in self._types:
-            raise UnknownType(type)
-        pytypes = self._types[type]
+            with self.resolver.in_scope(_schema.get("id", "")):
+                ref = _schema.get("$ref")
+                if ref is not None:
+                    validators = [("$ref", ref)]
+                else:
+                    validators = iteritems(_schema)
 
-        # bool inherits from int, so ensure bools aren't reported as integers
-        if isinstance(instance, bool):
-            pytypes = _utils.flatten(pytypes)
-            num = any(issubclass(pytype, numbers.Number) for pytype in pytypes)
-            if num and bool not in pytypes:
-                return False
-        return isinstance(instance, pytypes)
+                for k, v in validators:
+                    validator = self.VALIDATORS.get(k)
+                    if validator is None:
+                        continue
 
-    def is_valid(self, instance, _schema=None):
-        error = next(self.iter_errors(instance, _schema), None)
-        return error is None
+                    errors = validator(v, instance, _schema) or ()
+                    for error in errors:
+                        # set details if not already set by the called fn
+                        error._set(
+                            validator=k,
+                            validator_value=v,
+                            instance=instance,
+                            schema=_schema,
+                        )
+                        if k != "$ref":
+                            error.schema_path.appendleft(k)
+                        yield error
 
-    @classmethod
-    def check_schema(cls, schema):
-        for error in cls(cls.META_SCHEMA).iter_errors(schema):
-            raise SchemaError.create_from(error)
+        def descend(self, instance, schema, path=None, schema_path=None):
+            for error in self.iter_errors(instance, schema):
+                if path is not None:
+                    error.path.appendleft(path)
+                if schema_path is not None:
+                    error.schema_path.appendleft(schema_path)
+                yield error
 
-    def iter_errors(self, instance, _schema=None):
-        if _schema is None:
-            _schema = self.schema
+        def validate(self, *args, **kwargs):
+            for error in self.iter_errors(*args, **kwargs):
+                raise error
 
-        with self.resolver.in_scope(_schema.get("id", "")):
-            ref = _schema.get("$ref")
-            if ref is not None:
-                validators = [("$ref", ref)]
-            else:
-                validators = iteritems(_schema)
+        def is_type(self, instance, type):
+            if type not in self._types:
+                raise UnknownType(type)
+            pytypes = self._types[type]
 
-            for k, v in validators:
-                validator_attr = "validate_%s" % (k.lstrip("$"),)
-                validator = getattr(self, validator_attr, None)
+            # bool inherits from int, so ensure bools aren't reported as ints
+            if isinstance(instance, bool):
+                pytypes = _utils.flatten(pytypes)
+                is_number = any(
+                    issubclass(pytype, numbers.Number) for pytype in pytypes
+                )
+                if is_number and bool not in pytypes:
+                    return False
+            return isinstance(instance, pytypes)
 
-                if validator is None:
-                    continue
+        def is_valid(self, instance, _schema=None):
+            error = next(self.iter_errors(instance, _schema), None)
+            return error is None
 
-                errors = validator(v, instance, _schema) or ()
-                for error in errors:
-                    # set details if they weren't already set by the called fn
-                    error._set(
-                        validator=k,
-                        validator_value=v,
-                        instance=instance,
-                        schema=_schema,
-                    )
-                    if k != "$ref":
-                        error.schema_path.appendleft(k)
-                    yield error
+    return Validator
 
-    def descend(self, instance, schema, path=None, schema_path=None):
-        for error in self.iter_errors(instance, schema):
-            if path is not None:
-                error.path.appendleft(path)
-            if schema_path is not None:
-                error.schema_path.appendleft(schema_path)
-            yield error
 
-    def validate(self, *args, **kwargs):
-        for error in self.iter_errors(*args, **kwargs):
-            raise error
+class ValidatorMixin(create(meta_schema={})):
+    def __init__(self, *args, **kwargs):
+        super(ValidatorMixin, self).__init__(*args, **kwargs)
+
+        class _VALIDATORS(dict):
+            def __missing__(this, key, dflt=None):
+                return getattr(self, "validate_" + str(key).lstrip("$"), dflt)
+            get = __missing__
+
+        self.VALIDATORS = _VALIDATORS()
 
 
 class _Draft34CommonMixin(object):
