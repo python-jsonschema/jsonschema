@@ -9,13 +9,14 @@ instance under a schema, and will create a validator for you.
 
 """
 
-from jsonschema._format import (
-    FormatChecker, FormatError, draft3_format_checker, draft4_format_checker,
+from jsonschema.exceptions import (
+    FormatError, RefResolutionError, SchemaError, UnknownType, ValidationError
 )
-from jsonschema._validators import ValidationError
+from jsonschema._format import (
+    FormatChecker, draft3_format_checker, draft4_format_checker,
+)
 from jsonschema.validators import (
-    RefResolutionError, SchemaError, UnknownType, ErrorTree,
-    Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin,
+    ErrorTree, Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin,
     validate, validates,
 )
 

@@ -15,11 +15,7 @@ from jsonschema.compat import (
     PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems,
 )
-
-
-class RefResolutionError(Exception): pass
-class SchemaError(_validators._Error): pass
-class UnknownType(Exception): pass
+from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
 
 
 _unset = _utils.Unset()
