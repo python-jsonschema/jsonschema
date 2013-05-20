@@ -38,6 +38,16 @@ class URIDict(MutableMapping):
         return repr(self.store)
 
 
+class Unset(object):
+    """
+    An as-of-yet unset attribute or unprovided default parameter.
+
+    """
+
+    def __repr__(self):
+        return "<unset>"
+
+
 def load_schema(name):
     """
     Load a schema from ./schemas/``name``.json and return it.

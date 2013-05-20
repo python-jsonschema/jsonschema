@@ -4,13 +4,12 @@ import json
 import pprint
 import textwrap
 
-from jsonschema import FormatChecker
+from jsonschema import FormatChecker, ValidationError
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
-    RefResolutionError, UnknownType, ValidationError, ErrorTree,
-    Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin,
-    meta_schemas, create, validate,
+    RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
+    Draft4Validator, RefResolver, ValidatorMixin, create, validate,
 )
 
 
@@ -49,7 +48,7 @@ class TestCreate(unittest.TestCase):
         self.assertEqual(list(self.validator.iter_errors(instance)), [error])
 
         self.smelly.assert_called_with(
-            self.validator_value, instance, self.schema,
+            self.validator, self.validator_value, instance, self.schema,
         )
 
     def test_if_a_version_is_provided_it_is_registered(self):
@@ -61,7 +60,7 @@ class TestCreate(unittest.TestCase):
 
     def test_if_a_version_is_not_provided_it_is_not_registered(self):
         with mock.patch("jsonschema.validators.validates") as validates:
-            Validator = create(meta_schema={"id" : "id"})
+            create(meta_schema={"id" : "id"})
         self.assertFalse(validates.called)
 
 

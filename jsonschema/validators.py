@@ -4,115 +4,27 @@ import collections
 import contextlib
 import json
 import numbers
-import pprint
-import re
-import textwrap
 
 try:
     import requests
 except ImportError:
     requests = None
 
-from jsonschema import _utils
+from jsonschema import _utils, _validators
 from jsonschema.compat import (
     PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems,
 )
-from jsonschema._format import FormatError
 
 
-FLOAT_TOLERANCE = 10 ** -15
-validators = {}
-
-
-class _Unset(object):
-    """
-    An as-of-yet unset attribute.
-
-    """
-
-    def __repr__(self):
-        return "<unset>"
-_unset = _Unset()
-
-
-class _Error(Exception):
-    def __init__(
-        self, message, validator=_unset, path=(), cause=None, context=(),
-        validator_value=_unset, instance=_unset, schema=_unset, schema_path=(),
-    ):
-        self.message = message
-        self.path = collections.deque(path)
-        self.schema_path = collections.deque(schema_path)
-        self.context = list(context)
-        self.cause = self.__cause__ = cause
-        self.validator = validator
-        self.validator_value = validator_value
-        self.instance = instance
-        self.schema = schema
-
-    @classmethod
-    def create_from(cls, other):
-        return cls(
-            message=other.message,
-            cause=other.cause,
-            context=other.context,
-            path=other.path,
-            schema_path=other.schema_path,
-            validator=other.validator,
-            validator_value=other.validator_value,
-            instance=other.instance,
-            schema=other.schema,
-        )
-
-    def _set(self, **kwargs):
-        for k, v in iteritems(kwargs):
-            if getattr(self, k) is _unset:
-                setattr(self, k, v)
-
-    def __repr__(self):
-        return "<%s: %r>" % (self.__class__.__name__, self.message)
-
-    def __str__(self):
-        return unicode(self).encode("utf-8")
-
-    def __unicode__(self):
-        if _unset in (
-            self.validator, self.validator_value, self.instance, self.schema,
-        ):
-            return self.message
-
-        path = _utils.format_as_index(self.path)
-        schema_path = _utils.format_as_index(list(self.schema_path)[:-1])
-
-        pschema = pprint.pformat(self.schema, width=72)
-        pinstance = pprint.pformat(self.instance, width=72)
-        return self.message + textwrap.dedent("""
-
-            Failed validating %r in schema%s:
-            %s
-
-            On instance%s:
-            %s
-            """.rstrip()
-        ) % (
-            self.validator,
-            schema_path,
-            _utils.indent(pschema),
-            path,
-            _utils.indent(pinstance),
-        )
-
-    if PY3:
-        __str__ = __unicode__
-
-
-class SchemaError(_Error): pass
-class ValidationError(_Error): pass
 class RefResolutionError(Exception): pass
+class SchemaError(_validators._Error): pass
 class UnknownType(Exception): pass
 
 
+_unset = _utils.Unset()
+
+validators = {}
 meta_schemas = _utils.URIDict()
 
 
@@ -183,7 +95,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                     if validator is None:
                         continue
 
-                    errors = validator(v, instance, _schema) or ()
+                    errors = validator(self, v, instance, _schema) or ()
                     for error in errors:
                         # set details if not already set by the called fn
                         error._set(
@@ -250,357 +162,67 @@ class ValidatorMixin(create(meta_schema={})):
         self.VALIDATORS = _VALIDATORS()
 
 
-class _Draft34CommonMixin(object):
-    """
-    Contains the validator methods common to both JSON schema drafts.
+Draft3Validator = create(
+    meta_schema=_utils.load_schema("draft3"),
+    validators={
+        "$ref" : _validators.ref,
+        "additionalItems" : _validators.additionalItems,
+        "additionalProperties" : _validators.additionalProperties,
+        "dependencies" : _validators.dependencies,
+        "disallow" : _validators.disallow_draft3,
+        "divisibleBy" : _validators.multipleOf,
+        "enum" : _validators.enum,
+        "extends" : _validators.extends_draft3,
+        "format" : _validators.format,
+        "items" : _validators.items,
+        "maxItems" : _validators.maxItems,
+        "maxLength" : _validators.maxLength,
+        "maximum" : _validators.maximum,
+        "minItems" : _validators.minItems,
+        "minLength" : _validators.minLength,
+        "minimum" : _validators.minimum,
+        "multipleOf" : _validators.multipleOf,
+        "pattern" : _validators.pattern,
+        "patternProperties" : _validators.patternProperties,
+        "properties" : _validators.properties_draft3,
+        "type" : _validators.type_draft3,
+        "uniqueItems" : _validators.uniqueItems,
+    },
+    version="draft3",
+)
 
-    """
-
-    def validate_patternProperties(self, patternProperties, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for pattern, subschema in iteritems(patternProperties):
-            for k, v in iteritems(instance):
-                if re.search(pattern, k):
-                    for error in self.descend(
-                            v, subschema, path=k, schema_path=pattern
-                    ):
-                        yield error
-
-    def validate_additionalProperties(self, aP, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        extras = set(_utils.find_additional_properties(instance, schema))
-
-        if self.is_type(aP, "object"):
-            for extra in extras:
-                for error in self.descend(instance[extra], aP, path=extra):
-                    yield error
-        elif not aP and extras:
-            error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % _utils.extras_msg(extras))
-
-    def validate_items(self, items, instance, schema):
-        if not self.is_type(instance, "array"):
-            return
-
-        if self.is_type(items, "object"):
-            for index, item in enumerate(instance):
-                for error in self.descend(item, items, path=index):
-                    yield error
-        else:
-            for (index, item), subschema in zip(enumerate(instance), items):
-                for error in self.descend(
-                        item, subschema, path=index, schema_path=index
-                ):
-                    yield error
-
-    def validate_additionalItems(self, aI, instance, schema):
-        if (
-            not self.is_type(instance, "array") or
-            self.is_type(schema.get("items", {}), "object")
-        ):
-            return
-
-        if self.is_type(aI, "object"):
-            for index, item in enumerate(
-                    instance[len(schema.get("items", [])):]):
-                for error in self.descend(item, aI, path=index):
-                    yield error
-        elif not aI and len(instance) > len(schema.get("items", [])):
-            error = "Additional items are not allowed (%s %s unexpected)"
-            yield ValidationError(
-                error %
-                _utils.extras_msg(instance[len(schema.get("items", [])):])
-            )
-
-    def validate_minimum(self, minimum, instance, schema):
-        if not self.is_type(instance, "number"):
-            return
-
-        instance = float(instance)
-        if schema.get("exclusiveMinimum", False):
-            failed = instance <= minimum
-            cmp = "less than or equal to"
-        else:
-            failed = instance < minimum
-            cmp = "less than"
-
-        if failed:
-            yield ValidationError(
-                "%r is %s the minimum of %r" % (instance, cmp, minimum)
-            )
-
-    def validate_maximum(self, maximum, instance, schema):
-        if not self.is_type(instance, "number"):
-            return
-
-        instance = float(instance)
-        if schema.get("exclusiveMaximum", False):
-            failed = instance >= maximum
-            cmp = "greater than or equal to"
-        else:
-            failed = instance > maximum
-            cmp = "greater than"
-
-        if failed:
-            yield ValidationError(
-                "%r is %s the maximum of %r" % (instance, cmp, maximum)
-            )
-
-    def _validate_multipleOf(self, dB, instance, schema):
-        if not self.is_type(instance, "number"):
-            return
-
-        if isinstance(dB, float):
-            mod = instance % dB
-            failed = (mod > FLOAT_TOLERANCE) and (dB - mod) > FLOAT_TOLERANCE
-        else:
-            failed = instance % dB
-
-        if failed:
-            yield ValidationError(
-                "%r is not a multiple of %r" % (instance, dB)
-            )
-
-    def validate_minItems(self, mI, instance, schema):
-        if self.is_type(instance, "array") and len(instance) < mI:
-            yield ValidationError("%r is too short" % (instance,))
-
-    def validate_maxItems(self, mI, instance, schema):
-        if self.is_type(instance, "array") and len(instance) > mI:
-            yield ValidationError("%r is too long" % (instance,))
-
-    def validate_uniqueItems(self, uI, instance, schema):
-        if (
-            uI and
-            self.is_type(instance, "array") and
-            not _utils.uniq(instance)
-        ):
-            yield ValidationError("%r has non-unique elements" % instance)
-
-    def validate_pattern(self, patrn, instance, schema):
-        if self.is_type(instance, "string") and not re.search(patrn, instance):
-            yield ValidationError("%r does not match %r" % (instance, patrn))
-
-    def validate_format(self, format, instance, schema):
-        if (
-            self.format_checker is not None and
-            self.is_type(instance, "string")
-        ):
-            try:
-                self.format_checker.check(instance, format)
-            except FormatError as error:
-                yield ValidationError(error.message, cause=error.cause)
-
-    def validate_minLength(self, mL, instance, schema):
-        if self.is_type(instance, "string") and len(instance) < mL:
-            yield ValidationError("%r is too short" % (instance,))
-
-    def validate_maxLength(self, mL, instance, schema):
-        if self.is_type(instance, "string") and len(instance) > mL:
-            yield ValidationError("%r is too long" % (instance,))
-
-    def validate_dependencies(self, dependencies, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for property, dependency in iteritems(dependencies):
-            if property not in instance:
-                continue
-
-            if self.is_type(dependency, "object"):
-                for error in self.descend(
-                        instance, dependency, schema_path=property
-                ):
-                    yield error
-            else:
-                dependencies = _utils.ensure_list(dependency)
-                for dependency in dependencies:
-                    if dependency not in instance:
-                        yield ValidationError(
-                            "%r is a dependency of %r" % (dependency, property)
-                        )
-
-    def validate_enum(self, enums, instance, schema):
-        if instance not in enums:
-            yield ValidationError("%r is not one of %r" % (instance, enums))
-
-    def validate_ref(self, ref, instance, schema):
-        with self.resolver.resolving(ref) as resolved:
-            for error in self.descend(instance, resolved):
-                yield error
-
-
-@validates("draft3")
-class Draft3Validator(ValidatorMixin, _Draft34CommonMixin, object):
-    """
-    A validator for JSON Schema draft 3.
-
-    """
-
-    def validate_type(self, types, instance, schema):
-        types = _utils.ensure_list(types)
-
-        all_errors = []
-        for index, type in enumerate(types):
-            if type == "any":
-                return
-            if self.is_type(type, "object"):
-                errors = list(self.descend(instance, type, schema_path=index))
-                if not errors:
-                    return
-                all_errors.extend(errors)
-            elif self.is_type(type, "string"):
-                if self.is_type(instance, type):
-                    return
-        else:
-            yield ValidationError(
-                _utils.types_msg(instance, types), context=all_errors,
-            )
-
-    def validate_properties(self, properties, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for property, subschema in iteritems(properties):
-            if property in instance:
-                for error in self.descend(
-                    instance[property],
-                    subschema,
-                    path=property,
-                    schema_path=property,
-                ):
-                    yield error
-            elif subschema.get("required", False):
-                error = ValidationError("%r is a required property" % property)
-                error._set(
-                    validator="required",
-                    validator_value=subschema["required"],
-                    instance=instance,
-                    schema=schema,
-                )
-                error.path.appendleft(property)
-                error.schema_path.extend([property, "required"])
-                yield error
-
-    def validate_disallow(self, disallow, instance, schema):
-        for disallowed in _utils.ensure_list(disallow):
-            if self.is_valid(instance, {"type" : [disallowed]}):
-                yield ValidationError(
-                    "%r is disallowed for %r" % (disallowed, instance)
-                )
-
-    def validate_extends(self, extends, instance, schema):
-        if self.is_type(extends, "object"):
-            for error in self.descend(instance, extends):
-                yield error
-            return
-        for index, subschema in enumerate(extends):
-            for error in self.descend(instance, subschema, schema_path=index):
-                yield error
-
-    validate_divisibleBy = _Draft34CommonMixin._validate_multipleOf
-
-    META_SCHEMA = _utils.load_schema('draft3')
-
-
-@validates("draft4")
-class Draft4Validator(ValidatorMixin, _Draft34CommonMixin, object):
-    """
-    A validator for JSON Schema draft 4.
-
-    """
-
-    def validate_type(self, types, instance, schema):
-        types = _utils.ensure_list(types)
-
-        if not any(self.is_type(instance, type) for type in types):
-            yield ValidationError(_utils.types_msg(instance, types))
-
-    def validate_properties(self, properties, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-
-        for property, subschema in iteritems(properties):
-            if property in instance:
-                for error in self.descend(
-                    instance[property],
-                    subschema,
-                    path=property,
-                    schema_path=property,
-                ):
-                    yield error
-
-    def validate_required(self, required, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-        for property in required:
-            if property not in instance:
-                yield ValidationError("%r is a required property" % property)
-
-    def validate_minProperties(self, mP, instance, schema):
-        if self.is_type(instance, "object") and len(instance) < mP:
-            yield ValidationError("%r is too short" % (instance,))
-
-    def validate_maxProperties(self, mP, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
-        if self.is_type(instance, "object") and len(instance) > mP:
-            yield ValidationError("%r is too short" % (instance,))
-
-    def validate_allOf(self, allOf, instance, schema):
-        for index, subschema in enumerate(allOf):
-            for error in self.descend(instance, subschema, schema_path=index):
-                yield error
-
-    def validate_oneOf(self, oneOf, instance, schema):
-        subschemas = enumerate(oneOf)
-        all_errors = []
-        for index, subschema in subschemas:
-            errors = list(self.descend(instance, subschema, schema_path=index))
-            if not errors:
-                first_valid = subschema
-                break
-            all_errors.extend(errors)
-        else:
-            yield ValidationError(
-                "%r is not valid under any of the given schemas" % (instance,),
-                context=all_errors,
-            )
-
-        more_valid = [s for i, s in subschemas if self.is_valid(instance, s)]
-        if more_valid:
-            more_valid.append(first_valid)
-            reprs = ", ".join(repr(schema) for schema in more_valid)
-            yield ValidationError(
-                "%r is valid under each of %s" % (instance, reprs)
-            )
-
-    def validate_anyOf(self, anyOf, instance, schema):
-        all_errors = []
-        for index, subschema in enumerate(anyOf):
-            errors = list(self.descend(instance, subschema, schema_path=index))
-            if not errors:
-                break
-            all_errors.extend(errors)
-        else:
-            yield ValidationError(
-                "%r is not valid under any of the given schemas" % (instance,),
-                context=all_errors,
-            )
-
-    def validate_not(self, not_schema, instance, schema):
-        if self.is_valid(instance, not_schema):
-            yield ValidationError(
-                "%r is not allowed for %r" % (not_schema, instance)
-            )
-
-    validate_multipleOf = _Draft34CommonMixin._validate_multipleOf
-
-    META_SCHEMA = _utils.load_schema('draft4')
+Draft4Validator = create(
+    meta_schema=_utils.load_schema("draft4"),
+    validators={
+        "$ref" : _validators.ref,
+        "additionalItems" : _validators.additionalItems,
+        "additionalProperties" : _validators.additionalProperties,
+        "allOf" : _validators.allOf_draft4,
+        "anyOf" : _validators.anyOf_draft4,
+        "dependencies" : _validators.dependencies,
+        "enum" : _validators.enum,
+        "format" : _validators.format,
+        "items" : _validators.items,
+        "maxItems" : _validators.maxItems,
+        "maxLength" : _validators.maxLength,
+        "maxProperties" : _validators.maxProperties_draft4,
+        "maximum" : _validators.maximum,
+        "minItems" : _validators.minItems,
+        "minLength" : _validators.minLength,
+        "minProperties" : _validators.minProperties_draft4,
+        "minimum" : _validators.minimum,
+        "multipleOf" : _validators.multipleOf,
+        "not" : _validators.not_draft4,
+        "oneOf" : _validators.oneOf_draft4,
+        "pattern" : _validators.pattern,
+        "patternProperties" : _validators.patternProperties,
+        "properties" : _validators.properties_draft4,
+        "required" : _validators.required_draft4,
+        "type" : _validators.type_draft4,
+        "uniqueItems" : _validators.uniqueItems,
+    },
+    version="draft4",
+)
 
 
 class RefResolver(object):
