@@ -4,9 +4,13 @@
 Creating or Extending Validators
 ================================
 
-.. currentmodule:: jsonschema
+.. currentmodule:: jsonschema.validators
 
-.. autoclass:: ValidatorMixin
+.. autofunction:: create
+
+    Create a new validator.
+
+    :returns: an :class:`jsonschema.IValidator`
 
 .. autofunction:: validates
 

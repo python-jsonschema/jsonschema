@@ -93,6 +93,14 @@ adhere to.
         An object representing the validator's meta schema (the schema that
         describes valid schemas in the given version).
 
+    .. attribute:: VALIDATORS
+
+        A mapping of validators (:class:`str`\s) to functions that validate the
+        validator property with that name. Each function should take 4
+        arguments: the validator instance, the value of the current validator
+        property in the instance, the instance, and the schema. For more
+        information see :ref:`creating-validators`.
+
     .. attribute:: schema
 
         The schema that was passed in when initializing the validator.
