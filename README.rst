@@ -49,15 +49,14 @@ Features
 Release Notes
 -------------
 
-``v1.3.0`` adds better, more verbose tracebacks for validation errors that give
-some actual possibility of seeing what went wrong, particularly for the new 
-``anyOf``, ``oneOf`` and ``allOf`` validators in draft 4.
+``v1.4.0`` adds a better interface for creating and extending validators in the
+form of ``jsonschema.validators.create`` and ``jsonschema.validators.extend``.
+The documentation is still a bit lacking in this area but it's getting there.
+See the tests in ``jsonschema.tests.test_validators`` and the source code if
+you'd like to try it out now.
 
-The other notable change is that ``ErrorTree``\s now raise exceptions for keys
-that aren't in the instance, to prevent typos.
-
-``__cause__`` is also implemented on Py3 for format errors, if that floats your
-boat.
+It also fixes a number of issues with ref resolution, one for array indices
+(#95) and one for improper handling of unknown URI schemes (#102).
 
 
 Running the Test Suite

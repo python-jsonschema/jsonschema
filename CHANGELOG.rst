@@ -1,9 +1,18 @@
+v1.4.0
+------
+
+* Added ``create`` and ``extend`` to ``jsonschema.validators``
+* Fixed array indices ref resolution (#95)
+* Fixed unknown scheme defragmenting and handling (#102)
+
+
 v1.3.0
 ------
 
 * Better error tracebacks (#83)
 * Raise exceptions in ``ErrorTree``\s for keys not in the instance (#92)
 * __cause__ (#93)
+
 
 v1.2.0
 ------
@@ -12,11 +21,13 @@ v1.2.0
 * Added ``ValidatorMixin.descend``
 * Fixed bad ``RefResolutionError`` message (#82)
 
+
 v1.1.0
 ------
 
 * Canonicalize URIs (#70)
 * Allow attaching exceptions to ``format`` errors (#77)
+
 
 v1.0.0
 ------
@@ -41,6 +52,7 @@ v0.8.0
     * uniqueItems not so unique (#34)
     * Improper any (#47)
 
+
 v0.7
 ----
 
@@ -51,6 +63,7 @@ v0.7
     interface
   * ``validator(meta_validate=False)``
 
+
 v0.6
 ----
 
@@ -58,6 +71,7 @@ v0.6
 
   * Issue #30 - Wrong behavior for the dependencies property validation
   * Fix a miswritten test
+
 
 v0.5
 ----
@@ -86,6 +100,7 @@ v0.4
           an argument to ``validate``, ``iter_errors`` and ``is_valid``.
 
 * A bugfix or two
+
 
 v0.3
 ----
