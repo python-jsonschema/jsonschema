@@ -47,6 +47,16 @@ Creating or Extending Validators
 
 .. autofunction:: validator_for
 
+    Retrieve the validator appropriate for validating the given schema.
+
+    Uses the :validator:`$schema` property that should be present in the given
+    schema to look up the appropriate validator.
+
+    :argument schema: the schema to look at
+    :argument default: the default to return if the appropriate validator
+        cannot be determined. If unprovided, the default will be to just return
+        :class:`Draft4Validator`
+
 
 .. autofunction:: validates
 
