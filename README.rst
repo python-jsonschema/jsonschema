@@ -74,6 +74,9 @@ supports. Note that you'll need to have all of those versions installed in
 order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
 the tests on that version.
 
+Of course you're also free to just run the tests on a single version with your
+favorite test runner. The tests live in the ``jsonschema.tests`` package.
+
 
 Community
 ---------
