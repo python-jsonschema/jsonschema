@@ -8,8 +8,8 @@ from jsonschema import FormatChecker, ValidationError
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
-    RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
-    Draft4Validator, RefResolver, ValidatorMixin, create, extend, validate,
+    _unset, RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
+    Draft4Validator, RefResolver, ValidatorMixin, create, extend, validator_for, validate,
 )
 
 
@@ -622,6 +622,25 @@ class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
 
 class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft4Validator
+
+
+class TestValidatorFor(unittest.TestCase):
+    def do_it(self, schema_url, expected_draft):
+        schema = {"$schema" : schema_url}
+        with mock.patch.object(expected_draft, "check_schema") as chk_schema:
+            validator_for(schema)
+            chk_schema.assert_called_once_with(schema)
+
+    def test_validator_for(self):
+        self.do_it("http://json-schema.org/draft-03/schema#", Draft3Validator)
+        self.do_it("http://json-schema.org/draft-03/schema", Draft3Validator)
+        self.do_it("http://json-schema.org/draft-04/schema#", Draft4Validator)
+        self.do_it("http://json-schema.org/draft-04/schema", Draft4Validator)
+
+    def test_validator_unset(self):
+        schema = {}
+        validator = validator_for(schema)
+        self.assertEqual(validator, _unset)
 
 
 class TestValidate(unittest.TestCase):
