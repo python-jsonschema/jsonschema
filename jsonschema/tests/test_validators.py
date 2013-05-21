@@ -77,6 +77,7 @@ class TestCreateAndExtend(unittest.TestCase):
         self.assertEqual(Extended.META_SCHEMA, self.Validator.META_SCHEMA)
         self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
 
+
 class TestIterErrors(unittest.TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
