@@ -146,6 +146,17 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
     return Validator
 
 
+def extend(validator, validators, version=None):
+    all_validators = validator.VALIDATORS
+    all_validators.update(validators)
+    return create(
+        meta_schema=validator.META_SCHEMA,
+        validators=all_validators,
+        version=version,
+        default_types=validator.DEFAULT_TYPES,
+    )
+
+
 class ValidatorMixin(create(meta_schema={})):
     def __init__(self, *args, **kwargs):
         super(ValidatorMixin, self).__init__(*args, **kwargs)

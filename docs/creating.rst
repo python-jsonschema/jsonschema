@@ -25,6 +25,17 @@ Creating or Extending Validators
         can still have their types customized on a per-instance basis.
     :returns: an :class:`jsonschema.IValidator`
 
+.. autofunction:: extend
+
+    Create a new validator that extends an existing validator.
+
+    :argument :class:`jsonschema.IValidator` validator: an existing validator
+    :argument dict validators: a set of new validators to add to the new
+        validator. Any validators with the same name as an existing one will
+        (silently) replace the old validator entirely.
+    :argument str version: a version for the new validator
+    :returns: an :class:`jsonschema.IValidator`
+
 .. autofunction:: validates
 
 

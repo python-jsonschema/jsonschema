@@ -9,11 +9,11 @@ from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
-    Draft4Validator, RefResolver, ValidatorMixin, create, validate,
+    Draft4Validator, RefResolver, ValidatorMixin, create, extend, validate,
 )
 
 
-class TestCreate(unittest.TestCase):
+class TestCreateAndExtend(unittest.TestCase):
     def setUp(self):
         self.meta_schema = {"properties" : {"smelly" : {}}}
         self.smelly = mock.MagicMock()
@@ -62,6 +62,17 @@ class TestCreate(unittest.TestCase):
         with mock.patch("jsonschema.validators.validates") as validates:
             create(meta_schema={"id" : "id"})
         self.assertFalse(validates.called)
+
+    def test_extend(self):
+        validators = dict(self.Validator.VALIDATORS)
+        new = mock.Mock()
+
+        Extended = extend(self.Validator, validators={"a new one" : new})
+
+        validators.update([("a new one", new)])
+        self.assertEqual(Extended.VALIDATORS, validators)
+        self.assertEqual(Extended.META_SCHEMA, self.Validator.META_SCHEMA)
+        self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
 
 
 class TestIterErrors(unittest.TestCase):
