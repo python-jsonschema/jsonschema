@@ -4,7 +4,6 @@ import collections
 import contextlib
 import json
 import numbers
-import warnings
 
 try:
     import requests

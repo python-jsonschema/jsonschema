@@ -1,7 +1,8 @@
-v1.4.0
+v2.0.0
 ------
 
 * Added ``create`` and ``extend`` to ``jsonschema.validators``
+* Removed ``ValidatorMixin``
 * Fixed array indices ref resolution (#95)
 * Fixed unknown scheme defragmenting and handling (#102)
 
