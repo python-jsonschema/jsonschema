@@ -45,7 +45,8 @@ Creating or Extending Validators
     :returns: an :class:`jsonschema.IValidator`
 
 
-.. autofunction:: validate_for
+.. autofunction:: validator_for
+
 
 .. autofunction:: validates
 
