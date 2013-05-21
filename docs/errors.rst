@@ -176,6 +176,8 @@ failed when validating a given instance, you probably will want to do so using
 
 .. autoclass:: ErrorTree
     :members:
+    :special-members:
+    :exclude-members: __dict__,__weakref__
 
 Consider the following example:
 

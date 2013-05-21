@@ -417,8 +417,13 @@ class ErrorTree(object):
 
             self._instance = error.instance
 
-    def __contains__(self, k):
-        return k in self._contents
+    def __contains__(self, index):
+        """
+        Check whether ``instance[index]`` has any errors.
+
+        """
+
+        return index in self._contents
 
     def __getitem__(self, k):
         """
@@ -439,9 +444,19 @@ class ErrorTree(object):
         self._contents[k] = v
 
     def __iter__(self):
+        """
+        Iterate (non-recursively) over the indices in the instance with errors.
+
+        """
+
         return iter(self._contents)
 
     def __len__(self):
+        """
+        Same as :attr:`total_errors`.
+
+        """
+
         return self.total_errors
 
     def __repr__(self):
