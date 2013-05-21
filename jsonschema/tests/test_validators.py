@@ -8,8 +8,9 @@ from jsonschema import FormatChecker, ValidationError
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
-    _unset, RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
-    Draft4Validator, RefResolver, ValidatorMixin, create, extend, validator_for, validate,
+    RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
+    Draft4Validator, RefResolver, ValidatorMixin, create, extend,
+    validator_for, validate,
 )
 
 
@@ -625,22 +626,30 @@ class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
 
 
 class TestValidatorFor(unittest.TestCase):
-    def do_it(self, schema_url, expected_draft):
-        schema = {"$schema" : schema_url}
-        with mock.patch.object(expected_draft, "check_schema") as chk_schema:
-            validator_for(schema)
-            chk_schema.assert_called_once_with(schema)
+    def test_draft_3(self):
+        schema = {"$schema" : "http://json-schema.org/draft-03/schema"}
+        self.assertIs(validator_for(schema), Draft3Validator)
 
-    def test_validator_for(self):
-        self.do_it("http://json-schema.org/draft-03/schema#", Draft3Validator)
-        self.do_it("http://json-schema.org/draft-03/schema", Draft3Validator)
-        self.do_it("http://json-schema.org/draft-04/schema#", Draft4Validator)
-        self.do_it("http://json-schema.org/draft-04/schema", Draft4Validator)
+        schema = {"$schema" : "http://json-schema.org/draft-03/schema#"}
+        self.assertIs(validator_for(schema), Draft3Validator)
 
-    def test_validator_unset(self):
-        schema = {}
-        validator = validator_for(schema)
-        self.assertEqual(validator, _unset)
+    def test_draft_4(self):
+        schema = {"$schema" : "http://json-schema.org/draft-04/schema"}
+        self.assertIs(validator_for(schema), Draft4Validator)
+
+        schema = {"$schema" : "http://json-schema.org/draft-04/schema#"}
+        self.assertIs(validator_for(schema), Draft4Validator)
+
+    def test_custom_validator(self):
+        Validator = create(meta_schema={"id" : "meta schema id"}, version="12")
+        schema = {"$schema" : "meta schema id"}
+        self.assertIs(validator_for(schema), Validator)
+
+    def test_validator_for_jsonschema_default(self):
+        self.assertIs(validator_for({}), Draft4Validator)
+
+    def test_validator_for_custom_default(self):
+        self.assertIs(validator_for({}, default=None), None)
 
 
 class TestValidate(unittest.TestCase):

@@ -474,15 +474,13 @@ class ErrorTree(object):
 
 
 def validator_for(schema, default=_unset):
-    cls = meta_schemas.get(schema.get("$schema", ""), default)
-    if not cls is _unset:
-        cls.check_schema(schema)
-    return cls
+    if default is _unset:
+        default = Draft4Validator
+    return meta_schemas.get(schema.get("$schema", ""), default)
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):
     if cls is None:
         cls = validator_for(schema)
-    else:
-        cls.check_schema(schema)
+    cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
