@@ -179,6 +179,11 @@ failed when validating a given instance, you probably will want to do so using
     :special-members:
     :exclude-members: __dict__,__weakref__
 
+    .. attribute:: errors
+
+        The mapping of validator names to the error objects (usually
+        :class:`ValidationError`\s) at this level of the tree.
+
 Consider the following example:
 
 .. testcode::
