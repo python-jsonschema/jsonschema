@@ -34,7 +34,7 @@ Creating or Extending Validators
 
     Create a new validator that extends an existing validator.
 
-    :argument :class:`jsonschema.IValidator` validator: an existing validator
+    :argument jsonschema.IValidator validator: an existing validator
 
     :argument dict validators: a set of new validators to add to the new
         validator. Any validators with the same name as an existing one will
