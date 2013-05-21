@@ -17,7 +17,7 @@ from jsonschema._format import (
 )
 from jsonschema.validators import (
     ErrorTree, Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin,
-    validator_for, validate, validates,
+    validate, validates,
 )
 
 
