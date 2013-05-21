@@ -21,7 +21,7 @@ from jsonschema.validators import (
 )
 
 
-__version__ = "1.4.0-dev"
+__version__ = "1.4.0"
 
 
 # flake8: noqa
