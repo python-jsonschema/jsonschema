@@ -1,7 +1,7 @@
 [
     {
         "description": "ECMA 262 regex dialect recognition",
-        "schema": { "format": "pattern" },
+        "schema": { "format": "regex" },
         "tests": [
             {
                 "description": "[^] is a valid regex",
