@@ -158,23 +158,6 @@ def extend(validator, validators, version=None):
     )
 
 
-class ValidatorMixin(create(meta_schema={})):
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            "ValidatorMixin is deprecated. "
-            "Use jsonschema.validators.create instead.",
-            DeprecationWarning,
-        )
-        super(ValidatorMixin, self).__init__(*args, **kwargs)
-
-        class _VALIDATORS(dict):
-            def __missing__(this, key, dflt=None):
-                return getattr(self, "validate_" + str(key).lstrip("$"), dflt)
-            get = __missing__
-
-        self.VALIDATORS = _VALIDATORS()
-
-
 Draft3Validator = create(
     meta_schema=_utils.load_schema("draft3"),
     validators={

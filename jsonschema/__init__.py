@@ -10,18 +10,17 @@ instance under a schema, and will create a validator for you.
 """
 
 from jsonschema.exceptions import (
-    FormatError, RefResolutionError, SchemaError, UnknownType, ValidationError
+    FormatError, RefResolutionError, SchemaError, ValidationError
 )
 from jsonschema._format import (
     FormatChecker, draft3_format_checker, draft4_format_checker,
 )
 from jsonschema.validators import (
-    ErrorTree, Draft3Validator, Draft4Validator, RefResolver, ValidatorMixin,
-    validate, validates,
+    ErrorTree, Draft3Validator, Draft4Validator, RefResolver, validate
 )
 
 
-__version__ = "1.5.0-dev"
+__version__ = "2.0.0"
 
 
 # flake8: noqa

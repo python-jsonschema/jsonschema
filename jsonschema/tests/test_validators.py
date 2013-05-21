@@ -9,8 +9,7 @@ from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
-    Draft4Validator, RefResolver, ValidatorMixin, create, extend,
-    validator_for, validate,
+    Draft4Validator, RefResolver, create, extend, validator_for, validate,
 )
 
 
@@ -676,18 +675,6 @@ class TestValidate(unittest.TestCase):
         with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
             validate({}, {})
             chk_schema.assert_called_once_with({})
-
-
-class TestValidatorMixin(unittest.TestCase):
-    def test_if_ref_is_present_then_the_schema_is_replaced(self):
-        class Validator(ValidatorMixin):
-            validate_ref = mock.Mock(return_value=[])
-            validate_type = mock.Mock(return_value=[])
-
-        Validator({"$ref" : "foo", "type" : "quux"}).validate(1)
-
-        self.assertTrue(Validator.validate_ref.called)
-        self.assertFalse(Validator.validate_type.called)
 
 
 class TestRefResolver(unittest.TestCase):
