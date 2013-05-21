@@ -4,6 +4,7 @@ import collections
 import contextlib
 import json
 import numbers
+import warnings
 
 try:
     import requests
@@ -159,6 +160,11 @@ def extend(validator, validators, version=None):
 
 class ValidatorMixin(create(meta_schema={})):
     def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "ValidatorMixin is deprecated. "
+            "Use jsonschema.validators.create instead.",
+            DeprecationWarning,
+        )
         super(ValidatorMixin, self).__init__(*args, **kwargs)
 
         class _VALIDATORS(dict):
