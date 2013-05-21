@@ -72,9 +72,10 @@ class TestCreateAndExtend(unittest.TestCase):
 
         validators.update([("a new one", new)])
         self.assertEqual(Extended.VALIDATORS, validators)
+        self.assertNotIn("a new one", self.Validator.VALIDATORS)
+
         self.assertEqual(Extended.META_SCHEMA, self.Validator.META_SCHEMA)
         self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
-
 
 class TestIterErrors(unittest.TestCase):
     def setUp(self):

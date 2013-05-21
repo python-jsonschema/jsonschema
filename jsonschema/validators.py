@@ -148,7 +148,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
 
 def extend(validator, validators, version=None):
-    all_validators = validator.VALIDATORS
+    all_validators = dict(validator.VALIDATORS)
     all_validators.update(validators)
     return create(
         meta_schema=validator.META_SCHEMA,
