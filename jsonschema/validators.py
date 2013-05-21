@@ -425,23 +425,23 @@ class ErrorTree(object):
 
         return index in self._contents
 
-    def __getitem__(self, k):
+    def __getitem__(self, index):
         """
-        Retrieve the child tree with key ``k``.
+        Retrieve the child tree one level down at the given ``index``.
 
-        If the key is not in the instance that this tree corresponds to and is
-        not known by this tree, whatever error would be raised by
+        If the index is not in the instance that this tree corresponds to and
+        is not known by this tree, whatever error would be raised by
         ``instance.__getitem__`` will be propagated (usually this is some
         subclass of :class:`LookupError`.
 
         """
 
-        if self._instance is not _unset and k not in self:
-            self._instance[k]
-        return self._contents[k]
+        if self._instance is not _unset and index not in self:
+            self._instance[index]
+        return self._contents[index]
 
-    def __setitem__(self, k, v):
-        self._contents[k] = v
+    def __setitem__(self, index, value):
+        self._contents[index] = value
 
     def __iter__(self):
         """
