@@ -181,12 +181,13 @@ given JSON type.
 case and generality. For instance, JSON Schema defines a ``number`` type, which
 can be validated with a schema such as ``{"type" : "number"}``. By default,
 this will accept instances of Python :class:`number.Number`. This includes in
-particular :class:`int`\s and :class:`float`\s, along with `decimal.Decimal`
-objects, :class:`complex` numbers etc. For ``integer`` and ``object``, however,
-rather than checking for :class:`number.Integral` and
-:class:`collections.Mapping`, :mod:`jsonschema` simply checks for :class:`int`
-and :class:`dict`, since the former can introduce significant slowdown in these
-common cases.
+particular :class:`int`\s and :class:`float`\s, along with
+:class:`decimal.Decimal` objects, :class:`complex` numbers etc. For
+``integer`` and ``object``, however, rather than checking for
+:class:`number.Integral` and :class:`collections.Mapping`, :mod:`jsonschema`
+simply checks for :class:`int` and :class:`dict`, since the more general
+instance checks can introduce significant slowdown, especially given how common
+validating these types are.
 
 If you *do* want the generality, or just want to add a few specific additional
 types as being acceptible for a validator, :class:`IValidator`\s have a
