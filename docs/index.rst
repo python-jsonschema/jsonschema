@@ -42,6 +42,7 @@ Contents:
     errors
     references
     creating
+    faq
 
 
 Indices and tables
