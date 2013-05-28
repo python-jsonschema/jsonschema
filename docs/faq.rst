@@ -2,7 +2,7 @@
 Frequently Asked Questions
 ==========================
 
-**Why doesn't my schema that has a :validator:`default` property actually set
+**Why doesn't my schema that has a default property actually set
 the default on my instance?**
 
 The basic answer is that the specification does not require that
