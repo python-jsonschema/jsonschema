@@ -11,6 +11,25 @@ raised or returned, depending on which method or function is used.
 
     The instance didn't properly validate under the provided schema.
 
+    The information carried by an error roughly breaks down into:
+
+    ===============  =================  ========================
+     What Happened   Why Did It Happen  What Was Being Validated
+    ===============  =================  ========================
+    :attr:`message`  :attr:`context`    :attr:`instance`
+
+                     :attr:`cause`      :attr:`path`
+
+                                        :attr:`schema`
+
+                                        :attr:`schema_path`
+
+                                        :attr:`validator`
+
+                                        :attr:`validator_value`
+    ===============  =================  ========================
+
+
     .. attribute:: message
 
         A human readable message explaining the error.
@@ -166,6 +185,7 @@ easier debugging.
 
     On instance[1]:
         3
+
 
 ErrorTrees
 ----------
