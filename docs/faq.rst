@@ -25,18 +25,26 @@ started:
         from jsonschema import Draft4Validator, validators
 
 
-        def set_defaults(validator, properties, instance, schema):
-            Draft4Validator.VALIDATORS["properties"](
-                validator, properties, instance, schema,
+        def extend_with_default(validator_class):
+            validate_properties = validator_class.VALIDATORS["properties"]
+
+            def set_defaults(validator, properties, instance, schema):
+                for error in validate_properties(
+                    validator, properties, instance, schema,
+                ):
+                    yield error
+
+                for property, subschema in properties.iteritems():
+                    if "default" in subschema:
+                        instance.setdefault(property, subschema["default"])
+
+            return validators.extend(
+                validator_class, {"properties" : set_defaults},
             )
-            for property, subschema in properties.iteritems():
-                if "default" in subschema:
-                    instance.setdefault(property, subschema["default"])
 
 
-        DefaultValidatingDraft4Validator = validators.extend(
-            Draft4Validator, {"properties" : set_defaults},
-        )
+        DefaultValidatingDraft4Validator = extend_with_default(Draft4Validator)
+
 
 See the above-linked document for more info on how this works, but basically,
 it just extends the :validator:`properties` validator on a
