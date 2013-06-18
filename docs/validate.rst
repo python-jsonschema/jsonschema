@@ -299,7 +299,6 @@ color       requires webcolors_
 
 
 .. _isodate: http://pypi.python.org/pypi/isodate/
-.. _isodate: http://pypi.python.org/pypi/isodate/
 .. _rfc3987: http://pypi.python.org/pypi/rfc3987/
 .. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
