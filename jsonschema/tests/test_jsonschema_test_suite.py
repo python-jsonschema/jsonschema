@@ -145,7 +145,7 @@ def missing_format(checker):
             pypy_version_info is not None and
             pypy_version_info[:2] <= (1, 9)
         ):
-            return "Format checker not found."
+            return "Format checker {0!r} not found.".format(format)
     return missing_format
 
 
