@@ -255,7 +255,7 @@ validation can be enabled by hooking in a format-checking object into an
         using the :meth:`FormatChecker.checks` or
         :meth:`FormatChecker.cls_checks` decorators respectively.
 
-    .. method:: cls_checks(format, raises=())
+    .. classmethod:: cls_checks(format, raises=())
 
         Register a decorated function as *globally* validating a new format.
 
