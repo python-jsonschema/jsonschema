@@ -154,12 +154,17 @@ else:
 
 
 try:
-    import isodate
+    import strict_rfc3339
 except ImportError:
-    pass
+    try:
+        import isodate
+    except ImportError:
+        pass
+    else:
+        _err = (ValueError, isodate.ISO8601Error)
+        _checks_drafts("date-time", raises=_err)(isodate.parse_datetime)
 else:
-    _err = (ValueError, isodate.ISO8601Error)
-    _checks_drafts("date-time", raises=_err)(isodate.parse_datetime)
+        _checks_drafts("date-time")(strict_rfc3339.validate_rfc3339)
 
 
 _checks_drafts("regex", raises=re.error)(re.compile)
