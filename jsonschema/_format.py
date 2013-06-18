@@ -64,17 +64,19 @@ class FormatChecker(object):
 
         """
 
-        if format in self.checkers:
-            func, raises = self.checkers[format]
-            result, cause = None, None
-            try:
-                result = func(instance)
-            except raises as e:
-                cause = e
-            if not result:
-                raise FormatError(
-                    "%r is not a %r" % (instance, format), cause=cause,
-                )
+        if format not in self.checkers:
+            return
+
+        func, raises = self.checkers[format]
+        result, cause = None, None
+        try:
+            result = func(instance)
+        except raises as e:
+            cause = e
+        if not result:
+            raise FormatError(
+                "%r is not a %r" % (instance, format), cause=cause,
+            )
 
     def conforms(self, instance, format):
         """
