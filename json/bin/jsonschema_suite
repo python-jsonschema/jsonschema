@@ -32,6 +32,10 @@ try:
     import jsonschema
 except ImportError:
     jsonschema = None
+else:
+    validators = getattr(
+        jsonschema.validators, "validators", jsonschema.validators
+    )
 
 
 ROOT_DIR = os.path.join(
@@ -138,8 +142,8 @@ class SanityTests(unittest.TestCase):
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_all_schemas_are_valid(self):
         for schema in os.listdir(SUITE_ROOT_DIR):
-            schema_validator = jsonschema.validators.get(schema)
-            if schema_validator:
+            schema_validator = validators.get(schema)
+            if schema_validator is not None:
                 test_files = collect(os.path.join(SUITE_ROOT_DIR, schema))
                 for case in cases(test_files):
                     try:
