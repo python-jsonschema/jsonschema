@@ -3,7 +3,7 @@ Test runner for the JSON Schema official test suite
 
 Tests comprehensive correctness of each draft's validator.
 
-See https://github.com/jsonschema/JSON-Schema-Test-Suite for details.
+See https://github.com/json-schema/JSON-Schema-Test-Suite for details.
 
 """
 
