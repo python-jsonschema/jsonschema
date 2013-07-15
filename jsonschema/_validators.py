@@ -13,12 +13,19 @@ def patternProperties(validator, patternProperties, instance, schema):
         return
 
     for pattern, subschema in iteritems(patternProperties):
+        s = []
         for k, v in iteritems(instance):
             if re.search(pattern, k):
                 for error in validator.descend(
                         v, subschema, path=k, schema_path=pattern
                 ):
                     yield error
+            else:
+                s.append(k)
+         
+        if len(s) != 0:
+            error = "Properties (%s) %s not matched the pattern: " + pattern
+            yield ValidationError(error % _utils.extras_msg(s))
 
 
 def additionalProperties(validator, aP, instance, schema):
