@@ -424,6 +424,23 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(list(e5.path), [1, "bar", "baz"])
         self.assertEqual(list(e6.path), [1, "foo"])
 
+        self.assertEqual(list(e1.schema_path), ["type"])
+        self.assertEqual(list(e2.schema_path), ["items", "type"])
+        self.assertEqual(
+            list(e3.schema_path), ["items", "properties", "bar", "type"],
+        )
+        self.assertEqual(
+            list(e4.schema_path),
+            ["items", "properties", "bar", "properties", "bar", "required"],
+        )
+        self.assertEqual(
+            list(e5.schema_path),
+            ["items", "properties", "bar", "properties", "baz", "minItems"]
+        )
+        self.assertEqual(
+            list(e6.schema_path), ["items", "properties", "foo", "enum"],
+        )
+
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "type")
         self.assertEqual(e3.validator, "type")
