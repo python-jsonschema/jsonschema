@@ -70,19 +70,20 @@ The full picture requires defining what constitutes a backwards-incompatible
 change.
 
 The following are simple examples of things considered public API, and
-therefore should *not* be changed without bumping a major version number::
+therefore should *not* be changed without bumping a major version number:
 
     * module names and contents, when not marked private by Python convention
-      (leading underscore)
+      (a single leading underscore)
 
     * function and object signature (parameter order and name)
 
-The following are *not* considered public API and may change without notice::
+The following are *not* considered public API and may change without notice:
 
-    * the exact wording and contents of error messages; typical reasons to do
-      this seem to involve unit tests. API users are encouraged to use
-      :class:`ValidationError.validator` and friends instead, which are
-      dependable.
+    * the exact wording and contents of error messages; typical
+      reasons to do this seem to involve unit tests. API users are
+      encouraged to use the extensive introspection provided in
+      :class:`~jsonschema.exceptions.ValidationError`\s instead to make
+      meaningful assertions about what failed.
 
     * the order in which validation errors are returned or raised
 
