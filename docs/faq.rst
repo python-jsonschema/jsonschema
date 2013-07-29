@@ -2,8 +2,9 @@
 Frequently Asked Questions
 ==========================
 
-**Why doesn't my schema that has a default property actually set
-the default on my instance?**
+
+Why doesn't my schema that has a default property actually set the default on my instance?
+------------------------------------------------------------------------------------------
 
 The basic answer is that the specification does not require that
 :validator:`default` actually do anything.
@@ -54,3 +55,39 @@ If you're interested in a more interesting solution to a larger class of these
 types of transformations, keep an eye on `Seep
 <https://github.com/Julian/Seep>`_, which is an experimental data
 transformation and extraction library written on top of :mod:`jsonschema`.
+
+
+How do jsonschema version numbers work?
+---------------------------------------
+
+``jsonschema`` tries to follow the `Semantic Versioning <http://semver.org/>`_
+specification.
+
+This means broadly that no backwards-incompatible changes should be made in
+minor releases (and certainly not in dot releases).
+
+The full picture requires defining what constitutes a backwards-incompatible
+change.
+
+The following are simple examples of things considered public API, and
+therefore should *not* be changed without bumping a major version number::
+
+    * module names and contents, when not marked private by Python convention
+      (leading underscore)
+
+    * function and object signature (parameter order and name)
+
+The following are *not* considered public API and may change without notice::
+
+    * the exact wording and contents of error messages; typical reasons to do
+      this seem to involve unit tests. API users are encouraged to use
+      :class:`ValidationError.validator` and friends instead, which are
+      dependable.
+
+    * the order in which validation errors are returned or raised
+
+    * anything marked private
+
+With the exception of the last of those, flippant changes are avoided, but
+changes can and will be made if there is improvement to be had. Feel free to
+open an issue ticket if there is a specific issue or question worth raising.
