@@ -462,6 +462,46 @@ def validator_for(schema, default=_unset):
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):
+    """
+    Validate an instance under the given schema.
+
+        >>> validate([2, 3, 4], {"maxItems" : 2})
+        Traceback (most recent call last):
+            ...
+        ValidationError: [2, 3, 4] is too long
+
+    :func:`validate` will first verify that the provided schema is itself
+    valid, since not doing so can lead to less obvious error messages and fail
+    in less obvious or consistent ways. If you know you have a valid schema
+    already or don't care, you might prefer using the
+    :meth:`~IValidator.validate` method directly on a specific validator
+    (e.g. :meth:`Draft4Validator.validate`).
+
+
+    :argument instance: the instance to validate
+    :argument schema: the schema to validate with
+    :argument cls: an :class:`IValidator` class that will be used to validate
+                   the instance.
+
+    If the ``cls`` argument is not provided, two things will happen in
+    accordance with the specification. First, if the schema has a
+    :validator:`$schema` property containing a known meta-schema [#]_ then the
+    proper validator will be used.  The specification recommends that all
+    schemas contain :validator:`$schema` properties for this reason. If no
+    :validator:`$schema` property is found, the default validator class is
+    :class:`Draft4Validator`.
+
+    Any other provided positional and keyword arguments will be passed on when
+    instantiating the ``cls``.
+
+    :raises:
+        :exc:`ValidationError` if the instance is invalid
+
+        :exc:`SchemaError` if the schema itself is invalid
+
+    .. rubric:: Footnotes
+    .. [#] known by a validator registered with :func:`validates`
+    """
     if cls is None:
         cls = validator_for(schema)
     cls.check_schema(schema)
