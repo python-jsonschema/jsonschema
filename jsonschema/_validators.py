@@ -59,9 +59,10 @@ def additionalItems(validator, aI, instance, schema):
     ):
         return
 
+    len_items = len(schema.get("items", []))
     if validator.is_type(aI, "object"):
-        for index, item in enumerate(instance[len(schema.get("items", [])):]):
-            for error in validator.descend(item, aI, path=index):
+        for index, item in enumerate(instance[len_items:]):
+            for error in validator.descend(item, aI, path=index+len_items):
                 yield error
     elif not aI and len(instance) > len(schema.get("items", [])):
         error = "Additional items are not allowed (%s %s unexpected)"
