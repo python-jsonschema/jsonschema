@@ -484,6 +484,23 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e2.validator, "minimum")
 
     def test_additionalItems(self):
+        instance = ["foo", 1]
+        schema = {
+            "items": [],
+            "additionalItems" : {"type": "integer", "minimum": 5}
+        }
+
+        validator = Draft3Validator(schema)
+        errors = validator.iter_errors(instance)
+        e1, e2 = sorted_errors(errors)
+
+        self.assertEqual(list(e1.path), [0])
+        self.assertEqual(list(e2.path), [1])
+
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "minimum")
+
+    def test_additionalItems_with_items(self):
         instance = ["foo", "bar", 1]
         schema = {
             "items": [{}],
