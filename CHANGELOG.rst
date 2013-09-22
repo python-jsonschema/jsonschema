@@ -1,3 +1,11 @@
+v2.1.0
+------
+
+* Support RFC 3339 datetimes in conformance with the spec
+* Fixed error paths for additionalItems + items (#122)
+* Fixed wording for min / maxProperties (#117)
+
+
 v2.0.0
 ------
 

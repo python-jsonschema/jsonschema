@@ -49,21 +49,10 @@ Features
 Release Notes
 -------------
 
-``v2.0.0`` adds a better interface for creating and extending validators in the
-form of ``jsonschema.validators.create`` and ``jsonschema.validators.extend``.
-The documentation is still a bit lacking in this area but it's getting there.
-See the tests in ``jsonschema.tests.test_validators`` and the source code if
-you'd like to try it out now. ``ValidatorMixin`` has been removed.
-
-Practically speaking, this affects validators that subclassed a built-in
-validator and extended a validator function (presumably with an upcall via
-``super``), as the correct way to do so is now to call
-``TheValidator.VALIDATORS["extended_validator_fn"]`` directly in a new
-validator function (and of course to use ``create``). Examples hopefully coming
-soon if more clarification is needed. Patches welcome of course.
-
-It also fixes a number of issues with ref resolution, one for array indices
-(#95) and one for improper handling of unknown URI schemes (#102).
+``v2.1.0`` fixes a wording issue for min / maxProperties, a path issue for
+additionalItems, and allows using `strict-rfc3339
+<https://pypi.python.org/pypi/strict-rfc3339/>`_ for date-time formats, instead
+of ISO 8601, since the former is what the spec defines them to be.
 
 
 Running the Test Suite
