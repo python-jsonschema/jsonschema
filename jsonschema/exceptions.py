@@ -24,24 +24,19 @@ class _Error(Exception):
         self.instance = instance
         self.schema = schema
 
-    @classmethod
-    def create_from(cls, other):
-        return cls(
-            message=other.message,
-            cause=other.cause,
-            context=other.context,
-            path=other.path,
-            schema_path=other.schema_path,
-            validator=other.validator,
-            validator_value=other.validator_value,
-            instance=other.instance,
-            schema=other.schema,
-        )
-
-    def _set(self, **kwargs):
-        for k, v in iteritems(kwargs):
-            if getattr(self, k) is _unset:
-                setattr(self, k, v)
+    def __lt__(self, other):
+        if not isinstance(other, self.__class__):
+            # On Py2 Python will "helpfully" make this succeed. So be more
+            # forceful, because we really don't want this to work, it probably
+            # means a ValidationError and a SchemaError are being compared
+            # accidentally.
+            if not PY3:
+                message = "unorderable types: %s() < %s()" % (
+                        self.__class__.__name__, other.__class__.__name__,
+                )
+                raise TypeError(message)
+            return NotImplemented
+        return self.path < other.path
 
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
@@ -78,6 +73,25 @@ class _Error(Exception):
 
     if PY3:
         __str__ = __unicode__
+
+    @classmethod
+    def create_from(cls, other):
+        return cls(
+            message=other.message,
+            cause=other.cause,
+            context=other.context,
+            path=other.path,
+            schema_path=other.schema_path,
+            validator=other.validator,
+            validator_value=other.validator_value,
+            instance=other.instance,
+            schema=other.schema,
+        )
+
+    def _set(self, **kwargs):
+        for k, v in iteritems(kwargs):
+            if getattr(self, k) is _unset:
+                setattr(self, k, v)
 
 
 class ValidationError(_Error):
