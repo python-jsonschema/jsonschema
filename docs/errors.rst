@@ -301,3 +301,34 @@ To summarize, each tree contains child trees that can be accessed by indexing
 the tree to get the corresponding child tree for a given index into the
 instance. Each tree and child has a :attr:`~ErrorTree.errors` attribute, a
 dict, that maps the failed validator to the corresponding validation error.
+
+
+best_match
+----------
+
+The :func:`best_match` function is a simple but useful function for attempting
+to guess the most relevant error in a given bunch.
+
+.. autofunction:: best_match
+
+    Try to find an error that appears to be the best match among given errors.
+
+    In general, errors that are higher up in the instance (i.e. for which
+    :attr:`ValidationError.path` is shorter) are considered better matches,
+    since they indicate "more" is wrong with the instance.
+
+    If the resulting match is either :validator:`oneOf` or :validator:`anyOf`,
+    the *opposite* assumption is made -- i.e. the deepest error is picked,
+    since these validators only need to match once, and any other errors may
+    not be relevant.
+
+    :argument iterable errors: the errors to select from. Do not provide a
+        mixture of errors from different validation attempts (i.e. from
+        different instances or schemas), since it won't produce sensical
+        output.
+    :returns: the best matching error, or ``None`` if the iterable was empty
+
+    .. note::
+
+        This function is a heuristic. Its return value may change for a given
+        set of inputs from version to version if better heuristics are added.

@@ -1,4 +1,5 @@
 import collections
+import itertools
 import pprint
 import textwrap
 
@@ -24,6 +25,11 @@ class _Error(Exception):
         self.instance = instance
         self.schema = schema
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self._contents() == other._contents()
+
     def __lt__(self, other):
         if not isinstance(other, self.__class__):
             # On Py2 Python will "helpfully" make this succeed. So be more
@@ -36,7 +42,14 @@ class _Error(Exception):
                 )
                 raise TypeError(message)
             return NotImplemented
-        return self.path < other.path
+
+        is_deeper = len(self.path) > len(other.path)
+        is_weak_matcher = self.validator in ("anyOf", "oneOf")
+        other_is_weak_matcher = other.validator in ("anyOf", "oneOf")
+        return is_deeper or is_weak_matcher > other_is_weak_matcher
+
+    def __ne__(self, other):
+        return not self == other
 
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
@@ -93,6 +106,14 @@ class _Error(Exception):
             if getattr(self, k) is _unset:
                 setattr(self, k, v)
 
+    def _contents(self):
+        return dict(
+            (attr, getattr(self, attr)) for attr in (
+                "message", "cause", "context", "path", "schema_path",
+                "validator", "validator_value", "instance", "schema"
+            )
+        )
+
 
 class ValidationError(_Error):
     pass
@@ -146,3 +167,13 @@ class FormatError(Exception):
 
     if PY3:
         __str__ = __unicode__
+
+
+def best_match(errors):
+    first = next(iter(errors), None)
+    if first is None:
+        return
+    best = max(itertools.chain([first], errors))
+    while best.context:
+        best = min(best.context)
+    return best
