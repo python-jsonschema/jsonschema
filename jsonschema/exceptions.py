@@ -89,17 +89,7 @@ class _Error(Exception):
 
     @classmethod
     def create_from(cls, other):
-        return cls(
-            message=other.message,
-            cause=other.cause,
-            context=other.context,
-            path=other.path,
-            schema_path=other.schema_path,
-            validator=other.validator,
-            validator_value=other.validator_value,
-            instance=other.instance,
-            schema=other.schema,
-        )
+        return cls(**other._contents())
 
     def _set(self, **kwargs):
         for k, v in iteritems(kwargs):
