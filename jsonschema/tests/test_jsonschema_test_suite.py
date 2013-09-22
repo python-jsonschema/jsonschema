@@ -139,13 +139,15 @@ class DecimalMixin(object):
 def missing_format(checker):
     def missing_format(case):
         format = case["schema"].get("format")
-        if format not in checker.checkers or (
-            # datetime.datetime is overzealous about typechecking in <=1.9
+        if format not in checker.checkers:
+            return "Format checker {0!r} not found.".format(format)
+        elif (
             format == "date-time" and
             pypy_version_info is not None and
             pypy_version_info[:2] <= (1, 9)
         ):
-            return "Format checker {0!r} not found.".format(format)
+            # datetime.datetime is overzealous about typechecking in <=1.9
+            return "datetime.datetime is broken on this version of PyPy."
     return missing_format
 
 
