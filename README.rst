@@ -76,7 +76,8 @@ favorite test runner. The tests live in the ``jsonschema.tests`` package.
 Community
 ---------
 
-There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_ for this implementation on Google Groups.
+There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_
+for this implementation on Google Groups.
 
 Please join, and feel free to send questions there.
 
