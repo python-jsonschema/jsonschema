@@ -93,3 +93,7 @@ it'd be most welcome!
 
 You can also generally find me on Freenode (nick: ``tos9``) in various
 channels, including ``#python``.
+
+If you feel overwhelmingly grateful, you can woo me with beer money on
+[Gittip](https://www.gittip.com/Julian/) or via Google Wallet with the email in
+my GitHub profile.
