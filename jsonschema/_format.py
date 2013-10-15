@@ -131,10 +131,11 @@ if hasattr(socket, "inet_pton"):
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
+_host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
+
 @_checks_drafts(draft3="host-name", draft4="hostname")
 def is_host_name(instance):
-    pattern = "^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$"
-    if not re.match(pattern, instance):
+    if not _host_name_re.match(instance):
         return False
     components = instance.split(".")
     for component in components:
