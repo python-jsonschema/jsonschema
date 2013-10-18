@@ -655,6 +655,11 @@ class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
         self.assertTrue(self.validator.is_type(True, "boolean"))
         self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
 
+    def test_non_string_custom_types(self):
+        schema = {'type': [None]}
+        cls = self.validator_class(schema, types={None: type(None)})
+        cls.validate(None, schema)
+
 
 class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft4Validator

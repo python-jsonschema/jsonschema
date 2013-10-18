@@ -215,7 +215,7 @@ def type_draft3(validator, types, instance, schema):
             if not errors:
                 return
             all_errors.extend(errors)
-        elif validator.is_type(type, "string"):
+        else:
             if validator.is_type(instance, type):
                 return
     else:
