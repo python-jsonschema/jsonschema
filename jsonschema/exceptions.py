@@ -106,12 +106,14 @@ class UnknownType(Exception):
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
             Uknown Type: %s, in schema:
-                %r
+            %s
 
             On instance:
-                %s
+            %s
             """.rstrip()
-        ) % (self.type, self.schema, self.instance)
+        ) % (self.type,
+            _utils.indent(pschema),
+            _utils.indent(pinstance))
 
 
 
