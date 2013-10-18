@@ -97,7 +97,6 @@ class UnknownType(Exception):
         self.type = type
         self.instance = instance
         self.schema = schema
-        self.msg = "OMGZ"
 
     def __str__(self):
         return self.__unicode__()
@@ -106,7 +105,7 @@ class UnknownType(Exception):
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
-            unknown type %s, in schema:
+            Uknown Type: %s, in schema:
                 %r
 
             On instance:
