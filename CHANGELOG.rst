@@ -1,3 +1,9 @@
+v2.2.0
+------
+
+* Compile the host name regex (#127)
+* Allow arbitrary objects to be types (#129)
+
 v2.1.0
 ------
 

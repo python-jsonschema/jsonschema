@@ -49,10 +49,8 @@ Features
 Release Notes
 -------------
 
-``v2.1.0`` fixes a wording issue for min / maxProperties, a path issue for
-additionalItems, and allows using `strict-rfc3339
-<https://pypi.python.org/pypi/strict-rfc3339/>`_ for date-time formats, instead
-of ISO 8601, since the former is what the spec defines them to be.
+``v2.2.0`` contains a minor speedup for the ``host-name`` format and a small
+change in draft 3's allowed types.
 
 
 Running the Test Suite
