@@ -99,13 +99,13 @@ class UnknownType(Exception):
         self.schema = schema
 
     def __str__(self):
-        return self.__unicode__()
+        return unicode(self).encode("utf-8")
 
     def __unicode__(self):
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
-            Uknown Type: %s, in schema:
+            Unknown Type: %r, in schema:
             %s
 
             On instance:
@@ -115,6 +115,8 @@ class UnknownType(Exception):
             _utils.indent(pschema),
             _utils.indent(pinstance))
 
+    if PY3:
+        __str__ = __unicode__
 
 
 
