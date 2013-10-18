@@ -93,7 +93,28 @@ class RefResolutionError(Exception):
 
 
 class UnknownType(Exception):
-    pass
+    def __init__(self, type, instance, schema):
+        self.type = type
+        self.instance = instance
+        self.schema = schema
+        self.msg = "OMGZ"
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        pschema = pprint.pformat(self.schema, width=72)
+        pinstance = pprint.pformat(self.instance, width=72)
+        return textwrap.dedent("""
+            unknown type %s, in schema:
+                %r
+
+            On instance:
+                %s
+            """.rstrip()
+        ) % (self.type, self.schema, self.instance)
+
+
 
 
 class FormatError(Exception):
