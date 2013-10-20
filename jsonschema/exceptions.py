@@ -105,10 +105,10 @@ class UnknownType(Exception):
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
-            Unknown Type: %r, in schema:
+            Unknown type %r for validator with schema:
             %s
 
-            On instance:
+            While checking instance:
             %s
             """.rstrip()
         ) % (self.type, _utils.indent(pschema), _utils.indent(pinstance))
