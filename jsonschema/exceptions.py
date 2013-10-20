@@ -111,9 +111,7 @@ class UnknownType(Exception):
             On instance:
             %s
             """.rstrip()
-        ) % (self.type,
-            _utils.indent(pschema),
-            _utils.indent(pinstance))
+        ) % (self.type, _utils.indent(pschema), _utils.indent(pinstance))
 
     if PY3:
         __str__ = __unicode__
