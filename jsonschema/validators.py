@@ -118,7 +118,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
         def is_type(self, instance, type):
             if type not in self._types:
-                raise UnknownType(type)
+                raise UnknownType(type, instance, self.schema)
             pytypes = self._types[type]
 
             # bool inherits from int, so ensure bools aren't reported as ints

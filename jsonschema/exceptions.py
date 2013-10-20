@@ -93,7 +93,31 @@ class RefResolutionError(Exception):
 
 
 class UnknownType(Exception):
-    pass
+    def __init__(self, type, instance, schema):
+        self.type = type
+        self.instance = instance
+        self.schema = schema
+
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
+    def __unicode__(self):
+        pschema = pprint.pformat(self.schema, width=72)
+        pinstance = pprint.pformat(self.instance, width=72)
+        return textwrap.dedent("""
+            Unknown Type: %r, in schema:
+            %s
+
+            On instance:
+            %s
+            """.rstrip()
+        ) % (self.type,
+            _utils.indent(pschema),
+            _utils.indent(pinstance))
+
+    if PY3:
+        __str__ = __unicode__
+
 
 
 class FormatError(Exception):
