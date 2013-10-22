@@ -234,3 +234,8 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# -- Read the Docs -------------------------------------------------------------
+
+# Ooo pretty.
+RTD_NEW_THEME = True
