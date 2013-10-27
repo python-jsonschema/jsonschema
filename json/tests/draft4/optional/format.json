@@ -33,6 +33,11 @@
                 "description": "an invalid URI",
                 "data": "\\\\WINDOWS\\fileshare",
                 "valid": false
+            },
+            {
+                "description": "an invalid URI though valid URI reference",
+                "data": "abc",
+                "valid": false
             }
         ]
     },
