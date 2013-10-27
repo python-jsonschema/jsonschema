@@ -151,7 +151,7 @@ except ImportError:
 else:
     @_checks_drafts("uri", raises=ValueError)
     def is_uri(instance):
-        return rfc3987.parse(instance, rule="URI_reference")
+        return rfc3987.parse(instance, rule="URI")
 
 
 try:
