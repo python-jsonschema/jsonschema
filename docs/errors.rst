@@ -303,8 +303,8 @@ instance. Each tree and child has a :attr:`~ErrorTree.errors` attribute, a
 dict, that maps the failed validator to the corresponding validation error.
 
 
-best_match
-----------
+best_match and by_relevance
+---------------------------
 
 The :func:`best_match` function is a simple but useful function for attempting
 to guess the most relevant error in a given bunch.
@@ -349,4 +349,31 @@ to guess the most relevant error in a given bunch.
         set of inputs from version to version if better heuristics are added.
 
 
-.. autofunction:: best_match
+.. autofunction:: by_relevance
+
+    Create a key function that can be used to sort errors by relevance.
+
+    If you want to sort a bunch of errors entirely, you can use this function
+    to do so. Using the return value of this function as a key to e.g.
+    :func:`sorted` or :func:`max` will cause more relevant errors to be
+    considered greater than less relevant ones.
+
+.. doctest::
+
+    >>> schema = {
+    ...     "properties": {
+    ...         "name": {"type": "string"},
+    ...         "phones": {
+    ...             "properties": {
+    ...                 "home": {"type": "string"}
+    ...             },
+    ...         },
+    ...     },
+    ... }
+    >>> instance = {"name": 123, "phones": {"home": [123]}}
+    >>> errors = Draft4Validator(schema).iter_errors(instance)
+    >>> [
+    ...     e.path[-1]
+    ...     for e in sorted(errors, key=exceptions.by_relevance())
+    ... ]
+    ['home', 'name']
