@@ -2,7 +2,7 @@
 Handling Validation Errors
 ==========================
 
-.. currentmodule:: jsonschema
+.. currentmodule:: jsonschema.exceptions
 
 When an invalid instance is encountered, a :exc:`ValidationError` will be
 raised or returned, depending on which method or function is used.
@@ -194,7 +194,7 @@ If you want to programmatically be able to query which properties or validators
 failed when validating a given instance, you probably will want to do so using
 :class:`ErrorTree` objects.
 
-.. autoclass:: ErrorTree
+.. autoclass:: jsonschema.validators.ErrorTree
     :members:
     :special-members:
     :exclude-members: __dict__,__weakref__
@@ -317,6 +317,18 @@ to guess the most relevant error in a given bunch.
     :attr:`ValidationError.path` is shorter) are considered better matches,
     since they indicate "more" is wrong with the instance.
 
+.. doctest::
+
+        >>> from jsonschema import Draft4Validator
+        >>> from jsonschema.exceptions import best_match
+
+        >>> schema = {
+        ...     "type": "array",
+        ...     "minItems": 3,
+        ... }
+        >>> print(best_match(Draft4Validator(schema).iter_errors(11)).message)
+        11 is not of type 'array'
+
     If the resulting match is either :validator:`oneOf` or :validator:`anyOf`,
     the *opposite* assumption is made -- i.e. the deepest error is picked,
     since these validators only need to match once, and any other errors may
@@ -326,9 +338,15 @@ to guess the most relevant error in a given bunch.
         mixture of errors from different validation attempts (i.e. from
         different instances or schemas), since it won't produce sensical
         output.
+    :argument callable key: the key to use when sorting errors. See
+        :func:`by_relevance` for more details (the default is to sort with the
+        defaults of that function).
     :returns: the best matching error, or ``None`` if the iterable was empty
 
     .. note::
 
         This function is a heuristic. Its return value may change for a given
         set of inputs from version to version if better heuristics are added.
+
+
+.. autofunction:: best_match
