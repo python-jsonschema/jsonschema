@@ -149,7 +149,8 @@ class TestBestMatch(unittest.TestCase):
         validator = Draft4Validator({"minProperties" : 2})
         error, = validator.iter_errors({})
         self.assertEqual(
-            exceptions.best_match(validator.iter_errors({})), error,
+            exceptions.best_match(validator.iter_errors({})).validator,
+            "minProperties",
         )
 
     def test_no_errors(self):

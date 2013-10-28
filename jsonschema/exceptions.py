@@ -28,14 +28,6 @@ class _Error(Exception):
         self.instance = instance
         self.schema = schema
 
-    def __eq__(self, other):
-        if not isinstance(other, self.__class__):
-            return NotImplemented
-        return self._contents() == other._contents()
-
-    def __ne__(self, other):
-        return not self == other
-
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
 
