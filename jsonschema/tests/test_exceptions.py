@@ -2,7 +2,19 @@ from jsonschema import Draft4Validator, exceptions
 from jsonschema.tests.compat import mock, unittest
 
 
-class TestValidationErrorSorting(unittest.TestCase):
+class TestBestMatch(unittest.TestCase):
+    def best_match(self, errors):
+        errors = list(errors)
+        best = exceptions.best_match(errors)
+        reversed_best = exceptions.best_match(reversed(errors))
+        self.assertEqual(
+            best,
+            reversed_best,
+            msg="Didn't return a consistent best match!\n"
+                "Got: {0}\n\nThen: {1}".format(best, reversed_best),
+        )
+        return best
+
     def test_shallower_errors_are_better_matches(self):
         validator = Draft4Validator(
             {
@@ -14,24 +26,8 @@ class TestValidationErrorSorting(unittest.TestCase):
                 }
             }
         )
-        errors = sorted(validator.iter_errors({"foo" : {"bar" : []}}))
-        self.assertEqual(
-            [list(error.path) for error in errors],
-            [["foo", "bar"], ["foo"]],
-        )
-
-    def test_global_errors_are_even_better_matches(self):
-        validator = Draft4Validator(
-            {
-                "minProperties" : 2,
-                "properties" : {"foo" : {"type" : "array"}},
-            }
-        )
-        errors = sorted(validator.iter_errors({"foo" : {"bar" : []}}))
-        self.assertEqual(
-            [list(error.path) for error in errors],
-            [["foo"], []],
-        )
+        best = self.best_match(validator.iter_errors({"foo" : {"bar" : []}}))
+        self.assertEqual(best.validator, "minProperties")
 
     def test_oneOf_and_anyOf_are_weak_matches(self):
         """
@@ -43,47 +39,21 @@ class TestValidationErrorSorting(unittest.TestCase):
         validator = Draft4Validator(
             {
                 "minProperties" : 2,
+                "anyOf" : [{"type" : "string"}, {"type" : "number"}],
                 "oneOf" : [{"type" : "string"}, {"type" : "number"}],
             }
         )
-        errors = sorted(validator.iter_errors({}))
-        self.assertEqual(
-            [error.validator for error in errors], ["oneOf", "minProperties"],
-        )
+        best = self.best_match(validator.iter_errors({}))
+        self.assertEqual(best.validator, "minProperties")
 
-    def test_cannot_sort_errors_of_mixed_types(self):
-        with self.assertRaises(TypeError):
-            v = exceptions.ValidationError("Oh", instance=3)
-            s = exceptions.SchemaError("No!", instance=3)
-            v < s
-
-
-class TestBestMatch(unittest.TestCase):
-    def test_for_errors_without_context_it_returns_the_max(self):
+    def test_if_the_most_relevant_error_is_anyOf_it_is_traversed(self):
         """
-        The ``max`` will be the error which is most "shallow" in the instance.
+        If the most relevant error is an anyOf, then we traverse its context
+        and select the otherwise *least* relevant error, since in this case
+        that means the most specific, deep, error inside the instance.
 
-        """
-
-        validator = Draft4Validator(
-            {
-                "properties" : {
-                    "foo" : {
-                        "minProperties" : 2,
-                        "properties" : {"bar" : {"type" : "object"}},
-                    },
-                },
-            }
-        )
-        errors = sorted(validator.iter_errors({"foo" : {"bar" : []}}))
-        self.assertIs(exceptions.best_match(errors), errors[-1])
-
-    def test_context_for_anyOf(self):
-        """
-        For the anyOf validator, we use the min, to assume the least.
-
-        Other errors are not necessarily relevant, since only one needs to
-        match.
+        I.e. since only one of the schemas must match, we look for the most
+        relevant one.
 
         """
 
@@ -99,16 +69,17 @@ class TestBestMatch(unittest.TestCase):
                 },
             },
         )
-        errors = validator.iter_errors({"foo" : {"bar" : 12}})
-        best = exceptions.best_match(errors)
+        best = self.best_match(validator.iter_errors({"foo" : {"bar" : 12}}))
         self.assertEqual(best.validator_value, "array")
 
-    def test_context_for_oneOf(self):
+    def test_if_the_most_relevant_error_is_oneOf_it_is_traversed(self):
         """
-        For the oneOf validator, we use the min, to assume the least.
+        If the most relevant error is an oneOf, then we traverse its context
+        and select the otherwise *least* relevant error, since in this case
+        that means the most specific, deep, error inside the instance.
 
-        Other errors are not necessarily relevant, since only one needs to
-        match.
+        I.e. since only one of the schemas must match, we look for the most
+        relevant one.
 
         """
 
@@ -124,13 +95,13 @@ class TestBestMatch(unittest.TestCase):
                 },
             },
         )
-        errors = validator.iter_errors({"foo" : {"bar" : 12}})
-        best = exceptions.best_match(errors)
+        best = self.best_match(validator.iter_errors({"foo" : {"bar" : 12}}))
         self.assertEqual(best.validator_value, "array")
 
-    def test_context_for_allOf(self):
+    def test_if_the_most_relevant_error_is_allOf_it_is_traversed(self):
         """
-        allOf just yields all the errors globally, so each should be considered
+        Now, if the error is allOf, we traverse but select the *most* relevant
+        error from the context, because all schemas here must match anyways.
 
         """
 
@@ -146,8 +117,7 @@ class TestBestMatch(unittest.TestCase):
                 },
             },
         )
-        errors = validator.iter_errors({"foo" : {"bar" : 12}})
-        best = exceptions.best_match(errors)
+        best = self.best_match(validator.iter_errors({"foo" : {"bar" : 12}}))
         self.assertEqual(best.validator_value, "string")
 
     def test_nested_context_for_oneOf(self):
@@ -172,8 +142,7 @@ class TestBestMatch(unittest.TestCase):
                 },
             },
         )
-        errors = validator.iter_errors({"foo" : {"bar" : 12}})
-        best = exceptions.best_match(errors)
+        best = self.best_match(validator.iter_errors({"foo" : {"bar" : 12}}))
         self.assertEqual(best.validator_value, "array")
 
     def test_one_error(self):
@@ -186,3 +155,55 @@ class TestBestMatch(unittest.TestCase):
     def test_no_errors(self):
         validator = Draft4Validator({})
         self.assertIsNone(exceptions.best_match(validator.iter_errors({})))
+
+
+class TestByRelevance(unittest.TestCase):
+    def test_short_paths_are_better_matches(self):
+        shallow = exceptions.ValidationError("Oh no!", path=["baz"])
+        deep = exceptions.ValidationError("Oh yes!", path=["foo", "bar"])
+        match = max([shallow, deep], key=exceptions.by_relevance())
+        self.assertIs(match, shallow)
+
+        match = max([deep, shallow], key=exceptions.by_relevance())
+        self.assertIs(match, shallow)
+
+    def test_global_errors_are_even_better_matches(self):
+        shallow = exceptions.ValidationError("Oh no!", path=[])
+        deep = exceptions.ValidationError("Oh yes!", path=["foo"])
+
+        errors = sorted([shallow, deep], key=exceptions.by_relevance())
+        self.assertEqual(
+            [list(error.path) for error in errors],
+            [["foo"], []],
+        )
+
+        errors = sorted([deep, shallow], key=exceptions.by_relevance())
+        self.assertEqual(
+            [list(error.path) for error in errors],
+            [["foo"], []],
+        )
+
+    def test_weak_validators_are_lower_priority(self):
+        weak = exceptions.ValidationError("Oh no!", path=[], validator="a")
+        normal = exceptions.ValidationError("Oh yes!", path=[], validator="b")
+
+        best_match = exceptions.by_relevance(weak="a")
+
+        match = max([weak, normal], key=best_match)
+        self.assertIs(match, normal)
+
+        match = max([normal, weak], key=best_match)
+        self.assertIs(match, normal)
+
+    def test_strong_validators_are_higher_priority(self):
+        weak = exceptions.ValidationError("Oh no!", path=[], validator="a")
+        normal = exceptions.ValidationError("Oh yes!", path=[], validator="b")
+        strong = exceptions.ValidationError("Oh fine!", path=[], validator="c")
+
+        best_match = exceptions.by_relevance(weak="a", strong="c")
+
+        match = max([weak, normal, strong], key=best_match)
+        self.assertIs(match, strong)
+
+        match = max([strong, normal, weak], key=best_match)
+        self.assertIs(match, strong)

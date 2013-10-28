@@ -7,6 +7,9 @@ from jsonschema import _utils
 from jsonschema.compat import PY3, iteritems
 
 
+WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
+STRONG_MATCHES = frozenset()
+
 _unset = _utils.Unset()
 
 
@@ -29,24 +32,6 @@ class _Error(Exception):
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self._contents() == other._contents()
-
-    def __lt__(self, other):
-        if not isinstance(other, self.__class__):
-            # On Py2 Python will "helpfully" make this succeed. So be more
-            # forceful, because we really don't want this to work, it probably
-            # means a ValidationError and a SchemaError are being compared
-            # accidentally.
-            if not PY3:
-                message = "unorderable types: %s() < %s()" % (
-                        self.__class__.__name__, other.__class__.__name__,
-                )
-                raise TypeError(message)
-            return NotImplemented
-
-        is_deeper = len(self.path) > len(other.path)
-        is_weak_matcher = self.validator in ("anyOf", "oneOf")
-        other_is_weak_matcher = other.validator in ("anyOf", "oneOf")
-        return is_deeper or is_weak_matcher > other_is_weak_matcher
 
     def __ne__(self, other):
         return not self == other
@@ -159,11 +144,20 @@ class FormatError(Exception):
         __str__ = __unicode__
 
 
-def best_match(errors):
-    first = next(iter(errors), None)
-    if first is None:
+def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
+    def relevance(error):
+        validator = error.validator
+        return -len(error.path), validator not in weak, validator in strong
+    return relevance
+
+
+def best_match(errors, key=by_relevance()):
+    errors = iter(errors)
+    best = next(errors, None)
+    if best is None:
         return
-    best = max(itertools.chain([first], errors))
+    best = max(itertools.chain([best], errors), key=key)
+
     while best.context:
-        best = min(best.context)
+        best = min(best.context, key=key)
     return best
