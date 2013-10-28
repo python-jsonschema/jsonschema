@@ -377,3 +377,11 @@ to guess the most relevant error in a given bunch.
     ...     for e in sorted(errors, key=exceptions.by_relevance())
     ... ]
     ['home', 'name']
+
+    :argument set weak: a collection of validators to consider to be "weak". If
+        there are two errors at the same level of the instance and one is in
+        the set of weak validators, the other error will take priority. By
+        default, :validator:`anyOf` and :validator:`oneOf` are considered weak
+        validators and will be superceded by other same-level validation
+        errors.
+    :argument set strong a collection of validators to consider to be "strong".
