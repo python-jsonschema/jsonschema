@@ -1,10 +1,14 @@
 import collections
+import itertools
 import pprint
 import textwrap
 
 from jsonschema import _utils
 from jsonschema.compat import PY3, iteritems
 
+
+WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
+STRONG_MATCHES = frozenset()
 
 _unset = _utils.Unset()
 
@@ -23,25 +27,6 @@ class _Error(Exception):
         self.validator_value = validator_value
         self.instance = instance
         self.schema = schema
-
-    @classmethod
-    def create_from(cls, other):
-        return cls(
-            message=other.message,
-            cause=other.cause,
-            context=other.context,
-            path=other.path,
-            schema_path=other.schema_path,
-            validator=other.validator,
-            validator_value=other.validator_value,
-            instance=other.instance,
-            schema=other.schema,
-        )
-
-    def _set(self, **kwargs):
-        for k, v in iteritems(kwargs):
-            if getattr(self, k) is _unset:
-                setattr(self, k, v)
 
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
@@ -78,6 +63,23 @@ class _Error(Exception):
 
     if PY3:
         __str__ = __unicode__
+
+    @classmethod
+    def create_from(cls, other):
+        return cls(**other._contents())
+
+    def _set(self, **kwargs):
+        for k, v in iteritems(kwargs):
+            if getattr(self, k) is _unset:
+                setattr(self, k, v)
+
+    def _contents(self):
+        return dict(
+            (attr, getattr(self, attr)) for attr in (
+                "message", "cause", "context", "path", "schema_path",
+                "validator", "validator_value", "instance", "schema"
+            )
+        )
 
 
 class ValidationError(_Error):
@@ -132,3 +134,22 @@ class FormatError(Exception):
 
     if PY3:
         __str__ = __unicode__
+
+
+def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
+    def relevance(error):
+        validator = error.validator
+        return -len(error.path), validator not in weak, validator in strong
+    return relevance
+
+
+def best_match(errors, key=by_relevance()):
+    errors = iter(errors)
+    best = next(errors, None)
+    if best is None:
+        return
+    best = max(itertools.chain([best], errors), key=key)
+
+    while best.context:
+        best = min(best.context, key=key)
+    return best
