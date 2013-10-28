@@ -180,6 +180,24 @@ class FormatMixin(object):
         # Make sure original cause is attached
         self.assertIs(cm.exception.cause, cause)
 
+    def test_it_validates_formats_of_any_type(self):
+        checker = mock.Mock(spec=FormatChecker)
+        validator = self.validator_class(
+            {"format" : "foo"}, format_checker=checker,
+        )
+
+        validator.validate([1, 2, 3])
+
+        checker.check.assert_called_once_with([1, 2, 3], "foo")
+
+        cause = ValueError()
+        checker.check.side_effect = FormatError('aoeu', cause=cause)
+
+        with self.assertRaises(ValidationError) as cm:
+            validator.validate([1, 2, 3])
+        # Make sure original cause is attached
+        self.assertIs(cm.exception.cause, cause)
+
 
 @load_json_cases("draft3/*.json", ignore_glob="draft3/refRemote.json")
 @load_json_cases(

@@ -150,10 +150,7 @@ def pattern(validator, patrn, instance, schema):
 
 
 def format(validator, format, instance, schema):
-    if (
-        validator.format_checker is not None and
-        validator.is_type(instance, "string")
-    ):
+    if validator.format_checker is not None:
         try:
             validator.format_checker.check(instance, format)
         except FormatError as error:
