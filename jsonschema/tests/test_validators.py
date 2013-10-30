@@ -8,7 +8,7 @@ from jsonschema import FormatChecker, ValidationError
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
-    RefResolutionError, UnknownType, ErrorTree, Draft3Validator,
+    RefResolutionError, UnknownType, Draft3Validator,
     Draft4Validator, RefResolver, create, extend, validator_for, validate,
 )
 
@@ -516,69 +516,6 @@ class TestValidationErrorDetails(unittest.TestCase):
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
-
-
-class TestErrorTree(unittest.TestCase):
-    def setUp(self):
-        self.validator = Draft3Validator({})
-
-    def test_it_knows_how_many_total_errors_it_contains(self):
-        errors = [mock.MagicMock() for _ in range(8)]
-        tree = ErrorTree(errors)
-        self.assertEqual(tree.total_errors, 8)
-
-    def test_it_contains_an_item_if_the_item_had_an_error(self):
-        errors = [ValidationError("a message", path=["bar"])]
-        tree = ErrorTree(errors)
-        self.assertIn("bar", tree)
-
-    def test_it_does_not_contain_an_item_if_the_item_had_no_error(self):
-        errors = [ValidationError("a message", path=["bar"])]
-        tree = ErrorTree(errors)
-        self.assertNotIn("foo", tree)
-
-    def test_validators_that_failed_appear_in_errors_dict(self):
-        error = ValidationError("a message", validator="foo")
-        tree = ErrorTree([error])
-        self.assertEqual(tree.errors, {"foo" : error})
-
-    def test_it_creates_a_child_tree_for_each_nested_path(self):
-        errors = [
-            ValidationError("a bar message", path=["bar"]),
-            ValidationError("a bar -> 0 message", path=["bar", 0]),
-        ]
-        tree = ErrorTree(errors)
-        self.assertIn(0, tree["bar"])
-        self.assertNotIn(1, tree["bar"])
-
-    def test_children_have_their_errors_dicts_built(self):
-        e1, e2 = (
-            ValidationError("message 1", validator="foo", path=["bar", 0]),
-            ValidationError("message 2", validator="quux", path=["bar", 0]),
-        )
-        tree = ErrorTree([e1, e2])
-        self.assertEqual(tree["bar"][0].errors, {"foo" : e1, "quux" : e2})
-
-    def test_it_does_not_contain_subtrees_that_are_not_in_the_instance(self):
-        error = ValidationError("a message", validator="foo", instance=[])
-        tree = ErrorTree([error])
-
-        with self.assertRaises(IndexError):
-            tree[0]
-
-    def test_if_its_in_the_tree_anyhow_it_does_not_raise_an_error(self):
-        """
-        If a validator is dumb (like :validator:`required` in draft 3) and
-        refers to a path that isn't in the instance, the tree still properly
-        returns a subtree for that path.
-
-        """
-
-        error = ValidationError(
-            "a message", validator="foo", instance={}, path=["foo"],
-        )
-        tree = ErrorTree([error])
-        self.assertIsInstance(tree["foo"], ErrorTree)
 
 
 class ValidatorTestMixin(object):
