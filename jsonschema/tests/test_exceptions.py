@@ -1,7 +1,5 @@
-import mock
-
 from jsonschema import Draft4Validator, exceptions
-from jsonschema.tests.compat import unittest
+from jsonschema.tests.compat import mock, unittest
 
 
 class TestBestMatch(unittest.TestCase):

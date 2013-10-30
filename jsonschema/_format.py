@@ -2,6 +2,7 @@ import datetime
 import re
 import socket
 
+from jsonschema.compat import str_types
 from jsonschema.exceptions import FormatError
 
 
@@ -117,17 +118,23 @@ def _checks_drafts(both=None, draft3=None, draft4=None, raises=()):
 
 @_checks_drafts("email")
 def is_email(instance):
+    if not isinstance(instance, str_types):
+        return True
     return "@" in instance
 
 
-_checks_drafts(draft3="ip-address", draft4="ipv4", raises=socket.error)(
-    socket.inet_aton
-)
+@_checks_drafts(draft3="ip-address", draft4="ipv4", raises=socket.error)
+def is_ipv4(instance):
+    if not isinstance(instance, str_types):
+        return True
+    return socket.inet_aton(instance)
 
 
 if hasattr(socket, "inet_pton"):
     @_checks_drafts("ipv6", raises=socket.error)
     def is_ipv6(instance):
+        if not isinstance(instance, str_types):
+            return True
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
@@ -135,6 +142,8 @@ _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
 
 @_checks_drafts(draft3="host-name", draft4="hostname")
 def is_host_name(instance):
+    if not isinstance(instance, str_types):
+        return True
     if not _host_name_re.match(instance):
         return False
     components = instance.split(".")
@@ -151,6 +160,8 @@ except ImportError:
 else:
     @_checks_drafts("uri", raises=ValueError)
     def is_uri(instance):
+        if not isinstance(instance, str_types):
+            return True
         return rfc3987.parse(instance, rule="URI")
 
 
@@ -162,22 +173,37 @@ except ImportError:
     except ImportError:
         pass
     else:
-        _err = (ValueError, isodate.ISO8601Error)
-        _checks_drafts("date-time", raises=_err)(isodate.parse_datetime)
+        @_checks_drafts("date-time", raises=(ValueError, isodate.ISO8601Error))
+        def is_date(instance):
+            if not isinstance(instance, str_types):
+                return True
+            return isodate.parse_datetime(instance)
 else:
-        _checks_drafts("date-time")(strict_rfc3339.validate_rfc3339)
+        @_checks_drafts("date-time")
+        def is_date(instance):
+            if not isinstance(instance, str_types):
+                return True
+            return strict_rfc3339.validate_rfc3339(instance)
 
 
-_checks_drafts("regex", raises=re.error)(re.compile)
+@_checks_drafts("regex", raises=re.error)
+def is_regex(instance):
+    if not isinstance(instance, str_types):
+        return True
+    return re.compile(instance)
 
 
 @_checks_drafts(draft3="date", raises=ValueError)
 def is_date(instance):
+    if not isinstance(instance, str_types):
+        return True
     return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
 def is_time(instance):
+    if not isinstance(instance, str_types):
+        return True
     return datetime.datetime.strptime(instance, "%H:%M:%S")
 
 
@@ -192,7 +218,10 @@ else:
 
     @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
-        if instance.lower() in webcolors.css21_names_to_hex:
+        if (
+            not isinstance(instance, str_types) or
+            instance.lower() in webcolors.css21_names_to_hex
+        ):
             return True
         return is_css_color_code(instance)
 

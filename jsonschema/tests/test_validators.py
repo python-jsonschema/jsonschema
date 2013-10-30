@@ -602,6 +602,28 @@ class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft4Validator
 
 
+class TestBuiltinFormats(unittest.TestCase):
+    """
+    The built-in (specification-defined) formats do not raise type errors.
+
+    If an instance or value is not a string, it should be ignored.
+
+    """
+
+
+for format in FormatChecker.checkers:
+    def test(self, format=format):
+        v = Draft4Validator({"format": format}, format_checker=FormatChecker())
+        v.validate(123)
+
+    name = "test_{0}_ignores_non_strings".format(format)
+    if not PY3:
+        name = name.encode("utf-8")
+    test.__name__ = name
+    setattr(TestBuiltinFormats, name, test)
+    del test  # Ugh py.test. Stop discovering top level tests.
+
+
 class TestValidatorFor(unittest.TestCase):
     def test_draft_3(self):
         schema = {"$schema" : "http://json-schema.org/draft-03/schema"}

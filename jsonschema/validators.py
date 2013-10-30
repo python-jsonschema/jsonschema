@@ -14,7 +14,7 @@ from jsonschema.compat import (
     PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems,
 )
-from jsonschema.exceptions import ErrorTree  # For backwards compatibility
+from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
 
 
