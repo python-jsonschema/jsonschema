@@ -1,3 +1,10 @@
+v2.3.0
+------
+
+* Added by_relevance and best_match (#91)
+* Fixed ``format`` to allow adding formats for non-strings (#125)
+* Fixed the ``uri`` format to reject URI references (#131)
+
 v2.2.0
 ------
 

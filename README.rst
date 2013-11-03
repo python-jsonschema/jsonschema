@@ -49,8 +49,33 @@ Features
 Release Notes
 -------------
 
-``v2.2.0`` contains a minor speedup for the ``host-name`` format and a small
-change in draft 3's allowed types.
+``v2.3.0`` removes the (improper) limitation of ``format`` to strings. It also
+adds the `jsonschema.exceptions.best_match <https://python-jsonschema.readthedocs.org/en/latest/errors/#best-match-and-by-relevance>`_
+function which can be used to guess at the best matching single validation
+error for a given instance.
+
+
+.. code-block:: python
+
+    >>> from jsonschema.validators import Draft4Validator
+    >>> from jsonschema.exceptions import best_match
+
+    >>> schema = {
+    ...     "properties" : {
+    ...         "foo" : {"type" : "string"},
+    ...         "bar" : {"properties" : {"baz": {"type": "string"}}},
+    ...     },
+    ... }
+    >>> instance = {"foo" : 12, "bar": {"baz" : 19}}
+    >>> print(best_match(Draft4Validator(schema).iter_errors(instance)).path)
+    deque(['foo'])
+
+
+where the error closer to the top of the instance in ``foo`` was selected
+as being more relevant.
+
+Also, URI references are now properly rejected by the URI format validator
+(i.e., it now only accepts full URIs, as defined in the specification).
 
 
 Running the Test Suite
