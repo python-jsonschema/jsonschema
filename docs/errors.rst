@@ -365,7 +365,7 @@ to guess the most relevant error in a given bunch.
         default, :validator:`anyOf` and :validator:`oneOf` are considered weak
         validators and will be superceded by other same-level validation
         errors.
-    :argument set strong a collection of validators to consider to be "strong".
+    :argument set strong: a collection of validators to consider to be "strong"
 
 .. doctest::
 
