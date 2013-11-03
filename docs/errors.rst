@@ -309,14 +309,6 @@ best_match and by_relevance
 The :func:`best_match` function is a simple but useful function for attempting
 to guess the most relevant error in a given bunch.
 
-.. autofunction:: best_match
-
-    Try to find an error that appears to be the best match among given errors.
-
-    In general, errors that are higher up in the instance (i.e. for which
-    :attr:`ValidationError.path` is shorter) are considered better matches,
-    since they indicate "more" is wrong with the instance.
-
 .. doctest::
 
         >>> from jsonschema import Draft4Validator
@@ -328,6 +320,15 @@ to guess the most relevant error in a given bunch.
         ... }
         >>> print(best_match(Draft4Validator(schema).iter_errors(11)).message)
         11 is not of type 'array'
+
+
+.. autofunction:: best_match
+
+    Try to find an error that appears to be the best match among given errors.
+
+    In general, errors that are higher up in the instance (i.e. for which
+    :attr:`ValidationError.path` is shorter) are considered better matches,
+    since they indicate "more" is wrong with the instance.
 
     If the resulting match is either :validator:`oneOf` or :validator:`anyOf`,
     the *opposite* assumption is made -- i.e. the deepest error is picked,
@@ -358,6 +359,14 @@ to guess the most relevant error in a given bunch.
     :func:`sorted` or :func:`max` will cause more relevant errors to be
     considered greater than less relevant ones.
 
+    :argument set weak: a collection of validators to consider to be "weak". If
+        there are two errors at the same level of the instance and one is in
+        the set of weak validators, the other error will take priority. By
+        default, :validator:`anyOf` and :validator:`oneOf` are considered weak
+        validators and will be superceded by other same-level validation
+        errors.
+    :argument set strong a collection of validators to consider to be "strong".
+
 .. doctest::
 
     >>> schema = {
@@ -377,11 +386,3 @@ to guess the most relevant error in a given bunch.
     ...     for e in sorted(errors, key=exceptions.by_relevance())
     ... ]
     ['home', 'name']
-
-    :argument set weak: a collection of validators to consider to be "weak". If
-        there are two errors at the same level of the instance and one is in
-        the set of weak validators, the other error will take priority. By
-        default, :validator:`anyOf` and :validator:`oneOf` are considered weak
-        validators and will be superceded by other same-level validation
-        errors.
-    :argument set strong a collection of validators to consider to be "strong".
