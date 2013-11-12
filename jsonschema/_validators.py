@@ -73,10 +73,12 @@ def additionalItems(validator, aI, instance, schema):
 
 
 def minimum(validator, minimum, instance, schema):
-    if not validator.is_type(instance, "number"):
+    instance_orig = instance
+    try:
+        instance = float(instance)
+    except Exception:
         return
 
-    instance = float(instance)
     if schema.get("exclusiveMinimum", False):
         failed = instance <= minimum
         cmp = "less than or equal to"
@@ -86,12 +88,15 @@ def minimum(validator, minimum, instance, schema):
 
     if failed:
         yield ValidationError(
-            "%r is %s the minimum of %r" % (instance, cmp, minimum)
+            "%r is %s the minimum of %r" % (instance_orig, cmp, minimum)
         )
 
 
 def maximum(validator, maximum, instance, schema):
-    if not validator.is_type(instance, "number"):
+    instance_orig = instance
+    try:
+        instance = float(instance)
+    except Exception:
         return
 
     instance = float(instance)
@@ -104,7 +109,7 @@ def maximum(validator, maximum, instance, schema):
 
     if failed:
         yield ValidationError(
-            "%r is %s the maximum of %r" % (instance, cmp, maximum)
+            "%r is %s the maximum of %r" % (instance_orig, cmp, maximum)
         )
 
 
