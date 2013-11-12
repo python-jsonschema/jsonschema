@@ -8,9 +8,9 @@ Creating or Extending Validators
 
 .. autofunction:: create
 
-    Create a new validator.
+    Create a new validator (class).
 
-    :argument dict meta_schema: the meta schema for the new validator
+    :argument dict meta_schema: the meta schema for the new validator class
 
     :argument dict validators: a mapping from validator names to functions that
         validate the given name. Each function should take 4 arguments: a
@@ -27,14 +27,14 @@ Creating or Extending Validators
         for this argument is probably fine. Instances of the returned validator
         can still have their types customized on a per-instance basis.
 
-    :returns: an :class:`jsonschema.IValidator`
+    :returns: a new :class:`jsonschema.IValidator` class
 
 
 .. autofunction:: extend
 
-    Create a new validator that extends an existing validator.
+    Create a new validator that extends an existing validator class.
 
-    :argument jsonschema.IValidator validator: an existing validator
+    :argument jsonschema.IValidator validator: an existing validator class
 
     :argument dict validators: a set of new validators to add to the new
         validator.
@@ -50,7 +50,7 @@ Creating or Extending Validators
 
     :argument str version: a version for the new validator
 
-    :returns: an :class:`jsonschema.IValidator`
+    :returns: a new :class:`jsonschema.IValidator` class
 
     .. note:: Meta Schemas
 
