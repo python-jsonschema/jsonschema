@@ -53,13 +53,12 @@ def load_schema(name):
     Load a schema from ./schemas/``name``.json and return it.
 
     """
-    schemadir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        'schemas'
+
+    schema_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "schemas",
     )
-    schemapath = os.path.join(schemadir, '%s.json' % (name,))
-    with open(schemapath) as f:
-        return json.load(f)
+    with open(os.path.join(schema_dir, name + ".json")) as schema_file:
+        return json.load(schema_file)
 
 
 def indent(string, times=1):

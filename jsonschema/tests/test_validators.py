@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import contextlib
 import json
 import pprint
@@ -15,10 +14,10 @@ from jsonschema.validators import (
 
 class TestCreateAndExtend(unittest.TestCase):
     def setUp(self):
-        self.meta_schema = {"properties" : {"smelly" : {}}}
+        self.meta_schema = {u"properties" : {u"smelly" : {}}}
         self.smelly = mock.MagicMock()
-        self.validators = {"smelly" : self.smelly}
-        self.types = {"dict" : dict}
+        self.validators = {u"smelly" : self.smelly}
+        self.types = {u"dict" : dict}
         self.Validator = create(
             meta_schema=self.meta_schema,
             validators=self.validators,
@@ -26,7 +25,7 @@ class TestCreateAndExtend(unittest.TestCase):
         )
 
         self.validator_value = 12
-        self.schema = {"smelly" : self.validator_value}
+        self.schema = {u"smelly" : self.validator_value}
         self.validator = self.Validator(self.schema)
 
     def test_attrs(self):
@@ -54,24 +53,24 @@ class TestCreateAndExtend(unittest.TestCase):
     def test_if_a_version_is_provided_it_is_registered(self):
         with mock.patch("jsonschema.validators.validates") as validates:
             validates.side_effect = lambda version : lambda cls : cls
-            Validator = create(meta_schema={"id" : "id"}, version="my version")
+            Validator = create(meta_schema={u"id" : ""}, version="my version")
         validates.assert_called_once_with("my version")
         self.assertEqual(Validator.__name__, "MyVersionValidator")
 
     def test_if_a_version_is_not_provided_it_is_not_registered(self):
         with mock.patch("jsonschema.validators.validates") as validates:
-            create(meta_schema={"id" : "id"})
+            create(meta_schema={u"id" : "id"})
         self.assertFalse(validates.called)
 
     def test_extend(self):
         validators = dict(self.Validator.VALIDATORS)
         new = mock.Mock()
 
-        Extended = extend(self.Validator, validators={"a new one" : new})
+        Extended = extend(self.Validator, validators={u"a new one" : new})
 
-        validators.update([("a new one", new)])
+        validators.update([(u"a new one", new)])
         self.assertEqual(Extended.VALIDATORS, validators)
-        self.assertNotIn("a new one", self.Validator.VALIDATORS)
+        self.assertNotIn(u"a new one", self.Validator.VALIDATORS)
 
         self.assertEqual(Extended.META_SCHEMA, self.Validator.META_SCHEMA)
         self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
@@ -84,9 +83,9 @@ class TestIterErrors(unittest.TestCase):
     def test_iter_errors(self):
         instance = [1, 2]
         schema = {
-            "disallow" : "array",
-            "enum" : [["a", "b", "c"], ["d", "e", "f"]],
-            "minItems" : 3
+            u"disallow" : u"array",
+            u"enum" : [["a", "b", "c"], ["d", "e", "f"]],
+            u"minItems" : 3
         }
 
         got = (e.message for e in self.validator.iter_errors(instance, schema))
@@ -100,10 +99,10 @@ class TestIterErrors(unittest.TestCase):
     def test_iter_errors_multiple_failures_one_validator(self):
         instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
         schema = {
-            "properties" : {
-                "foo" : {"type" : "string"},
-                "bar" : {"minItems" : 2},
-                "baz" : {"maximum" : 10, "enum" : [2, 4, 6, 8]},
+            u"properties" : {
+                "foo" : {u"type" : "string"},
+                "bar" : {u"minItems" : 2},
+                "baz" : {u"maximum" : 10, u"enum" : [2, 4, 6, 8]},
             }
         }
 
@@ -119,55 +118,55 @@ class TestValidationErrorMessages(unittest.TestCase):
         return e.exception.message
 
     def test_single_type_failure(self):
-        message = self.message_for(instance=1, schema={"type" : "string"})
-        self.assertEqual(message, "1 is not of type %r" % "string")
+        message = self.message_for(instance=1, schema={u"type" : u"string"})
+        self.assertEqual(message, "1 is not of type %r" % u"string")
 
     def test_single_type_list_failure(self):
-        message = self.message_for(instance=1, schema={"type" : ["string"]})
-        self.assertEqual(message, "1 is not of type %r" % "string")
+        message = self.message_for(instance=1, schema={u"type" : [u"string"]})
+        self.assertEqual(message, "1 is not of type %r" % u"string")
 
     def test_multiple_type_failure(self):
-        types = ("string", "object")
-        message = self.message_for(instance=1, schema={"type" : list(types)})
+        types = u"string", u"object"
+        message = self.message_for(instance=1, schema={u"type" : list(types)})
         self.assertEqual(message, "1 is not of type %r, %r" % types)
 
     def test_object_without_title_type_failure(self):
-        type = {"type" : [{"minimum" : 3}]}
-        message = self.message_for(instance=1, schema={"type" : [type]})
+        type = {u"type" : [{u"minimum" : 3}]}
+        message = self.message_for(instance=1, schema={u"type" : [type]})
         self.assertEqual(message, "1 is not of type %r" % (type,))
 
     def test_object_with_name_type_failure(self):
         name = "Foo"
-        schema = {"type" : [{"name" : name, "minimum" : 3}]}
+        schema = {u"type" : [{u"name" : name, u"minimum" : 3}]}
         message = self.message_for(instance=1, schema=schema)
         self.assertEqual(message, "1 is not of type %r" % (name,))
 
     def test_dependencies_failure_has_single_element_not_list(self):
         depend, on = "bar", "foo"
-        schema = {"dependencies" : {depend : on}}
+        schema = {u"dependencies" : {depend : on}}
         message = self.message_for({"bar" : 2}, schema)
         self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
 
     def test_additionalItems_single_failure(self):
         message = self.message_for(
-            [2], {"items" : [], "additionalItems" : False},
+            [2], {u"items" : [], u"additionalItems" : False},
         )
         self.assertIn("(2 was unexpected)", message)
 
     def test_additionalItems_multiple_failures(self):
         message = self.message_for(
-            [1, 2, 3], {"items" : [], "additionalItems" : False}
+            [1, 2, 3], {u"items" : [], u"additionalItems" : False}
         )
         self.assertIn("(1, 2, 3 were unexpected)", message)
 
     def test_additionalProperties_single_failure(self):
         additional = "foo"
-        schema = {"additionalProperties" : False}
+        schema = {u"additionalProperties" : False}
         message = self.message_for({additional : 2}, schema)
         self.assertIn("(%r was unexpected)" % (additional,), message)
 
     def test_additionalProperties_multiple_failures(self):
-        schema = {"additionalProperties" : False}
+        schema = {u"additionalProperties" : False}
         message = self.message_for(dict.fromkeys(["foo", "bar"]), schema)
 
         self.assertIn(repr("foo"), message)
@@ -177,9 +176,9 @@ class TestValidationErrorMessages(unittest.TestCase):
     def test_invalid_format_default_message(self):
         checker = FormatChecker(formats=())
         check_fn = mock.Mock(return_value=False)
-        checker.checks("thing")(check_fn)
+        checker.checks(u"thing")(check_fn)
 
-        schema = {"format" : "thing"}
+        schema = {u"format" : u"thing"}
         message = self.message_for("bla", schema, format_checker=checker)
 
         self.assertIn(repr("bla"), message)
@@ -194,10 +193,10 @@ class TestErrorReprStr(unittest.TestCase):
     def setUp(self):
         self.error = ValidationError(
             message=self.message,
-            validator="type",
-            validator_value="string",
+            validator=u"type",
+            validator_value=u"string",
             instance=5,
-            schema={"type" : "string"},
+            schema={u"type" : u"string"},
         )
 
     def assertShows(self, message):
@@ -258,8 +257,8 @@ class TestErrorReprStr(unittest.TestCase):
         )
 
     def test_multiple_item_paths(self):
-        self.error.path = [0, "a"]
-        self.error.schema_path = ["items", 0, 1]
+        self.error.path = [0, u"a"]
+        self.error.schema_path = [u"items", 0, 1]
         self.assertShows(
             """
             Failed validating u'type' in schema[u'items'][0]:
