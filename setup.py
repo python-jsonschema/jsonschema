@@ -9,7 +9,6 @@ from jsonschema import __version__
 with open("README.rst") as readme:
     long_description = readme.read()
 
-
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -25,12 +24,11 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-
 setup(
     name="jsonschema",
     version=__version__,
     packages=["jsonschema", "jsonschema.tests"],
-    package_data={'jsonschema': ['schemas/*.json']},
+    package_data={"jsonschema": ["schemas/*.json"]},
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,
