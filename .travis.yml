@@ -4,9 +4,12 @@ python:
   - "2.6"
   - "2.7"
   - "3.3"
+env:
+  - REQUIREMENTS=""
+  - REQUIREMENTS="unittest2"
 install:
+    - pip install $REQUIREMENTS
     - python setup.py -q install
 script:
-    - [[ "$(python -c 'import sys; print sys.version_info[:2]')" == "(2, 6)" ]] && pip install unittest2
     - py.test --tb=native jsonschema
     - python -m doctest README.rst
