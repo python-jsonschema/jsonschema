@@ -78,8 +78,6 @@ adhere to.
         :rtype: bool
         :raises: :exc:`UnknownType` if ``type`` is not a known type.
 
-        The special type ``"any"`` is valid for any given instance.
-
     .. method:: is_valid(instance)
 
         Check if the instance is valid under the current :attr:`schema`.
