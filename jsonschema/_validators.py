@@ -16,7 +16,7 @@ def patternProperties(validator, patternProperties, instance, schema):
         for k, v in iteritems(instance):
             if re.search(pattern, k):
                 for error in validator.descend(
-                        v, subschema, path=k, schema_path=pattern
+                    v, subschema, path=k, schema_path=pattern,
                 ):
                     yield error
 
@@ -47,7 +47,7 @@ def items(validator, items, instance, schema):
     else:
         for (index, item), subschema in zip(enumerate(instance), items):
             for error in validator.descend(
-                    item, subschema, path=index, schema_path=index
+                item, subschema, path=index, schema_path=index,
             ):
                 yield error
 
@@ -177,7 +177,7 @@ def dependencies(validator, dependencies, instance, schema):
 
         if validator.is_type(dependency, "object"):
             for error in validator.descend(
-                    instance, dependency, schema_path=property
+                instance, dependency, schema_path=property,
             ):
                 yield error
         else:
