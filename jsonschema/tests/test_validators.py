@@ -1,6 +1,6 @@
-import contextlib
+from collections import deque
+from contextlib import contextmanager
 import json
-import pprint
 import textwrap
 
 from jsonschema import FormatChecker, ValidationError
@@ -270,9 +270,9 @@ class TestErrorReprStr(unittest.TestCase):
         )
 
     def test_uses_pprint(self):
-        with mock.patch.object(pprint, "pformat") as pformat:
+        with mock.patch("pprint.pformat") as pformat:
             str(self.error)
-            self.assertGreater(pformat.call_count, 1)  # schema + instance
+            self.assertEqual(pformat.call_count, 2)  # schema + instance
 
 
 class TestValidationErrorDetails(unittest.TestCase):
@@ -293,29 +293,29 @@ class TestValidationErrorDetails(unittest.TestCase):
         e = errors[0]
 
         self.assertEqual(e.validator, "anyOf")
-        self.assertEqual(list(e.schema_path), ["anyOf"])
+        self.assertEqual(e.schema_path, deque(["anyOf"]))
         self.assertEqual(e.validator_value, schema["anyOf"])
         self.assertEqual(e.instance, instance)
         self.assertEqual(e.schema, schema)
-        self.assertEqual(list(e.path), [])
+        self.assertEqual(e.path, deque([]))
         self.assertEqual(len(e.context), 2)
 
         e1, e2 = sorted_errors(e.context)
 
         self.assertEqual(e1.validator, "minimum")
-        self.assertEqual(list(e1.schema_path), [0, "minimum"])
+        self.assertEqual(e1.schema_path, deque([0, "minimum"]))
         self.assertEqual(e1.validator_value, schema["anyOf"][0]["minimum"])
         self.assertEqual(e1.instance, instance)
         self.assertEqual(e1.schema, schema["anyOf"][0])
-        self.assertEqual(list(e1.path), [])
+        self.assertEqual(e1.path, deque([]))
         self.assertEqual(len(e1.context), 0)
 
         self.assertEqual(e2.validator, "type")
-        self.assertEqual(list(e2.schema_path), [1, "type"])
+        self.assertEqual(e2.schema_path, deque([1, "type"]))
         self.assertEqual(e2.validator_value, schema["anyOf"][1]["type"])
         self.assertEqual(e2.instance, instance)
         self.assertEqual(e2.schema, schema["anyOf"][1])
-        self.assertEqual(list(e2.path), [])
+        self.assertEqual(e2.path, deque([]))
         self.assertEqual(len(e2.context), 0)
 
     def test_type(self):
@@ -338,21 +338,21 @@ class TestValidationErrorDetails(unittest.TestCase):
         e = errors[0]
 
         self.assertEqual(e.validator, "type")
-        self.assertEqual(list(e.schema_path), ["type"])
+        self.assertEqual(e.schema_path, deque(["type"]))
         self.assertEqual(e.validator_value, schema["type"])
         self.assertEqual(e.instance, instance)
         self.assertEqual(e.schema, schema)
-        self.assertEqual(list(e.path), [])
+        self.assertEqual(e.path, deque([]))
         self.assertEqual(len(e.context), 2)
 
         e1, e2 = sorted_errors(e.context)
 
         self.assertEqual(e1.validator, "type")
-        self.assertEqual(list(e1.schema_path), [0, "type"])
+        self.assertEqual(e1.schema_path, deque([0, "type"]))
         self.assertEqual(e1.validator_value, schema["type"][0]["type"])
         self.assertEqual(e1.instance, instance)
         self.assertEqual(e1.schema, schema["type"][0])
-        self.assertEqual(list(e1.path), [])
+        self.assertEqual(e1.path, deque([]))
         self.assertEqual(len(e1.context), 0)
 
         self.assertEqual(e2.validator, "enum")
@@ -366,7 +366,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         )
         self.assertEqual(e2.instance, instance["foo"])
         self.assertEqual(e2.schema, schema["type"][1]["properties"]["foo"])
-        self.assertEqual(list(e2.path), ["foo"])
+        self.assertEqual(e2.path, deque(["foo"]))
         self.assertEqual(len(e2.context), 0)
 
     def test_single_nesting(self):
@@ -383,10 +383,10 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2, e3, e4 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), ["bar"])
-        self.assertEqual(list(e2.path), ["baz"])
-        self.assertEqual(list(e3.path), ["baz"])
-        self.assertEqual(list(e4.path), ["foo"])
+        self.assertEqual(e1.path, deque(["bar"]))
+        self.assertEqual(e2.path, deque(["baz"]))
+        self.assertEqual(e3.path, deque(["baz"]))
+        self.assertEqual(e4.path, deque(["foo"]))
 
         self.assertEqual(e1.validator, "minItems")
         self.assertEqual(e2.validator, "enum")
@@ -416,15 +416,15 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), [])
-        self.assertEqual(list(e2.path), [0])
-        self.assertEqual(list(e3.path), [1, "bar"])
-        self.assertEqual(list(e4.path), [1, "bar", "bar"])
-        self.assertEqual(list(e5.path), [1, "bar", "baz"])
-        self.assertEqual(list(e6.path), [1, "foo"])
+        self.assertEqual(e1.path, deque([]))
+        self.assertEqual(e2.path, deque([0]))
+        self.assertEqual(e3.path, deque([1, "bar"]))
+        self.assertEqual(e4.path, deque([1, "bar", "bar"]))
+        self.assertEqual(e5.path, deque([1, "bar", "baz"]))
+        self.assertEqual(e6.path, deque([1, "foo"]))
 
-        self.assertEqual(list(e1.schema_path), ["type"])
-        self.assertEqual(list(e2.schema_path), ["items", "type"])
+        self.assertEqual(e1.schema_path, deque(["type"]))
+        self.assertEqual(e2.schema_path, deque(["items", "type"]))
         self.assertEqual(
             list(e3.schema_path), ["items", "properties", "bar", "type"],
         )
@@ -457,8 +457,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), ["bar"])
-        self.assertEqual(list(e2.path), ["foo"])
+        self.assertEqual(e1.path, deque(["bar"]))
+        self.assertEqual(e2.path, deque(["foo"]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -476,8 +476,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), ["bar"])
-        self.assertEqual(list(e2.path), ["foo"])
+        self.assertEqual(e1.path, deque(["bar"]))
+        self.assertEqual(e2.path, deque(["foo"]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -493,8 +493,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), [0])
-        self.assertEqual(list(e2.path), [1])
+        self.assertEqual(e1.path, deque([0]))
+        self.assertEqual(e2.path, deque([1]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -510,8 +510,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         errors = validator.iter_errors(instance)
         e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(list(e1.path), [1])
-        self.assertEqual(list(e2.path), [2])
+        self.assertEqual(e1.path, deque([1]))
+        self.assertEqual(e2.path, deque([2]))
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -555,7 +555,7 @@ class ValidatorTestMixin(object):
         resolver = RefResolver("", {})
         schema = {"$ref" : mock.Mock()}
 
-        @contextlib.contextmanager
+        @contextmanager
         def resolving():
             yield {"type": "integer"}
 
