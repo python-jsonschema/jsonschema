@@ -187,31 +187,31 @@ class TestValidationErrorMessages(unittest.TestCase):
 
 
 class TestErrorReprStr(unittest.TestCase):
-
-    message = "hello"
-
-    def setUp(self):
-        self.error = ValidationError(
-            message=self.message,
+    def make_error(self, **kwargs):
+        defaults = dict(
+            message=u"hello",
             validator=u"type",
             validator_value=u"string",
             instance=5,
-            schema={u"type" : u"string"},
+            schema={u"type": u"string"},
         )
+        defaults.update(kwargs)
+        return ValidationError(**defaults)
 
-    def assertShows(self, message):
+    def assertShows(self, expected, **kwargs):
         if PY3:
-            message = message.replace("u'", "'")
-        message = textwrap.dedent(message).rstrip("\n")
+            expected = expected.replace("u'", "'")
+        expected = textwrap.dedent(expected).rstrip("\n")
 
-        message_line, _, rest = str(self.error).partition("\n")
-        self.assertEqual(message_line, self.message)
-        self.assertEqual(rest, message)
+        error = self.make_error(**kwargs)
+        message_line, _, rest = str(error).partition("\n")
+        self.assertEqual(message_line, error.message)
+        self.assertEqual(rest, expected)
 
     def test_repr(self):
         self.assertEqual(
-            repr(self.error),
-            "<ValidationError: %r>" % self.message,
+            repr(ValidationError(message="Hello!")),
+            "<ValidationError: %r>" % "Hello!",
         )
 
     def test_unset_error(self):
@@ -232,7 +232,6 @@ class TestErrorReprStr(unittest.TestCase):
             self.assertEqual(str(error), "message")
 
     def test_empty_paths(self):
-        self.error.path = self.error.schema_path = []
         self.assertShows(
             """
             Failed validating u'type' in schema:
@@ -240,12 +239,12 @@ class TestErrorReprStr(unittest.TestCase):
 
             On instance:
                 5
-            """
+            """,
+            path=[],
+            schema_path=[],
         )
 
     def test_one_item_paths(self):
-        self.error.path = [0]
-        self.error.schema_path = ["items"]
         self.assertShows(
             """
             Failed validating u'type' in schema:
@@ -253,12 +252,12 @@ class TestErrorReprStr(unittest.TestCase):
 
             On instance[0]:
                 5
-            """
+            """,
+            path=[0],
+            schema_path=["items"],
         )
 
     def test_multiple_item_paths(self):
-        self.error.path = [0, u"a"]
-        self.error.schema_path = [u"items", 0, 1]
         self.assertShows(
             """
             Failed validating u'type' in schema[u'items'][0]:
@@ -266,12 +265,14 @@ class TestErrorReprStr(unittest.TestCase):
 
             On instance[0][u'a']:
                 5
-            """
+            """,
+            path=[0, u"a"],
+            schema_path=[u"items", 0, 1],
         )
 
     def test_uses_pprint(self):
         with mock.patch("pprint.pformat") as pformat:
-            str(self.error)
+            str(self.make_error())
             self.assertEqual(pformat.call_count, 2)  # schema + instance
 
 
