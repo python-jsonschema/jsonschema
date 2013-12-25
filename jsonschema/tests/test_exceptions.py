@@ -162,23 +162,23 @@ class TestByRelevance(unittest.TestCase):
     def test_short_paths_are_better_matches(self):
         shallow = exceptions.ValidationError("Oh no!", path=["baz"])
         deep = exceptions.ValidationError("Oh yes!", path=["foo", "bar"])
-        match = max([shallow, deep], key=exceptions.by_relevance())
+        match = max([shallow, deep], key=exceptions.relevance)
         self.assertIs(match, shallow)
 
-        match = max([deep, shallow], key=exceptions.by_relevance())
+        match = max([deep, shallow], key=exceptions.relevance)
         self.assertIs(match, shallow)
 
     def test_global_errors_are_even_better_matches(self):
         shallow = exceptions.ValidationError("Oh no!", path=[])
         deep = exceptions.ValidationError("Oh yes!", path=["foo"])
 
-        errors = sorted([shallow, deep], key=exceptions.by_relevance())
+        errors = sorted([shallow, deep], key=exceptions.relevance)
         self.assertEqual(
             [list(error.path) for error in errors],
             [["foo"], []],
         )
 
-        errors = sorted([deep, shallow], key=exceptions.by_relevance())
+        errors = sorted([deep, shallow], key=exceptions.relevance)
         self.assertEqual(
             [list(error.path) for error in errors],
             [["foo"], []],

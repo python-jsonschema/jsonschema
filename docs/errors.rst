@@ -303,8 +303,8 @@ instance. Each tree and child has a :attr:`~ErrorTree.errors` attribute, a
 dict, that maps the failed validator to the corresponding validation error.
 
 
-best_match and by_relevance
----------------------------
+best_match and relevance
+------------------------
 
 The :func:`best_match` function is a simple but useful function for attempting
 to guess the most relevant error in a given bunch.
@@ -340,8 +340,11 @@ to guess the most relevant error in a given bunch.
         different instances or schemas), since it won't produce sensical
         output.
     :argument callable key: the key to use when sorting errors. See
-        :func:`by_relevance` for more details (the default is to sort with the
-        defaults of that function).
+        :attr:`relevance` and transitively :func:`by_relevance` for more
+        details (the default is to sort with the defaults of that function).
+        Changing the default is only useful if you want to change the function
+        that rates errors but still want the error context decension done by
+        this function.
     :returns: the best matching error, or ``None`` if the iterable was empty
 
     .. note::
@@ -350,22 +353,23 @@ to guess the most relevant error in a given bunch.
         set of inputs from version to version if better heuristics are added.
 
 
-.. autofunction:: by_relevance
+.. function:: relevance(validation_error)
 
-    Create a key function that can be used to sort errors by relevance.
+    A key function that sorts errors based on heuristic relevance.
 
-    If you want to sort a bunch of errors entirely, you can use this function
-    to do so. Using the return value of this function as a key to e.g.
+    If you want to sort a bunch of errors entirely, you can use
+    this function to do so. Using this function as a key to e.g.
     :func:`sorted` or :func:`max` will cause more relevant errors to be
     considered greater than less relevant ones.
 
-    :argument set weak: a collection of validators to consider to be "weak". If
-        there are two errors at the same level of the instance and one is in
-        the set of weak validators, the other error will take priority. By
-        default, :validator:`anyOf` and :validator:`oneOf` are considered weak
-        validators and will be superceded by other same-level validation
-        errors.
-    :argument set strong: a collection of validators to consider to be "strong"
+    Within the different validators that can fail, this function
+    considers :validator:`anyOf` and :validator:`oneOf` to be *weak*
+    validation errors, and will sort them lower than other validators at
+    the same level in the instance.
+
+    If you want to change the set of weak [or strong] validators you can create
+    a custom version of this function with :func:`by_relevance` and provide a
+    different set of each.
 
 .. doctest::
 
@@ -383,6 +387,19 @@ to guess the most relevant error in a given bunch.
     >>> errors = Draft4Validator(schema).iter_errors(instance)
     >>> [
     ...     e.path[-1]
-    ...     for e in sorted(errors, key=exceptions.by_relevance())
+    ...     for e in sorted(errors, key=exceptions.relevance)
     ... ]
     ['home', 'name']
+
+
+.. autofunction:: by_relevance
+
+    Create a key function that can be used to sort errors by relevance.
+
+    :argument set weak: a collection of validators to consider to be "weak". If
+        there are two errors at the same level of the instance and one is in
+        the set of weak validators, the other error will take priority. By
+        default, :validator:`anyOf` and :validator:`oneOf` are considered weak
+        validators and will be superceded by other same-level validation
+        errors.
+    :argument set strong: a collection of validators to consider to be "strong"

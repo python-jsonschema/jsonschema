@@ -219,7 +219,10 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
     return relevance
 
 
-def best_match(errors, key=by_relevance()):
+relevance = by_relevance()
+
+
+def best_match(errors, key=relevance):
     errors = iter(errors)
     best = next(errors, None)
     if best is None:
