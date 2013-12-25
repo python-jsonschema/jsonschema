@@ -11,7 +11,7 @@ except ImportError:
 
 from jsonschema import _utils, _validators
 from jsonschema.compat import (
-    PY3, Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
+    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
