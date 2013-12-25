@@ -616,8 +616,6 @@ for format in FormatChecker.checkers:
         v.validate(123)
 
     name = "test_{0}_ignores_non_strings".format(format)
-    if not PY3:
-        name = name.encode("utf-8")
     test.__name__ = name
     setattr(TestBuiltinFormats, name, test)
     del test  # Ugh py.test. Stop discovering top level tests.
