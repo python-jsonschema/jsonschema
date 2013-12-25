@@ -294,29 +294,55 @@ class TestValidationErrorDetails(unittest.TestCase):
         e = errors[0]
 
         self.assertEqual(e.validator, "anyOf")
-        self.assertEqual(e.schema_path, deque(["anyOf"]))
         self.assertEqual(e.validator_value, schema["anyOf"])
         self.assertEqual(e.instance, instance)
         self.assertEqual(e.schema, schema)
+        self.assertIsNone(e.parent)
+
         self.assertEqual(e.path, deque([]))
+        self.assertEqual(e.relative_path, deque([]))
+        self.assertEqual(e.absolute_path, deque([]))
+
+        self.assertEqual(e.schema_path, deque(["anyOf"]))
+        self.assertEqual(e.relative_schema_path, deque(["anyOf"]))
+        self.assertEqual(e.absolute_schema_path, deque(["anyOf"]))
+
         self.assertEqual(len(e.context), 2)
 
         e1, e2 = sorted_errors(e.context)
 
         self.assertEqual(e1.validator, "minimum")
-        self.assertEqual(e1.schema_path, deque([0, "minimum"]))
         self.assertEqual(e1.validator_value, schema["anyOf"][0]["minimum"])
         self.assertEqual(e1.instance, instance)
         self.assertEqual(e1.schema, schema["anyOf"][0])
+        self.assertIs(e1.parent, e)
+
         self.assertEqual(e1.path, deque([]))
-        self.assertEqual(len(e1.context), 0)
+        self.assertEqual(e1.absolute_path, deque([]))
+        self.assertEqual(e1.relative_path, deque([]))
+
+        self.assertEqual(e1.schema_path, deque([0, "minimum"]))
+        self.assertEqual(e1.relative_schema_path, deque([0, "minimum"]))
+        self.assertEqual(
+            e1.absolute_schema_path, deque(["anyOf", 0, "minimum"]),
+        )
+
+        self.assertFalse(e1.context)
 
         self.assertEqual(e2.validator, "type")
-        self.assertEqual(e2.schema_path, deque([1, "type"]))
         self.assertEqual(e2.validator_value, schema["anyOf"][1]["type"])
         self.assertEqual(e2.instance, instance)
         self.assertEqual(e2.schema, schema["anyOf"][1])
+        self.assertIs(e2.parent, e)
+
         self.assertEqual(e2.path, deque([]))
+        self.assertEqual(e2.relative_path, deque([]))
+        self.assertEqual(e2.absolute_path, deque([]))
+
+        self.assertEqual(e2.schema_path, deque([1, "type"]))
+        self.assertEqual(e2.relative_schema_path, deque([1, "type"]))
+        self.assertEqual(e2.absolute_schema_path, deque(["anyOf", 1, "type"]))
+
         self.assertEqual(len(e2.context), 0)
 
     def test_type(self):
@@ -339,36 +365,61 @@ class TestValidationErrorDetails(unittest.TestCase):
         e = errors[0]
 
         self.assertEqual(e.validator, "type")
-        self.assertEqual(e.schema_path, deque(["type"]))
         self.assertEqual(e.validator_value, schema["type"])
         self.assertEqual(e.instance, instance)
         self.assertEqual(e.schema, schema)
+        self.assertIsNone(e.parent)
+
         self.assertEqual(e.path, deque([]))
+        self.assertEqual(e.relative_path, deque([]))
+        self.assertEqual(e.absolute_path, deque([]))
+
+        self.assertEqual(e.schema_path, deque(["type"]))
+        self.assertEqual(e.relative_schema_path, deque(["type"]))
+        self.assertEqual(e.absolute_schema_path, deque(["type"]))
+
         self.assertEqual(len(e.context), 2)
 
         e1, e2 = sorted_errors(e.context)
 
         self.assertEqual(e1.validator, "type")
-        self.assertEqual(e1.schema_path, deque([0, "type"]))
         self.assertEqual(e1.validator_value, schema["type"][0]["type"])
         self.assertEqual(e1.instance, instance)
         self.assertEqual(e1.schema, schema["type"][0])
+        self.assertIs(e1.parent, e)
+
         self.assertEqual(e1.path, deque([]))
-        self.assertEqual(len(e1.context), 0)
+        self.assertEqual(e1.relative_path, deque([]))
+        self.assertEqual(e1.absolute_path, deque([]))
+
+        self.assertEqual(e1.schema_path, deque([0, "type"]))
+        self.assertEqual(e1.relative_schema_path, deque([0, "type"]))
+        self.assertEqual(e1.absolute_schema_path, deque(["type", 0, "type"]))
+
+        self.assertFalse(e1.context)
 
         self.assertEqual(e2.validator, "enum")
-        self.assertEqual(
-            list(e2.schema_path),
-            [1, "properties", "foo", "enum"]
-        )
-        self.assertEqual(
-            e2.validator_value,
-            schema["type"][1]["properties"]["foo"]["enum"]
-        )
-        self.assertEqual(e2.instance, instance["foo"])
-        self.assertEqual(e2.schema, schema["type"][1]["properties"]["foo"])
+        self.assertEqual(e2.validator_value, [2])
+        self.assertEqual(e2.instance, 1)
+        self.assertEqual(e2.schema, {u"enum" : [2]})
+        self.assertIs(e2.parent, e)
+
         self.assertEqual(e2.path, deque(["foo"]))
-        self.assertEqual(len(e2.context), 0)
+        self.assertEqual(e2.relative_path, deque(["foo"]))
+        self.assertEqual(e2.absolute_path, deque(["foo"]))
+
+        self.assertEqual(
+            e2.schema_path, deque([1, "properties", "foo", "enum"]),
+        )
+        self.assertEqual(
+            e2.relative_schema_path, deque([1, "properties", "foo", "enum"]),
+        )
+        self.assertEqual(
+            e2.absolute_schema_path,
+            deque(["type", 1, "properties", "foo", "enum"]),
+        )
+
+        self.assertFalse(e2.context)
 
     def test_single_nesting(self):
         instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
@@ -388,6 +439,16 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e2.path, deque(["baz"]))
         self.assertEqual(e3.path, deque(["baz"]))
         self.assertEqual(e4.path, deque(["foo"]))
+
+        self.assertEqual(e1.relative_path, deque(["bar"]))
+        self.assertEqual(e2.relative_path, deque(["baz"]))
+        self.assertEqual(e3.relative_path, deque(["baz"]))
+        self.assertEqual(e4.relative_path, deque(["foo"]))
+
+        self.assertEqual(e1.absolute_path, deque(["bar"]))
+        self.assertEqual(e2.absolute_path, deque(["baz"]))
+        self.assertEqual(e3.absolute_path, deque(["baz"]))
+        self.assertEqual(e4.absolute_path, deque(["foo"]))
 
         self.assertEqual(e1.validator, "minItems")
         self.assertEqual(e2.validator, "enum")

@@ -49,16 +49,40 @@ raised or returned, depending on which method or function is used.
         subschema from within the schema that was passed into the validator, or
         even an entirely different schema if a :validator:`$ref` was followed.
 
-    .. attribute:: schema_path
+    .. attribute:: relative_schema_path
 
         A :class:`collections.deque` containing the path to the failed
         validator within the schema.
 
+    .. attribute:: absolute_schema_path
+
+        A :class:`collections.deque` containing the path to the failed
+        validator within the schema, but always relative to the
+        *original* schema as opposed to any subschema (i.e. the one
+        originally passed into a validator, *not* :attr:`schema`\).
+
+    .. attribute:: schema_path
+
+        Same as :attr:`relative_schema_path`.
+
+    .. attribute:: relative_path
+
+        A :class:`collections.deque` containing the path to the
+        offending element within the instance. The deque can be empty if
+        the error happened at the root of the instance.
+
+    .. attribute:: absolute_path
+
+        A :class:`collections.deque` containing the path to the
+        offending element within the instance. The absolute path
+        is always relative to the *original* instance that was
+        validated (i.e. the one passed into a validation method, *not*
+        :attr:`instance`\). The deque can be empty if the error happened
+        at the root of the instance.
+
     .. attribute:: path
 
-        A :class:`collections.deque` containing the path to the offending
-        element within the instance. The deque can be empty if the error
-        happened at the root of the instance.
+        Same as :attr:`relative_path`.
 
     .. attribute:: instance
 
@@ -81,6 +105,11 @@ raised or returned, depending on which method or function is used.
         If the error was caused by a *non*-validation error, the exception
         object will be here. Currently this is only used for the exception
         raised by a failed format checker in :meth:`FormatChecker.check`.
+
+    .. attribute:: parent
+
+        A validation error which this error is the :attr:`context` of.
+        ``None`` if there wasn't one.
 
 
 In case an invalid schema itself is encountered, a :exc:`SchemaError` is

@@ -1,4 +1,4 @@
-import collections
+from collections import defaultdict, deque
 import itertools
 import pprint
 import textwrap
@@ -15,18 +15,31 @@ _unset = _utils.Unset()
 
 class _Error(Exception):
     def __init__(
-        self, message, validator=_unset, path=(), cause=None, context=(),
-        validator_value=_unset, instance=_unset, schema=_unset, schema_path=(),
+        self,
+        message,
+        validator=_unset,
+        path=(),
+        cause=None,
+        context=(),
+        validator_value=_unset,
+        instance=_unset,
+        schema=_unset,
+        schema_path=(),
+        parent=None,
     ):
         self.message = message
-        self.path = collections.deque(path)
-        self.schema_path = collections.deque(schema_path)
+        self.path = self.relative_path = deque(path)
+        self.schema_path = self.relative_schema_path = deque(schema_path)
         self.context = list(context)
         self.cause = self.__cause__ = cause
         self.validator = validator
         self.validator_value = validator_value
         self.instance = instance
         self.schema = schema
+        self.parent = parent
+
+        for error in context:
+            error.parent = self
 
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
@@ -40,9 +53,6 @@ class _Error(Exception):
         ):
             return self.message
 
-        path = _utils.format_as_index(self.path)
-        schema_path = _utils.format_as_index(list(self.schema_path)[:-1])
-
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return self.message + textwrap.dedent("""
@@ -55,9 +65,9 @@ class _Error(Exception):
             """.rstrip()
         ) % (
             self.validator,
-            schema_path,
+            _utils.format_as_index(list(self.relative_schema_path)[:-1]),
             _utils.indent(pschema),
-            path,
+            _utils.format_as_index(self.relative_path),
             _utils.indent(pinstance),
         )
 
@@ -68,18 +78,37 @@ class _Error(Exception):
     def create_from(cls, other):
         return cls(**other._contents())
 
+    @property
+    def absolute_path(self):
+        parent = self.parent
+        if parent is None:
+            return self.relative_path
+
+        path = deque(self.relative_path)
+        path.extendleft(parent.absolute_path)
+        return path
+
+    @property
+    def absolute_schema_path(self):
+        parent = self.parent
+        if parent is None:
+            return self.relative_schema_path
+
+        path = deque(self.relative_schema_path)
+        path.extendleft(parent.absolute_schema_path)
+        return path
+
     def _set(self, **kwargs):
         for k, v in iteritems(kwargs):
             if getattr(self, k) is _unset:
                 setattr(self, k, v)
 
     def _contents(self):
-        return dict(
-            (attr, getattr(self, attr)) for attr in (
-                "message", "cause", "context", "path", "schema_path",
-                "validator", "validator_value", "instance", "schema"
-            )
+        attrs = (
+            "message", "cause", "context", "validator", "validator_value",
+            "path", "schema_path", "instance", "schema", "parent",
         )
+        return dict((attr, getattr(self, attr)) for attr in attrs)
 
 
 class ValidationError(_Error):
@@ -146,7 +175,7 @@ class ErrorTree(object):
 
     def __init__(self, errors=()):
         self.errors = {}
-        self._contents = collections.defaultdict(self.__class__)
+        self._contents = defaultdict(self.__class__)
 
         for error in errors:
             container = self
