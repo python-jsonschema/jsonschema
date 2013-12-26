@@ -141,6 +141,14 @@ class TestValidationErrorMessages(unittest.TestCase):
         message = self.message_for(instance=1, schema=schema)
         self.assertEqual(message, "1 is not of type %r" % (name,))
 
+    def test_minimum(self):
+        message = self.message_for(instance=1, schema={"minimum" : 2})
+        self.assertEqual(message, "1 is less than the minimum of 2")
+
+    def test_maximum(self):
+        message = self.message_for(instance=1, schema={"maximum" : 0})
+        self.assertEqual(message, "1 is greater than the maximum of 0")
+
     def test_dependencies_failure_has_single_element_not_list(self):
         depend, on = "bar", "foo"
         schema = {u"dependencies" : {depend : on}}
