@@ -193,7 +193,7 @@ to the :attr:`~ValidationError.schema_path` of the parent error.
     [0, 'type'], {} is not of type 'string'
     [1, 'type'], {} is not of type 'integer'
     [0, 'type'], 3 is not of type 'string'
-    [1, 'minimum'], 3.0 is less than the minimum of 5
+    [1, 'minimum'], 3 is less than the minimum of 5
     [0, 'maxLength'], 'foo' is too long
     [1, 'type'], 'foo' is not of type 'integer'
 

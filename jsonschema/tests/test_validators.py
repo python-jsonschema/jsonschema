@@ -655,7 +655,7 @@ class ValidatorTestMixin(object):
             "properties": {
                 "foo": {"$ref": "#/definitions/bar"},
                 "fizz": {"items": [{"$ref": "#/definitions/buzz"}]}
-            }, 
+            },
             "definitions": {
                 "bar": "baz",
                 "buzz": "qux"
@@ -676,7 +676,7 @@ class ValidatorTestMixin(object):
             "properties": {
                 "foo": {"$ref": "#/definitions/bar"},
                 "fizz": {"items": [{"$ref": "#/definitions/buzz"}]}
-            }, 
+            },
             "definitions": {
                 "bar": "baz",
             }
@@ -686,16 +686,16 @@ class ValidatorTestMixin(object):
 
         with self.assertRaises(RefResolutionError) as err:
             with mock.patch.object(
-                validator.resolver, "resolving", wraps=validator.resolver.resolving
+                validator.resolver, "resolving",
+                wraps=validator.resolver.resolving
             ) as resolve:
                 validator.check_refs()
 
         self.assertEqual(
-            str(err.exception), 
+            str(err.exception),
             "Unresolvable JSON pointer: %s" % repr(u'definitions/buzz')
         )
 
-        resolve.assert_any_call("#/definitions/bar")
         resolve.assert_any_call("#/definitions/buzz")
 
 
