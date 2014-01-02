@@ -75,6 +75,24 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
                 raise SchemaError.create_from(error)
 
+        def check_refs(self, _schema=None):
+            if _schema is None:
+                _schema = self.schema
+
+            if self.is_type(_schema, "object"):
+                with self.resolver.in_scope(_schema.get(u"id", u"")):
+                    ref = _schema.get(u"$ref")
+                    if ref is not None:
+                        with self.resolver.resolving(ref):
+                            return
+
+                    for v in _schema.values():
+                        self.check_refs(v)
+
+            elif self.is_type(_schema, "array"):
+                for item in _schema:
+                    self.check_refs(item)
+
         def iter_errors(self, instance, _schema=None):
             if _schema is None:
                 _schema = self.schema
