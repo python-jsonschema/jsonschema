@@ -692,7 +692,7 @@ class ValidatorTestMixin(object):
 
         self.assertEqual(
             str(err.exception), 
-            "Unresolvable JSON pointer: u'definitions/buzz'"
+            "Unresolvable JSON pointer: %s" % repr(u'definitions/buzz')
         )
 
         resolve.assert_any_call("#/definitions/bar")
