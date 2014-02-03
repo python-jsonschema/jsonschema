@@ -33,4 +33,7 @@ setup(
     license="MIT",
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
+    entry_points = {
+        'console_scripts': ['jsonschema = jsonschema.cli:main']
+    }
 )
