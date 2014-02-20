@@ -75,6 +75,16 @@
                 "description": "an IP address with out-of-range values",
                 "data": "256.256.256.256",
                 "valid": false
+            },
+            {
+                "description": "an IP address without 4 components",
+                "data": "127.0",
+                "valid": false
+            },
+            {
+                "description": "an IP address as an integer",
+                "data": "0x7f000001",
+                "valid": false
             }
         ]
     },
