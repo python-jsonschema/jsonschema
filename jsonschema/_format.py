@@ -123,11 +123,15 @@ def is_email(instance):
     return "@" in instance
 
 
-@_checks_drafts(draft3="ip-address", draft4="ipv4", raises=socket.error)
+_ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+
+@_checks_drafts(draft3="ip-address", draft4="ipv4")
 def is_ipv4(instance):
     if not isinstance(instance, str_types):
         return True
-    return socket.inet_aton(instance)
+    if not _ipv4_re.match(instance):
+        return False
+    return all(0 <= int(component) <= 255 for component in instance.split("."))
 
 
 if hasattr(socket, "inet_pton"):
