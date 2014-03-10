@@ -14,6 +14,9 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. autofunction:: validate
 
+To learn more about creating json schema to validate your data, see 
+`Understanding JSON Schema <http://spacetelescope.github.io/understanding-json-schema/>`_
+
 The Validator Interface
 -----------------------
 
@@ -181,6 +184,16 @@ implements.
 
 .. autoclass:: Draft4Validator
 
+For example, if you wanted to validate a schema you created against the Draft 3
+json schema, you could use::
+
+.. code-block:: python
+
+
+    from jsonschema import Draft3Validator
+    my_schema = json.loads(my_schema_file)
+    Draft3Validator.check_schema(schema)
+
 
 Validating Formats
 ------------------
@@ -260,3 +273,4 @@ color       requires webcolors_
 .. _rfc3987: http://pypi.python.org/pypi/rfc3987/
 .. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
+.. _understanding_json_schema: http://spacetelescope.github.io/understanding-json-schema/
