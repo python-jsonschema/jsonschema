@@ -1,5 +1,3 @@
-# encoding=utf-8
-
 import argparse
 import json
 import sys
@@ -9,6 +7,7 @@ from . import (
     draft3_format_checker, draft4_format_checker,
 )
 from .validators import validator_for
+
 
 def main(args):
     parser = argparse.ArgumentParser(description='JSON Schema validator')
@@ -35,7 +34,7 @@ def main(args):
     validate(document, schema, validator, format_checker=format_checker)
     # validate raises if the document is invalid, and will show a Traceback to
     # the user. If the document is valid, show a congratulating message.
-    print("√ JSON document is valid.")
+    print("JSON document is valid.")
 
 if __name__ == '__main__':
     main(sys.argv)
