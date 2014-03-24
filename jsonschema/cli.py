@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import sys
 
 from . import (
     validate, Draft4Validator, Draft3Validator,
@@ -9,12 +10,12 @@ from . import (
 )
 from .validators import validator_for
 
-def main():
+def main(args):
     parser = argparse.ArgumentParser(description='JSON Schema validator')
     parser.add_argument('schema', help='filename of the JSON Schema')
     parser.add_argument('document', help='filename of the JSON document to validate')
     parser.add_argument('--format', help='validate value format', action='store_true')
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     schema = json.load(open(args.schema, 'r'))
     document = json.load(open(args.document, 'r'))
@@ -37,4 +38,4 @@ def main():
     print("√ JSON document is valid.")
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
