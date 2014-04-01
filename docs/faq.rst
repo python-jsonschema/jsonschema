@@ -47,9 +47,18 @@ started:
         DefaultValidatingDraft4Validator = extend_with_default(Draft4Validator)
 
 
+        # Example usage:
+        obj = {}
+        schema = {'properties': {'foo': {'default': 'bar'}}}
+        # Note jsonschem.validate(obj, schema, cls=DefaultValidatingDraft4Validator)
+        # will not work because the metaschema contains `default` directives.
+        DefaultValidatingDraft4Validator(schema).validate(obj)
+        assert obj == {'foo': 'bar'}
+
+
 See the above-linked document for more info on how this works, but basically,
 it just extends the :validator:`properties` validator on a
-:class:`Draft4Validator` to then go ahed and update all the defaults.
+:class:`Draft4Validator` to then go ahead and update all the defaults.
 
 If you're interested in a more interesting solution to a larger class of these
 types of transformations, keep an eye on `Seep
