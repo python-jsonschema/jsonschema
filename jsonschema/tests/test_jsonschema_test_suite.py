@@ -7,6 +7,7 @@ See https://github.com/json-schema/JSON-Schema-Test-Suite for details.
 
 """
 
+from contextlib import closing
 from decimal import Decimal
 import glob
 import json
@@ -44,12 +45,14 @@ if not os.path.isdir(SUITE):
 TESTS_DIR = os.path.join(SUITE, "tests")
 JSONSCHEMA_SUITE = os.path.join(SUITE, "bin", "jsonschema_suite")
 
-REMOTES = subprocess.Popen(
+remotes_stdout = subprocess.Popen(
     ["python", JSONSCHEMA_SUITE, "remotes"], stdout=subprocess.PIPE,
 ).stdout
-if PY3:
-    REMOTES = io.TextIOWrapper(REMOTES)
-REMOTES = json.load(REMOTES)
+
+with closing(remotes_stdout):
+    if PY3:
+        remotes_stdout = io.TextIOWrapper(remotes_stdout)
+    REMOTES = json.load(remotes_stdout)
 
 
 def make_case(schema, data, valid, name):
