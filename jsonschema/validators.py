@@ -72,10 +72,11 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
         @classmethod
         def check_schema(cls, schema):
-            for error in cls(cls.META_SCHEMA).iter_errors(schema):
+            for error in list(cls(cls.META_SCHEMA).iter_errors(
+                    schema, _first_only=True)):
                 raise SchemaError.create_from(error)
 
-        def iter_errors(self, instance, _schema=None):
+        def iter_errors(self, instance, _schema=None, _first_only=False):
             if _schema is None:
                 _schema = self.schema
 
@@ -104,6 +105,9 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                             error.schema_path.appendleft(k)
                         yield error
 
+                        if _first_only:
+                            return
+
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):
                 if path is not None:
@@ -113,7 +117,8 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                 yield error
 
         def validate(self, *args, **kwargs):
-            for error in self.iter_errors(*args, **kwargs):
+            kwargs['_first_only'] = True
+            for error in list(self.iter_errors(*args, **kwargs)):
                 raise error
 
         def is_type(self, instance, type):
@@ -132,8 +137,8 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
             return isinstance(instance, pytypes)
 
         def is_valid(self, instance, _schema=None):
-            error = next(self.iter_errors(instance, _schema), None)
-            return error is None
+            errors = list(self.iter_errors(instance, _schema, _first_only=True))
+            return not len(errors)
 
     if version is not None:
         Validator = validates(version)(Validator)
