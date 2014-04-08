@@ -9,7 +9,7 @@ from . import (
 from .validators import validator_for
 
 
-def main(args):
+def main(args=sys.argv[1:]):
     parser = argparse.ArgumentParser(description='JSON Schema validator')
     parser.add_argument('schema', help='filename of the JSON Schema')
     parser.add_argument('document', help='filename of the JSON document to validate')
@@ -37,4 +37,4 @@ def main(args):
     print("JSON document is valid.")
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
