@@ -33,6 +33,10 @@ for Python (supporting 2.6+ including Python 3).
     ValidationError: 'Invalid' is not of type 'number'
 
 
+You can find further information (installation instructions, mailing list)
+as well as the source code and issue tracker on our
+`GitHub page <https://github.com/Julian/jsonschema/>`__.
+
 Contents:
 
 .. toctree::
