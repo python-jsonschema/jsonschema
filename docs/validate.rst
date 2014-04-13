@@ -14,6 +14,9 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. autofunction:: validate
 
+To learn more about creating json schema to validate your data, see 
+`Understanding JSON Schema <http://spacetelescope.github.io/understanding-json-schema/>`_
+
 The Validator Interface
 -----------------------
 
@@ -180,6 +183,26 @@ implements.
 .. autoclass:: Draft3Validator
 
 .. autoclass:: Draft4Validator
+
+For example, if you wanted to validate a schema you created against the Draft 3
+json schema, you could use:
+
+.. code-block:: python
+
+
+    from jsonschema import Draft4Validator
+    
+    schema = {
+        "$schema": "http://json-schema.org/schema#"
+        
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "email": {"type": "string"},
+        }
+        "required": ["email"],
+    }
+    Draft4Validator.check_schema(schema)
 
 
 Validating Formats
