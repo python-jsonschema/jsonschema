@@ -83,3 +83,7 @@ Contributing
 ------------
 
 If you see something missing or incorrect, a pull request is most welcome!
+
+There are some sanity checks in place for testing the test suite. You can run
+them with `bin/jsonschema_suite check`. They will be run automatically by
+[Travis CI](https://travis-ci.org/) as well.
