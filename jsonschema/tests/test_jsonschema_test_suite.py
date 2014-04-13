@@ -16,6 +16,7 @@ import itertools
 import os
 import re
 import subprocess
+import sys
 
 try:
     from sys import pypy_version_info
@@ -73,12 +74,12 @@ def make_case(schema, data, valid, name):
     return test_case
 
 
-def maybe_skip(skip, test, case):
+def maybe_skip(skip, test_case, case, test):
     if skip is not None:
-        reason = skip(case)
+        reason = skip(case, test)
         if reason is not None:
-            test = unittest.skip(reason)(test)
-    return test
+            test_case = unittest.skip(reason)(test_case)
+    return test_case
 
 
 def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
@@ -111,7 +112,7 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
                             valid=test["valid"],
                             name=name,
                         )
-                        test_case = maybe_skip(skip, test_case, case)
+                        test_case = maybe_skip(skip, test_case, case, test)
                         setattr(test_class, name, test_case)
 
         return test_class
@@ -140,7 +141,7 @@ class DecimalMixin(object):
 
 
 def missing_format(checker):
-    def missing_format(case):
+    def missing_format(case, test):
         format = case["schema"].get("format")
         if format not in checker.checkers:
             return "Format checker {0!r} not found.".format(format)
@@ -202,7 +203,20 @@ class FormatMixin(object):
         self.assertIs(cm.exception.cause, cause)
 
 
-@load_json_cases("draft3/*.json", ignore_glob="draft3/refRemote.json")
+if sys.maxunicode == 2 ** 16 - 1:          # This is a narrow build.
+    def narrow_unicode_build(case, test):
+        if "supplementary Unicode" in test["description"]:
+            return "Not running surrogate Unicode case, this Python is narrow."
+else:
+    def narrow_unicode_build(case, test):  # This isn't, skip nothing.
+        return
+
+
+@load_json_cases(
+    "draft3/*.json",
+    skip=narrow_unicode_build,
+    ignore_glob="draft3/refRemote.json",
+)
 @load_json_cases(
     "draft3/optional/format.json", skip=missing_format(draft3_format_checker)
 )
@@ -228,7 +242,11 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
             validate([1], {"minItems" : "1"}, cls=self.validator_class)
 
 
-@load_json_cases("draft4/*.json", ignore_glob="draft4/refRemote.json")
+@load_json_cases(
+    "draft4/*.json",
+    skip=narrow_unicode_build,
+    ignore_glob="draft4/refRemote.json",
+)
 @load_json_cases(
     "draft4/optional/format.json", skip=missing_format(draft4_format_checker)
 )
