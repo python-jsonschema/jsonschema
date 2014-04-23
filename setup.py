@@ -27,8 +27,8 @@ classifiers = [
 setup(
     name="jsonschema",
     version=__version__,
-    packages=["jsonschema", "jsonschema.tests"],
-    package_data={"jsonschema": ["schemas/*.json"]},
+    packages=["jsonschema", "jsonschema.tests", "jsonschema.schemas"],
+    package_data={"jsonschema.schemas": ["*.json"]},
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,
