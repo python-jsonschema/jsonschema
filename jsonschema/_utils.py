@@ -1,7 +1,8 @@
 import itertools
 import json
 import re
-import os
+
+import pkg_resources
 
 from jsonschema.compat import str_types, MutableMapping, urlsplit
 
@@ -50,14 +51,12 @@ class Unset(object):
 
 def load_schema(name):
     """
-    Load a schema from ./schemas/``name``.json and return it.
-
+    Load a schema from jsonschema.schemas.``name``.json and
+    return it.
     """
-
-    schema_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "schemas",
-    )
-    with open(os.path.join(schema_dir, name + ".json")) as schema_file:
+    fname = pkg_resources.resource_filename('jsonschema',
+                                            "schemas/" + name + ".json")
+    with open(fname) as schema_file:
         return json.load(schema_file)
 
 
