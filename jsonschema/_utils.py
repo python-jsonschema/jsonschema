@@ -2,6 +2,7 @@ import itertools
 import json
 import re
 import os
+import sys
 
 from jsonschema.compat import str_types, MutableMapping, urlsplit
 
@@ -54,9 +55,14 @@ def load_schema(name):
 
     """
 
-    schema_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "schemas",
-    )
+    if hasattr(sys, "frozen"):
+        schema_dir = os.path.join(
+            os.path.dirname(os.path.abspath(sys.executable)), "schemas",
+        )
+    else:
+        schema_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "schemas",
+        )
     with open(os.path.join(schema_dir, name + ".json")) as schema_file:
         return json.load(schema_file)
 
