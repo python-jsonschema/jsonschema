@@ -78,7 +78,7 @@ doctest_global_setup = dedent("""
     from jsonschema import *
 """)
 
-intersphinx_mapping = {"python": ("http://docs.python.org/3.2", None)}
+intersphinx_mapping = {"python": ("http://docs.python.org/2.7", None)}
 
 
 # -- Options for HTML output ---------------------------------------------------
