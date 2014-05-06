@@ -1,10 +1,8 @@
 from collections import deque
 from contextlib import contextmanager
 import json
-import textwrap
 
 from jsonschema import FormatChecker, ValidationError
-from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
@@ -192,96 +190,6 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertIn(repr("bla"), message)
         self.assertIn(repr("thing"), message)
         self.assertIn("is not a", message)
-
-
-class TestErrorReprStr(unittest.TestCase):
-    def make_error(self, **kwargs):
-        defaults = dict(
-            message=u"hello",
-            validator=u"type",
-            validator_value=u"string",
-            instance=5,
-            schema={u"type": u"string"},
-        )
-        defaults.update(kwargs)
-        return ValidationError(**defaults)
-
-    def assertShows(self, expected, **kwargs):
-        if PY3:
-            expected = expected.replace("u'", "'")
-        expected = textwrap.dedent(expected).rstrip("\n")
-
-        error = self.make_error(**kwargs)
-        message_line, _, rest = str(error).partition("\n")
-        self.assertEqual(message_line, error.message)
-        self.assertEqual(rest, expected)
-
-    def test_repr(self):
-        self.assertEqual(
-            repr(ValidationError(message="Hello!")),
-            "<ValidationError: %r>" % "Hello!",
-        )
-
-    def test_unset_error(self):
-        error = ValidationError("message")
-        self.assertEqual(str(error), "message")
-
-        kwargs = {
-            "validator": "type",
-            "validator_value": "string",
-            "instance": 5,
-            "schema": {"type": "string"}
-        }
-        # Just the message should show if any of the attributes are unset
-        for attr in kwargs:
-            k = dict(kwargs)
-            del k[attr]
-            error = ValidationError("message", **k)
-            self.assertEqual(str(error), "message")
-
-    def test_empty_paths(self):
-        self.assertShows(
-            """
-            Failed validating u'type' in schema:
-                {u'type': u'string'}
-
-            On instance:
-                5
-            """,
-            path=[],
-            schema_path=[],
-        )
-
-    def test_one_item_paths(self):
-        self.assertShows(
-            """
-            Failed validating u'type' in schema:
-                {u'type': u'string'}
-
-            On instance[0]:
-                5
-            """,
-            path=[0],
-            schema_path=["items"],
-        )
-
-    def test_multiple_item_paths(self):
-        self.assertShows(
-            """
-            Failed validating u'type' in schema[u'items'][0]:
-                {u'type': u'string'}
-
-            On instance[0][u'a']:
-                5
-            """,
-            path=[0, u"a"],
-            schema_path=[u"items", 0, 1],
-        )
-
-    def test_uses_pprint(self):
-        with mock.patch("pprint.pformat") as pformat:
-            str(self.make_error())
-            self.assertEqual(pformat.call_count, 2)  # schema + instance
 
 
 class TestValidationErrorDetails(unittest.TestCase):
