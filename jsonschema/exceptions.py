@@ -48,9 +48,9 @@ class _Error(Exception):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        if _unset in (
-            self.validator, self.validator_value, self.instance, self.schema,
-        ):
+        if any(m is _unset for m in (
+            self.validator, self.validator_value, self.instance, self.schema
+        )):
             return self.message
 
         pschema = pprint.pformat(self.schema, width=72)
