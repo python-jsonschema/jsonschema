@@ -11,6 +11,7 @@ PY3 = sys.version_info[0] >= 3
 
 if PY3:
     zip = zip
+    from io import StringIO
     from urllib.parse import (
         unquote, urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit
     )
@@ -20,6 +21,7 @@ if PY3:
     iteritems = operator.methodcaller("items")
 else:
     from itertools import izip as zip  # noqa
+    from StringIO import StringIO
     from urlparse import (
         urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit # noqa
     )

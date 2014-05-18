@@ -1,78 +1,105 @@
-import StringIO
+from jsonschema import Draft4Validator, ValidationError, cli
+from jsonschema.compat import StringIO
+from jsonschema.tests.compat import mock, unittest
 
-import pytest
 
-from .compat import mock, unittest
-from .. import (
-    cli, Draft4Validator, Draft3Validator,
-    draft3_format_checker, draft4_format_checker,
-)
+def fake_validator(*errors):
+    errors = list(reversed(errors))
 
-MOCK_SCHEMAS = {
-    'draft3': {"$schema": "http://json-schema.org/draft-03/schema#"},
-    'draft4': {"$schema": "http://json-schema.org/draft-04/schema#"},
-}
+    class FakeValidator(object):
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def iter_errors(self, instance):
+            if errors:
+                return errors.pop()
+            return []
+    return FakeValidator
+
+
+class TestParser(unittest.TestCase):
+
+    FakeValidator = fake_validator()
+
+    def setUp(self):
+        self.open = mock.mock_open(read_data='{}')
+        patch = mock.patch.object(cli, "open", self.open, create=True)
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_find_validator_by_fully_qualified_object_name(self):
+        arguments = cli.parse_args(
+            [
+                "--validator",
+                "jsonschema.tests.test_cli.TestParser.FakeValidator",
+                "--instance", "foo.json",
+                "schema.json",
+            ]
+        )
+        self.assertIs(arguments["validator"], self.FakeValidator)
+
+    def test_find_validator_in_jsonschema(self):
+        arguments = cli.parse_args(
+            [
+                "--validator", "Draft4Validator",
+                "--instance", "foo.json",
+                "schema.json",
+            ]
+        )
+        self.assertIs(arguments["validator"], Draft4Validator)
 
 
 class TestCLI(unittest.TestCase):
-    def test_missing_arguments(self):
-        with pytest.raises(SystemExit) as e:
-            cli.main([])
+    def test_successful_validation(self):
+        stdout, stderr = StringIO(), StringIO()
+        exit_code = cli.run(
+            {
+                "validator" : fake_validator(),
+                "schema" : {},
+                "instances" : [1],
+                "error_format" : "{error.message}",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertFalse(stderr.getvalue())
+        self.assertEqual(exit_code, 0)
 
-    @mock.patch('__builtin__.open')
-    @mock.patch('jsonschema.cli.validate')
-    def test_filename_argument_order(self, validate, open_):
-        def mock_file(filename, mode):
-            return StringIO.StringIO('{"filename": "%s"}' % filename)
-        open_.side_effect = mock_file
+    def test_unsuccessful_validation(self):
+        error = ValidationError("I am an error!", instance=1)
+        stdout, stderr = StringIO(), StringIO()
+        exit_code = cli.run(
+            {
+                "validator" : fake_validator([error]),
+                "schema" : {},
+                "instances" : [1],
+                "error_format" : "{error.instance} - {error.message}",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertEqual(stderr.getvalue(), "1 - I am an error!")
+        self.assertEqual(exit_code, 1)
 
-        cli.main(['document.json', 'schema.json'])
-
-        open_.assert_has_calls([mock.call('document.json', 'r'),
-                                mock.call('schema.json', 'r')],
-                               any_order=True)
-        self.assertEqual(open_.call_count, 2)
-
-        validate.assert_called_once_with({'filename': 'schema.json'},
-                                         {'filename': 'document.json'},
-                                         Draft4Validator,
-                                         format_checker=None)
-
-    @mock.patch('__builtin__.open')
-    @mock.patch('jsonschema.cli.json.load')
-    @mock.patch('jsonschema.cli.validate')
-    def test_raise_exception(self, validate, json_load, open_):
-        validate.side_effect = Exception('Did not validate correctly')
-        with pytest.raises(Exception) as e:
-            cli.main([None, None])
-        self.assertEqual(e.exconly(), "Exception: Did not validate correctly")
-
-    @mock.patch('__builtin__.open')
-    @mock.patch('jsonschema.cli.json.load')
-    @mock.patch('jsonschema.cli.validate')
-    def test_format(self, validate, json_load, open_):
-        schema = {"$schema": "http://json-schema.org/draft-04/schema#"}
-        json_load.return_value = schema
-
-        cli.main([None, None])
-        validate.assert_called_once_with(schema, schema, Draft4Validator,
-                                         format_checker=None)
-        validate.reset_mock()
-        cli.main([None, None, '--format'])
-        validate.assert_called_once_with(schema, schema, Draft4Validator,
-                                         format_checker=draft4_format_checker)
-
-    @mock.patch('__builtin__.open')
-    @mock.patch('jsonschema.cli.json.load')
-    @mock.patch('jsonschema.cli.validate')
-    def test_draft3(self, validate, json_load, open_):
-        schema = {"$schema": "http://json-schema.org/draft-03/schema#"}
-        json_load.return_value = schema
-
-        cli.main([None, None])
-        validate.assert_called_once_with(schema, schema, Draft3Validator,
-                                         format_checker=None)
-        validate.reset_mock()
-        cli.main([None, None, '--format'])
-        validate.assert_called_once_with(schema, schema, Draft3Validator,
-                                         format_checker=draft3_format_checker)
+    def test_unsuccessful_validation_multiple_instances(self):
+        first_errors = [
+            ValidationError("9", instance=1),
+            ValidationError("8", instance=1),
+        ]
+        second_errors = [ValidationError("7", instance=2)]
+        stdout, stderr = StringIO(), StringIO()
+        exit_code = cli.run(
+            {
+                "validator" : fake_validator(first_errors, second_errors),
+                "schema" : {},
+                "instances" : [1, 2],
+                "error_format" : "{error.instance} - {error.message}\t",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
+        self.assertEqual(exit_code, 1)
