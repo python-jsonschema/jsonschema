@@ -1,7 +1,4 @@
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 from jsonschema import __version__
 
@@ -19,7 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -36,4 +33,5 @@ setup(
     license="MIT",
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
+    entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
 )
