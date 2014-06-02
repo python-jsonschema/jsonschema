@@ -33,6 +33,17 @@
         ]
     },
     {
+        "description": "integer comparison",
+        "schema": {"maximum": 18446744073709551615},
+        "tests": [
+            {
+                "description": "comparison works for high numbers",
+                "data": 18446744073709551600,
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "float comparison with high precision",
         "schema": {
             "maximum": 972783798187987123879878123.18878137,

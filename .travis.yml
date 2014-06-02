@@ -1,12 +1,4 @@
 language: python
-python:
-  - "pypy"
-  - "2.6"
-  - "2.7"
-  - "3.3"
-install:
-    - python setup.py -q install
-script:
-    - if [[ "$(python -c 'import sys; print sys.version_info[:2]')" == "(2, 6)" ]]; then pip install unittest2; fi
-    - py.test --tb=native jsonschema
-    - python -m doctest README.rst
+python: "2.7"
+install: pip install jsonschema
+script: bin/jsonschema_suite check
