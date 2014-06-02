@@ -94,10 +94,10 @@ def maximum(validator, maximum, instance, schema):
         return
 
     if schema.get("exclusiveMaximum", False):
-        failed = float(instance) >= maximum
+        failed = instance >= maximum
         cmp = "greater than or equal to"
     else:
-        failed = float(instance) > maximum
+        failed = instance > maximum
         cmp = "greater than"
 
     if failed:
