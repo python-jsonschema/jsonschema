@@ -40,8 +40,8 @@ parser.add_argument(
     "-V", "--validator",
     type=_namedAnyWithDefault,
     help="the fully qualified object name of a validator to use, or, for "
-          "validators that are registered with jsonschema, simply the name "
-          "of the class.",
+         "validators that are registered with jsonschema, simply the name "
+         "of the class.",
 )
 parser.add_argument(
     "schema",

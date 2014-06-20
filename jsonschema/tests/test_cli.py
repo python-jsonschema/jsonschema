@@ -18,14 +18,19 @@ def fake_validator(*errors):
 
 
 class TestParser(unittest.TestCase):
-
     FakeValidator = fake_validator()
 
     def setUp(self):
-        self.open = mock.mock_open(read_data='{}')
-        patch = mock.patch.object(cli, "open", self.open, create=True)
-        patch.start()
-        self.addCleanup(patch.stop)
+        mock_open = mock.mock_open()
+        patch_open = mock.patch.object(cli, "open", mock_open, create=True)
+        patch_open.start()
+        self.addCleanup(patch_open.stop)
+
+        mock_json_load = mock.Mock()
+        mock_json_load.return_value = {}
+        patch_json_load = mock.patch("json.load")
+        patch_json_load.start()
+        self.addCleanup(patch_json_load.stop)
 
     def test_find_validator_by_fully_qualified_object_name(self):
         arguments = cli.parse_args(
@@ -54,10 +59,10 @@ class TestCLI(unittest.TestCase):
         stdout, stderr = StringIO(), StringIO()
         exit_code = cli.run(
             {
-                "validator" : fake_validator(),
-                "schema" : {},
-                "instances" : [1],
-                "error_format" : "{error.message}",
+                "validator": fake_validator(),
+                "schema": {},
+                "instances": [1],
+                "error_format": "{error.message}",
             },
             stdout=stdout,
             stderr=stderr,
@@ -71,10 +76,10 @@ class TestCLI(unittest.TestCase):
         stdout, stderr = StringIO(), StringIO()
         exit_code = cli.run(
             {
-                "validator" : fake_validator([error]),
-                "schema" : {},
-                "instances" : [1],
-                "error_format" : "{error.instance} - {error.message}",
+                "validator": fake_validator([error]),
+                "schema": {},
+                "instances": [1],
+                "error_format": "{error.instance} - {error.message}",
             },
             stdout=stdout,
             stderr=stderr,
@@ -92,10 +97,10 @@ class TestCLI(unittest.TestCase):
         stdout, stderr = StringIO(), StringIO()
         exit_code = cli.run(
             {
-                "validator" : fake_validator(first_errors, second_errors),
-                "schema" : {},
-                "instances" : [1, 2],
-                "error_format" : "{error.instance} - {error.message}\t",
+                "validator": fake_validator(first_errors, second_errors),
+                "schema": {},
+                "instances": [1, 2],
+                "error_format": "{error.instance} - {error.message}\t",
             },
             stdout=stdout,
             stderr=stderr,
