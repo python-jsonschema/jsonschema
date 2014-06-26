@@ -1,6 +1,7 @@
 import re
 
 from jsonschema import _utils
+from jsonschema._utils import STRING_TYPES
 from jsonschema.exceptions import FormatError, ValidationError
 from jsonschema.compat import iteritems
 
@@ -14,7 +15,7 @@ def patternProperties(validator, patternProperties, instance, schema):
 
     for pattern, subschema in iteritems(patternProperties):
         for k, v in iteritems(instance):
-            if re.search(pattern, k):
+            if isinstance(k, STRING_TYPES) and re.search(pattern, k):
                 for error in validator.descend(
                     v, subschema, path=k, schema_path=pattern,
                 ):
