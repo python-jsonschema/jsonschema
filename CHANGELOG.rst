@@ -1,7 +1,15 @@
+v2.4.0
+------
+
+* Added a CLI (#134)
+* Added absolute path and absolute schema path to errors (#120)
+* Added ``relevance``
+* Meta-schemas are now loaded via ``pkgutil``
+
 v2.3.0
 ------
 
-* Added by_relevance and best_match (#91)
+* Added ``by_relevance`` and ``best_match`` (#91)
 * Fixed ``format`` to allow adding formats for non-strings (#125)
 * Fixed the ``uri`` format to reject URI references (#131)
 

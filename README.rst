@@ -49,33 +49,14 @@ Features
 Release Notes
 -------------
 
-``v2.3.0`` removes the (improper) limitation of ``format`` to strings. It also
-adds the `jsonschema.exceptions.best_match <https://python-jsonschema.readthedocs.org/en/latest/errors/#best-match-and-by-relevance>`_
-function which can be used to guess at the best matching single validation
-error for a given instance.
+* A simple CLI was added for validation
+* Validation errors now keep full absolute paths and absolute schema paths in
+  their ``absolute_path`` and ``absolute_schema_path`` attributes. The ``path``
+  and ``schema_path`` attributes are deprecated in favor of ``relative_path``
+  and ``relative_schema_path``\ .
 
-
-.. code-block:: python
-
-    >>> from jsonschema.validators import Draft4Validator
-    >>> from jsonschema.exceptions import best_match
-
-    >>> schema = {
-    ...     "properties" : {
-    ...         "foo" : {"type" : "string"},
-    ...         "bar" : {"properties" : {"baz": {"type": "string"}}},
-    ...     },
-    ... }
-    >>> instance = {"foo" : 12, "bar": {"baz" : 19}}
-    >>> print(best_match(Draft4Validator(schema).iter_errors(instance)).path)
-    deque(['foo'])
-
-
-where the error closer to the top of the instance in ``foo`` was selected
-as being more relevant.
-
-Also, URI references are now properly rejected by the URI format validator
-(i.e., it now only accepts full URIs, as defined in the specification).
+*Note:* Support for Python 3.2 was dropped in this release, and installation
+now uses setuptools.
 
 
 Running the Test Suite
