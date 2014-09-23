@@ -45,6 +45,11 @@ class TestBenchmarks(unittest.TestCase):
 
             278 runs in 2.00 sec
                 ms/run: mean(7.17), std(0.56), MIN(6.50), MAX(10.51)
+
+        unroll_scopes: Time @ Xeon 3.2GHz (x 1.4 faster)::
+
+            348 runs in 2.00 sec
+                ms/run: mean(5.73), std(0.38), MIN(5.50), MAX(8.00)
         """
 
         stats = []
@@ -65,6 +70,11 @@ class TestBenchmarks(unittest.TestCase):
 
             164 runs in 2.00 sec
                 ms/run: mean(12.15), std(1.36), MIN(11.01), MAX(21.02)
+
+        unroll_scopes: Time @ Xeon 3.2GHz (x 1.22 faster)::
+
+            201 runs in 2.01 sec
+                ms/run: mean(9.95), std(0.57), MIN(9.50), MAX(12.50)
         """
 
         stats = []
@@ -85,6 +95,11 @@ class TestBenchmarks(unittest.TestCase):
 
             104 runs in 2.01 sec
                 ms/run: mean(19.13), std(1.12), MIN(18.01), MAX(23.02)
+
+        unroll_scopes: Time @ Xeon 3.2GHz (x 1.19 faster)::
+
+            125 runs in 2.02 sec
+                ms/run: mean(16.00), std(0.88), MIN(15.00), MAX(19.00)
         """
 
         v_classes = [Draft3Validator, Draft4Validator]
@@ -107,6 +122,11 @@ class TestBenchmarks(unittest.TestCase):
 
             16 runs in 2.00 sec
                 ms/run: mean(117.80), std(4.32), MIN(113.09), MAX(127.60)
+
+        unroll_scopes: Time @ Xeon 3.2GHz (x 1.8 faster)::
+
+            30 runs in 2.02 sec
+                ms/run: mean(65.05), std(2.11), MIN(62.01), MAX(71.51)
         """
 
         stats = []
