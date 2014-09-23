@@ -79,30 +79,38 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
             if _schema is None:
                 _schema = self.schema
 
-            with self.resolver.in_scope(_schema.get(u"id", u"")):
-                ref = _schema.get(u"$ref")
-                if ref is not None:
-                    validators = [(u"$ref", ref)]
-                else:
-                    validators = iteritems(_schema)
+            scope = _schema.get(u"id")
+            has_scope = scope
+            if has_scope:
+                self.resolver.push_scope(scope)
 
-                for k, v in validators:
-                    validator = self.VALIDATORS.get(k)
-                    if validator is None:
-                        continue
 
-                    errors = validator(self, v, instance, _schema) or ()
-                    for error in errors:
-                        # set details if not already set by the called fn
-                        error._set(
-                            validator=k,
-                            validator_value=v,
-                            instance=instance,
-                            schema=_schema,
-                        )
-                        if k != u"$ref":
-                            error.schema_path.appendleft(k)
-                        yield error
+            ref = _schema.get(u"$ref")
+            if ref is not None:
+                validators = [(u"$ref", ref)]
+            else:
+                validators = iteritems(_schema)
+
+            for k, v in validators:
+                validator = self.VALIDATORS.get(k)
+                if validator is None:
+                    continue
+
+                errors = validator(self, v, instance, _schema) or ()
+                for error in errors:
+                    # set details if not already set by the called fn
+                    error._set(
+                        validator=k,
+                        validator_value=v,
+                        instance=instance,
+                        schema=_schema,
+                    )
+                    if k != u"$ref":
+                        error.schema_path.appendleft(k)
+                    yield error
+
+            if has_scope:
+                self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):
@@ -240,6 +248,8 @@ class RefResolver(object):
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
+
+        self.old_scopes = []
         self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
             for id, validator in iteritems(meta_schemas)
@@ -259,14 +269,13 @@ class RefResolver(object):
 
         return cls(schema.get(u"id", u""), schema, *args, **kwargs)
 
-    @contextlib.contextmanager
-    def in_scope(self, scope):
+    def push_scope(self, resoultion_scope):
         old_scope = self.resolution_scope
-        self.resolution_scope = urljoin(old_scope, scope)
-        try:
-            yield
-        finally:
-            self.resolution_scope = old_scope
+        self.old_scopes.append(old_scope)
+        self.resolution_scope = urljoin(old_scope, resoultion_scope)
+
+    def pop_scope(self):
+        self.resolution_scope = self.old_scopes.pop()
 
     @contextlib.contextmanager
     def resolving(self, ref):
@@ -293,8 +302,9 @@ class RefResolver(object):
 
         old_base_uri, self.base_uri = self.base_uri, uri
         try:
-            with self.in_scope(uri):
-                yield self.resolve_fragment(document, fragment)
+            self.push_scope(uri)
+            yield self.resolve_fragment(document, fragment)
+            self.pop_scope()
         finally:
             self.base_uri = old_base_uri
 
