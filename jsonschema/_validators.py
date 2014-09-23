@@ -77,10 +77,10 @@ def minimum(validator, minimum, instance, schema):
         return
 
     if schema.get("exclusiveMinimum", False):
-        failed = float(instance) <= float(minimum)
+        failed = instance <= minimum
         cmp = "less than or equal to"
     else:
-        failed = float(instance) < float(minimum)
+        failed = instance < minimum
         cmp = "less than"
 
     if failed:
@@ -94,10 +94,10 @@ def maximum(validator, maximum, instance, schema):
         return
 
     if schema.get("exclusiveMaximum", False):
-        failed = float(instance) >= float(maximum)
+        failed = instance >= maximum
         cmp = "greater than or equal to"
     else:
-        failed = float(instance) > float(maximum)
+        failed = instance > maximum
         cmp = "greater than"
 
     if failed:
