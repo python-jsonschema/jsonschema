@@ -1,4 +1,4 @@
-import statistics
+from math import sqrt
 from textwrap import dedent
 import time
 
@@ -6,6 +6,17 @@ from jsonschema.tests.compat import unittest
 from jsonschema.validators import (
     Draft3Validator, Draft4Validator, RefResolver,
  )
+
+try:
+    from statistics import (mean, stdev)
+except ImportError:
+    def mean(arr):
+        return sum(arr) / len(arr)
+    def stdev(arr):
+        m = mean(arr)
+        return sqrt(sum(((a - m) ** 2) for a in arr)) / len(arr)
+
+
 
 
 class TestBenchmarks(unittest.TestCase):
@@ -33,7 +44,7 @@ class TestBenchmarks(unittest.TestCase):
         print("%i runs in %.2f sec\n"
             "\tms/run: mean(%.2f), std(%.2f), MIN(%.2f), MAX(%.2f)" %
             (runs, total_duration,
-                statistics.mean(stats), statistics.stdev(stats),
+                mean(stats), stdev(stats),
                 min(stats), max(stats)
             ))
 
