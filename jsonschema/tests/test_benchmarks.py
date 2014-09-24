@@ -50,6 +50,10 @@ class TestBenchmarks(unittest.TestCase):
 
             348 runs in 2.00 sec
                 ms/run: mean(5.73), std(0.38), MIN(5.50), MAX(8.00)
+        splitted_fragments: Time @ Xeon 3.2GHz (x 1.05 faster)::
+
+            290 runs in 2.00 sec
+                ms/run: mean(6.88), std(0.66), MIN(6.00), MAX(12.00)
         """
 
         stats = []
@@ -75,6 +79,10 @@ class TestBenchmarks(unittest.TestCase):
 
             201 runs in 2.01 sec
                 ms/run: mean(9.95), std(0.57), MIN(9.50), MAX(12.50)
+        splitted_fragments: Time @ Xeon 3.2GHz (x 1.16 faster)::
+
+            191 runs in 2.01 sec
+                ms/run: mean(10.47), std(0.81), MIN(9.50), MAX(14.00)
         """
 
         stats = []
@@ -100,6 +108,10 @@ class TestBenchmarks(unittest.TestCase):
 
             125 runs in 2.02 sec
                 ms/run: mean(16.00), std(0.88), MIN(15.00), MAX(19.00)
+        splitted_fragments: Time @ Xeon 3.2GHz (x 1.11 faster)::
+
+            115 runs in 2.00 sec
+                ms/run: mean(17.24), std(1.24), MIN(16.00), MAX(24.51)
         """
 
         v_classes = [Draft3Validator, Draft4Validator]
@@ -127,6 +139,10 @@ class TestBenchmarks(unittest.TestCase):
 
             30 runs in 2.02 sec
                 ms/run: mean(65.05), std(2.11), MIN(62.01), MAX(71.51)
+        splitted_fragments: Time @ Xeon 3.2GHz (x 1.12 faster)::
+
+            19 runs in 2.10 sec
+                ms/run: mean(105.07), std(2.45), MIN(102.02), MAX(109.02)
         """
 
         stats = []

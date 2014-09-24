@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
-import sys
+
 import operator
+import sys
+
 
 try:
     from collections import MutableMapping, Sequence  # noqa
@@ -13,7 +15,8 @@ if PY3:
     zip = zip
     from io import StringIO
     from urllib.parse import (
-        unquote, urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit
+        unquote, urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit,
+        DefragResult
     )
     from urllib.request import urlopen
     str_types = str,
@@ -23,7 +26,8 @@ else:
     from itertools import izip as zip  # noqa
     from StringIO import StringIO
     from urlparse import (
-        urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit # noqa
+        urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit, # noqa
+        DefragResult
     )
     from urllib import unquote  # noqa
     from urllib2 import urlopen  # noqa
@@ -47,7 +51,7 @@ def urldefrag(url):
     else:
         defrag = url
         frag = ''
-    return defrag, frag
+    return DefragResult(defrag, frag)
 
 
 # flake8: noqa

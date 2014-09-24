@@ -11,7 +11,8 @@ except ImportError:
 
 from jsonschema import _utils, _validators
 from jsonschema.compat import (
-    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
+    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen, DefragResult,
+
     str_types, int_types, iteritems,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
@@ -230,7 +231,7 @@ class RefResolver(object):
 
     :argument str base_uri: URI of the referring document
     :argument referrer: the actual referring document
-    :argument dict store: a mapping from URIs to documents to cache
+    :argument dict store: a mapping from URIs (without fragments!) to documents to cache
     :argument bool cache_remote: whether remote refs should be cached after
         first resolution
     :argument dict handlers: a mapping from URI schemes to functions that
@@ -241,6 +242,7 @@ class RefResolver(object):
     def __init__(
         self, base_uri, referrer, store=(), cache_remote=True, handlers=(),
     ):
+        base_uri = urldefrag(base_uri)
         self.base_uri = base_uri
         self.resolution_scope = base_uri
         # This attribute is not used, it is for backwards compatibility
@@ -251,11 +253,11 @@ class RefResolver(object):
 
         self.old_scopes = []
         self.store = _utils.URIDict(
-            (id, validator.META_SCHEMA)
+            (id, validator.META_SCHEMA)         ## IDs assumed pure urls (no fragments).
             for id, validator in iteritems(meta_schemas)
         )
         self.store.update(store)
-        self.store[base_uri] = referrer
+        self.store[base_uri.url] = referrer
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -287,19 +289,20 @@ class RefResolver(object):
 
         """
 
-        full_uri = urljoin(self.resolution_scope, ref)
-        uri, fragment = urldefrag(full_uri)
-        if not uri:
-            uri = self.base_uri
+        ref = urldefrag(ref)
 
-        if uri in self.store:
-            document = self.store[uri]
-        else:
+        url = urljoin(self.resolution_scope.url, ref.url, allow_fragments=False) \
+                if ref.url else self.resolution_scope.url
+
+        try:
+            document = self.store[url]
+        except KeyError:
             try:
-                document = self.resolve_remote(uri)
+                document = self.resolve_remote(url)
             except Exception as exc:
                 raise RefResolutionError(exc)
 
+        uri = DefragResult(url, ref.fragment)
         old_base_uri, self.base_uri = self.base_uri, uri
         try:
             self.push_scope(uri)
