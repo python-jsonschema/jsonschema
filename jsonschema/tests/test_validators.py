@@ -558,6 +558,25 @@ class ValidatorTestMixin(object):
         with self.assertRaises(UnknownType):
             self.validator.is_type("foo", object())
 
+    def test_resolver_scope_stack_is_empty_after_exception(self):
+        instance ={
+            'foo': 1
+        }
+        schema = {
+            'id':'/a/b',
+            'type': ['object'],
+            'properties': {
+                'foo': {
+                    'id':'c',
+                    'type': ['string']
+                }
+            }
+        }
+        with self.assertRaises(ValidationError):
+            self.validator.validate(instance, schema)
+
+        self.assertEqual(len(self.validator.resolver.scopes_stack), 0)
+
 
 class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft3Validator
