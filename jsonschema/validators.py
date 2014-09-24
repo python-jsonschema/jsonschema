@@ -15,7 +15,7 @@ from jsonschema.compat import (
     str_types, int_types, iteritems,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
-from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
+from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType, BreakLoopException
 
 
 _unset = _utils.Unset()
@@ -80,29 +80,26 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                 _schema = self.schema
 
             with self.resolver.in_scope(_schema.get(u"id", u"")):
-                ref = _schema.get(u"$ref")
-                if ref is not None:
-                    validators = [(u"$ref", ref)]
-                else:
-                    validators = iteritems(_schema)
-
-                for k, v in validators:
+                for k, v in iteritems(_schema):
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
                         continue
 
-                    errors = validator(self, v, instance, _schema) or ()
-                    for error in errors:
-                        # set details if not already set by the called fn
-                        error._set(
-                            validator=k,
-                            validator_value=v,
-                            instance=instance,
-                            schema=_schema,
-                        )
-                        if k != u"$ref":
-                            error.schema_path.appendleft(k)
-                        yield error
+                    try:
+                        errors = validator(self, v, instance, _schema) or ()
+                        for error in errors:
+                            # set details if not already set by the called fn
+                            error._set(
+                                validator=k,
+                                validator_value=v,
+                                instance=instance,
+                                schema=_schema,
+                            )
+                            if k != u"$ref":
+                                error.schema_path.appendleft(k)
+                            yield error
+                    except BreakLoopException:
+                        break
 
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):

@@ -165,6 +165,8 @@ class FormatError(Exception):
     if PY3:
         __str__ = __unicode__
 
+class BreakLoopException(Exception):
+        pass
 
 class ErrorTree(object):
     """

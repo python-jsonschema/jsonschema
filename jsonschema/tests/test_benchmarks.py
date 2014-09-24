@@ -43,8 +43,13 @@ class TestBenchmarks(unittest.TestCase):
 
         master-19-Aug (9f18270): Time @ Xeon 3.2GHz::
 
-            278 runs in 2.00 sec
-                ms/run: mean(7.17), std(0.56), MIN(6.50), MAX(10.51)
+            286 runs in 2.00 sec
+                ms/run: mean(6.98), std(0.35), MIN(6.50), MAX(9.50)
+
+        break_looop: Time @ Xeon 3.2GHz::
+
+            283 runs in 2.00 sec
+                ms/run: mean(7.05), std(0.28), MIN(6.50), MAX(9.50)
         """
 
         stats = []
@@ -63,8 +68,13 @@ class TestBenchmarks(unittest.TestCase):
 
         master-19-Aug (9f18270): Time @ Xeon 3.2GHz::
 
-            164 runs in 2.00 sec
-                ms/run: mean(12.15), std(1.36), MIN(11.01), MAX(21.02)
+            174 runs in 2.01 sec
+                ms/run: mean(11.47), std(0.36), MIN(11.00), MAX(13.00)
+
+        break_looop: Time @ Xeon 3.2GHz::
+
+            173 runs in 2.01 sec
+                ms/run: mean(11.53), std(0.28), MIN(11.00), MAX(13.00)
         """
 
         stats = []
@@ -83,8 +93,13 @@ class TestBenchmarks(unittest.TestCase):
 
         master-19-Aug (9f18270): Time @ Xeon 3.2GHz::
 
-            104 runs in 2.01 sec
-                ms/run: mean(19.13), std(1.12), MIN(18.01), MAX(23.02)
+            108 runs in 2.00 sec
+                ms/run: mean(18.38), std(0.35), MIN(18.00), MAX(19.50)
+
+        break_looop: Time @ Xeon 3.2GHz::
+
+            107 runs in 2.01 sec
+                ms/run: mean(18.62), std(0.38), MIN(18.00), MAX(20.00)
         """
 
         v_classes = [Draft3Validator, Draft4Validator]
@@ -105,8 +120,13 @@ class TestBenchmarks(unittest.TestCase):
 
         master-19-Aug (9f18270): Time @ Xeon 3.2GHz::
 
-            16 runs in 2.00 sec
-                ms/run: mean(117.80), std(4.32), MIN(113.09), MAX(127.60)
+            18 runs in 2.07 sec
+                ms/run: mean(109.21), std(1.33), MIN(107.52), MAX(112.52)
+
+        break_looop: Time @ Xeon 3.2GHz::
+
+            18 runs in 2.09 sec
+                ms/run: mean(109.97), std(0.80), MIN(109.02), MAX(112.02)
         """
 
         stats = []
