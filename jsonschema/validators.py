@@ -16,7 +16,7 @@ from jsonschema.compat import (
     str_types, int_types, iteritems,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
-from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
+from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType, _BreakLoopException
 
 
 _unset = _utils.Unset()
@@ -84,29 +84,26 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
             if scope:
                 self.resolver.push_scope(scope)
             try:
-                ref = _schema.get(u"$ref")
-                if ref is None:
-                    validators = iteritems(_schema)
-                else:
-                    validators = [(u"$ref", ref)]
-
-                for k, v in validators:
+                for k, v in iteritems(_schema):
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
                         continue
 
-                    errors = validator(self, v, instance, _schema) or ()
-                    for error in errors:
-                        # set details if not already set by the called fn
-                        error._set(
-                            validator=k,
-                            validator_value=v,
-                            instance=instance,
-                            schema=_schema,
-                        )
-                        if k != u"$ref":
-                            error.schema_path.appendleft(k)
-                        yield error
+                    try:
+                        errors = validator(self, v, instance, _schema)
+                        for error in errors:
+                            # set details if not already set by the called fn
+                            error._set(
+                                validator=k,
+                                validator_value=v,
+                                instance=instance,
+                                schema=_schema,
+                            )
+                            if k != u"$ref":
+                                error.schema_path.appendleft(k)
+                            yield error
+                    except _BreakLoopException:
+                        break
             finally:
                 if scope:
                     self.resolver.pop_scope()

@@ -58,6 +58,8 @@ class TestBenchmarks(unittest.TestCase):
 
             278 runs in 2.00 sec
                 ms/run: mean(7.17), std(0.56), MIN(6.50), MAX(10.51)
+            286 runs in 2.00 sec
+                ms/run: mean(6.98), std(0.35), MIN(6.50), MAX(9.50)
 
         unroll_scopes (a22789a): Time @ Xeon 3.2GHz (x 1.19 faster)::
 
@@ -69,10 +71,20 @@ class TestBenchmarks(unittest.TestCase):
             290 runs in 2.00 sec
                 ms/run: mean(6.88), std(0.66), MIN(6.00), MAX(12.00)
 
-        combine_untoll_split_scopes: Time @ Xeon 3.2GHz (x 1.25 faster)::
+        combine_unroll_split_scopes (f0c6f8f): Time @ Xeon 3.2GHz (x 1.25 faster)::
 
             347 runs in 2.00 sec
                 ms/run: mean(5.75), std(0.67), MIN(5.00), MAX(11.50)
+
+        break_loop (d0609d9): Time @ Xeon 3.2GHz::
+
+            283 runs in 2.00 sec
+                ms/run: mean(7.05), std(0.28), MIN(6.50), MAX(9.50)
+
+        break_unroll_defrag: Time @ Xeon 3.2GHz (x 1.33 faster)::
+
+            371 runs in 2.00 sec
+                ms/run: mean(5.39), std(0.27), MIN(5.00), MAX(6.50)
         """
 
         stats = []
@@ -93,6 +105,8 @@ class TestBenchmarks(unittest.TestCase):
 
             164 runs in 2.00 sec
                 ms/run: mean(12.15), std(1.36), MIN(11.01), MAX(21.02)
+            174 runs in 2.01 sec
+                ms/run: mean(11.47), std(0.36), MIN(11.00), MAX(13.00)
 
         unroll_scopes (a22789a): Time @ Xeon 3.2GHz (x 1.09 faster)::
 
@@ -104,10 +118,20 @@ class TestBenchmarks(unittest.TestCase):
             191 runs in 2.01 sec
                 ms/run: mean(10.47), std(0.81), MIN(9.50), MAX(14.00)
 
-        combine_untoll_split_scopes: Time @ Xeon 3.2GHz (x 1.38 faster)::
+        combine_unroll_split_scopes (f0c6f8f): Time @ Xeon 3.2GHz (x 1.38 faster)::
 
             228 runs in 2.01 sec
                 ms/run: mean(8.77), std(0.74), MIN(8.00), MAX(12.50)
+
+        break_loop (d0609d9): Time @ Xeon 3.2GHz::
+
+            173 runs in 2.01 sec
+                ms/run: mean(11.53), std(0.28), MIN(11.00), MAX(13.00)
+
+        break_unroll_defrag: Time @ Xeon 3.2GHz (x 1.45 faster)::
+
+            238 runs in 2.00 sec
+                ms/run: mean(8.38), std(0.28), MIN(8.00), MAX(9.50)
         """
 
         stats = []
@@ -128,6 +152,8 @@ class TestBenchmarks(unittest.TestCase):
 
             104 runs in 2.01 sec
                 ms/run: mean(19.13), std(1.12), MIN(18.01), MAX(23.02)
+            108 runs in 2.00 sec
+                ms/run: mean(18.38), std(0.35), MIN(18.00), MAX(19.50)
 
         unroll_scopes (a22789a): Time @ Xeon 3.2GHz (x 1.13 faster)::
 
@@ -139,10 +165,20 @@ class TestBenchmarks(unittest.TestCase):
             115 runs in 2.00 sec
                 ms/run: mean(17.24), std(1.24), MIN(16.00), MAX(24.51)
 
-        combine_untoll_split_scopes: Time @ Xeon 3.2GHz (x 1.32 faster)::
+        combine_unroll_split_scopes (f0c6f8f): Time @ Xeon 3.2GHz (x 1.32 faster)::
 
             138 runs in 2.01 sec
                 ms/run: mean(14.47), std(1.03), MIN(13.50), MAX(19.50)
+
+        break_loop (d0609d9): Time @ Xeon 3.2GHz::
+
+            107 runs in 2.01 sec
+                ms/run: mean(18.62), std(0.38), MIN(18.00), MAX(20.00)
+
+        break_unroll_defrag: Time @ Xeon 3.2GHz (x 1.37 faster)::
+
+            143 runs in 2.01 sec
+                ms/run: mean(13.93), std(0.41), MIN(13.50), MAX(15.50)
         """
 
         v_classes = [Draft3Validator, Draft4Validator]
@@ -165,6 +201,8 @@ class TestBenchmarks(unittest.TestCase):
 
             16 runs in 2.00 sec
                 ms/run: mean(117.80), std(4.32), MIN(113.09), MAX(127.60)
+            18 runs in 2.07 sec
+                ms/run: mean(109.21), std(1.33), MIN(107.52), MAX(112.52)
 
         unroll_scopes (a22789a): Time @ Xeon 3.2GHz (x 1.43 faster)::
 
@@ -176,10 +214,20 @@ class TestBenchmarks(unittest.TestCase):
             19 runs in 2.10 sec
                 ms/run: mean(105.07), std(2.45), MIN(102.02), MAX(109.02)
 
-        combine_untoll_split_scopes: Time @ Xeon 3.2GHz (x 1.80 faster)::
+        combine_unroll_split_scopes (f0c6f8f): Time @ Xeon 3.2GHz (x 1.80 faster)::
 
             30 runs in 2.03 sec
                 ms/run: mean(65.35), std(4.83), MIN(60.01), MAX(82.02)
+
+        break_loop (d0609d9): Time @ Xeon 3.2GHz::
+
+            18 runs in 2.09 sec
+                ms/run: mean(109.97), std(0.80), MIN(109.02), MAX(112.02)
+
+        break_unroll_defrag: Time @ Xeon 3.2GHz (x 2.00 faster)::
+
+            33 runs in 2.01 sec
+                ms/run: mean(59.03), std(0.74), MIN(58.01), MAX(62.01)
         """
 
         stats = []
