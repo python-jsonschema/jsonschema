@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from collections import namedtuple
 import operator
 import sys
 
@@ -16,7 +17,6 @@ if PY3:
     from io import StringIO
     from urllib.parse import (
         unquote, urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit,
-        DefragResult
     )
     from urllib.request import urlopen
     str_types = str,
@@ -27,7 +27,6 @@ else:
     from StringIO import StringIO
     from urlparse import (
         urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit, # noqa
-        DefragResult
     )
     from urllib import unquote  # noqa
     from urllib2 import urlopen  # noqa
@@ -44,6 +43,7 @@ def urlsplit(url):
     return SplitResult(scheme, netloc, path, query, fragment)
 
 
+DefragResult = namedtuple('DefragResult', 'url fragment')
 def urldefrag(url):
     if "#" in url:
         s, n, p, q, frag = urlsplit(url)
