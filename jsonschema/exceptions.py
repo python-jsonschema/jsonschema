@@ -86,7 +86,7 @@ class _Error(Exception):
             return self.relative_path
 
         path = deque(self.relative_path)
-        path.extendleft(parent.absolute_path)
+        path.extendleft(reversed(parent.absolute_path))
         return path
 
     @property
@@ -96,7 +96,7 @@ class _Error(Exception):
             return self.relative_schema_path
 
         path = deque(self.relative_schema_path)
-        path.extendleft(parent.absolute_schema_path)
+        path.extendleft(reversed(parent.absolute_schema_path))
         return path
 
     def _set(self, **kwargs):

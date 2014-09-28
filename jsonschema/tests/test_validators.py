@@ -425,6 +425,71 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e5.validator, "minItems")
         self.assertEqual(e6.validator, "enum")
 
+    def test_recursive(self):
+        schema = {
+            "definitions": {
+                "node": {
+                    "anyOf": [{
+                        "type": "object",
+                        "required": ["name", "children"],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                            },
+                            "children": {
+                                "type": "object",
+                                "patternProperties": {
+                                   "^.*$": {
+                                       "$ref": "#/definitions/node",
+                                   },
+                               },
+                            },
+                        },
+                    }],
+                },
+            },
+            "type": "object",
+            "required": ["root"],
+            "properties": {
+                "root": {"$ref": "#/definitions/node"},
+            }
+        }
+
+        instance = {
+            "root": {
+                "name": "root",
+                "children": {
+                    "a": {
+                        "name": "a",
+                        "children": {
+                            "ab": {
+                                "name": "ab",
+                                # missing "children"
+                            }
+                        }
+                    },
+                },
+            },
+        }
+        validator = Draft4Validator(schema)
+
+        e, = validator.iter_errors(instance)
+        self.assertEqual(e.absolute_path, deque(["root"]))
+        self.assertEqual(e.absolute_schema_path, deque(['properties', 'root', 'anyOf']))
+
+        e1, = e.context
+        self.assertEqual(e1.absolute_path, deque(['root', 'children', 'a']))
+        self.assertEqual(e1.absolute_schema_path,
+                         deque(['properties', 'root', 'anyOf', 0, 'properties',
+                                'children', 'patternProperties', '^.*$', 'anyOf']))
+
+        e2, = e1.context
+        self.assertEqual(e2.absolute_path, deque(['root', 'children', 'a', 'children', 'ab']))
+        self.assertEqual(e2.absolute_schema_path,
+                         deque(['properties', 'root', 'anyOf', 0, 'properties',
+                                'children', 'patternProperties', '^.*$', 'anyOf', 0, 'properties',
+                                'children', 'patternProperties', '^.*$', 'anyOf']))
+
     def test_additionalProperties(self):
         instance = {"bar": "bar", "foo": 2}
         schema = {
