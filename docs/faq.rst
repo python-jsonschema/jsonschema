@@ -96,8 +96,10 @@ The following are *not* considered public API and may change without notice:
 
     * the order in which validation errors are returned or raised
 
+    * the ``compat.py`` module, which is for internal compatibility use
+
     * anything marked private
 
-With the exception of the last of those, flippant changes are avoided, but
+With the exception of the last two of those, flippant changes are avoided, but
 changes can and will be made if there is improvement to be had. Feel free to
 open an issue ticket if there is a specific issue or question worth raising.
