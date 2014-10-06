@@ -27,6 +27,10 @@ class _Error(Exception):
         schema_path=(),
         parent=None,
     ):
+        # Calling __init__ is important, because otherwise __reduce__ will
+        # return empty args tuple on Py2.7 and unpickling will fail because
+        # init requires at least one argument.
+        super(_Error, self).__init__(message)
         self.message = message
         self.path = self.relative_path = deque(path)
         self.schema_path = self.relative_schema_path = deque(schema_path)
