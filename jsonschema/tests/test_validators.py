@@ -439,10 +439,10 @@ class TestValidationErrorDetails(unittest.TestCase):
                             "children": {
                                 "type": "object",
                                 "patternProperties": {
-                                   "^.*$": {
-                                       "$ref": "#/definitions/node",
-                                   },
-                               },
+                                    "^.*$": {
+                                        "$ref": "#/definitions/node",
+                                    },
+                                },
                             },
                         },
                     }],
@@ -475,20 +475,55 @@ class TestValidationErrorDetails(unittest.TestCase):
 
         e, = validator.iter_errors(instance)
         self.assertEqual(e.absolute_path, deque(["root"]))
-        self.assertEqual(e.absolute_schema_path, deque(['properties', 'root', 'anyOf']))
+        self.assertEqual(
+            e.absolute_schema_path, deque(["properties", "root", "anyOf"]),
+        )
 
         e1, = e.context
-        self.assertEqual(e1.absolute_path, deque(['root', 'children', 'a']))
-        self.assertEqual(e1.absolute_schema_path,
-                         deque(['properties', 'root', 'anyOf', 0, 'properties',
-                                'children', 'patternProperties', '^.*$', 'anyOf']))
+        self.assertEqual(e1.absolute_path, deque(["root", "children", "a"]))
+        self.assertEqual(
+            e1.absolute_schema_path, deque(
+                [
+                    "properties",
+                    "root",
+                    "anyOf",
+                    0,
+                    "properties",
+                    "children",
+                    "patternProperties",
+                    "^.*$",
+                    "anyOf",
+                ],
+            ),
+        )
 
         e2, = e1.context
-        self.assertEqual(e2.absolute_path, deque(['root', 'children', 'a', 'children', 'ab']))
-        self.assertEqual(e2.absolute_schema_path,
-                         deque(['properties', 'root', 'anyOf', 0, 'properties',
-                                'children', 'patternProperties', '^.*$', 'anyOf', 0, 'properties',
-                                'children', 'patternProperties', '^.*$', 'anyOf']))
+        self.assertEqual(
+            e2.absolute_path, deque(
+                ["root", "children", "a", "children", "ab"],
+            ),
+        )
+        self.assertEqual(
+            e2.absolute_schema_path, deque(
+                [
+                    "properties",
+                    "root",
+                    "anyOf",
+                    0,
+                    "properties",
+                    "children",
+                    "patternProperties",
+                    "^.*$",
+                    "anyOf",
+                    0,
+                    "properties",
+                    "children",
+                    "patternProperties",
+                    "^.*$",
+                    "anyOf"
+                ],
+            ),
+        )
 
     def test_additionalProperties(self):
         instance = {"bar": "bar", "foo": 2}
