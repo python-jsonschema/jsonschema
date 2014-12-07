@@ -23,31 +23,28 @@ The simplest way to validate an instance under a given schema is to use the
 The Validator Interface
 -----------------------
 
-:mod:`jsonschema` defines an (informal) interface that all validators should
-adhere to.
+:mod:`jsonschema` defines an (informal) interface that all validator
+classes should adhere to.
 
 .. class:: IValidator(schema, types=(), resolver=None, format_checker=None)
 
-    :argument dict schema: the schema that the validator will validate with. It
-                           is assumed to be valid, and providing an invalid
-                           schema can lead to undefined behavior. See
-                           :meth:`IValidator.check_schema` to validate a schema
-                           first.
-    :argument types: Override or extend the list of known types when validating
-                     the :validator:`type` property. Should map strings (type
-                     names) to class objects that will be checked via
-                     :func:`isinstance`. See :ref:`validating-types` for
-                     details.
+    :argument dict schema: the schema that the validator object
+        will validate with. It is assumed to be valid, and providing
+        an invalid schema can lead to undefined behavior. See
+        :meth:`IValidator.check_schema` to validate a schema first.
+    :argument types: Override or extend the list of known types when
+        validating the :validator:`type` property. Should map strings (type
+        names) to class objects that will be checked via :func:`isinstance`.
+        See :ref:`validating-types` for details.
     :type types: dict or iterable of 2-tuples
-    :argument resolver: an instance of :class:`RefResolver` that will be used
-                        to resolve :validator:`$ref` properties (JSON
-                        references). If unprovided, one will be created.
-    :argument format_checker: an instance of :class:`FormatChecker` whose
-                              :meth:`~conforms` method will be called to check
-                              and see if instances conform to each
-                              :validator:`format` property present in the
-                              schema. If unprovided, no validation will be done
-                              for :validator:`format`.
+    :argument resolver: an instance of :class:`RefResolver` that will be
+        used to resolve :validator:`$ref` properties (JSON references). If
+        unprovided, one will be created.
+    :argument format_checker: an instance of :class:`FormatChecker`
+        whose :meth:`~conforms` method will be called to check and see if
+        instances conform to each :validator:`format` property present
+        in the schema. If unprovided, no validation will be done for
+        :validator:`format`.
 
     .. attribute:: DEFAULT_TYPES
 
@@ -61,13 +58,13 @@ adhere to.
 
     .. attribute:: VALIDATORS
 
-        A mapping of validators (:class:`str`\s) to functions that validate the
-        validator property with that name. For more information see
-        :ref:`creating-validators`.
+        A mapping of validator names (:class:`str`\s) to functions
+        that validate the validator property with that name. For more
+        information see :ref:`creating-validators`.
 
     .. attribute:: schema
 
-        The schema that was passed in when initializing the validator.
+        The schema that was passed in when initializing the object.
 
 
     .. classmethod:: check_schema(schema)
@@ -124,10 +121,11 @@ adhere to.
             ValidationError: [2, 3, 4] is too long
 
 
-All of the :ref:`versioned validators <versioned-validators>` that are included
-with :mod:`jsonschema` adhere to the interface, and implementors of validators
-that extend or complement the ones included should adhere to it as well. For
-more information see :ref:`creating-validators`.
+All of the :ref:`versioned validators <versioned-validators>` that
+are included with :mod:`jsonschema` adhere to the interface, and
+implementors of validator classes that extend or complement the
+ones included should adhere to it as well. For more information see
+:ref:`creating-validators`.
 
 
 .. _validating-types:
@@ -154,7 +152,7 @@ more general instance checks can introduce significant slowdown, especially
 given how common validating these types are.
 
 If you *do* want the generality, or just want to add a few specific additional
-types as being acceptible for a validator, :class:`IValidator`\s have a
+types as being acceptible for a validator object, :class:`IValidator`\s have a
 ``types`` argument that can be used to provide additional or new types.
 
 .. code-block:: python
@@ -168,20 +166,20 @@ types as being acceptible for a validator, :class:`IValidator`\s have a
     )
 
 The list of default Python types for each JSON type is available on each
-validator in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note that you
-need to specify all types to match if you override one of the existing JSON
-types, so you may want to access the set of default types when specifying your
-additional type.
+validator object in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note
+that you need to specify all types to match if you override one of the
+existing JSON types, so you may want to access the set of default types
+when specifying your additional type.
 
 .. _versioned-validators:
 
 Versioned Validators
 --------------------
 
-:mod:`jsonschema` ships with validators for various versions of the JSON Schema
-specification. For details on the methods and attributes that each validator
-provides see the :class:`IValidator` interface, which each validator
-implements.
+:mod:`jsonschema` ships with validator classes for various versions of
+the JSON Schema specification. For details on the methods and attributes
+that each validator class provides see the :class:`IValidator` interface,
+which each included validator class implements.
 
 .. autoclass:: Draft3Validator
 

@@ -36,7 +36,7 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: validator
 
-        The failed `validator
+        The name of the failed `validator
         <http://json-schema.org/latest/json-schema-validation.html#anchor12>`_.
 
     .. attribute:: validator_value
@@ -46,8 +46,9 @@ raised or returned, depending on which method or function is used.
     .. attribute:: schema
 
         The full schema that this error came from. This is potentially a
-        subschema from within the schema that was passed into the validator, or
-        even an entirely different schema if a :validator:`$ref` was followed.
+        subschema from within the schema that was passed in originally,
+        or even an entirely different schema if a :validator:`$ref` was
+        followed.
 
     .. attribute:: relative_schema_path
 
@@ -59,7 +60,7 @@ raised or returned, depending on which method or function is used.
         A :class:`collections.deque` containing the path to the failed
         validator within the schema, but always relative to the
         *original* schema as opposed to any subschema (i.e. the one
-        originally passed into a validator, *not* :attr:`schema`\).
+        originally passed into a validator class, *not* :attr:`schema`\).
 
     .. attribute:: schema_path
 
@@ -86,12 +87,12 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: instance
 
-        The instance that was being validated. This will differ from the
-        instance originally passed into validate if the validator was in the
-        process of validating a (possibly nested) element within the top-level
-        instance. The path within the top-level instance (i.e.
-        :attr:`ValidationError.path`) could be used to find this object, but it
-        is provided for convenience.
+        The instance that was being validated. This will differ from
+        the instance originally passed into :meth:`validate` if the
+        validator object was in the process of validating a (possibly
+        nested) element within the top-level instance. The path within
+        the top-level instance (i.e. :attr:`ValidationError.path`) could
+        be used to find this object, but it is provided for convenience.
 
     .. attribute:: context
 
@@ -266,8 +267,9 @@ more easily than by just iterating over the error objects.
     tree = ErrorTree(v.iter_errors(instance))
 
 As you can see, :class:`ErrorTree` takes an iterable of
-:class:`ValidationError`\s when constructing a tree so you can directly pass it
-the return value of a validator's :attr:`~IValidator.iter_errors` method.
+:class:`ValidationError`\s when constructing a tree so you
+can directly pass it the return value of a validator object's
+:attr:`~IValidator.iter_errors` method.
 
 :class:`ErrorTree`\s support a number of useful operations. The first one we
 might want to perform is to check whether a given element in our instance
@@ -303,8 +305,9 @@ them.
     >>> print(tree[0].errors["type"].message)
     'spam' is not of type 'number'
 
-Of course this means that if we want to know if a given validator failed for a
-given index, we check for its presence in :attr:`~ErrorTree.errors`:
+Of course this means that if we want to know if a given named
+validator failed for a given index, we check for its presence in
+:attr:`~ErrorTree.errors`:
 
 .. doctest::
 
@@ -326,10 +329,11 @@ itself. So it appears in the root node of the tree.
 
 That's all you need to know to use error trees.
 
-To summarize, each tree contains child trees that can be accessed by indexing
-the tree to get the corresponding child tree for a given index into the
-instance. Each tree and child has a :attr:`~ErrorTree.errors` attribute, a
-dict, that maps the failed validator to the corresponding validation error.
+To summarize, each tree contains child trees that can be accessed by
+indexing the tree to get the corresponding child tree for a given index
+into the instance. Each tree and child has a :attr:`~ErrorTree.errors`
+attribute, a dict, that maps the failed validator name to the
+corresponding validation error.
 
 
 best_match and relevance
@@ -425,10 +429,11 @@ to guess the most relevant error in a given bunch.
 
     Create a key function that can be used to sort errors by relevance.
 
-    :argument set weak: a collection of validators to consider to be "weak". If
-        there are two errors at the same level of the instance and one is in
-        the set of weak validators, the other error will take priority. By
-        default, :validator:`anyOf` and :validator:`oneOf` are considered weak
-        validators and will be superceded by other same-level validation
-        errors.
-    :argument set strong: a collection of validators to consider to be "strong"
+    :argument set weak: a collection of validator names to consider to
+        be "weak". If there are two errors at the same level of the
+        instance and one is in the set of weak validator names, the
+        other error will take priority. By default, :validator:`anyOf`
+        and :validator:`oneOf` are considered weak validators and will
+        be superceded by other same-level validation errors.
+    :argument set strong: a collection of validator names to consider to
+        be "strong"

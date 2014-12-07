@@ -1,30 +1,37 @@
 .. _creating-validators:
 
-================================
-Creating or Extending Validators
-================================
+=======================================
+Creating or Extending Validator Classes
+=======================================
 
 .. currentmodule:: jsonschema.validators
 
 .. autofunction:: create
 
-    Create a new validator (class).
+    Create a new validator class.
 
     :argument dict meta_schema: the meta schema for the new validator class
 
-    :argument dict validators: a mapping from validator names to functions that
-        validate the given name. Each function should take 4 arguments: a
-        validator instance, the value of the current validator property in the
-        instance being validated, the instance, and the schema.
+    :argument dict validators: a mapping from names to callables, where
+        each callable will validate the schema property with the given
+        name.
+        
+        Each callable should take 4 arguments:
+
+            1. a validator instance,
+            2. the value of the property being validated within the instance
+            3. the instance
+            4. the schema
 
     :argument str version: an identifier for the version that this validator
-        will validate. If provided, the returned validator class will have its
-        ``__name__`` set to include the version, and also will have
-        :func:`validates` automatically called for the given version.
+        class will validate. If provided, the returned validator class
+        will have its ``__name__`` set to include the version, and also
+        will have :func:`validates` automatically called for the given
+        version.
 
-    :argument dict default_types: a default mapping to use for instances of the
-        validator when mapping between JSON types to Python types. The default
-        for this argument is probably fine. Instances of the returned validator
+    :argument dict default_types: a default mapping to use for instances
+        of the validator class when mapping between JSON types to Python
+        types. The default for this argument is probably fine. Instances
         can still have their types customized on a per-instance basis.
 
     :returns: a new :class:`jsonschema.IValidator` class
@@ -32,48 +39,49 @@ Creating or Extending Validators
 
 .. autofunction:: extend
 
-    Create a new validator that extends an existing validator class.
+    Create a new validator class by extending an existing one.
 
     :argument jsonschema.IValidator validator: an existing validator class
 
-    :argument dict validators: a set of new validators to add to the new
-        validator.
+    :argument dict validators: a mapping of new validator callables to extend
+        with, whose structure is as in :func:`create`\ .
 
         .. note::
 
-            Any validators with the same name as an existing one will
-            (silently) replace the old validator entirely.
+            Any validator callables with the same name as an existing one will
+            (silently) replace the old validator callable entirely, effectively
+            overriding any validation done in the "parent" validator class.
 
-            If you wish to extend an old validator, call it directly in the
-            replacing validator function by retrieving it using
-            ``OldValidator.VALIDATORS["the validator"]``.
+            If you wish to instead extend the behavior of a parent's
+            validator callable, delegate and call it directly in
+            the new validator function by retrieving it using
+            ``OldValidator.VALIDATORS["validator_name"]``.
 
-    :argument str version: a version for the new validator
+    :argument str version: a version for the new validator class
 
     :returns: a new :class:`jsonschema.IValidator` class
 
     .. note:: Meta Schemas
 
-        The new validator will just keep the old validator's meta schema.
+        The new validator class will have its parent's meta schema.
 
-        If you wish to change or extend the meta schema in the new validator,
-        modify ``META_SCHEMA`` directly on the returned class.
-
-        The meta schema on the new validator will not be a copy, so you'll
-        probably want to copy it before modifying it to not affect the old
-        validator.
+        If you wish to change or extend the meta schema in the new
+        validator class, modify ``META_SCHEMA`` directly on the returned
+        class. Note that no implicit copying is done, so a copy should
+        likely be made before modifying it, in order to not affect the
+        old validator.
 
 
 .. autofunction:: validator_for
 
-    Retrieve the validator appropriate for validating the given schema.
+    Retrieve the validator class appropriate for validating the given schema.
 
     Uses the :validator:`$schema` property that should be present in the given
-    schema to look up the appropriate validator.
+    schema to look up the appropriate validator class.
 
     :argument schema: the schema to look at
-    :argument default: the default to return if the appropriate validator
-        cannot be determined. If unprovided, the default will be to just return
+    :argument default: the default to return if the appropriate validator class
+        cannot be determined. If unprovided, the default is to return
         :class:`Draft4Validator`
 
 
