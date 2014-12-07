@@ -332,8 +332,9 @@ class RefResolver(object):
         """
         Resolve a remote ``uri``.
 
-        Does not check the store first, but stores the retrieved document in
-        the store if :attr:`RefResolver.cache_remote` is True.
+        If called directly, does not check the store first, but after
+        retrieving the document at the specified URI it will be saved in
+        the store if :attr:`cache_remote` is True.
 
         .. note::
 
