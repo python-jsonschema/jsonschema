@@ -76,6 +76,7 @@ This suite is being used by:
   * [json_schema (Dart)](https://github.com/patefacio/json_schema) 
   * [tv4 (JavaScript)](https://github.com/geraintluff/tv4)
   * [Jsonary (JavaScript)](https://github.com/jsonary-js/jsonary)
+  * [json-schema (Ruby)](https://github.com/hoxworth/json-schema)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).
