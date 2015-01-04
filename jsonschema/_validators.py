@@ -5,9 +5,6 @@ from jsonschema.exceptions import FormatError, ValidationError
 from jsonschema.compat import iteritems
 
 
-FLOAT_TOLERANCE = 10 ** -15
-
-
 def patternProperties(validator, patternProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
@@ -111,8 +108,8 @@ def multipleOf(validator, dB, instance, schema):
         return
 
     if isinstance(dB, float):
-        mod = instance % dB
-        failed = (mod > FLOAT_TOLERANCE) and (dB - mod) > FLOAT_TOLERANCE
+        quotient = instance / dB
+        failed = int(quotient) != quotient
     else:
         failed = instance % dB
 
