@@ -194,14 +194,14 @@ Draft 4 meta-schema, you could use:
     from jsonschema import Draft4Validator
 
     schema = {
-        "$schema": "http://json-schema.org/schema#"
+        "$schema": "http://json-schema.org/schema#",
 
         "type": "object",
         "properties": {
             "name": {"type": "string"},
             "email": {"type": "string"},
-        }
-        "required": ["email"],
+        },
+        "required": ["email"]
     }
     Draft4Validator.check_schema(schema)
 
