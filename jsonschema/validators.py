@@ -323,7 +323,7 @@ class RefResolver(object):
                 document = document[part]
             except (TypeError, LookupError):
                 raise RefResolutionError(
-                    "Unresolvable JSON pointer: %r" % fragment
+                    "Unresolvable JSON pointer: \"%s\"" % fragment
                 )
 
         return document

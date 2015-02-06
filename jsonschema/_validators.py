@@ -82,7 +82,7 @@ def minimum(validator, minimum, instance, schema):
 
     if failed:
         yield ValidationError(
-            "%r is %s the minimum of %r" % (instance, cmp, minimum)
+            "\"%s\" is %s the minimum of \"%s\"" % (instance, cmp, minimum)
         )
 
 
@@ -99,7 +99,7 @@ def maximum(validator, maximum, instance, schema):
 
     if failed:
         yield ValidationError(
-            "%r is %s the maximum of %r" % (instance, cmp, maximum)
+            "\"%s\" is %s the maximum of \"%s\"" % (instance, cmp, maximum)
         )
 
 
@@ -114,17 +114,17 @@ def multipleOf(validator, dB, instance, schema):
         failed = instance % dB
 
     if failed:
-        yield ValidationError("%r is not a multiple of %r" % (instance, dB))
+        yield ValidationError("\"%s\" is not a multiple of \"%s\"" % (instance, dB))
 
 
 def minItems(validator, mI, instance, schema):
     if validator.is_type(instance, "array") and len(instance) < mI:
-        yield ValidationError("%r is too short" % (instance,))
+        yield ValidationError("\"%s\" is too short" % (instance,))
 
 
 def maxItems(validator, mI, instance, schema):
     if validator.is_type(instance, "array") and len(instance) > mI:
-        yield ValidationError("%r is too long" % (instance,))
+        yield ValidationError("\"%s\" is too long" % (instance,))
 
 
 def uniqueItems(validator, uI, instance, schema):
@@ -133,7 +133,7 @@ def uniqueItems(validator, uI, instance, schema):
         validator.is_type(instance, "array") and
         not _utils.uniq(instance)
     ):
-        yield ValidationError("%r has non-unique elements" % instance)
+        yield ValidationError("\"%s\" has non-unique elements" % instance)
 
 
 def pattern(validator, patrn, instance, schema):
@@ -141,7 +141,7 @@ def pattern(validator, patrn, instance, schema):
         validator.is_type(instance, "string") and
         not re.search(patrn, instance)
     ):
-        yield ValidationError("%r does not match %r" % (instance, patrn))
+        yield ValidationError("\"%s\" does not match \"%s\"" % (instance, patrn))
 
 
 def format(validator, format, instance, schema):
@@ -154,12 +154,12 @@ def format(validator, format, instance, schema):
 
 def minLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) < mL:
-        yield ValidationError("%r is too short" % (instance,))
+        yield ValidationError("\"%s\" is too short" % (instance,))
 
 
 def maxLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) > mL:
-        yield ValidationError("%r is too long" % (instance,))
+        yield ValidationError("\"%s\" is too long" % (instance,))
 
 
 def dependencies(validator, dependencies, instance, schema):
@@ -180,13 +180,13 @@ def dependencies(validator, dependencies, instance, schema):
             for dependency in dependencies:
                 if dependency not in instance:
                     yield ValidationError(
-                        "%r is a dependency of %r" % (dependency, property)
+                        "\"%s\" is a dependency of \"%s\"" % (dependency, property)
                     )
 
 
 def enum(validator, enums, instance, schema):
     if instance not in enums:
-        yield ValidationError("%r is not one of %r" % (instance, enums))
+        yield ValidationError("\"%s\" is not one of \"%s\"" % (instance, enums))
 
 
 def ref(validator, ref, instance, schema):
@@ -230,7 +230,7 @@ def properties_draft3(validator, properties, instance, schema):
             ):
                 yield error
         elif subschema.get("required", False):
-            error = ValidationError("%r is a required property" % property)
+            error = ValidationError("\"%s\" is a required property" % property)
             error._set(
                 validator="required",
                 validator_value=subschema["required"],
@@ -246,7 +246,7 @@ def disallow_draft3(validator, disallow, instance, schema):
     for disallowed in _utils.ensure_list(disallow):
         if validator.is_valid(instance, {"type" : [disallowed]}):
             yield ValidationError(
-                "%r is disallowed for %r" % (disallowed, instance)
+                "\"%s\" is disallowed for \"%s\"" % (disallowed, instance)
             )
 
 
@@ -287,13 +287,13 @@ def required_draft4(validator, required, instance, schema):
         return
     for property in required:
         if property not in instance:
-            yield ValidationError("%r is a required property" % property)
+            yield ValidationError("\"%s\" is a required property" % property)
 
 
 def minProperties_draft4(validator, mP, instance, schema):
     if validator.is_type(instance, "object") and len(instance) < mP:
         yield ValidationError(
-            "%r does not have enough properties" % (instance,)
+            "\"%s\" does not have enough properties" % (instance,)
         )
 
 
@@ -301,7 +301,7 @@ def maxProperties_draft4(validator, mP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     if validator.is_type(instance, "object") and len(instance) > mP:
-        yield ValidationError("%r has too many properties" % (instance,))
+        yield ValidationError("\"%s\" has too many properties" % (instance,))
 
 
 def allOf_draft4(validator, allOf, instance, schema):
@@ -321,7 +321,7 @@ def oneOf_draft4(validator, oneOf, instance, schema):
         all_errors.extend(errs)
     else:
         yield ValidationError(
-            "%r is not valid under any of the given schemas" % (instance,),
+            "\"%s\" is not valid under any of the given schemas" % (instance,),
             context=all_errors,
         )
 
@@ -330,7 +330,7 @@ def oneOf_draft4(validator, oneOf, instance, schema):
         more_valid.append(first_valid)
         reprs = ", ".join(repr(schema) for schema in more_valid)
         yield ValidationError(
-            "%r is valid under each of %s" % (instance, reprs)
+            "\"%s\" is valid under each of %s" % (instance, reprs)
         )
 
 
@@ -343,7 +343,7 @@ def anyOf_draft4(validator, anyOf, instance, schema):
         all_errors.extend(errs)
     else:
         yield ValidationError(
-            "%r is not valid under any of the given schemas" % (instance,),
+            "\"%s\" is not valid under any of the given schemas" % (instance,),
             context=all_errors,
         )
 
@@ -351,5 +351,5 @@ def anyOf_draft4(validator, anyOf, instance, schema):
 def not_draft4(validator, not_schema, instance, schema):
     if validator.is_valid(instance, not_schema):
         yield ValidationError(
-            "%r is not allowed for %r" % (not_schema, instance)
+            "\"%s\" is not allowed for \"%s\"" % (not_schema, instance)
         )
