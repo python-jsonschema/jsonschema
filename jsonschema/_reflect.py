@@ -131,7 +131,7 @@ def namedAny(name):
     if '' in names:
         raise InvalidName(
             "name must be a string giving a '.'-separated list of Python "
-            "identifiers, not %r" % (name,))
+            "identifiers, not \"%s\"" % (name,))
 
     topLevelPackage = None
     moduleNames = names[:]
@@ -144,9 +144,9 @@ def namedAny(name):
                 moduleNames.pop()
         else:
             if len(names) == 1:
-                raise ModuleNotFound("No module named %r" % (name,))
+                raise ModuleNotFound("No module named \"%s\"" % (name,))
             else:
-                raise ObjectNotFound('%r does not name an object' % (name,))
+                raise ObjectNotFound('\"%s\" does not name an object' % (name,))
 
     obj = topLevelPackage
     for n in names[1:]:

@@ -76,7 +76,7 @@ class FormatChecker(object):
             cause = e
         if not result:
             raise FormatError(
-                "%r is not a %r" % (instance, format), cause=cause,
+                "\"%s\" is not a \"%s\"" % (instance, format), cause=cause,
             )
 
     def conforms(self, instance, format):

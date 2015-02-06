@@ -54,7 +54,7 @@ class _Error(Exception):
             error.parent = self
 
     def __repr__(self):
-        return "<%s: %r>" % (self.__class__.__name__, self.message)
+        return "<%s: \"%s\">" % (self.__class__.__name__, self.message)
 
     def __str__(self):
         return unicode(self).encode("utf-8")
@@ -70,7 +70,7 @@ class _Error(Exception):
         pinstance = pprint.pformat(self.instance, width=72)
         return self.message + textwrap.dedent("""
 
-            Failed validating %r in schema%s:
+            Failed validating \"%s\" in schema%s:
             %s
 
             On instance%s:
@@ -149,7 +149,7 @@ class UnknownType(Exception):
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
-            Unknown type %r for validator with schema:
+            Unknown type \"%s\" for validator with schema:
             %s
 
             While checking instance:
