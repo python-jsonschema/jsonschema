@@ -1,3 +1,4 @@
+.. image:: https://travis-ci.org/Julian/jsonschema.svg
 ==========
 jsonschema
 ==========
