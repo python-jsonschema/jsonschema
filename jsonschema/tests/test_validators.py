@@ -775,11 +775,11 @@ class TestRefResolver(unittest.TestCase):
             self.assertEqual(resolved, self.referrer["properties"]["foo"])
 
     def test_it_resolves_local_refs_with_id(self):
-        schema = {"id": "foo://bar/schema#", "a": {"foo": "bar"}}
+        schema = {"id": "http://bar/schema#", "a": {"foo": "bar"}}
         resolver = RefResolver.from_schema(schema)
         with resolver.resolving("#/a") as resolved:
             self.assertEqual(resolved, schema["a"])
-        with resolver.resolving("foo://bar/schema#/a") as resolved:
+        with resolver.resolving("http://bar/schema#/a") as resolved:
             self.assertEqual(resolved, schema["a"])
 
     def test_it_retrieves_stored_refs(self):
@@ -815,7 +815,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id" : "foo"}
         resolver = RefResolver.from_schema(schema)
-        self.assertEqual(resolver.base_uri.url, "foo")
+        self.assertEqual(resolver.resolution_scope, "foo")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:
@@ -828,7 +828,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
         resolver = RefResolver.from_schema(schema)
-        self.assertEqual(resolver.base_uri.url, "")
+        self.assertEqual(resolver.resolution_scope, "")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:
@@ -863,9 +863,7 @@ class TestRefResolver(unittest.TestCase):
         )
         with resolver.resolving(ref):
             pass
-        with resolver.resolving(ref):
-            pass
-        self.assertEqual(foo_handler.call_count, 2)
+        self.assertEqual(foo_handler.call_count, 1)
 
     def test_if_you_give_it_junk_you_get_a_resolution_error(self):
         ref = "foo://bar"

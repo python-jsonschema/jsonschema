@@ -38,6 +38,22 @@ class URIDict(MutableMapping):
         return repr(self.store)
 
 
+class Cache(object):
+    """Cache the result of a function, using the arguments to the function as
+    the key.
+    """
+
+    def __init__(self, func):
+        self.func = func
+        self._cache = {}
+
+    def __call__(self, *args):
+        if args in self._cache:
+            return self._cache[args]
+        self._cache[args] = value = self.func(*args)
+        return value
+
+
 class Unset(object):
     """
     An as-of-yet unset attribute or unprovided default parameter.
