@@ -229,7 +229,7 @@ class RefResolver(object):
 
     :argument str base_uri: URI of the referring document
     :argument referrer: the actual referring document
-    :argument dict store: a mapping from URIs (without fragments!) to documents to cache
+    :argument dict store: a mapping from URIs to documents to cache
     :argument bool cache_remote: whether remote refs should be cached after
         first resolution
     :argument dict handlers: a mapping from URI schemes to functions that
@@ -275,7 +275,7 @@ class RefResolver(object):
             scope = urldefrag(scope)
         self.resolution_scope = DefragResult(
             urljoin(old_scope.url, scope.url, allow_fragments=False)
-                    if scope.url else old_scope.url,
+            if scope.url else old_scope.url,
             scope.fragment
         )
 
@@ -294,8 +294,13 @@ class RefResolver(object):
 
         ref = urldefrag(ref)
 
-        url = urljoin(self.resolution_scope.url, ref.url, allow_fragments=False) \
-                if ref.url else self.resolution_scope.url
+        if ref.url:
+            url = urljoin(
+                self.resolution_scope.url,
+                ref.url,
+                allow_fragments=False)
+        else:
+            url = self.resolution_scope.url
 
         try:
             document = self.store[url]
