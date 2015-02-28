@@ -12,7 +12,6 @@ except ImportError:
 from jsonschema import _utils, _validators
 from jsonschema.compat import (
     Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen, DefragResult,
-
     str_types, int_types, iteritems,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
@@ -82,7 +81,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
             scope = _schema.get(u"id")
             if scope:
-                self.resolver.push_scope(scope)
+                self.resolver.push_scope(urldefrag(scope))
             try:
                 ref = _schema.get(u"$ref")
                 if ref is not None:
@@ -109,7 +108,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                         yield error
             finally:
                 if scope:
-                    self.resolver.pop_scope()
+                    self.resolver.scopes_stack.pop()
 
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):
@@ -241,14 +240,12 @@ class RefResolver(object):
         self, base_uri, referrer, store=(), cache_remote=True, handlers=(),
     ):
         base_uri = urldefrag(base_uri)
-        self.base_uri = base_uri
-        self.resolution_scope = base_uri
         # This attribute is not used, it is for backwards compatibility
         self.referrer = referrer
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
-        self.scopes_stack = []
+        self.scopes_stack = [base_uri]
         self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
             for id, validator in iteritems(meta_schemas)
@@ -268,19 +265,15 @@ class RefResolver(object):
 
         return cls(schema.get(u"id", u""), schema, *args, **kwargs)
 
-    def push_scope(self, scope, is_defragged=False):
+    def push_scope(self, scope):
         old_scope = self.resolution_scope
-        self.scopes_stack.append(old_scope)
-        if not is_defragged:
-            scope = urldefrag(scope)
-        self.resolution_scope = DefragResult(
-            urljoin(old_scope.url, scope.url, allow_fragments=False)
-            if scope.url else old_scope.url,
-            scope.fragment
-        )
+        url = (urljoin(old_scope.url, scope.url, allow_fragments=False)
+               if scope.url else old_scope.url)
+        self.scopes_stack.append(scope._replace(url=url))
 
-    def pop_scope(self):
-        self.resolution_scope = self.scopes_stack.pop()
+    @property
+    def resolution_scope(self):
+        return self.scopes_stack[-1]
 
     @contextlib.contextmanager
     def resolving(self, ref):
@@ -291,7 +284,6 @@ class RefResolver(object):
         :argument str ref: reference to resolve
 
         """
-
         ref = urldefrag(ref)
 
         if ref.url:
@@ -310,14 +302,11 @@ class RefResolver(object):
             except Exception as exc:
                 raise RefResolutionError(exc)
 
-        uri = DefragResult(url, ref.fragment)
-        old_base_uri, self.base_uri = self.base_uri, uri
-        self.push_scope(uri, is_defragged=True)
+        self.push_scope(DefragResult(url, ref.fragment))
         try:
             yield self.resolve_fragment(document, ref.fragment)
         finally:
-            self.pop_scope()
-            self.base_uri = old_base_uri
+            self.scopes_stack.pop()
 
     def resolve_fragment(self, document, fragment):
         """
