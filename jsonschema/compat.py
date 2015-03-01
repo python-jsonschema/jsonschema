@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
-import sys
+
+from collections import namedtuple
 import operator
+import sys
+
 
 try:
     from collections import MutableMapping, Sequence  # noqa
@@ -40,6 +43,9 @@ def urlsplit(url):
     return SplitResult(scheme, netloc, path, query, fragment)
 
 
+DefragResult = namedtuple('DefragResult', 'url fragment')
+
+
 def urldefrag(url):
     if "#" in url:
         s, n, p, q, frag = urlsplit(url)
@@ -47,7 +53,7 @@ def urldefrag(url):
     else:
         defrag = url
         frag = ''
-    return defrag, frag
+    return DefragResult(defrag, frag)
 
 
 # flake8: noqa
