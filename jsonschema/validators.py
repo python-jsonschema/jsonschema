@@ -276,6 +276,14 @@ class RefResolver(object):
         return self.scopes_stack[-1]
 
     @contextlib.contextmanager
+    def in_scope(self, scope):
+        self.push_scope(scope)
+        try:
+            yield
+        finally:
+            self.scopes_stack.pop()
+
+    @contextlib.contextmanager
     def resolving(self, ref):
         """
         Context manager which resolves a JSON ``ref`` and enters the
