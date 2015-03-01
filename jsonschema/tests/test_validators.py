@@ -425,106 +425,6 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e5.validator, "minItems")
         self.assertEqual(e6.validator, "enum")
 
-    def test_recursive(self):
-        schema = {
-            "definitions": {
-                "node": {
-                    "anyOf": [{
-                        "type": "object",
-                        "required": ["name", "children"],
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                            },
-                            "children": {
-                                "type": "object",
-                                "patternProperties": {
-                                    "^.*$": {
-                                        "$ref": "#/definitions/node",
-                                    },
-                                },
-                            },
-                        },
-                    }],
-                },
-            },
-            "type": "object",
-            "required": ["root"],
-            "properties": {
-                "root": {"$ref": "#/definitions/node"},
-            }
-        }
-
-        instance = {
-            "root": {
-                "name": "root",
-                "children": {
-                    "a": {
-                        "name": "a",
-                        "children": {
-                            "ab": {
-                                "name": "ab",
-                                # missing "children"
-                            }
-                        }
-                    },
-                },
-            },
-        }
-        validator = Draft4Validator(schema)
-
-        e, = validator.iter_errors(instance)
-        self.assertEqual(e.absolute_path, deque(["root"]))
-        self.assertEqual(
-            e.absolute_schema_path, deque(["properties", "root", "anyOf"]),
-        )
-
-        e1, = e.context
-        self.assertEqual(e1.absolute_path, deque(["root", "children", "a"]))
-        self.assertEqual(
-            e1.absolute_schema_path, deque(
-                [
-                    "properties",
-                    "root",
-                    "anyOf",
-                    0,
-                    "properties",
-                    "children",
-                    "patternProperties",
-                    "^.*$",
-                    "anyOf",
-                ],
-            ),
-        )
-
-        e2, = e1.context
-        self.assertEqual(
-            e2.absolute_path, deque(
-                ["root", "children", "a", "children", "ab"],
-            ),
-        )
-        self.assertEqual(
-            e2.absolute_schema_path, deque(
-                [
-                    "properties",
-                    "root",
-                    "anyOf",
-                    0,
-                    "properties",
-                    "children",
-                    "patternProperties",
-                    "^.*$",
-                    "anyOf",
-                    0,
-                    "properties",
-                    "children",
-                    "patternProperties",
-                    "^.*$",
-                    "anyOf"
-                ],
-            ),
-        )
-
     def test_additionalProperties(self):
         instance = {"bar": "bar", "foo": 2}
         schema = {
@@ -657,6 +557,25 @@ class ValidatorTestMixin(object):
     def test_is_type_raises_exception_for_unknown_type(self):
         with self.assertRaises(UnknownType):
             self.validator.is_type("foo", object())
+
+    def test_resolver_scope_stack_is_empty_after_exception(self):
+        instance ={
+            'foo': 1
+        }
+        schema = {
+            'id':'/a/b',
+            'type': ['object'],
+            'properties': {
+                'foo': {
+                    'id':'c',
+                    'type': ['string']
+                }
+            }
+        }
+        with self.assertRaises(ValidationError):
+            self.validator.validate(instance, schema)
+
+        self.assertEqual(len(self.validator.resolver.scopes_stack), 0)
 
 
 class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
@@ -815,7 +734,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id" : "foo"}
         resolver = RefResolver.from_schema(schema)
-        self.assertEqual(resolver.base_uri, "foo")
+        self.assertEqual(resolver.base_uri.url, "foo")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:
@@ -828,7 +747,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
         resolver = RefResolver.from_schema(schema)
-        self.assertEqual(resolver.base_uri, "")
+        self.assertEqual(resolver.base_uri.url, "")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:
