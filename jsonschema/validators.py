@@ -108,7 +108,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                         yield error
             finally:
                 if scope:
-                    self.resolver.scopes_stack.pop()
+                    self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):
@@ -271,20 +271,36 @@ class RefResolver(object):
         self.scopes_stack.append(
             self.urljoin_cache(self.resolution_scope, scope))
 
+    def pop_scope(self):
+        self.scopes_stack.pop()
+
     @property
     def resolution_scope(self):
         return self.scopes_stack[-1]
 
+
+    # Deprecated, this function is no longer used, but is preserved for
+    # backwards compatibility
     @contextlib.contextmanager
     def in_scope(self, scope):
         self.push_scope(scope)
         try:
             yield
         finally:
-            self.scopes_stack.pop()
+            self.pop_scope()
 
+    # Deprecated, this function is no longer used, but is preserved for
+    # backwards compatibility
     @contextlib.contextmanager
     def resolving(self, ref):
+        url, resolved = self.resolve(ref)
+        self.push_scope(url)
+        try:
+            yield resolved
+        finally:
+            self.pop_scope()
+
+    def resolve(self, ref):
         """
         Context manager which resolves a JSON ``ref`` and enters the
         resolution scope of this ref.
@@ -293,12 +309,7 @@ class RefResolver(object):
 
         """
         url = self.urljoin_cache(self.resolution_scope, ref)
-
-        self.push_scope(url)
-        try:
-            yield self.resolve_cache(url)
-        finally:
-            self.scopes_stack.pop()
+        return url, self.resolve_cache(url)
 
     def resolve_from_url(self, url):
         ref = urldefrag(url)

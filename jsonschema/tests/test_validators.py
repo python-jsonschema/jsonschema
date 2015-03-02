@@ -633,12 +633,8 @@ class ValidatorTestMixin(object):
         resolver = RefResolver("", {})
         schema = {"$ref" : mock.Mock()}
 
-        @contextmanager
-        def resolving():
-            yield {"type": "integer"}
-
-        with mock.patch.object(resolver, "resolving") as resolve:
-            resolve.return_value = resolving()
+        with mock.patch.object(resolver, "resolve") as resolve:
+            resolve.return_value = "url", {"type": "integer"}
             with self.assertRaises(ValidationError):
                 self.validator_class(schema, resolver=resolver).validate(None)
 
