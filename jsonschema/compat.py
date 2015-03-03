@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-from collections import namedtuple
 import operator
 import sys
 
@@ -43,9 +42,6 @@ def urlsplit(url):
     return SplitResult(scheme, netloc, path, query, fragment)
 
 
-DefragResult = namedtuple('DefragResult', 'url fragment')
-
-
 def urldefrag(url):
     if "#" in url:
         s, n, p, q, frag = urlsplit(url)
@@ -53,7 +49,7 @@ def urldefrag(url):
     else:
         defrag = url
         frag = ''
-    return DefragResult(defrag, frag)
+    return defrag, frag
 
 
 # flake8: noqa

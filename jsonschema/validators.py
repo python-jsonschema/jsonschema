@@ -312,16 +312,16 @@ class RefResolver(object):
         return url, self.resolve_cache(url)
 
     def resolve_from_url(self, url):
-        ref = urldefrag(url)
+        url, fragment = urldefrag(url)
         try:
-            document = self.store[ref.url]
+            document = self.store[url]
         except KeyError:
             try:
-                document = self.resolve_remote(ref.url)
+                document = self.resolve_remote(url)
             except Exception as exc:
                 raise RefResolutionError(exc)
 
-        return self.resolve_fragment(document, ref.fragment)
+        return self.resolve_fragment(document, fragment)
 
     def resolve_fragment(self, document, fragment):
         """
