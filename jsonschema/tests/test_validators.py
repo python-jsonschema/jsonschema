@@ -1,5 +1,4 @@
 from collections import deque
-from contextlib import contextmanager
 import json
 
 from jsonschema import FormatChecker, ValidationError
@@ -869,6 +868,13 @@ class TestRefResolver(unittest.TestCase):
             with resolver.resolving(ref):
                 pass
         self.assertEqual(str(err.exception), "Oh no! What's this?")
+
+    def test_helpful_error_message_on_failed_pop_scope(self):
+        resolver = RefResolver("", {})
+        resolver.pop_scope()
+        with self.assertRaises(RefResolutionError) as exc:
+            resolver.pop_scope()
+        self.assertIn("Failed to pop the scope", str(exc.exception))
 
 
 def sorted_errors(errors):

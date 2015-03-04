@@ -12,7 +12,7 @@ except ImportError:
 from jsonschema import _utils, _validators
 from jsonschema.compat import (
     Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
-    str_types, int_types, iteritems,
+    str_types, int_types, iteritems, lru_cache,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
@@ -233,18 +233,22 @@ class RefResolver(object):
         first resolution
     :argument dict handlers: a mapping from URI schemes to functions that
         should be used to retrieve them
-
+    :arguments callable cache_func: a function decorator used to cache
+        expensive calls. Should support the `functools.lru_cache` interface.
+    :argument int cache_maxsize: number of items to store in the cache. Set
+        this to 0 to disable caching. Defaults to 1000.
     """
 
     def __init__(
         self, base_uri, referrer, store=(), cache_remote=True, handlers=(),
+        cache_func=lru_cache, cache_maxsize=1000,
     ):
         # This attribute is not used, it is for backwards compatibility
         self.referrer = referrer
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
-        self.scopes_stack = [base_uri]
+        self._scopes_stack = [base_uri]
         self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
             for id, validator in iteritems(meta_schemas)
@@ -252,8 +256,8 @@ class RefResolver(object):
         self.store.update(store)
         self.store[base_uri] = referrer
 
-        self.urljoin_cache = _utils.Cache(urljoin)
-        self.resolve_cache = _utils.Cache(self.resolve_from_url)
+        self._urljoin_cache = cache_func(cache_maxsize)(urljoin)
+        self._resolve_cache = cache_func(cache_maxsize)(self.resolve_from_url)
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -268,15 +272,21 @@ class RefResolver(object):
         return cls(schema.get(u"id", u""), schema, *args, **kwargs)
 
     def push_scope(self, scope):
-        self.scopes_stack.append(
-            self.urljoin_cache(self.resolution_scope, scope))
+        self._scopes_stack.append(
+            self._urljoin_cache(self.resolution_scope, scope))
 
     def pop_scope(self):
-        self.scopes_stack.pop()
+        try:
+            self._scopes_stack.pop()
+        except IndexError:
+            raise RefResolutionError(
+                "Failed to pop the scope from an empty stack. "
+                "`pop_scope()` should only be called once for every "
+                "`push_scope()`")
 
     @property
     def resolution_scope(self):
-        return self.scopes_stack[-1]
+        return self._scopes_stack[-1]
 
 
     # Deprecated, this function is no longer used, but is preserved for
@@ -308,8 +318,8 @@ class RefResolver(object):
         :argument str ref: reference to resolve
 
         """
-        url = self.urljoin_cache(self.resolution_scope, ref)
-        return url, self.resolve_cache(url)
+        url = self._urljoin_cache(self.resolution_scope, ref)
+        return url, self._resolve_cache(url)
 
     def resolve_from_url(self, url):
         url, fragment = urldefrag(url)
