@@ -63,12 +63,8 @@ now uses setuptools.
 Running the Test Suite
 ----------------------
 
-``jsonschema`` uses the wonderful `Tox <http://tox.readthedocs.org>`_ for its
-test suite. (It really is wonderful, if for some reason you haven't heard of
-it, you really should use it for your projects).
-
-Assuming you have ``tox`` installed (perhaps via ``pip install tox`` or your
-package manager), just run ``tox`` in the directory of your source checkout to
+If you have ``tox`` installed (perhaps via ``pip install tox`` or your
+package manager), running``tox`` in the directory of your source checkout will
 run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema``
 supports. Note that you'll need to have all of those versions installed in
 order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
