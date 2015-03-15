@@ -1,13 +1,5 @@
 language: python
 python:
-  - "pypy"
-  - "pypy3"
-  - "2.6"
   - "2.7"
-  - "3.4"
-install:
-    - pip install --quiet . green
 script:
-    - if [[ "$(python -c 'import sys; print(sys.version_info[:2])')" == "(2, 6)" ]]; then pip install unittest2; fi
-    - green jsonschema
-    - python -m doctest README.rst
+  - tox
