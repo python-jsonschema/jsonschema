@@ -288,7 +288,6 @@ class RefResolver(object):
     def resolution_scope(self):
         return self._scopes_stack[-1]
 
-
     # Deprecated, this function is no longer used, but is preserved for
     # backwards compatibility
     @contextlib.contextmanager
@@ -303,6 +302,14 @@ class RefResolver(object):
     # backwards compatibility
     @contextlib.contextmanager
     def resolving(self, ref):
+        """
+        Context manager which resolves a JSON ``ref`` and enters the
+        resolution scope of this ref.
+
+        :argument str ref: reference to resolve
+
+        """
+
         url, resolved = self.resolve(ref)
         self.push_scope(url)
         try:
@@ -311,13 +318,6 @@ class RefResolver(object):
             self.pop_scope()
 
     def resolve(self, ref):
-        """
-        Context manager which resolves a JSON ``ref`` and enters the
-        resolution scope of this ref.
-
-        :argument str ref: reference to resolve
-
-        """
         url = self._urljoin_cache(self.resolution_scope, ref)
         return url, self._resolve_cache(url)
 
