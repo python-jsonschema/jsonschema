@@ -237,11 +237,18 @@ class RefResolver(object):
         expensive calls. Should support the `functools.lru_cache` interface.
     :argument int cache_maxsize: number of items to store in the cache. Set
         this to 0 to disable caching. Defaults to 1000.
+
     """
 
     def __init__(
-        self, base_uri, referrer, store=(), cache_remote=True, handlers=(),
-        cache_func=lru_cache, cache_maxsize=1000,
+        self,
+        base_uri,
+        referrer,
+        store=(),
+        cache_remote=True,
+        handlers=(),
+        cache_func=lru_cache,
+        cache_maxsize=1000,
     ):
         # This attribute is not used, it is for backwards compatibility
         self.referrer = referrer
@@ -282,7 +289,8 @@ class RefResolver(object):
             raise RefResolutionError(
                 "Failed to pop the scope from an empty stack. "
                 "`pop_scope()` should only be called once for every "
-                "`push_scope()`")
+                "`push_scope()`",
+            )
 
     @property
     def resolution_scope(self):
@@ -293,8 +301,6 @@ class RefResolver(object):
         uri, _ = urldefrag(self.resolution_scope)
         return uri
 
-    # Deprecated, this function is no longer used, but is preserved for
-    # backwards compatibility
     @contextlib.contextmanager
     def in_scope(self, scope):
         self.push_scope(scope)
@@ -303,8 +309,6 @@ class RefResolver(object):
         finally:
             self.pop_scope()
 
-    # Deprecated, this function is no longer used, but is preserved for
-    # backwards compatibility
     @contextlib.contextmanager
     def resolving(self, ref):
         """
