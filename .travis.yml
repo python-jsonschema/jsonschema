@@ -4,11 +4,10 @@ python:
   - "pypy3"
   - "2.6"
   - "2.7"
-  - "3.3"
   - "3.4"
 install:
-    - python setup.py -q install
+    - pip install --quiet . green
 script:
     - if [[ "$(python -c 'import sys; print(sys.version_info[:2])')" == "(2, 6)" ]]; then pip install unittest2; fi
-    - py.test --tb=native jsonschema
+    - green jsonschema
     - python -m doctest README.rst
