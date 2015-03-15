@@ -12,7 +12,7 @@ except ImportError:
 from jsonschema import _utils, _validators
 from jsonschema.compat import (
     Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
-    str_types, int_types, iteritems,
+    str_types, int_types, iteritems, lru_cache,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
@@ -79,7 +79,10 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
             if _schema is None:
                 _schema = self.schema
 
-            with self.resolver.in_scope(_schema.get(u"id", u"")):
+            scope = _schema.get(u"id")
+            if scope:
+                self.resolver.push_scope(scope)
+            try:
                 ref = _schema.get(u"$ref")
                 if ref is not None:
                     validators = [(u"$ref", ref)]
@@ -103,6 +106,9 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                         if k != u"$ref":
                             error.schema_path.appendleft(k)
                         yield error
+            finally:
+                if scope:
+                    self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):
@@ -227,25 +233,31 @@ class RefResolver(object):
         first resolution
     :argument dict handlers: a mapping from URI schemes to functions that
         should be used to retrieve them
-
+    :arguments callable cache_func: a function decorator used to cache
+        expensive calls. Should support the `functools.lru_cache` interface.
+    :argument int cache_maxsize: number of items to store in the cache. Set
+        this to 0 to disable caching. Defaults to 1000.
     """
 
     def __init__(
         self, base_uri, referrer, store=(), cache_remote=True, handlers=(),
+        cache_func=lru_cache, cache_maxsize=1000,
     ):
-        self.base_uri = base_uri
-        self.resolution_scope = base_uri
         # This attribute is not used, it is for backwards compatibility
         self.referrer = referrer
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
+        self._scopes_stack = [base_uri]
         self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
             for id, validator in iteritems(meta_schemas)
         )
         self.store.update(store)
         self.store[base_uri] = referrer
+
+        self._urljoin_cache = cache_func(cache_maxsize)(urljoin)
+        self._resolve_cache = cache_func(cache_maxsize)(self.resolve_from_url)
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -259,17 +271,46 @@ class RefResolver(object):
 
         return cls(schema.get(u"id", u""), schema, *args, **kwargs)
 
+    def push_scope(self, scope):
+        self._scopes_stack.append(
+            self._urljoin_cache(self.resolution_scope, scope))
+
+    def pop_scope(self):
+        try:
+            self._scopes_stack.pop()
+        except IndexError:
+            raise RefResolutionError(
+                "Failed to pop the scope from an empty stack. "
+                "`pop_scope()` should only be called once for every "
+                "`push_scope()`")
+
+    @property
+    def resolution_scope(self):
+        return self._scopes_stack[-1]
+
+
+    # Deprecated, this function is no longer used, but is preserved for
+    # backwards compatibility
     @contextlib.contextmanager
     def in_scope(self, scope):
-        old_scope = self.resolution_scope
-        self.resolution_scope = urljoin(old_scope, scope)
+        self.push_scope(scope)
         try:
             yield
         finally:
-            self.resolution_scope = old_scope
+            self.pop_scope()
 
+    # Deprecated, this function is no longer used, but is preserved for
+    # backwards compatibility
     @contextlib.contextmanager
     def resolving(self, ref):
+        url, resolved = self.resolve(ref)
+        self.push_scope(url)
+        try:
+            yield resolved
+        finally:
+            self.pop_scope()
+
+    def resolve(self, ref):
         """
         Context manager which resolves a JSON ``ref`` and enters the
         resolution scope of this ref.
@@ -277,26 +318,20 @@ class RefResolver(object):
         :argument str ref: reference to resolve
 
         """
+        url = self._urljoin_cache(self.resolution_scope, ref)
+        return url, self._resolve_cache(url)
 
-        full_uri = urljoin(self.resolution_scope, ref)
-        uri, fragment = urldefrag(full_uri)
-        if not uri:
-            uri = self.base_uri
-
-        if uri in self.store:
-            document = self.store[uri]
-        else:
+    def resolve_from_url(self, url):
+        url, fragment = urldefrag(url)
+        try:
+            document = self.store[url]
+        except KeyError:
             try:
-                document = self.resolve_remote(uri)
+                document = self.resolve_remote(url)
             except Exception as exc:
                 raise RefResolutionError(exc)
 
-        old_base_uri, self.base_uri = self.base_uri, uri
-        try:
-            with self.in_scope(uri):
-                yield self.resolve_fragment(document, fragment)
-        finally:
-            self.base_uri = old_base_uri
+        return self.resolve_fragment(document, fragment)
 
     def resolve_fragment(self, document, fragment):
         """

@@ -190,9 +190,14 @@ def enum(validator, enums, instance, schema):
 
 
 def ref(validator, ref, instance, schema):
-    with validator.resolver.resolving(ref) as resolved:
+    scope, resolved = validator.resolver.resolve(ref)
+    validator.resolver.push_scope(scope)
+
+    try:
         for error in validator.descend(instance, resolved):
             yield error
+    finally:
+        validator.resolver.pop_scope()
 
 
 def type_draft3(validator, types, instance, schema):

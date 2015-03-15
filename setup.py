@@ -1,7 +1,12 @@
+import os.path
 from setuptools import setup
+import sys
 
-from jsonschema import __version__
-
+# Load __version__ info globals without importing anything
+with open(
+    os.path.join(os.path.dirname(__file__), 'jsonschema', 'version.py')
+) as fh:
+    exec(fh.read())
 
 with open("README.rst") as readme:
     long_description = readme.read()
@@ -21,6 +26,11 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
+install_requires = []
+
+if sys.version_info < (3, 2):
+    install_requires.append('repoze.lru >= 0.6')
+
 setup(
     name="jsonschema",
     version=__version__,
@@ -34,4 +44,5 @@ setup(
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
     entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
+    install_requires=install_requires,
 )
