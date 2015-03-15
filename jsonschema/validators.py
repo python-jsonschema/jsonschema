@@ -288,6 +288,11 @@ class RefResolver(object):
     def resolution_scope(self):
         return self._scopes_stack[-1]
 
+    @property
+    def base_uri(self):
+        uri, _ = urldefrag(self.resolution_scope)
+        return uri
+
     # Deprecated, this function is no longer used, but is preserved for
     # backwards compatibility
     @contextlib.contextmanager
