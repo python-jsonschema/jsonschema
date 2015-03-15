@@ -810,6 +810,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id" : "foo"}
         resolver = RefResolver.from_schema(schema)
+        self.assertEqual(resolver.base_uri, "foo")
         self.assertEqual(resolver.resolution_scope, "foo")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
@@ -823,6 +824,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
         resolver = RefResolver.from_schema(schema)
+        self.assertEqual(resolver.base_uri, "")
         self.assertEqual(resolver.resolution_scope, "")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
