@@ -1,14 +1,10 @@
-import os.path
-from setuptools import setup
+import os
 import sys
 
-# Load __version__ info globals without importing anything
-with open(
-    os.path.join(os.path.dirname(__file__), 'jsonschema', 'version.py')
-) as fh:
-    exec(fh.read())
+from setuptools import setup
 
-with open("README.rst") as readme:
+
+with open(os.path.join(os.path.dirname(__file__), "README.rst")) as readme:
     long_description = readme.read()
 
 classifiers = [
@@ -26,16 +22,22 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-install_requires = []
 
-if sys.version_info < (3, 2):
-    install_requires.append('repoze.lru >= 0.6')
+extras_require = {"format" : ["rfc3987", "strict-rfc3339", "webcolors"]}
+if sys.version_info[:2] == (2, 6):
+    install_requires = ["argparse", "repoze.lru"]
+elif sys.version_info[:2] == (2, 7):
+    install_requires = ["functools32"]
+else:
+    install_requires = []
 
 setup(
     name="jsonschema",
-    version=__version__,
     packages=["jsonschema", "jsonschema.tests"],
     package_data={"jsonschema": ["schemas/*.json"]},
+    setup_requires=["vcversioner"],
+    install_requires=install_requires,
+    extras_require=extras_require,
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
     classifiers=classifiers,
@@ -44,5 +46,5 @@ setup(
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
     entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
-    install_requires=install_requires,
+    vcversioner={"version_module_paths" : ["jsonschema/_version.py"]},
 )
