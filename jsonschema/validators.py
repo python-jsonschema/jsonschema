@@ -264,7 +264,7 @@ class RefResolver(object):
         """
         Construct a resolver from a JSON schema object.
 
-        :argument schema schema: the referring schema
+        :argument schema: the referring schema
         :rtype: :class:`RefResolver`
 
         """
