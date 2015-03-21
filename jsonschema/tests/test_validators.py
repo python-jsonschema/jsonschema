@@ -658,6 +658,25 @@ class ValidatorTestMixin(object):
         with self.assertRaises(UnknownType):
             self.validator.is_type("foo", object())
 
+    def test_resolver_scope_stack_is_empty_after_exception(self):
+        instance ={
+            'foo': 1
+        }
+        schema = {
+            'id':'/a/b',
+            'type': ['object'],
+            'properties': {
+                'foo': {
+                    'id':'c',
+                    'type': ['string']
+                }
+            }
+        }
+        with self.assertRaises(ValidationError):
+            self.validator.validate(instance, schema)
+
+        self.assertEqual(len(self.validator.resolver.scopes_stack), 0)
+
 
 class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft3Validator
@@ -815,7 +834,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id" : "foo"}
         resolver = RefResolver.from_schema(schema)
-        self.assertEqual(resolver.base_uri, "foo")
+        self.assertEqual(resolver.base_uri.url, "foo")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:
@@ -828,7 +847,7 @@ class TestRefResolver(unittest.TestCase):
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
         resolver = RefResolver.from_schema(schema)
-        self.assertEqual(resolver.base_uri, "")
+        self.assertEqual(resolver.base_uri.url, "")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:

@@ -11,11 +11,12 @@ except ImportError:
 
 from jsonschema import _utils, _validators
 from jsonschema.compat import (
-    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
+    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen, DefragResult,
+
     str_types, int_types, iteritems,
 )
 from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
-from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
+from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType, _BreakLoopException
 
 
 _unset = _utils.Unset()
@@ -79,30 +80,33 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
             if _schema is None:
                 _schema = self.schema
 
-            with self.resolver.in_scope(_schema.get(u"id", u"")):
-                ref = _schema.get(u"$ref")
-                if ref is not None:
-                    validators = [(u"$ref", ref)]
-                else:
-                    validators = iteritems(_schema)
-
-                for k, v in validators:
+            scope = _schema.get(u"id")
+            if scope:
+                self.resolver.push_scope(scope)
+            try:
+                for k, v in iteritems(_schema):
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
                         continue
 
-                    errors = validator(self, v, instance, _schema) or ()
-                    for error in errors:
-                        # set details if not already set by the called fn
-                        error._set(
-                            validator=k,
-                            validator_value=v,
-                            instance=instance,
-                            schema=_schema,
-                        )
-                        if k != u"$ref":
-                            error.schema_path.appendleft(k)
-                        yield error
+                    try:
+                        errors = validator(self, v, instance, _schema)
+                        for error in errors:
+                            # set details if not already set by the called fn
+                            error._set(
+                                validator=k,
+                                validator_value=v,
+                                instance=instance,
+                                schema=_schema,
+                            )
+                            if k != u"$ref":
+                                error.schema_path.appendleft(k)
+                            yield error
+                    except _BreakLoopException:
+                        break
+            finally:
+                if scope:
+                    self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):
@@ -222,7 +226,7 @@ class RefResolver(object):
 
     :argument str base_uri: URI of the referring document
     :argument referrer: the actual referring document
-    :argument dict store: a mapping from URIs to documents to cache
+    :argument dict store: a mapping from URIs (without fragments!) to documents to cache
     :argument bool cache_remote: whether remote refs should be cached after
         first resolution
     :argument dict handlers: a mapping from URI schemes to functions that
@@ -233,6 +237,7 @@ class RefResolver(object):
     def __init__(
         self, base_uri, referrer, store=(), cache_remote=True, handlers=(),
     ):
+        base_uri = urldefrag(base_uri)
         self.base_uri = base_uri
         self.resolution_scope = base_uri
         # This attribute is not used, it is for backwards compatibility
@@ -240,12 +245,14 @@ class RefResolver(object):
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
+
+        self.scopes_stack = []
         self.store = _utils.URIDict(
-            (id, validator.META_SCHEMA)
+            (id, validator.META_SCHEMA)         ## IDs assumed pure urls (no fragments).
             for id, validator in iteritems(meta_schemas)
         )
         self.store.update(store)
-        self.store[base_uri] = referrer
+        self.store[base_uri.url] = referrer
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -259,14 +266,19 @@ class RefResolver(object):
 
         return cls(schema.get(u"id", u""), schema, *args, **kwargs)
 
-    @contextlib.contextmanager
-    def in_scope(self, scope):
+    def push_scope(self, scope, is_defragged=False):
         old_scope = self.resolution_scope
-        self.resolution_scope = urljoin(old_scope, scope)
-        try:
-            yield
-        finally:
-            self.resolution_scope = old_scope
+        self.scopes_stack.append(old_scope)
+        if not is_defragged:
+            scope = urldefrag(scope)
+        self.resolution_scope = DefragResult(
+            urljoin(old_scope.url, scope.url, allow_fragments=False)
+                    if scope.url else old_scope.url,
+            scope.fragment
+        )
+
+    def pop_scope(self):
+        self.resolution_scope = self.scopes_stack.pop()
 
     @contextlib.contextmanager
     def resolving(self, ref):
@@ -278,24 +290,26 @@ class RefResolver(object):
 
         """
 
-        full_uri = urljoin(self.resolution_scope, ref)
-        uri, fragment = urldefrag(full_uri)
-        if not uri:
-            uri = self.base_uri
+        ref = urldefrag(ref)
 
-        if uri in self.store:
-            document = self.store[uri]
-        else:
+        url = urljoin(self.resolution_scope.url, ref.url, allow_fragments=False) \
+                if ref.url else self.resolution_scope.url
+
+        try:
+            document = self.store[url]
+        except KeyError:
             try:
-                document = self.resolve_remote(uri)
+                document = self.resolve_remote(url)
             except Exception as exc:
                 raise RefResolutionError(exc)
 
+        uri = DefragResult(url, ref.fragment)
         old_base_uri, self.base_uri = self.base_uri, uri
+        self.push_scope(uri, is_defragged=True)
         try:
-            with self.in_scope(uri):
-                yield self.resolve_fragment(document, fragment)
+            yield self.resolve_fragment(document, ref.fragment)
         finally:
+            self.pop_scope()
             self.base_uri = old_base_uri
 
     def resolve_fragment(self, document, fragment):

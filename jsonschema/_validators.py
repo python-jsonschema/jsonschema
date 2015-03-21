@@ -1,7 +1,7 @@
 import re
 
 from jsonschema import _utils
-from jsonschema.exceptions import FormatError, ValidationError
+from jsonschema.exceptions import FormatError, ValidationError, _BreakLoopException
 from jsonschema.compat import iteritems
 
 
@@ -193,6 +193,7 @@ def ref(validator, ref, instance, schema):
     with validator.resolver.resolving(ref) as resolved:
         for error in validator.descend(instance, resolved):
             yield error
+    raise _BreakLoopException()
 
 
 def type_draft3(validator, types, instance, schema):
