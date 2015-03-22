@@ -233,10 +233,10 @@ class RefResolver(object):
         first resolution
     :argument dict handlers: a mapping from URI schemes to functions that
         should be used to retrieve them
-    :arguments callable cache_func: a function decorator used to cache
-        expensive calls. Should support the `functools.lru_cache` interface.
-    :argument int cache_maxsize: number of items to store in the cache. Set
-        this to 0 to disable caching. Defaults to 1000.
+    :arguments functools.lru_cache urljoin_cache: a cache that will be used for
+        caching the results of joining the resolution scope to subscopes.
+    :arguments functools.lru_cache remote_cache: a cache that will be used for
+        caching the results of resolved remote URLs.
 
     """
 
@@ -247,10 +247,14 @@ class RefResolver(object):
         store=(),
         cache_remote=True,
         handlers=(),
-        cache_func=lru_cache,
-        cache_maxsize=1000,
+        urljoin_cache=None,
+        remote_cache=None,
     ):
-        # This attribute is not used, it is for backwards compatibility
+        if urljoin_cache is None:
+            urljoin_cache = lru_cache(1024)(urljoin)
+        if remote_cache is None:
+            remote_cache = lru_cache(1024)(self.resolve_from_url)
+
         self.referrer = referrer
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
@@ -263,8 +267,8 @@ class RefResolver(object):
         self.store.update(store)
         self.store[base_uri] = referrer
 
-        self._urljoin_cache = cache_func(cache_maxsize)(urljoin)
-        self._resolve_cache = cache_func(cache_maxsize)(self.resolve_from_url)
+        self._urljoin_cache = urljoin_cache
+        self._remote_cache = remote_cache
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):
@@ -280,7 +284,8 @@ class RefResolver(object):
 
     def push_scope(self, scope):
         self._scopes_stack.append(
-            self._urljoin_cache(self.resolution_scope, scope))
+            self._urljoin_cache(self.resolution_scope, scope),
+        )
 
     def pop_scope(self):
         try:
@@ -328,7 +333,7 @@ class RefResolver(object):
 
     def resolve(self, ref):
         url = self._urljoin_cache(self.resolution_scope, ref)
-        return url, self._resolve_cache(url)
+        return url, self._remote_cache(url)
 
     def resolve_from_url(self, url):
         url, fragment = urldefrag(url)
