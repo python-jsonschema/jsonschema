@@ -1,4 +1,5 @@
 from collections import deque
+from contextlib import contextmanager
 import json
 
 from jsonschema import FormatChecker, ValidationError
@@ -638,6 +639,25 @@ class ValidatorTestMixin(object):
                 self.validator_class(schema, resolver=resolver).validate(None)
 
         resolve.assert_called_once_with(schema["$ref"])
+
+    def test_it_delegates_to_a_legacy_ref_resolver(self):
+        """
+        Legacy RefResolvers support only the context manager form of
+        resolution.
+
+        """
+
+        class LegacyRefResolver(object):
+            @contextmanager
+            def resolving(this, ref):
+                self.assertEqual(ref, "the ref")
+                yield {"type" : "integer"}
+
+        resolver = LegacyRefResolver()
+        schema = {"$ref" : "the ref"}
+
+        with self.assertRaises(ValidationError):
+            self.validator_class(schema, resolver=resolver).validate(None)
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
