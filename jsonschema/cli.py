@@ -19,15 +19,7 @@ def _json_file(path):
 
 
 parser = argparse.ArgumentParser(
-    description="JSON Schema Validation CLI",
-)
-parser.add_argument(
-    "-i", "--instance",
-    action="append",
-    dest="instances",
-    type=_json_file,
-    help="a path to a JSON instance to validate "
-         "(may be specified multiple times)",
+    description="JSON Schema Validation CLI - Read JSON records one to a line from stdin.",
 )
 parser.add_argument(
     "-F", "--error-format",
@@ -61,11 +53,11 @@ def main(args=sys.argv[1:]):
     sys.exit(run(arguments=parse_args(args=args)))
 
 
-def run(arguments, stdout=sys.stdout, stderr=sys.stderr):
+def run(arguments, stderr=sys.stderr):
     error_format = arguments["error_format"]
     validator = arguments["validator"](schema=arguments["schema"])
     errored = False
-    for instance in arguments["instances"] or ():
+    for instance in (json.loads(line) for line in sys.stdin):
         for error in validator.iter_errors(instance):
             stderr.write(error_format.format(error=error))
             errored = True
