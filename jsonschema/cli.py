@@ -21,13 +21,20 @@ def _json_file(path):
 parser = argparse.ArgumentParser(
     description="JSON Schema Validation CLI",
 )
-parser.add_argument(
+input_group = parser.add_mutually_exclusive_group()
+input_group.add_argument(
     "-i", "--instance",
     action="append",
     dest="instances",
     type=_json_file,
     help="a path to a JSON instance to validate "
          "(may be specified multiple times)",
+)
+input_group.add_argument(
+    "-f", "--filter",
+    action="store_true",
+    help="read instances one to a line from stdin, output those that validate "
+         "in compact form and log to stderr those that do not."
 )
 parser.add_argument(
     "-F", "--error-format",
@@ -43,6 +50,7 @@ parser.add_argument(
          "validators that are registered with jsonschema, simply the name "
          "of the class.",
 )
+
 parser.add_argument(
     "schema",
     help="the JSON Schema to validate with",
@@ -61,12 +69,18 @@ def main(args=sys.argv[1:]):
     sys.exit(run(arguments=parse_args(args=args)))
 
 
-def run(arguments, stdout=sys.stdout, stderr=sys.stderr):
+def run(arguments, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
     error_format = arguments["error_format"]
     validator = arguments["validator"](schema=arguments["schema"])
     errored = False
-    for instance in arguments["instances"] or ():
-        for error in validator.iter_errors(instance):
-            stderr.write(error_format.format(error=error))
+    instances = (json.loads(line) for line in stdin) if arguments.get("filter") else (arguments.get("instances") or ())
+    for instance in instances:
+        errors = tuple(validator.iter_errors(instance))
+        if errors:
             errored = True
+            for error in errors:
+                stderr.write(error_format.format(error=error))
+        elif arguments.get("filter"):
+            json.dump(instance, stdout, separators=(',', ':'))
+            stdout.write('\n')
     return errored
