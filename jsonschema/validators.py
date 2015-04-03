@@ -4,6 +4,8 @@ import contextlib
 import json
 import numbers
 
+from types import DictionaryType
+
 try:
     import requests
 except ImportError:
@@ -400,7 +402,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
 
     :argument instance: the instance to validate
-    :argument schema: the schema to validate with
+    :argument schema: :dict or filepath of schema to validate with
     :argument cls: an :class:`IValidator` class that will be used to validate
                    the instance.
 
@@ -423,6 +425,9 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     .. rubric:: Footnotes
     .. [#] known by a validator registered with :func:`validates`
     """
+    if schema is not DictionaryType:
+        with open(schema) as f:
+            schema = json.load(f)
     if cls is None:
         cls = validator_for(schema)
     cls.check_schema(schema)
