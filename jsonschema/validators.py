@@ -426,7 +426,8 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     .. [#] known by a validator registered with :func:`validates`
     """
     if schema is not DictionaryType:
-        schema = json.load(open(schema))
+        with open(schema) as f:
+            schema = json.load(f)
     if cls is None:
         cls = validator_for(schema)
     cls.check_schema(schema)
