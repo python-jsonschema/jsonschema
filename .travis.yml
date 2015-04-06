@@ -1,5 +1,7 @@
 language: python
 python:
   - "2.7"
+install:
+  - tox
 script:
   - tox
