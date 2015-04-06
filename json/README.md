@@ -60,23 +60,69 @@ Who Uses the Test Suite
 
 This suite is being used by:
 
-  * [jsck (a fast JSON validator in CoffeeScript)](https://github.com/pandastrike/jsck)
-  * [json-schema-validator (Java)](https://github.com/fge/json-schema-validator)
-  * [jsonschema (python)](https://github.com/Julian/jsonschema)
-  * [aeson-schema (haskell)](https://github.com/timjb/aeson-schema)
-  * [direct-schema (javascript)](https://github.com/IreneKnapp/direct-schema)
-  * [jsonschema (javascript)](https://github.com/tdegrunt/jsonschema)
-  * [JaySchema (javascript)](https://github.com/natesilva/jayschema)
-  * [z-schema (javascript)](https://github.com/zaggino/z-schema)
-  * [jassi (javascript)](https://github.com/iclanzan/jassi)
-  * [json-schema-valid (javascript)](https://github.com/ericgj/json-schema-valid)
-  * [jesse (Erlang)](https://github.com/klarna/jesse)
-  * [json-schema (PHP)](https://github.com/justinrainbow/json-schema)
-  * [gojsonschema (Go)](https://github.com/sigu-399/gojsonschema) 
-  * [json_schema (Dart)](https://github.com/patefacio/json_schema) 
-  * [tv4 (JavaScript)](https://github.com/geraintluff/tv4)
-  * [Jsonary (JavaScript)](https://github.com/jsonary-js/jsonary)
-  * [json-schema (Ruby)](https://github.com/hoxworth/json-schema)
+### Coffeescript ###
+
+* [jsck](https://github.com/pandastrike/jsck)
+
+### Dart ###
+
+* [json_schema](https://github.com/patefacio/json_schema) 
+
+### Erlang ###
+
+* [jesse](https://github.com/klarna/jesse)
+
+### Go ###
+
+* [gojsonschema](https://github.com/sigu-399/gojsonschema) 
+
+### Haskell ###
+
+* [aeson-schema](https://github.com/timjb/aeson-schema)
+* [hjsonschema](https://github.com/seagreen/hjsonschema)
+
+### Java ###
+
+* [json-schema-validator](https://github.com/fge/json-schema-validator)
+
+### Javascript ###
+
+* [json-schema-benchmark](https://github.com/Muscula/json-schema-benchmark)
+* [direct-schema](https://github.com/IreneKnapp/direct-schema)
+* [is-my-json-valid](https://github.com/mafintosh/is-my-json-valid)
+* [jassi](https://github.com/iclanzan/jassi)
+* [JaySchema](https://github.com/natesilva/jayschema)
+* [json-schema-valid](https://github.com/ericgj/json-schema-valid)
+* [Jsonary](https://github.com/jsonary-js/jsonary)
+* [jsonschema](https://github.com/tdegrunt/jsonschema)
+* [request-validator](https://github.com/bugventure/request-validator)
+* [skeemas](https://github.com/Prestaul/skeemas)
+* [tv4](https://github.com/geraintluff/tv4)
+* [z-schema](https://github.com/zaggino/z-schema)
+
+### .NET ###
+
+* [Newtonsoft.Json.Schema](https://github.com/JamesNK/Newtonsoft.Json.Schema)
+
+### PHP ###
+
+* [json-schema](https://github.com/justinrainbow/json-schema)
+
+### Python ###
+
+* [jsonschema](https://github.com/Julian/jsonschema)
+
+### Ruby ###
+
+* [json-schema](https://github.com/hoxworth/json-schema)
+
+### Rust ###
+
+* [valico](https://github.com/rustless/valico)
+
+### Swift ###
+
+* [JSONSchema](https://github.com/kylef/JSONSchema.swift)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).

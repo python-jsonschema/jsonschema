@@ -19,8 +19,6 @@ from jsonschema.validators import (
     Draft3Validator, Draft4Validator, RefResolver, validate
 )
 
-
-__version__ = "2.5.0-dev"
-
+from jsonschema._version import __version__
 
 # flake8: noqa
