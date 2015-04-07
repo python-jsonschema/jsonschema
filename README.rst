@@ -1,4 +1,6 @@
 .. image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
+    :target: https://travis-ci.org/Julian/jsonschema
+
 ==========
 jsonschema
 ==========
