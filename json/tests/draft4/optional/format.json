@@ -30,11 +30,6 @@
                 "valid": true
             },
             {
-                "description": "a valid protocol-relative URI",
-                "data": "//foo.bar/?baz=qux#quux",
-                "valid": true
-            },
-            {
                 "description": "an invalid URI",
                 "data": "\\\\WINDOWS\\fileshare",
                 "valid": false
