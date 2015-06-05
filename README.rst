@@ -52,14 +52,11 @@ Features
 Release Notes
 -------------
 
-* A simple CLI was added for validation
-* Validation errors now keep full absolute paths and absolute schema paths in
-  their ``absolute_path`` and ``absolute_schema_path`` attributes. The ``path``
-  and ``schema_path`` attributes are deprecated in favor of ``relative_path``
-  and ``relative_schema_path``\ .
+Version 2.5.0 is mainly a performance release. The interface for `RefResolver`
+was extended to add methods that improve performance on CPython.
 
-*Note:* Support for Python 3.2 was dropped in this release, and installation
-now uses setuptools.
+Support for custom `RefResolver` objects with the legacy interface should *not*
+be affected. If you notice something amiss please file an issue ticket.
 
 
 Running the Test Suite

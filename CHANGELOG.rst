@@ -1,3 +1,9 @@
+v2.5.0
+------
+
+* Improved performance on CPython by adding caching around ref resolution
+  (#203)
+
 v2.4.0
 ------
 
