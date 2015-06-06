@@ -22,14 +22,18 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
+extras_require = {
+    'format': ["rfc3987", "strict-rfc3339", "webcolors"],
+    ':python_version == "2.6"': ["argparse", "repoze.lru"],
+    ':python_version == "2.7"': ["functools32"]
+}
 
-extras_require = {"format" : ["rfc3987", "strict-rfc3339", "webcolors"]}
-if sys.version_info[:2] == (2, 6):
-    install_requires = ["argparse", "repoze.lru"]
-elif sys.version_info[:2] == (2, 7):
-    install_requires = ["functools32"]
-else:
-    install_requires = []
+install_requires = []
+if not any(arg.startswith('bdist') for arg in sys.argv):
+    if sys.version_info[:2] == (2, 6):
+        install_requires = ["argparse", "repoze.lru"]
+    if sys.version_info[:2] == (2, 7):
+        install_requires = ["functools32"]
 
 setup(
     name="jsonschema",
@@ -46,5 +50,5 @@ setup(
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
     entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
-    vcversioner={"version_module_paths" : ["jsonschema/_version.py"]},
+    vcversioner={"version_module_paths": ["jsonschema/_version.py"]},
 )
