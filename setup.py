@@ -23,20 +23,15 @@ classifiers = [
 ]
 
 
-extras_require = {"format" : ["rfc3987", "strict-rfc3339", "webcolors"]}
-if sys.version_info[:2] == (2, 6):
-    install_requires = ["argparse", "repoze.lru"]
-elif sys.version_info[:2] == (2, 7):
-    install_requires = ["functools32"]
-else:
-    install_requires = []
+extras_require = {"format" : ["rfc3987", "strict-rfc3339", "webcolors"],
+                              ":python_version=='2.6'": ["argparse", "repoze.lru"],
+                              ":python_version=='2.7'": ["functools32"]}
 
 setup(
     name="jsonschema",
     packages=["jsonschema", "jsonschema.tests"],
     package_data={"jsonschema": ["schemas/*.json"]},
     setup_requires=["vcversioner"],
-    install_requires=install_requires,
     extras_require=extras_require,
     author="Julian Berman",
     author_email="Julian@GrayVines.com",
