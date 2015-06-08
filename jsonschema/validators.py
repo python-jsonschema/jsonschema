@@ -65,13 +65,13 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
             # prepare types
             self._types = {}
-            for type_key, types in _types.iteritems():
-                types = _utils.flatten(types)
+            for type_key, pytypes in _types.iteritems():
+                pytypes = _utils.flatten(pytypes)
                 self._types[type_key] = {
-                    "types": types,
+                    "pytypes": pytypes,
                     "is_non_bool_number": any(
-                        issubclass(type_, numbers.Number) for type_ in types
-                    ) and bool not in types
+                        issubclass(type_, numbers.Number) for type_ in pytypes
+                    ) and bool not in pytypes
                 }
 
             if resolver is None:
@@ -135,14 +135,14 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
         def is_type(self, instance, type):
             try:
-                pytypes = self._types[type]
+                types_ = self._types[type]
             except KeyError:
                 raise UnknownType(type, instance, self.schema)
 
             # bool inherits from int, so ensure bools aren't reported as ints
-            if isinstance(instance, bool) and pytypes["is_non_bool_number"]:
+            if isinstance(instance, bool) and types_["is_non_bool_number"]:
                 return False
-            return isinstance(instance, pytypes["types"])
+            return isinstance(instance, types_["pytypes"])
 
         def is_valid(self, instance, _schema=None):
             error = next(self.iter_errors(instance, _schema), None)
