@@ -65,7 +65,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
 
             # prepare types
             self._types = {}
-            for type_key, pytypes in _types.iteritems():
+            for type_key, pytypes in _types.items():
                 pytypes = _utils.flatten(pytypes)
                 self._types[type_key] = {
                     "pytypes": pytypes,
