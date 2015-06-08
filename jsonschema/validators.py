@@ -60,8 +60,19 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
         def __init__(
             self, schema, types=(), resolver=None, format_checker=None,
         ):
-            self._types = dict(self.DEFAULT_TYPES)
-            self._types.update(types)
+            _types = dict(self.DEFAULT_TYPES)
+            _types.update(types)
+
+            # prepare types
+            self._types = {}
+            for type_key, types in _types.iteritems():
+                types = _utils.flatten(types)
+                self._types[type_key] = {
+                    "types": types,
+                    "is_non_bool_number": any(
+                        issubclass(type_, numbers.Number) for type_ in types
+                    ) and bool not in types
+                }
 
             if resolver is None:
                 resolver = RefResolver.from_schema(schema)
@@ -123,19 +134,15 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                 raise error
 
         def is_type(self, instance, type):
-            if type not in self._types:
+            try:
+                pytypes = self._types[type]
+            except KeyError:
                 raise UnknownType(type, instance, self.schema)
-            pytypes = self._types[type]
 
             # bool inherits from int, so ensure bools aren't reported as ints
-            if isinstance(instance, bool):
-                pytypes = _utils.flatten(pytypes)
-                is_number = any(
-                    issubclass(pytype, numbers.Number) for pytype in pytypes
-                )
-                if is_number and bool not in pytypes:
-                    return False
-            return isinstance(instance, pytypes)
+            if isinstance(instance, bool) and pytypes["is_non_bool_number"]:
+                return False
+            return isinstance(instance, pytypes["types"])
 
         def is_valid(self, instance, _schema=None):
             error = next(self.iter_errors(instance, _schema), None)
