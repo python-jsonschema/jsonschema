@@ -133,7 +133,7 @@ def uniqueItems(validator, uI, instance, schema):
         validator.is_type(instance, "array") and
         not _utils.uniq(instance)
     ):
-        yield ValidationError("%r has non-unique elements" % instance)
+        yield ValidationError("%r has non-unique elements" % (instance,))
 
 
 def pattern(validator, patrn, instance, schema):
