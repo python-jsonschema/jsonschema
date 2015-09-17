@@ -899,64 +899,30 @@ class TestRefResolver(unittest.TestCase):
         self.assertIn("Failed to pop the scope", str(exc.exception))
 
 
-OVERRIDE_ARRAY_TYPES = Draft4Validator.DEFAULT_TYPES.copy()
-OVERRIDE_ARRAY_TYPES['array'] = (list, tuple)
+class UniqueTupleItemsMixin(object):
+    """
+    A tuple instance properly formats validation errors for uniqueItems.
+
+    See https://github.com/Julian/jsonschema/pull/224
+
+    """
+
+    def test_it_properly_formats_an_error_message(self):
+        validator = self.validator_class(
+            schema={"uniqueItems" : True},
+            types={"array" : (tuple,)},
+        )
+        with self.assertRaises(ValidationError) as e:
+            validator.validate((1, 1))
+        self.assertIn("(1, 1) has non-unique elements", str(e.exception))
 
 
-class ItemsErrorsMixin(object):
-
-    array_type = list
-    schema = {
-        'type': 'array',
-        'items': {
-            'type': 'number',
-        },
-        'minItems': 2,
-        'maxItems': 3,
-        'uniqueItems': True,
-    }
-    validator_class = None
-
-    def check_error_message(self, instance):
-        self.assertIsNotNone(self.validator_class)
-        self.assertRaises(ValidationError,
-                          validate,
-                          instance,
-                          self.schema,
-                          self.validator_class)
-
-    def test_min_items(self):
-        self.check_error_message(self.array_type([1]))
-
-    def test_max_items(self):
-        self.check_error_message(self.array_type([1, 2, 3, 4]))
-
-    def test_unique_items(self):
-        self.check_error_message(self.array_type([1, 1, 2]))
-
-    def test_valid(self):
-        self.assertIsNotNone(self.validator_class)
-        validate(self.array_type([1, 2]), self.schema, self.validator_class)
-
-
-class OverrideArrayTypeValidator(Draft4Validator):
-
-    DEFAULT_TYPES = OVERRIDE_ARRAY_TYPES
-
-
-class TestItemsErrorsDraft3(ItemsErrorsMixin, unittest.TestCase):
-
-    validator_class = Draft3Validator
-
-
-class TestItemsErrorsDraft4(ItemsErrorsMixin, unittest.TestCase):
-
+class TestDraft4UniqueTupleItems(UniqueTupleItemsMixin, unittest.TestCase):
     validator_class = Draft4Validator
 
 
-class TestItemsErrorMessagesCustom(ItemsErrorsMixin, unittest.TestCase):
-
-    validator_class = OverrideArrayTypeValidator
+class TestDraft3UniqueTupleItems(UniqueTupleItemsMixin, unittest.TestCase):
+    validator_class = Draft3Validator
 
 
 def sorted_errors(errors):
