@@ -1,2 +1,3 @@
 lxml
 sphinx
+pip>=1.5  # this is mostly for RTD, which builds us with old pip
