@@ -30,7 +30,8 @@ def additionalProperties(validator, aP, instance, schema):
                 yield error
     elif not aP and extras:
         error = "Additional properties are not allowed (%s %s unexpected)"
-        yield ValidationError(error % _utils.extras_msg(extras))
+        yield ValidationError(error % _utils.extras_msg(extras),
+                              path=(extras))
 
 
 def items(validator, items, instance, schema):
