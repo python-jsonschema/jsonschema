@@ -19,7 +19,9 @@ would pass validation the first time, but fail the second!
 Still, filling in defaults is a thing that is useful. :mod:`jsonschema`
 allows you to :doc:`define your own validator classes and callables
 <creating>`, so you can easily create a :class:`IValidator` that does do
-default setting. Here's some code to get you started:
+default setting. Here's some code to get you started. (In this code, we add
+the default properties to each object *before* the properties are validated,
+so the default values themselves will need to be valid under the schema.)
 
     .. code-block:: python
 
@@ -30,14 +32,14 @@ default setting. Here's some code to get you started:
             validate_properties = validator_class.VALIDATORS["properties"]
 
             def set_defaults(validator, properties, instance, schema):
+                for property, subschema in properties.iteritems():
+                    if "default" in subschema:
+                        instance.setdefault(property, subschema["default"])
+
                 for error in validate_properties(
                     validator, properties, instance, schema,
                 ):
                     yield error
-
-                for property, subschema in properties.iteritems():
-                    if "default" in subschema:
-                        instance.setdefault(property, subschema["default"])
 
             return validators.extend(
                 validator_class, {"properties" : set_defaults},
@@ -60,10 +62,50 @@ See the above-linked document for more info on how this works, but basically,
 it just extends the :validator:`properties` validator on a
 :class:`Draft4Validator` to then go ahead and update all the defaults.
 
-If you're interested in a more interesting solution to a larger class of these
-types of transformations, keep an eye on `Seep
-<https://github.com/Julian/Seep>`_, which is an experimental data
-transformation and extraction library written on top of :mod:`jsonschema`.
+.. note::
+
+    If you're interested in a more interesting solution to a larger class of these
+    types of transformations, keep an eye on `Seep
+    <https://github.com/Julian/Seep>`_, which is an experimental data
+    transformation and extraction library written on top of :mod:`jsonschema`.
+
+
+.. hint::
+
+    The above code can provide default values for an entire object and all of its properties,
+    but only if your schema provides a default value for the object itself, like so:
+
+    .. code-block:: python
+
+        schema = {
+            "type": "object",
+            "properties": {
+                "outer-object": {
+                    "type": "object",
+                    "properties" : {
+                        "inner-object": {
+                            "type": "string",
+                            "default": "INNER-DEFAULT"
+                        }
+                    },
+                    "default": {} # <-- MUST PROVIDE DEFAULT OBJECT
+                }
+            }
+        }
+        
+        obj = {}
+        DefaultValidatingDraft4Validator(schema).validate(obj)
+        assert obj == {'outer-object': {'inner-object': 'INNER-DEFAULT'}}
+
+    ...but if you don't provide a default value for your object, 
+    then it won't be instantiated at all, much less populated with default properties.
+    
+    .. code-block:: python
+
+        del schema["properties"]["outer-object"]["default"]
+        obj2 = {}
+        DefaultValidatingDraft4Validator(schema).validate(obj2)
+        assert obj2 == {} # whoops
 
 
 How do jsonschema version numbers work?
