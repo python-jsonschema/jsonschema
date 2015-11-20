@@ -158,7 +158,7 @@ def is_host_name(instance):
 
 
 try:
-    import rfc3987
+    import rfc3986
 except ImportError:
     pass
 else:
@@ -166,8 +166,10 @@ else:
     def is_uri(instance):
         if not isinstance(instance, str_types):
             return True
-        return rfc3987.parse(instance, rule="URI")
-
+        elif not rfc3986.is_valid_uri(instance, require_scheme=True):
+            return False
+        else:
+            return rfc3986.normalize_uri(instance)
 
 try:
     import strict_rfc3339

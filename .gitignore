@@ -6,3 +6,8 @@ _static
 _templates
 
 TODO
+*.pyc
+.eggs/
+.idea/
+.tox/
+jsonschema.egg-info/
