@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 extras_require = {
-    "format" : ["rfc3987", "strict-rfc3339", "webcolors"],
+    "format" : ["rfc3986", "strict-rfc3339", "webcolors"],
     ":python_version=='2.6'": ["argparse", "repoze.lru"],
     ":python_version=='2.7'": ["functools32"],
 }

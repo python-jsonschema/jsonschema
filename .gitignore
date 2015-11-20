@@ -9,3 +9,5 @@ TODO
 *.pyc
 .eggs/
 .idea/
+.tox/
+jsonschema.egg-info/
