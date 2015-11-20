@@ -6,3 +6,6 @@ _static
 _templates
 
 TODO
+*.pyc
+.eggs/
+.idea/
