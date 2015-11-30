@@ -13,7 +13,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.4",
@@ -23,7 +22,6 @@ classifiers = [
 
 extras_require = {
     "format" : ["rfc3987", "strict-rfc3339", "webcolors"],
-    ":python_version=='2.6'": ["argparse", "repoze.lru"],
     ":python_version=='2.7'": ["functools32"],
 }
 

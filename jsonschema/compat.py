@@ -8,7 +8,6 @@ except ImportError:
     from collections.abc import MutableMapping, Sequence  # noqa
 
 PY3 = sys.version_info[0] >= 3
-PY26 = sys.version_info[:2] == (2, 6)
 
 if PY3:
     zip = zip
@@ -33,10 +32,7 @@ else:
     int_types = int, long
     iteritems = operator.methodcaller("iteritems")
 
-    if PY26:
-        from repoze.lru import lru_cache
-    else:
-        from functools32 import lru_cache
+    from functools32 import lru_cache
 
 
 # On python < 3.3 fragments are not handled properly with unknown schemes

@@ -7,7 +7,7 @@ jsonschema
 
 
 ``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
-for Python (supporting 2.6+ including Python 3).
+for Python (supporting 2.7+ including Python 3).
 
 .. code-block:: python
 
