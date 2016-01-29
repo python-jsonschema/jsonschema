@@ -190,7 +190,7 @@ else:
             return strict_rfc3339.validate_rfc3339(instance)
 
 
-@_checks_drafts("regex", raises=re.error)
+@_checks_drafts("regex", raises=(ValueError, OverflowError, IndexError, re.error))
 def is_regex(instance):
     if not isinstance(instance, str_types):
         return True
