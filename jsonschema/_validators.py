@@ -11,7 +11,7 @@ def patternProperties(validator, patternProperties, instance, schema):
 
     for pattern, subschema in iteritems(patternProperties):
         for k, v in iteritems(instance):
-            if re.search(pattern, k):
+            if validator.is_type(k, "string") and re.search(pattern, k):
                 for error in validator.descend(
                     v, subschema, path=k, schema_path=pattern,
                 ):
