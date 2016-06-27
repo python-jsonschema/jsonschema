@@ -265,7 +265,7 @@ class TestErrorTree(unittest.TestCase):
                 instance="i2"),
         )
         # Will raise an exception if the bug is still there.
-        tree = exceptions.ErrorTree([e1, e2])
+        exceptions.ErrorTree([e1, e2])
 
     def test_it_does_not_contain_subtrees_that_are_not_in_the_instance(self):
         error = exceptions.ValidationError("123", validator="foo", instance=[])
