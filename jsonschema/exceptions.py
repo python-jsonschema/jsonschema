@@ -196,7 +196,7 @@ class ErrorTree(object):
                 container = container[element]
             container.errors[error.validator] = error
 
-            self._instance = error.instance
+            container._instance = error.instance
 
     def __contains__(self, index):
         """
