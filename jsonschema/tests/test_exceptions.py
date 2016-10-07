@@ -4,6 +4,8 @@ from jsonschema import Draft4Validator, exceptions
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock, unittest
 
+from builtins import str as text
+
 
 class TestBestMatch(unittest.TestCase):
     def best_match(self, errors):
@@ -307,7 +309,7 @@ class TestErrorInitReprStr(unittest.TestCase):
         expected = textwrap.dedent(expected).rstrip("\n")
 
         error = self.make_error(**kwargs)
-        message_line, _, rest = str(error).partition("\n")
+        message_line, _, rest = text(error).partition("\n")
         self.assertEqual(message_line, error.message)
         self.assertEqual(rest, expected)
 
