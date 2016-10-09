@@ -64,11 +64,10 @@ def main(args=sys.argv[1:]):
 def run(arguments, stdout=sys.stdout, stderr=sys.stderr):
     error_format = arguments["error_format"]
     validator = arguments["validator"](schema=arguments["schema"])
-    errored = False
 
-    # add a check to the schema file first
     validator.check_schema(arguments["schema"])
 
+    errored = False
     for instance in arguments["instances"] or ():
         for error in validator.iter_errors(instance):
             stderr.write(error_format.format(error=error))

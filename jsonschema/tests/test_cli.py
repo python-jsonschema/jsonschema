@@ -1,7 +1,7 @@
 from jsonschema import Draft4Validator, ValidationError, cli
 from jsonschema.compat import StringIO
-from jsonschema.tests.compat import mock, unittest
 from jsonschema.exceptions import SchemaError
+from jsonschema.tests.compat import mock, unittest
 
 
 def fake_validator(*errors):
@@ -17,7 +17,7 @@ def fake_validator(*errors):
             return []
 
         def check_schema(self, schema):
-            return True
+            pass
 
     return FakeValidator
 
