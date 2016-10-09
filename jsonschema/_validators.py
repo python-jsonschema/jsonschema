@@ -296,11 +296,6 @@ def properties_draft4(validator, properties, instance, schema):
 def required_draft4(validator, required, instance, schema):
     if not validator.is_type(instance, "object"):
         return
-
-    if not isinstance(required, list):
-        yield ValidationError("Found Draft3 style 'required' restriction")
-        return
-
     for property in required:
         if property not in instance:
             yield ValidationError("%r is a required property" % property)
