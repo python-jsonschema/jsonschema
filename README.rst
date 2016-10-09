@@ -35,6 +35,11 @@ for Python (supporting 2.7+ including Python 3).
         ...
     ValidationError: 'Invalid' is not of type 'number'
 
+It can also be used from console:
+
+.. code-block:: bash
+
+    $ jsonschema -i sample.json sample.schema
 
 Features
 --------

@@ -26,8 +26,8 @@ parser.add_argument(
     action="append",
     dest="instances",
     type=_json_file,
-    help="a path to a JSON instance to validate "
-         "(may be specified multiple times)",
+    help="a path to a JSON instance (i.e. filename.json)"
+         "to validate (may be specified multiple times)",
 )
 parser.add_argument(
     "-F", "--error-format",
@@ -45,7 +45,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "schema",
-    help="the JSON Schema to validate with",
+    help="the JSON Schema to validate with (i.e. filename.schema)",
     type=_json_file,
 )
 
