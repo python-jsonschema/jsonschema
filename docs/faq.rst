@@ -26,13 +26,13 @@ so the default values themselves will need to be valid under the schema.)
     .. code-block:: python
 
         from jsonschema import Draft4Validator, validators
-
+        from jsonschema.compat import PY3, iteritems
 
         def extend_with_default(validator_class):
             validate_properties = validator_class.VALIDATORS["properties"]
 
             def set_defaults(validator, properties, instance, schema):
-                for property, subschema in properties.iteritems():
+                for property, subschema in iteritems(properties):
                     if "default" in subschema:
                         instance.setdefault(property, subschema["default"])
 
