@@ -27,7 +27,6 @@ extras_require = {
 
 setup(
     name="jsonschema",
-    install_requires=['future'],
     packages=["jsonschema", "jsonschema.tests"],
     package_data={"jsonschema": ["schemas/*.json"]},
     setup_requires=["vcversioner>=2.16.0.0"],
