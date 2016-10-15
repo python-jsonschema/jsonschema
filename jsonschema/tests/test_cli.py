@@ -63,7 +63,7 @@ class TestCLI(unittest.TestCase):
     def test_draft3_schema_draft4_validator(self):
         stdout, stderr = StringIO(), StringIO()
         with self.assertRaises(SchemaError):
-            exit_code = cli.run(
+            cli.run(
                 {
                     "validator": Draft4Validator,
                     "schema": {
