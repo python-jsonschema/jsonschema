@@ -183,11 +183,11 @@ except ImportError:
                 return True
             return isodate.parse_datetime(instance)
 else:
-        @_checks_drafts("date-time")
-        def is_date(instance):
-            if not isinstance(instance, str_types):
-                return True
-            return strict_rfc3339.validate_rfc3339(instance)
+    @_checks_drafts("date-time")
+    def is_date(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return strict_rfc3339.validate_rfc3339(instance)
 
 
 @_checks_drafts("regex", raises=re.error)
