@@ -356,7 +356,7 @@ class RefResolver(object):
 
         """
 
-        fragment = fragment.lstrip(u"/")
+        fragment = fragment.lstrip(u"#").lstrip(u"/")
         parts = unquote(fragment).split(u"/") if fragment else []
 
         for part in parts:
