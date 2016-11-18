@@ -6,8 +6,9 @@ from jsonschema import FormatChecker, ValidationError
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
-    Draft4Validator, RefResolver, create, extend, validator_for, validate,
+    Draft4Validator, RefResolver, create, extend, validator_for, validate
 )
+from jsonschema.compat import Sequence, unquote
 
 
 class TestCreateAndExtend(unittest.TestCase):
@@ -771,6 +772,28 @@ class TestRefResolver(unittest.TestCase):
     stored_uri = "foo://stored"
     stored_schema = {"stored" : "schema"}
 
+    def prev_resolve_fragment(self, document, fragment):
+        fragment = fragment.lstrip(u"/")
+        parts = unquote(fragment).split(u"/") if fragment else []
+
+        for part in parts:
+            part = part.replace(u"~1", u"/").replace(u"~0", u"~")
+
+            if isinstance(document, Sequence):
+                # Array indexes should be turned into integers
+                try:
+                    part = int(part)
+                except ValueError:
+                    pass
+            try:
+                document = document[part]
+            except (TypeError, LookupError):
+                raise RefResolutionError(
+                    "Unresolvable JSON pointer: %r" % fragment
+                )
+
+        return document
+
     def setUp(self):
         self.referrer = {}
         self.store = {self.stored_uri : self.stored_schema}
@@ -897,6 +920,77 @@ class TestRefResolver(unittest.TestCase):
         with self.assertRaises(RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
+
+    def test_prev_resolve_fragment_raises_exception(self):
+        schema = {
+            "definitions": {
+                "Pet": {
+                    "properties": {
+                        "category": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Category"
+                            }
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "Category": {
+                    "required": [
+                        "name"
+                    ],
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                }
+            }
+        }
+        resolver = RefResolver.from_schema(schema)
+        resolver.resolve_fragment = mock.MagicMock(side_effect=self.prev_resolve_fragment)
+        self.assertRaises(RefResolutionError, resolver.resolve_fragment, schema, "#/definitions/Category")
+
+    def test_resolve_fragment(self):
+        schema = {
+            "definitions": {
+                "Pet": {
+                    "properties": {
+                        "category": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Category"
+                            }
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "Category": {
+                    "required": [
+                        "name"
+                    ],
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                }
+            }
+        }
+        resolver = RefResolver.from_schema(schema)
+        self.assertEqual(resolver.resolve_fragment(schema, "#/definitions/Category"), schema['definitions']['Category'])
 
 
 class UniqueTupleItemsMixin(object):
