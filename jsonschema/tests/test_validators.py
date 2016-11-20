@@ -954,8 +954,12 @@ class TestRefResolver(unittest.TestCase):
             }
         }
         resolver = RefResolver.from_schema(schema)
-        resolver.resolve_fragment = mock.MagicMock(side_effect=self.prev_resolve_fragment)
-        self.assertRaises(RefResolutionError, resolver.resolve_fragment, schema, "#/definitions/Category")
+        resolver.resolve_fragment = mock.MagicMock(
+            side_effect=self.prev_resolve_fragment)
+        self.assertRaises(RefResolutionError,
+                          resolver.resolve_fragment,
+                          schema,
+                          "#/definitions/Category")
 
     def test_resolve_fragment(self):
         schema = {
@@ -990,7 +994,9 @@ class TestRefResolver(unittest.TestCase):
             }
         }
         resolver = RefResolver.from_schema(schema)
-        self.assertEqual(resolver.resolve_fragment(schema, "#/definitions/Category"), schema['definitions']['Category'])
+        self.assertEqual(resolver.resolve_fragment
+                         (schema, "#/definitions/Category"),
+                         schema['definitions']['Category'])
 
 
 class UniqueTupleItemsMixin(object):
