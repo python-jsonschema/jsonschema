@@ -8,7 +8,7 @@ from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
     Draft4Validator, RefResolver, create, extend, validator_for, validate
 )
-from jsonschema.compat import Sequence, unquote
+from jsonschema.compat import unquote
 
 
 class TestCreateAndExtend(unittest.TestCase):
@@ -923,24 +923,14 @@ class TestRefResolver(unittest.TestCase):
                             "items": {
                                 "$ref": "#/definitions/Category"
                             }
-                        },
-                        "name": {
-                            "type": "string"
                         }
                     }
                 },
                 "Category": {
-                    "required": [
-                        "name"
-                    ],
                     "properties": {
                         "name": {
                             "type": "string"
                         },
-                        "id": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
                     }
                 }
             }
@@ -963,24 +953,14 @@ class TestRefResolver(unittest.TestCase):
                             "items": {
                                 "$ref": "#/definitions/Category"
                             }
-                        },
-                        "name": {
-                            "type": "string"
                         }
                     }
                 },
                 "Category": {
-                    "required": [
-                        "name"
-                    ],
                     "properties": {
                         "name": {
                             "type": "string"
                         },
-                        "id": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
                     }
                 }
             }
