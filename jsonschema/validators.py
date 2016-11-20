@@ -15,7 +15,7 @@ from jsonschema.compat import (
     str_types, int_types, iteritems, lru_cache,
 )
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
-
+from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
 
 _unset = _utils.Unset()
 
