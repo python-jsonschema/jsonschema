@@ -777,14 +777,6 @@ class TestRefResolver(unittest.TestCase):
         parts = unquote(fragment).split(u"/") if fragment else []
 
         for part in parts:
-            part = part.replace(u"~1", u"/").replace(u"~0", u"~")
-
-            if isinstance(document, Sequence):
-                # Array indexes should be turned into integers
-                try:
-                    part = int(part)
-                except ValueError:
-                    pass
             try:
                 document = document[part]
             except (TypeError, LookupError):
