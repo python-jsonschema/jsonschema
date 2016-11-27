@@ -14,7 +14,7 @@ from jsonschema.compat import (
     Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems, lru_cache,
 )
-from jsonschema.exceptions import ErrorTree  # Backwards compatibility  # noqa
+from jsonschema.exceptions import ErrorTree  # Backwards compat  # noqa: F401
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
 
 
@@ -51,7 +51,7 @@ def validates(version):
     return _validates
 
 
-def create(meta_schema, validators=(), version=None, default_types=None):  # noqa
+def create(meta_schema, validators=(), version=None, default_types=None):  # noqa: C901, E501
     if default_types is None:
         default_types = {
             u"array": list, u"boolean": bool, u"integer": int_types,
@@ -329,7 +329,7 @@ class RefResolver(object):
             raise RefResolutionError(
                 "Failed to pop the scope from an empty stack. "
                 "`pop_scope()` should only be called once for every "
-                "`push_scope()`",
+                "`push_scope()`"
             )
 
     @property

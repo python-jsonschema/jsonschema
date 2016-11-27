@@ -156,6 +156,7 @@ def is_email(instance):
 
 _ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
+
 @_checks_drafts(draft3="ip-address", draft4="ipv4")
 def is_ipv4(instance):
     if not isinstance(instance, str_types):
@@ -174,6 +175,7 @@ if hasattr(socket, "inet_pton"):
 
 
 _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
+
 
 @_checks_drafts(draft3="host-name", draft4="hostname")
 def is_host_name(instance):
@@ -209,13 +211,13 @@ except ImportError:
         pass
     else:
         @_checks_drafts("date-time", raises=(ValueError, isodate.ISO8601Error))
-        def is_date(instance):
+        def is_datetime(instance):
             if not isinstance(instance, str_types):
                 return True
             return isodate.parse_datetime(instance)
 else:
     @_checks_drafts("date-time")
-    def is_date(instance):
+    def is_datetime(instance):
         if not isinstance(instance, str_types):
             return True
         return strict_rfc3339.validate_rfc3339(instance)
@@ -250,7 +252,6 @@ else:
     def is_css_color_code(instance):
         return webcolors.normalize_hex(instance)
 
-
     @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if (
@@ -259,7 +260,6 @@ else:
         ):
             return True
         return is_css_color_code(instance)
-
 
     def is_css3_color(instance):
         if instance.lower() in webcolors.css3_names_to_hex:

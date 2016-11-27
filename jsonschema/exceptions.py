@@ -56,9 +56,6 @@ class _Error(Exception):
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
 
-    def __str__(self):
-        return unicode(self).encode("utf-8")
-
     def __unicode__(self):
         essential_for_verbose = (
             self.validator, self.validator_value, self.instance, self.schema,
@@ -86,6 +83,9 @@ class _Error(Exception):
 
     if PY3:
         __str__ = __unicode__
+    else:
+        def __str__(self):
+            return unicode(self).encode("utf-8")
 
     @classmethod
     def create_from(cls, other):
@@ -142,9 +142,6 @@ class UnknownType(Exception):
         self.instance = instance
         self.schema = schema
 
-    def __str__(self):
-        return unicode(self).encode("utf-8")
-
     def __unicode__(self):
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
@@ -159,7 +156,9 @@ class UnknownType(Exception):
 
     if PY3:
         __str__ = __unicode__
-
+    else:
+        def __str__(self):
+            return unicode(self).encode("utf-8")
 
 
 class FormatError(Exception):
@@ -168,14 +167,14 @@ class FormatError(Exception):
         self.message = message
         self.cause = self.__cause__ = cause
 
-    def __str__(self):
-        return self.message.encode("utf-8")
-
     def __unicode__(self):
         return self.message
 
     if PY3:
         __str__ = __unicode__
+    else:
+        def __str__(self):
+            return self.message.encode("utf-8")
 
 
 class ErrorTree(object):

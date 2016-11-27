@@ -10,11 +10,9 @@ class TestBestMatch(unittest.TestCase):
         errors = list(errors)
         best = exceptions.best_match(errors)
         reversed_best = exceptions.best_match(reversed(errors))
+        msg = "Didn't return a consistent best match!\nGot: {0}\n\nThen: {1}"
         self.assertEqual(
-            best,
-            reversed_best,
-            msg="Didn't return a consistent best match!\n"
-                "Got: {0}\n\nThen: {1}".format(best, reversed_best),
+            best, reversed_best, msg=msg.format(best, reversed_best),
         )
         return best
 
