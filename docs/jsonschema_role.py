@@ -99,11 +99,8 @@ def docutils_sucks(spec):
         elif text == "$schema":
             return [nodes.reference(raw_text, text, refuri=schema_url)], []
 
-        xpath = "//h3[re:match(text(), '(^|\W)\"?{0}\"?($|\W,)', 'i')]"
-        header = spec.xpath(
-            xpath.format(text),
-            namespaces={"re": "http://exslt.org/regular-expressions"},
-        )
+        # find the header in the validation spec containing matching text
+        header = spec.xpath("//h1[contains(text(), '{0}')]".format(text))
 
         if len(header) == 0:
             inliner.reporter.warning(
@@ -115,7 +112,9 @@ def docutils_sucks(spec):
                 inliner.reporter.info(
                     "Found multiple targets for {0}".format(text),
                 )
-            uri = base_url + "#" + header[0].getprevious().attrib["name"]
+
+            # get the href from link in the header
+            uri = base_url + header[0].find('a').attrib["href"]
 
         reference = nodes.reference(raw_text, text, refuri=uri)
         return [reference], []
