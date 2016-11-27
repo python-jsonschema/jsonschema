@@ -5,4 +5,15 @@ _cache
 _static
 _templates
 
-TODO
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+
+# Distribution / packaging
+.eggs/
+build/
+*.egg-info/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
