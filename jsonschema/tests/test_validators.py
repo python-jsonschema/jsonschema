@@ -83,7 +83,7 @@ class TestIterErrors(unittest.TestCase):
         schema = {
             u"disallow" : u"array",
             u"enum" : [["a", "b", "c"], ["d", "e", "f"]],
-            u"minItems" : 3
+            u"minItems" : 3,
         }
 
         got = (e.message for e in self.validator.iter_errors(instance, schema))
@@ -101,7 +101,7 @@ class TestIterErrors(unittest.TestCase):
                 "foo" : {u"type" : "string"},
                 "bar" : {u"minItems" : 2},
                 "baz" : {u"maximum" : 10, u"enum" : [2, 4, 6, 8]},
-            }
+            },
         }
 
         errors = list(self.validator.iter_errors(instance, schema))
@@ -200,8 +200,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         schema = {
             "anyOf": [
                 {"minimum": 20},
-                {"type": "string"}
-            ]
+                {"type": "string"},
+            ],
         }
 
         validator = Draft4Validator(schema)
@@ -268,11 +268,9 @@ class TestValidationErrorDetails(unittest.TestCase):
                 {"type": "integer"},
                 {
                     "type": "object",
-                    "properties": {
-                        "foo": {"enum": [2]}
-                    }
-                }
-            ]
+                    "properties": {"foo": {"enum": [2]}},
+                },
+            ],
         }
 
         validator = Draft3Validator(schema)
@@ -344,7 +342,7 @@ class TestValidationErrorDetails(unittest.TestCase):
                 "foo" : {"type" : "string"},
                 "bar" : {"minItems" : 2},
                 "baz" : {"maximum" : 10, "enum" : [2, 4, 6, 8]},
-            }
+            },
         }
 
         validator = Draft3Validator(schema)
@@ -384,10 +382,10 @@ class TestValidationErrorDetails(unittest.TestCase):
                         "properties" : {
                             "bar" : {"required" : True},
                             "baz" : {"minItems" : 2},
-                        }
-                    }
-                }
-            }
+                        },
+                    },
+                },
+            },
         }
 
         validator = Draft3Validator(schema)
@@ -450,9 +448,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             },
             "type": "object",
             "required": ["root"],
-            "properties": {
-                "root": {"$ref": "#/definitions/node"},
-            }
+            "properties": {"root": {"$ref": "#/definitions/node"}},
         }
 
         instance = {
@@ -465,8 +461,8 @@ class TestValidationErrorDetails(unittest.TestCase):
                             "ab": {
                                 "name": "ab",
                                 # missing "children"
-                            }
-                        }
+                            },
+                        },
                     },
                 },
             },
@@ -520,16 +516,14 @@ class TestValidationErrorDetails(unittest.TestCase):
                     "children",
                     "patternProperties",
                     "^.*$",
-                    "anyOf"
+                    "anyOf",
                 ],
             ),
         )
 
     def test_additionalProperties(self):
         instance = {"bar": "bar", "foo": 2}
-        schema = {
-            "additionalProperties" : {"type": "integer", "minimum": 5}
-        }
+        schema = {"additionalProperties" : {"type": "integer", "minimum": 5}}
 
         validator = Draft3Validator(schema)
         errors = validator.iter_errors(instance)
@@ -546,8 +540,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         schema = {
             "patternProperties" : {
                 "bar": {"type": "string"},
-                "foo": {"minimum": 5}
-            }
+                "foo": {"minimum": 5},
+            },
         }
 
         validator = Draft3Validator(schema)
@@ -564,7 +558,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         instance = ["foo", 1]
         schema = {
             "items": [],
-            "additionalItems" : {"type": "integer", "minimum": 5}
+            "additionalItems" : {"type": "integer", "minimum": 5},
         }
 
         validator = Draft3Validator(schema)
@@ -581,7 +575,7 @@ class TestValidationErrorDetails(unittest.TestCase):
         instance = ["foo", "bar", 1]
         schema = {
             "items": [{}],
-            "additionalItems" : {"type": "integer", "minimum": 5}
+            "additionalItems" : {"type": "integer", "minimum": 5},
         }
 
         validator = Draft3Validator(schema)

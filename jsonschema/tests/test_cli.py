@@ -70,8 +70,8 @@ class TestCLI(unittest.TestCase):
                         "anyOf": [
                             {"minimum": 20},
                             {"type": "string"},
-                            {"required": True}
-                        ]
+                            {"required": True},
+                        ],
                     },
                     "instances": [1],
                     "error_format": "{error.message}",

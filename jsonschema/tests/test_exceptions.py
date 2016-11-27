@@ -25,9 +25,9 @@ class TestBestMatch(unittest.TestCase):
                     "foo" : {
                         "minProperties" : 2,
                         "properties" : {"bar" : {"type" : "object"}},
-                    }
-                }
-            }
+                    },
+                },
+            },
         )
         best = self.best_match(validator.iter_errors({"foo" : {"bar" : []}}))
         self.assertEqual(best.validator, "minProperties")
@@ -135,7 +135,7 @@ class TestBestMatch(unittest.TestCase):
                                     {"type" : "string"},
                                     {
                                         "properties" : {
-                                            "bar" : {"type" : "array"}
+                                            "bar" : {"type" : "array"},
                                         },
                                     },
                                 ],
@@ -329,7 +329,7 @@ class TestErrorInitReprStr(unittest.TestCase):
             "validator": "type",
             "validator_value": "string",
             "instance": 5,
-            "schema": {"type": "string"}
+            "schema": {"type": "string"},
         }
         # Just the message should show if any of the attributes are unset
         for attr in kwargs:
