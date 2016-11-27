@@ -539,3 +539,36 @@ def validate(instance, schema, cls=None, *args, **kwargs):
         cls = validator_for(schema)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
+
+
+class Schema(object):
+    """
+    Similar to :func:`validate`, except the :class:`IValidator` is initialized
+    only once when this class is initialized. This can be useful for improving
+    the performance of validation in loops.
+
+    :argument schema: the schema to validate with
+    :argument validator_cls: an :class:`IValidator` class that will be used by
+                             :meth:`validate` to validate the instance.
+
+    :raises:
+        :exc:`SchemaError` if the schema itself is invalid
+    """
+
+    def __init__(self, schema, validator_cls=None, *args, **kwargs):
+        if validator_cls is None:
+            validator_cls = validator_for(schema)
+        validator_cls.check_schema(schema)
+        self.validator = validator_cls(schema, *args, **kwargs)
+
+    def validate(self, instance):
+        """
+        Validate an instance with the schema and :class:`IValidator` class used
+        in this instance of :class:`Schema`.
+
+        :argument instance: the instance to validate
+
+        :raises:
+            :exc:`ValidationError` if the instance is invalid
+        """
+        self.validator.validate(instance)
