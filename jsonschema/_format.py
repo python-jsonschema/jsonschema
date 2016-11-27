@@ -21,9 +21,12 @@ class FormatChecker(object):
     returns a ``bool``, use the :meth:`FormatChecker.checks` or
     :meth:`FormatChecker.cls_checks` decorators.
 
-    :argument iterable formats: the known formats to validate. This argument
-                                can be used to limit which formats will be used
-                                during validation.
+    Arguments:
+
+        formats (iterable):
+
+            The known formats to validate. This argument can be used to
+            limit which formats will be used during validation.
 
     """
 
@@ -39,11 +42,20 @@ class FormatChecker(object):
         """
         Register a decorated function as validating a new format.
 
-        :argument str format: the format that the decorated function will check
-        :argument Exception raises: the exception(s) raised by the decorated
-            function when an invalid instance is found. The exception object
-            will be accessible as the :attr:`ValidationError.cause` attribute
-            of the resulting validation error.
+        Arguments:
+
+            format (str):
+
+                The format that the decorated function will check.
+
+            raises (Exception):
+
+                The exception(s) raised by the decorated function when
+                an invalid instance is found.
+
+                The exception object will be accessible as the
+                :attr:`ValidationError.cause` attribute of the resulting
+                validation error.
 
         """
 
@@ -58,10 +70,20 @@ class FormatChecker(object):
         """
         Check whether the instance conforms to the given format.
 
-        :argument instance: the instance to check
-        :type: any primitive type (str, number, bool)
-        :argument str format: the format that instance should conform to
-        :raises: :exc:`FormatError` if instance does not conform to format
+        Arguments:
+
+            instance (any primitive type, i.e. str, number, bool):
+
+                The instance to check
+
+            format (str):
+
+                The format that instance should conform to
+
+
+        Raises:
+
+            :exc:`FormatError` if instance does not conform to ``format``
 
         """
 
@@ -83,10 +105,19 @@ class FormatChecker(object):
         """
         Check whether the instance conforms to the given format.
 
-        :argument instance: the instance to check
-        :type: any primitive type (str, number, bool)
-        :argument str format: the format that instance should conform to
-        :rtype: bool
+        Arguments:
+
+            instance (any primitive type, i.e. str, number, bool):
+
+                The instance to check
+
+            format (str):
+
+                The format that instance should conform to
+
+        Returns:
+
+            bool: Whether it conformed
 
         """
 

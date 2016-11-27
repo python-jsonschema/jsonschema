@@ -31,8 +31,15 @@ def validates(version):
     Registered validators and their meta schemas will be considered when
     parsing ``$schema`` properties' URIs.
 
-    :argument str version: an identifier to use as the version's name
-    :returns: a class decorator to decorate the validator with the version
+    Arguments:
+
+        version (str):
+
+            An identifier to use as the version's name
+
+    Returns:
+
+        callable: a class decorator to decorate the validator with the version
 
     """
 
@@ -226,17 +233,38 @@ class RefResolver(object):
     """
     Resolve JSON References.
 
-    :argument str base_uri: URI of the referring document
-    :argument referrer: the actual referring document
-    :argument dict store: a mapping from URIs to documents to cache
-    :argument bool cache_remote: whether remote refs should be cached after
-        first resolution
-    :argument dict handlers: a mapping from URI schemes to functions that
-        should be used to retrieve them
-    :arguments functools.lru_cache urljoin_cache: a cache that will be used for
-        caching the results of joining the resolution scope to subscopes.
-    :arguments functools.lru_cache remote_cache: a cache that will be used for
-        caching the results of resolved remote URLs.
+    Arguments:
+
+        base_uri (str):
+
+            The URI of the referring document
+
+        referrer:
+
+            The actual referring document
+
+        store (dict):
+
+            A mapping from URIs to documents to cache
+
+        cache_remote (bool):
+
+            Whether remote refs should be cached after first resolution
+
+        handlers (dict):
+
+            A mapping from URI schemes to functions that should be used
+            to retrieve them
+
+        urljoin_cache (functools.lru_cache):
+
+            A cache that will be used for caching the results of joining
+            the resolution scope to subscopes.
+
+        remote_cache (functools.lru_cache):
+
+            A cache that will be used for caching the results of
+            resolved remote URLs.
 
     """
 
@@ -275,8 +303,15 @@ class RefResolver(object):
         """
         Construct a resolver from a JSON schema object.
 
-        :argument schema: the referring schema
-        :rtype: :class:`RefResolver`
+        Arguments:
+
+            schema:
+
+                the referring schema
+
+        Returns:
+
+            :class:`RefResolver`
 
         """
 
@@ -320,7 +355,11 @@ class RefResolver(object):
         Context manager which resolves a JSON ``ref`` and enters the
         resolution scope of this ref.
 
-        :argument str ref: reference to resolve
+        Arguments:
+
+            ref (str):
+
+                The reference to resolve
 
         """
 
@@ -351,8 +390,15 @@ class RefResolver(object):
         """
         Resolve a ``fragment`` within the referenced ``document``.
 
-        :argument document: the referrant document
-        :argument str fragment: a URI fragment to resolve within it
+        Arguments:
+
+            document:
+
+                The referrant document
+
+            fragment (str):
+
+                a URI fragment to resolve within it
 
         """
 
@@ -394,8 +440,15 @@ class RefResolver(object):
             If it isn't, or if the scheme of the ``uri`` is not ``http`` or
             ``https``, UTF-8 is assumed.
 
-        :argument str uri: the URI to resolve
-        :returns: the retrieved document
+        Arguments:
+
+            uri (str):
+
+                The URI to resolve
+
+        Returns:
+
+            The retrieved document
 
         .. _requests: http://pypi.python.org/pypi/requests/
 
@@ -448,10 +501,19 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     (e.g. :meth:`Draft4Validator.validate`).
 
 
-    :argument instance: the instance to validate
-    :argument schema: the schema to validate with
-    :argument cls: an :class:`IValidator` class that will be used to validate
-                   the instance.
+    Arguments:
+
+        instance:
+
+            The instance to validate
+
+        schema:
+
+            The schema to validate with
+
+        cls (:class:`IValidator`):
+
+            The class that will be used to validate the instance.
 
     If the ``cls`` argument is not provided, two things will happen in
     accordance with the specification. First, if the schema has a
@@ -464,7 +526,8 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     Any other provided positional and keyword arguments will be passed on when
     instantiating the ``cls``.
 
-    :raises:
+    Raises:
+
         :exc:`ValidationError` if the instance is invalid
 
         :exc:`SchemaError` if the schema itself is invalid

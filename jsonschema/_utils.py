@@ -73,7 +73,11 @@ def format_as_index(indices):
 
     For example, [1, 2, "foo"] -> [1][2]["foo"]
 
-    :type indices: sequence
+    Arguments:
+
+        indices (sequence):
+
+            The indices to format.
 
     """
 
