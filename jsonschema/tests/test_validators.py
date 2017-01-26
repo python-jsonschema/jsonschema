@@ -195,21 +195,25 @@ class TestValidationErrorMessages(unittest.TestCase):
         schema = {u"type": u"object",
                   u"additionalProperties": False,
                   u"patternProperties": {
-                      u"$abc^": {u"type": u"string"},
-                      u"$def^": {u"type": u"string"}
+                      u"^abc$": {u"type": u"string"},
+                      u"^def$": {u"type": u"string"}
                   }}
         message = self.message_for({u"zebra": 123}, schema,
                                    cls=Draft4Validator)
         self.assertEqual(
             message,
-            "{} does not match any of the regexs: $abc^, $def^".format(
-                repr(u"zebra")))
+            "{} does not match any of the regexes: {}, {}".format(
+                repr(u"zebra"), repr(u"^abc$"), repr(u"^def$"),
+            ),
+        )
         message = self.message_for({u"zebra": 123, u"fish": 456}, schema,
                                    cls=Draft4Validator)
         self.assertEqual(
             message,
-            "{}, {} do not match any of the regexs: $abc^, $def^".format(
-                repr(u"fish"), repr(u"zebra")))
+            "{}, {} do not match any of the regexes: {}, {}".format(
+                repr(u"fish"), repr(u"zebra"), repr(u"^abc$"), repr(u"^def$")
+            ),
+        )
 
 
 class TestValidationErrorDetails(unittest.TestCase):
