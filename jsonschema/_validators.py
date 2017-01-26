@@ -29,8 +29,21 @@ def additionalProperties(validator, aP, instance, schema):
             for error in validator.descend(instance[extra], aP, path=extra):
                 yield error
     elif not aP and extras:
-        error = "Additional properties are not allowed (%s %s unexpected)"
-        yield ValidationError(error % _utils.extras_msg(extras))
+        if "patternProperties" in schema:
+            patterns = sorted(schema["patternProperties"])
+            if len(extras) == 1:
+                verb = "does"
+            else:
+                verb = "do"
+            error = "%s %s not match any of the regexes: %s" % (
+                ", ".join(map(repr, sorted(extras))),
+                verb,
+                ", ".join(map(repr, patterns)),
+            )
+            yield ValidationError(error)
+        else:
+            error = "Additional properties are not allowed (%s %s unexpected)"
+            yield ValidationError(error % _utils.extras_msg(extras))
 
 
 def items(validator, items, instance, schema):
