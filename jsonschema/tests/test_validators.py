@@ -191,6 +191,26 @@ class TestValidationErrorMessages(unittest.TestCase):
         self.assertIn(repr("thing"), message)
         self.assertIn("is not a", message)
 
+    def test_additionalProperties_false_patternProperties(self):
+        schema = {u"type": u"object",
+                  u"additionalProperties": False,
+                  u"patternProperties": {
+                      u"$abc^": {u"type": u"string"},
+                      u"$def^": {u"type": u"string"}
+                  }}
+        message = self.message_for({u"zebra": 123}, schema,
+                                   cls=Draft4Validator)
+        self.assertEqual(
+            message,
+            "{} does not match any of the regexs: $abc^, $def^".format(
+                repr(u"zebra")))
+        message = self.message_for({u"zebra": 123, u"fish": 456}, schema,
+                                   cls=Draft4Validator)
+        self.assertEqual(
+            message,
+            "{}, {} do not match any of the regexs: $abc^, $def^".format(
+                repr(u"fish"), repr(u"zebra")))
+
 
 class TestValidationErrorDetails(unittest.TestCase):
     # TODO: These really need unit tests for each individual validator, rather
