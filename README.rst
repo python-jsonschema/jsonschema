@@ -61,11 +61,9 @@ Features
 Release Notes
 -------------
 
-Version 2.5.0 is mainly a performance release. The interface for `RefResolver`
-was extended to add methods that improve performance on CPython.
-
-Support for custom `RefResolver` objects with the legacy interface should *not*
-be affected. If you notice something amiss please file an issue ticket.
+Version 2.6.0 drops support for Python 2.6.X (ha ha) and contains a
+number of small improvements in error messages, as well as a bug fix for
+``ErrorTree``.
 
 
 Running the Test Suite
