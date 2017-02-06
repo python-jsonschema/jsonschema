@@ -1,3 +1,11 @@
+v2.6.0
+------
+
+* Support for Python 2.6 has been dropped.
+* Improve a few error messages for ``uniqueItems`` (#224) and
+  ``additionalProperties`` (#317)
+* Fix an issue with ``ErrorTree``'s handling of multiple errors (#288) 
+
 v2.5.0
 ------
 
