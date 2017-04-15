@@ -44,9 +44,12 @@ class TestCreateAndExtend(unittest.TestCase):
         self.smelly.return_value = [error]
         self.assertEqual(list(self.validator.iter_errors(instance)), [error])
 
-        self.smelly.assert_called_with(
-            self.validator, self.validator_value, instance, self.schema,
-        )
+        assert list(self.smelly.call_args_list) == [
+            mock.call(
+                self.validator, self.validator_value, instance, self.schema),
+            mock.call(
+                self.validator, self.validator_value, instance, self.schema),
+        ]
 
     def test_if_a_version_is_provided_it_is_registered(self):
         with mock.patch("jsonschema.validators.validates") as validates:
