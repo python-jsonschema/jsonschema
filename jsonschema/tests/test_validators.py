@@ -691,6 +691,54 @@ class ValidatorTestMixin(object):
         with self.assertRaises(UnknownType):
             self.validator.is_type("foo", object())
 
+    def test_good_references_are_good(self):
+        schema = {
+            "properties": {
+                "foo": {"$ref": "#/definitions/bar"},
+                "fizz": {"items": [{"$ref": "#/definitions/buzz"}]}
+            },
+            "definitions": {
+                "bar": "baz",
+                "buzz": "qux"
+            }
+        }
+
+        validator = self.validator_class(schema)
+        with mock.patch.object(
+            validator.resolver, "resolving", wraps=validator.resolver.resolving
+        ) as resolve:
+            validator.check_refs()
+
+        resolve.assert_any_call("#/definitions/bar")
+        resolve.assert_any_call("#/definitions/buzz")
+
+    def test_bad_references_are_bad(self):
+        schema = {
+            "properties": {
+                "foo": {"$ref": "#/definitions/bar"},
+                "fizz": {"items": [{"$ref": "#/definitions/buzz"}]}
+            },
+            "definitions": {
+                "bar": "baz",
+            }
+        }
+
+        validator = self.validator_class(schema)
+
+        with self.assertRaises(RefResolutionError) as err:
+            with mock.patch.object(
+                validator.resolver, "resolving",
+                wraps=validator.resolver.resolving
+            ) as resolve:
+                validator.check_refs()
+
+        self.assertEqual(
+            str(err.exception),
+            "Unresolvable JSON pointer: %s" % repr(u'definitions/buzz')
+        )
+
+        resolve.assert_any_call("#/definitions/buzz")
+
 
 class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
     validator_class = Draft3Validator

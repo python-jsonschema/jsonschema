@@ -73,6 +73,12 @@ classes should adhere to.
 
         :raises: :exc:`SchemaError` if the schema is invalid
 
+    .. method:: check_ref()
+
+        Check if all references in the given schema are valid
+
+        :raises: :exc:`RefResolutionError` if there is an invalid reference.
+
     .. method:: is_type(instance, type)
 
         Check if the instance is of the given (JSON Schema) type.
