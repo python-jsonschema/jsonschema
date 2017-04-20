@@ -17,6 +17,7 @@ from jsonschema.compat import (
 from jsonschema.exceptions import ErrorTree  # Backwards compat  # noqa: F401
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
 
+type_backup = type
 
 _unset = _utils.Unset()
 
@@ -142,7 +143,10 @@ def create(meta_schema, validators=(), version=None, default_types=None):  # noq
                 )
                 if is_number and bool not in pytypes:
                     return False
-            return isinstance(instance, pytypes)
+            if isinstance(pytypes, (type_backup, tuple)):
+                return isinstance(instance, pytypes)
+            elif callable(pytypes):
+                return pytypes(instance)
 
         def is_valid(self, instance, _schema=None):
             error = next(self.iter_errors(instance, _schema), None)
