@@ -279,9 +279,9 @@ class RefResolver(object):
         remote_cache=None,
     ):
         if urljoin_cache is None:
-            urljoin_cache = lru_cache(1024)(urljoin)
+            urljoin_cache = lru_cache(1024)
         if remote_cache is None:
-            remote_cache = lru_cache(1024)(self.resolve_from_url)
+            remote_cache = lru_cache(1024)
 
         self.referrer = referrer
         self.cache_remote = cache_remote
@@ -295,8 +295,8 @@ class RefResolver(object):
         self.store.update(store)
         self.store[base_uri] = referrer
 
-        self._urljoin_cache = urljoin_cache
-        self._remote_cache = remote_cache
+        self._urljoin_cache = urljoin_cache(urljoin)
+        self._remote_cache = remote_cache(self.resolve_from_url)
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):

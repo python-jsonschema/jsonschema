@@ -900,6 +900,21 @@ class TestRefResolver(unittest.TestCase):
             pass
         self.assertEqual(foo_handler.call_count, 1)
 
+    def test_custom_cache_decorators(self):
+        ref = "foo://bar"
+        foo_handler = mock.Mock()
+
+        def mock_cache(f):
+            return f
+
+        resolver = RefResolver(
+            "", {}, remote_cache=mock_cache, urljoin_cache=mock_cache,
+            handlers={"foo": foo_handler},
+        )
+        with resolver.resolving(ref):
+            pass
+        self.assertEqual(foo_handler.call_count, 1)
+
     def test_if_you_give_it_junk_you_get_a_resolution_error(self):
         ref = "foo://bar"
         foo_handler = mock.Mock(side_effect=ValueError("Oh no! What's this?"))
