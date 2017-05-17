@@ -256,14 +256,14 @@ class RefResolver(object):
             A mapping from URI schemes to functions that should be used
             to retrieve them
 
-        urljoin_cache (functools.lru_cache):
+        urljoin_cache_dec (functools.lru_cache):
 
-            A cache that will be used for caching the results of joining
-            the resolution scope to subscopes.
+            A cache decorator that will be used for caching the results of
+            joining the resolution scope to subscopes.
 
-        remote_cache (functools.lru_cache):
+        remote_cache_dec (functools.lru_cache):
 
-            A cache that will be used for caching the results of
+            A cache decorator that will be used for caching the results of
             resolved remote URLs.
 
     """
@@ -277,11 +277,18 @@ class RefResolver(object):
         handlers=(),
         urljoin_cache=None,
         remote_cache=None,
+        urljoin_cache_dec=None,
+        remote_cache_dec=None,
     ):
+        if urljoin_cache_dec is None:
+            urljoin_cache_dec = lru_cache(1024)
+        if remote_cache_dec is None:
+            remote_cache_dec = lru_cache(1024)
+
         if urljoin_cache is None:
-            urljoin_cache = lru_cache(1024)
+            urljoin_cache = urljoin_cache_dec(urljoin)
         if remote_cache is None:
-            remote_cache = lru_cache(1024)
+            remote_cache = remote_cache_dec(self.resolve_from_url)
 
         self.referrer = referrer
         self.cache_remote = cache_remote
@@ -295,8 +302,8 @@ class RefResolver(object):
         self.store.update(store)
         self.store[base_uri] = referrer
 
-        self._urljoin_cache = urljoin_cache(urljoin)
-        self._remote_cache = remote_cache(self.resolve_from_url)
+        self._urljoin_cache = urljoin_cache
+        self._remote_cache = remote_cache
 
     @classmethod
     def from_schema(cls, schema, *args, **kwargs):

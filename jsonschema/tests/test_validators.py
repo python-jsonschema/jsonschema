@@ -904,11 +904,11 @@ class TestRefResolver(unittest.TestCase):
         ref = "foo://bar"
         foo_handler = mock.Mock()
 
-        def mock_cache(f):
+        def mock_cache_dec(f):
             return f
 
         resolver = RefResolver(
-            "", {}, remote_cache=mock_cache, urljoin_cache=mock_cache,
+            "", {}, remote_cache_dec=mock_cache_dec, urljoin_cache_dec=mock_cache_dec,
             handlers={"foo": foo_handler},
         )
         with resolver.resolving(ref):
