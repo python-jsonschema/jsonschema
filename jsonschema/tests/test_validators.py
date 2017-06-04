@@ -196,7 +196,7 @@ class TestValidationErrorMessages(unittest.TestCase):
                   u"additionalProperties": False,
                   u"patternProperties": {
                       u"^abc$": {u"type": u"string"},
-                      u"^def$": {u"type": u"string"}
+                      u"^def$": {u"type": u"string"},
                   }}
         message = self.message_for({u"zebra": 123}, schema,
                                    cls=Draft4Validator)

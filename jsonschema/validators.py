@@ -14,8 +14,13 @@ from jsonschema.compat import (
     Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems, lru_cache,
 )
-from jsonschema.exceptions import ErrorTree  # Backwards compat  # noqa: F401
 from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
+
+# Sigh. https://gitlab.com/pycqa/flake8/issues/280
+#       https://github.com/pyga/ebb-lint/issues/7
+# Imported for backwards compatibility.
+from jsonschema.exceptions import ErrorTree
+ErrorTree
 
 
 _unset = _utils.Unset()
