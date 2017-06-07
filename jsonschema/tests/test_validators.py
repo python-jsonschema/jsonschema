@@ -943,6 +943,26 @@ class TestDraft3UniqueTupleItems(UniqueTupleItemsMixin, unittest.TestCase):
     validator_class = Draft3Validator
 
 
+class TestSimpleBug(unittest.TestCase):
+    def test_non_string_object_key(self):
+        schema = {
+            "type": "object",
+            "patternProperties": {
+                ".*": {
+                    "type": "string",
+                },
+            },
+            "additionalProperties": False,
+        }
+
+        obj = {
+            42: True,
+        }
+
+        with self.assertRaises(ValidationError):
+            validate(obj, schema)
+
+
 def sorted_errors(errors):
     def key(error):
         return (

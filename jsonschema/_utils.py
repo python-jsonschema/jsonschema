@@ -2,8 +2,15 @@ import itertools
 import json
 import pkgutil
 import re
+import sys
 
 from jsonschema.compat import str_types, MutableMapping, urlsplit
+
+
+if sys.version_info[0] == 3:
+    STRING_TYPES = str
+else:
+    STRING_TYPES = (str, unicode)
 
 
 class URIDict(MutableMapping):
@@ -101,7 +108,7 @@ def find_additional_properties(instance, schema):
     patterns = "|".join(schema.get("patternProperties", {}))
     for property in instance:
         if property not in properties:
-            if patterns and re.search(patterns, property):
+            if isinstance(property, STRING_TYPES) and patterns and re.search(patterns, property):
                 continue
             yield property
 
