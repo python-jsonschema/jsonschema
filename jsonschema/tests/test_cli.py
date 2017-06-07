@@ -1,3 +1,5 @@
+import json
+
 from jsonschema import Draft4Validator, ValidationError, cli
 from jsonschema.compat import StringIO
 from jsonschema.exceptions import SchemaError
@@ -20,6 +22,11 @@ def fake_validator(*errors):
             pass
 
     return FakeValidator
+
+
+def serialize_instances(*instances):
+    """:Return: a string with `instances` serialized to JSON, one per line."""
+    return '\n'.join(json.dumps(instance, separators=(',', ':')) for instance in instances) + '\n'
 
 
 class TestParser(unittest.TestCase):
@@ -132,4 +139,32 @@ class TestCLI(unittest.TestCase):
         )
         self.assertFalse(stdout.getvalue())
         self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
+        self.assertEqual(exit_code, 1)
+
+    def test_filter_valid(self):
+        serialized = serialize_instances(1, [2], {3: 4})
+        stdin, stdout, stderr = StringIO(serialized), StringIO(), StringIO()
+        exit_code = cli.run({
+            "validator": fake_validator(),
+            "schema": {},
+            "error_format": "{error.message}",
+            "filter": True,
+        }, stdin=stdin, stdout=stdout, stderr=stderr)
+        self.assertFalse(stderr.getvalue())
+        self.assertEquals(stdout.getvalue(), serialized)
+        self.assertEqual(exit_code, 0)
+
+    def test_filter_invalid(self):
+        schema = {"type": "object"}
+        serialized_in = serialize_instances({}, [2], {3: 4})
+        serialized_out = serialize_instances({}, {3: 4})
+        stdin, stdout, stderr = StringIO(serialized_in), StringIO(), StringIO()
+        exit_code = cli.run({
+            "validator": Draft4Validator,
+            "schema": schema,
+            "error_format": "{error.message}",
+            "filter": True,
+            }, stdin=stdin, stdout=stdout, stderr=stderr)
+        self.assertEquals(stderr.getvalue(), "[2] is not of type 'object'")
+        self.assertEquals(stdout.getvalue(), serialized_out)
         self.assertEqual(exit_code, 1)
