@@ -1,15 +1,15 @@
 import operator
 import sys
 
-
-try:
-    from collections import MutableMapping, Sequence  # noqa
-except ImportError:
-    from collections.abc import MutableMapping, Sequence  # noqa
-
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
+    try:
+        # Python <=3.2
+        from collections import MutableMapping, Sequence  # noqa
+    except ImportError:
+        # Python >=3.3
+        from collections.abc import MutableMapping, Sequence  # noqa
     zip = zip
     from functools import lru_cache
     from io import StringIO
@@ -21,6 +21,7 @@ if PY3:
     int_types = int,
     iteritems = operator.methodcaller("items")
 else:
+    from collections import MutableMapping, Sequence  # noqa
     from itertools import izip as zip  # noqa
     from StringIO import StringIO
     from urlparse import (
