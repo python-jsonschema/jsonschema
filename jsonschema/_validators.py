@@ -9,8 +9,8 @@ def patternProperties(validator, patternProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for pattern, subschema in iteritems(patternProperties):
-        for k, v in iteritems(instance):
+    for pattern, subschema in sorted(iteritems(patternProperties)):
+        for k, v in sorted(iteritems(instance)):
             if re.search(pattern, k):
                 for error in validator.descend(
                     v, subschema, path=k, schema_path=pattern,
@@ -179,7 +179,7 @@ def dependencies(validator, dependencies, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, dependency in iteritems(dependencies):
+    for property, dependency in sorted(iteritems(dependencies)):
         if property not in instance:
             continue
 
@@ -244,7 +244,7 @@ def properties_draft3(validator, properties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, subschema in iteritems(properties):
+    for property, subschema in sorted(iteritems(properties)):
         if property in instance:
             for error in validator.descend(
                 instance[property],
@@ -295,7 +295,7 @@ def properties_draft4(validator, properties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, subschema in iteritems(properties):
+    for property, subschema in sorted(iteritems(properties)):
         if property in instance:
             for error in validator.descend(
                 instance[property],
