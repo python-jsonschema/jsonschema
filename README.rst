@@ -14,22 +14,22 @@ for Python (supporting 2.7+ including Python 3).
 
 .. code-block:: python
 
-    >>> from jsonschema import validate
+    >>> from jsonschema import Schema
 
     >>> # A sample schema, like what we'd get from json.load()
-    >>> schema = {
+    >>> schema = Schema({
     ...     "type" : "object",
     ...     "properties" : {
     ...         "price" : {"type" : "number"},
     ...         "name" : {"type" : "string"},
     ...     },
-    ... }
+    ... })
 
     >>> # If no exception is raised by validate(), the instance is valid.
-    >>> validate({"name" : "Eggs", "price" : 34.99}, schema)
+    >>> schema.validate({"name" : "Eggs", "price" : 34.99})
 
-    >>> validate(
-    ...     {"name" : "Eggs", "price" : "Invalid"}, schema
+    >>> schema.validate(
+    ...     {"name" : "Eggs", "price" : "Invalid"}
     ... )                                   # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...

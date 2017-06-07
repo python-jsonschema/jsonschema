@@ -7,6 +7,7 @@ from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
     Draft4Validator, RefResolver, create, extend, validator_for, validate,
+    Schema,
 )
 
 
@@ -780,6 +781,14 @@ class TestValidate(unittest.TestCase):
     def test_draft4_validator_is_the_default(self):
         with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
             validate({}, {})
+            chk_schema.assert_called_once_with({})
+
+
+class TestSchemaCls(unittest.TestCase):
+    def test_draft4_validator_is_the_default_for_schema_cls(self):
+        with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
+            schema = Schema({})
+            schema.validate({})
             chk_schema.assert_called_once_with({})
 
 

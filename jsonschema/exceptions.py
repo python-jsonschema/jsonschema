@@ -85,7 +85,7 @@ class _Error(Exception):
         __str__ = __unicode__
     else:
         def __str__(self):
-            return unicode(self).encode("utf-8")
+            return self.__unicode__().encode("utf-8")
 
     @classmethod
     def create_from(cls, other):
@@ -158,7 +158,7 @@ class UnknownType(Exception):
         __str__ = __unicode__
     else:
         def __str__(self):
-            return unicode(self).encode("utf-8")
+            return self.__unicode__().encode("utf-8")
 
 
 class FormatError(Exception):
@@ -174,7 +174,7 @@ class FormatError(Exception):
         __str__ = __unicode__
     else:
         def __str__(self):
-            return self.message.encode("utf-8")
+            return self.__unicode__().encode("utf-8")
 
 
 class ErrorTree(object):
