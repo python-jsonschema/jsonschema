@@ -17,6 +17,7 @@ import os
 import re
 import subprocess
 import sys
+import decimal
 
 try:
     from sys import pypy_version_info
@@ -97,7 +98,7 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
             id = itertools.count(1)
 
             with open(filename) as test_file:
-                for case in json.load(test_file):
+                for case in json.load(test_file, parse_float=decimal.Decimal):
                     for test in case["tests"]:
                         name = "test_%s_%s_%s" % (
                             validating,
