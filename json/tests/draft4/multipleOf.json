@@ -56,5 +56,21 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "92.6 by 0.1",
+        "schema": {"multipleOf": 0.1},
+        "tests": [
+            {
+                "description": "92.6 is multiple of 0.1",
+                "data": 92.6,
+                "valid": true
+            },
+            {
+                "description": "92.61 is not multiple of 0.1",
+                "data": 92.61,
+                "valid": false
+            }
+        ]
     }
 ]
