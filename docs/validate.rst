@@ -87,9 +87,9 @@ classes should adhere to.
 
         :rtype: bool
 
-            >>> schema = {"maxItems" : 2}
-            >>> Draft3Validator(schema).is_valid([2, 3, 4])
-            False
+        >>> schema = {"maxItems" : 2}
+        >>> Draft3Validator(schema).is_valid([2, 3, 4])
+        False
 
     .. method:: iter_errors(instance)
 
@@ -97,16 +97,16 @@ classes should adhere to.
 
         :rtype: an iterable of :exc:`ValidationError`\s
 
-            >>> schema = {
-            ...     "type" : "array",
-            ...     "items" : {"enum" : [1, 2, 3]},
-            ...     "maxItems" : 2,
-            ... }
-            >>> v = Draft3Validator(schema)
-            >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
-            ...     print(error.message)
-            4 is not one of [1, 2, 3]
-            [2, 3, 4] is too long
+        >>> schema = {
+        ...     "type" : "array",
+        ...     "items" : {"enum" : [1, 2, 3]},
+        ...     "maxItems" : 2,
+        ... }
+        >>> v = Draft3Validator(schema)
+        >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
+        ...     print(error.message)
+        4 is not one of [1, 2, 3]
+        [2, 3, 4] is too long
 
     .. method:: validate(instance)
 
@@ -114,11 +114,11 @@ classes should adhere to.
 
         :raises: :exc:`ValidationError` if the instance is invalid
 
-            >>> schema = {"maxItems" : 2}
-            >>> Draft3Validator(schema).validate([2, 3, 4])
-            Traceback (most recent call last):
-                ...
-            ValidationError: [2, 3, 4] is too long
+        >>> schema = {"maxItems" : 2}
+        >>> Draft3Validator(schema).validate([2, 3, 4])
+        Traceback (most recent call last):
+            ...
+        ValidationError: [2, 3, 4] is too long
 
 
 All of the :ref:`versioned validators <versioned-validators>` that
