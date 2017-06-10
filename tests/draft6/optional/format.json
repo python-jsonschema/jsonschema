@@ -35,6 +35,11 @@
                 "valid": false
             },
             {
+                "description": "an invalid relative URI Reference",
+                "data": "/abc",
+                "valid": false
+            },
+            {
                 "description": "an invalid URI",
                 "data": "\\\\WINDOWS\\fileshare",
                 "valid": false
@@ -43,6 +48,75 @@
                 "description": "an invalid URI though valid URI reference",
                 "data": "abc",
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of URI References",
+        "schema": {"format": "uri-reference"},
+        "tests": [
+            {
+                "description": "a valid URI",
+                "data": "http://foo.bar/?baz=qux#quux",
+                "valid": true
+            },
+            {
+                "description": "a valid protocol-relative URI Reference",
+                "data": "//foo.bar/?baz=qux#quux",
+                "valid": true
+            },
+            {
+                "description": "a valid relative URI Reference",
+                "data": "/abc",
+                "valid": true
+            },
+            {
+                "description": "an invalid URI Reference",
+                "data": "\\\\WINDOWS\\fileshare",
+                "valid": false
+            },
+            {
+                "description": "a valid URI Reference",
+                "data": "abc",
+                "valid": true
+            },
+            {
+                "description": "a valid URI fragment",
+                "data": "#fragment",
+                "valid": true
+            },
+            {
+                "description": "an invalid URI fragment",
+                "data": "#frag\\ment",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "format: uri-template",
+        "schema": {
+            "format": "uri-template"
+        },
+        "tests": [
+            {
+                "description": "a valid uri-template",
+                "data": "http://example.com/dictionary/{term:1}/{term}",
+                "valid": true
+            },
+            {
+                "description": "an invalid uri-template",
+                "data": "http://example.com/dictionary/{term:1}/{term",
+                "valid": false
+            },
+            {
+                "description": "a valid uri-template without variables",
+                "data": "http://example.com/dictionary",
+                "valid": true
+            },
+            {
+                "description": "a valid relative uri-template",
+                "data": "dictionary/{term:1}/{term}",
+                "valid": true
             }
         ]
     },
@@ -142,6 +216,42 @@
                 "description": "a host name with a component too long",
                 "data": "a-vvvvvvvvvvvvvvvveeeeeeeeeeeeeeeerrrrrrrrrrrrrrrryyyyyyyyyyyyyyyy-long-host-name-component",
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of JSON-pointers",
+        "schema": {"format": "json-pointer"},
+        "tests": [
+            {
+                "description": "a valid JSON-pointer",
+                "data": "/foo/bar~0/baz~1/%a",
+                "valid": true
+            },
+            {
+                "description": "empty string is valid",
+                "data": "",
+                "valid": true
+            },
+            {
+                "description": "/ is valid",
+                "data": "/",
+                "valid": true
+            },
+            {
+                "description": "not a valid JSON-pointer (~ not escaped)",
+                "data": "/foo/bar~",
+                "valid": false
+            },
+            {
+                "description": "valid JSON-pointer with empty segment",
+                "data": "/foo//bar",
+                "valid": true
+            },
+            {
+                "description": "valid JSON-pointer with the last empty segment",
+                "data": "/foo/bar/",
+                "valid": true
             }
         ]
     }

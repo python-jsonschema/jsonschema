@@ -1,4 +1,4 @@
-JSON Schema Test Suite [![Build Status](https://travis-ci.org/json-schema/JSON-Schema-Test-Suite.png?branch=develop)](https://travis-ci.org/json-schema/JSON-Schema-Test-Suite)
+JSON Schema Test Suite [![Build Status](https://travis-ci.org/json-schema-org/JSON-Schema-Test-Suite.svg?branch=master)](https://travis-ci.org/json-schema-org/JSON-Schema-Test-Suite)
 ======================
 
 This repository contains a set of JSON objects that implementors of JSON Schema
@@ -64,17 +64,26 @@ This suite is being used by:
 
 * [jsck](https://github.com/pandastrike/jsck)
 
+### C++ ###
+
+* [Modern C++ JSON schema validator](https://github.com/pboettch/json-schema-validator)
+
 ### Dart ###
 
 * [json_schema](https://github.com/patefacio/json_schema) 
 
+### Elixir ###
+
+* [ex_json_schema](https://github.com/jonasschmidt/ex_json_schema)
+
 ### Erlang ###
 
-* [jesse](https://github.com/klarna/jesse)
+* [jesse](https://github.com/for-GET/jesse)
 
 ### Go ###
 
 * [gojsonschema](https://github.com/sigu-399/gojsonschema) 
+* [validate-json](https://github.com/cesanta/validate-json)
 
 ### Haskell ###
 
@@ -83,9 +92,11 @@ This suite is being used by:
 
 ### Java ###
 
-* [json-schema-validator](https://github.com/fge/json-schema-validator)
+* [json-schema-validator](https://github.com/daveclayton/json-schema-validator)
+* [everit-org/json-schema](https://github.com/everit-org/json-schema)
+* [networknt/json-schema-validator](https://github.com/networknt/json-schema-validator)
 
-### Javascript ###
+### JavaScript ###
 
 * [json-schema-benchmark](https://github.com/Muscula/json-schema-benchmark)
 * [direct-schema](https://github.com/IreneKnapp/direct-schema)
@@ -100,14 +111,26 @@ This suite is being used by:
 * [tv4](https://github.com/geraintluff/tv4)
 * [z-schema](https://github.com/zaggino/z-schema)
 * [jsen](https://github.com/bugventure/jsen)
+* [ajv](https://github.com/epoberezkin/ajv)
+* [djv](https://github.com/korzio/djv)
+
+### Node.js ###
+
+The JSON Schema Test Suite is also available as an
+[npm](https://www.npmjs.com/package/json-schema-test-suite) package.
+Node-specific support is maintained on the [node branch](https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/node).
+See [NODE-README.md](https://github.com/json-schema-org/JSON-Schema-Test-Suite/blob/node/NODE-README.md)
+for more information.
 
 ### .NET ###
 
 * [Newtonsoft.Json.Schema](https://github.com/JamesNK/Newtonsoft.Json.Schema)
+* [Manatee.Json](https://github.com/gregsdennis/Manatee.Json)
 
 ### PHP ###
 
 * [json-schema](https://github.com/justinrainbow/json-schema)
+* [json-guard](https://github.com/thephpleague/json-guard)
 
 ### Python ###
 
@@ -125,6 +148,14 @@ This suite is being used by:
 
 * [JSONSchema](https://github.com/kylef/JSONSchema.swift)
 
+### Clojure ###
+
+* [json-schema](https://github.com/tatut/json-schema)
+
+### PostgreSQL ###
+
+* [postgres-json-schema](https://github.com/gavinwahl/postgres-json-schema)
+
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).
 
@@ -134,5 +165,5 @@ Contributing
 If you see something missing or incorrect, a pull request is most welcome!
 
 There are some sanity checks in place for testing the test suite. You can run
-them with `bin/jsonschema_suite check`. They will be run automatically by
+them with `bin/jsonschema_suite check && npm test` or `tox && npm test`. They will be run automatically by
 [Travis CI](https://travis-ci.org/) as well.

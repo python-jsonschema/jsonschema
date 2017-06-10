@@ -40,5 +40,21 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "required with empty array",
+        "schema": {
+            "properties": {
+                "foo": {}
+            },
+            "required": []
+        },
+        "tests": [
+            {
+                "description": "property not required",
+                "data": {},
+                "valid": true
+            }
+        ]
     }
 ]
