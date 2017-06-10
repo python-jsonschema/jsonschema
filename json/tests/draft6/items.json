@@ -74,5 +74,60 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "items with boolean schema (true)",
+        "schema": {"items": true},
+        "tests": [
+            {
+                "description": "any array is valid",
+                "data": [ 1, "foo", true ],
+                "valid": true
+            },
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "items with boolean schema (false)",
+        "schema": {"items": false},
+        "tests": [
+            {
+                "description": "any non-empty array is invalid",
+                "data": [ 1, "foo", true ],
+                "valid": false
+            },
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "items with boolean schemas",
+        "schema": {
+            "items": [true, false]
+        },
+        "tests": [
+            {
+                "description": "array with one item is valid",
+                "data": [ 1 ],
+                "valid": true
+            },
+            {
+                "description": "array with two items is invalid",
+                "data": [ 1, "foo" ],
+                "valid": false
+            },
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            }
+        ]
     }
 ]

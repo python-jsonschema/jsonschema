@@ -24,24 +24,5 @@
                 "valid": true
             }
         ]
-    },
-    {
-        "description": "exclusiveMaximum validation",
-        "schema": {
-            "maximum": 3.0,
-            "exclusiveMaximum": true
-        },
-        "tests": [
-            {
-                "description": "below the maximum is still valid",
-                "data": 2.2,
-                "valid": true
-            },
-            {
-                "description": "boundary point is invalid",
-                "data": 3.0,
-                "valid": false
-            }
-        ]
     }
 ]
