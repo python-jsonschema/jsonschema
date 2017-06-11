@@ -328,7 +328,7 @@ def maxProperties_draft4(validator, mP, instance, schema):
         yield ValidationError("%r has too many properties" % (instance,))
 
 
-def allOf_draft4(validator, allOf, instance, schema):
+def allOf(validator, allOf, instance, schema):
     for index, subschema in enumerate(allOf):
         for error in validator.descend(instance, subschema, schema_path=index):
             yield error
