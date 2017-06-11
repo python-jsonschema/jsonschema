@@ -129,7 +129,7 @@ class FormatChecker(object):
             return True
 
 
-_draft_checkers = {"draft3": [], "draft4": []}
+_draft_checkers = {"draft3": [], "draft4": [], "draft6": []}
 
 
 def _checks_drafts(both=None, draft3=None, draft4=None, raises=()):
@@ -269,3 +269,4 @@ else:
 
 draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
 draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
+draft6_format_checker = FormatChecker(_draft_checkers["draft6"])

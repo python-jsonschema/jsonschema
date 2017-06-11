@@ -26,8 +26,8 @@ except ImportError:
 
 from jsonschema import (
     FormatError, SchemaError, ValidationError, Draft3Validator,
-    Draft4Validator, FormatChecker, draft3_format_checker,
-    draft4_format_checker, validate,
+    Draft4Validator, Draft6Validator, FormatChecker, draft3_format_checker,
+    draft4_format_checker, draft6_format_checker, validate,
 )
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock
@@ -291,6 +291,21 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
             validate([1], {"minItems": "1"}, cls=self.validator_class)
 
 
+@load_json_cases(
+    "draft6/*.json",
+    skip=narrow_unicode_build,
+    ignore_glob="draft6/refRemote.json",
+)
+@load_json_cases(
+    "draft6/optional/format.json", skip=missing_format(draft6_format_checker)
+)
+@load_json_cases("draft6/optional/bignum.json")
+@load_json_cases("draft6/optional/zeroTerminatedFloats.json")
+class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+    validator_class = Draft6Validator
+    validator_kwargs = {"format_checker": draft6_format_checker}
+
+
 class RemoteRefResolutionMixin(object):
     def setUp(self):
         patch = mock.patch("jsonschema.validators.requests")
@@ -318,3 +333,8 @@ class Draft3RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
 )
 class Draft4RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
     validator_class = Draft4Validator
+
+
+@load_json_cases("draft6/refRemote.json")
+class Draft6RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
+    validator_class = Draft6Validator

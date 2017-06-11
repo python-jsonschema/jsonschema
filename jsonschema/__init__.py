@@ -13,10 +13,17 @@ from jsonschema.exceptions import (
     ErrorTree, FormatError, RefResolutionError, SchemaError, ValidationError
 )
 from jsonschema._format import (
-    FormatChecker, draft3_format_checker, draft4_format_checker,
+    FormatChecker,
+    draft3_format_checker,
+    draft4_format_checker,
+    draft6_format_checker,
 )
 from jsonschema.validators import (
-    Draft3Validator, Draft4Validator, RefResolver, validate
+    Draft3Validator,
+    Draft4Validator,
+    Draft6Validator,
+    RefResolver,
+    validate,
 )
 
 from jsonschema._version import __version__

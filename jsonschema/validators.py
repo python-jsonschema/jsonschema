@@ -206,7 +206,7 @@ Draft4Validator = create(
         u"$ref": _validators.ref,
         u"additionalItems": _validators.additionalItems,
         u"additionalProperties": _validators.additionalProperties,
-        u"allOf": _validators.allOf_draft4,
+        u"allOf": _validators.allOf,
         u"anyOf": _validators.anyOf_draft4,
         u"dependencies": _validators.dependencies,
         u"enum": _validators.enum,
@@ -227,10 +227,18 @@ Draft4Validator = create(
         u"patternProperties": _validators.patternProperties,
         u"properties": _validators.properties_draft4,
         u"required": _validators.required_draft4,
-        u"type": _validators.type_draft4,
+        u"type": _validators.type,
         u"uniqueItems": _validators.uniqueItems,
     },
     version="draft4",
+)
+
+
+Draft6Validator = create(
+    meta_schema=_utils.load_schema("draft6"),
+    validators={
+    },
+    version="draft6",
 )
 
 
