@@ -284,7 +284,7 @@ def extends_draft3(validator, extends, instance, schema):
             yield error
 
 
-def type_draft4(validator, types, instance, schema):
+def type(validator, types, instance, schema):
     types = _utils.ensure_list(types)
 
     if not any(validator.is_type(instance, type) for type in types):

@@ -237,6 +237,9 @@ Draft4Validator = create(
 Draft6Validator = create(
     meta_schema=_utils.load_schema("draft6"),
     validators={
+        u"additionalItems": _validators.additionalItems,
+        u"items": _validators.items,
+        u"type": _validators.type,
     },
     version="draft6",
 )
