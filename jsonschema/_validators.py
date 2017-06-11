@@ -82,7 +82,7 @@ def additionalItems(validator, aI, instance, schema):
         )
 
 
-def minimum(validator, minimum, instance, schema):
+def minimum_draft3_draft4(validator, minimum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
@@ -99,7 +99,7 @@ def minimum(validator, minimum, instance, schema):
         )
 
 
-def maximum(validator, maximum, instance, schema):
+def maximum_draft3_draft4(validator, maximum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
@@ -113,6 +113,50 @@ def maximum(validator, maximum, instance, schema):
     if failed:
         yield ValidationError(
             "%r is %s the maximum of %r" % (instance, cmp, maximum)
+        )
+
+
+def exclusiveMinimum_draft6(validator, minimum, instance, schema):
+    if not validator.is_type(instance, "number"):
+        return
+
+    if instance <= minimum:
+        yield ValidationError(
+            "%r is less than or equal to the minimum of %r" % (
+                instance, minimum,
+            ),
+        )
+
+
+def exclusiveMaximum_draft6(validator, maximum, instance, schema):
+    if not validator.is_type(instance, "number"):
+        return
+
+    if instance >= maximum:
+        yield ValidationError(
+            "%r is greater than or equal to the maximum of %r" % (
+                instance, maximum,
+            ),
+        )
+
+
+def minimum_draft6(validator, minimum, instance, schema):
+    if not validator.is_type(instance, "number"):
+        return
+
+    if instance < minimum:
+        yield ValidationError(
+            "%r is less than the minimum of %r" % (instance, minimum)
+        )
+
+
+def maximum_draft6(validator, maximum, instance, schema):
+    if not validator.is_type(instance, "number"):
+        return
+
+    if instance > maximum:
+        yield ValidationError(
+            "%r is greater than the maximum of %r" % (instance, maximum)
         )
 
 
