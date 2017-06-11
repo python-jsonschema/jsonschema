@@ -291,7 +291,7 @@ def type(validator, types, instance, schema):
         yield ValidationError(_utils.types_msg(instance, types))
 
 
-def properties_draft4(validator, properties, instance, schema):
+def properties(validator, properties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
@@ -306,7 +306,7 @@ def properties_draft4(validator, properties, instance, schema):
                 yield error
 
 
-def required_draft4(validator, required, instance, schema):
+def required(validator, required, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     for property in required:
@@ -328,8 +328,18 @@ def maxProperties_draft4(validator, mP, instance, schema):
         yield ValidationError("%r has too many properties" % (instance,))
 
 
-def allOf(validator, allOf, instance, schema):
+def allOf_draft4(validator, allOf, instance, schema):
     for index, subschema in enumerate(allOf):
+        for error in validator.descend(instance, subschema, schema_path=index):
+            yield error
+
+
+def allOf_draft6(validator, allOf, instance, schema):
+    for index, subschema in enumerate(allOf):
+        if subschema == True:  # FIXME: Messages
+            subschema = {}
+        elif subschema == False:
+            subschema = {"not": {}}
         for error in validator.descend(instance, subschema, schema_path=index):
             yield error
 
@@ -372,7 +382,7 @@ def anyOf_draft4(validator, anyOf, instance, schema):
         )
 
 
-def not_draft4(validator, not_schema, instance, schema):
+def not_(validator, not_schema, instance, schema):
     if validator.is_valid(instance, not_schema):
         yield ValidationError(
             "%r is not allowed for %r" % (not_schema, instance)
