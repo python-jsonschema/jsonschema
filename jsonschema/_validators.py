@@ -382,6 +382,24 @@ def anyOf_draft4(validator, anyOf, instance, schema):
         )
 
 
+def anyOf_draft6(validator, anyOf, instance, schema):
+    all_errors = []
+    for index, subschema in enumerate(anyOf):
+        if subschema == True:  # FIXME: Messages
+            subschema = {}
+        elif subschema == False:
+            subschema = {"not": {}}
+        errs = list(validator.descend(instance, subschema, schema_path=index))
+        if not errs:
+            break
+        all_errors.extend(errs)
+    else:
+        yield ValidationError(
+            "%r is not valid under any of the given schemas" % (instance,),
+            context=all_errors,
+        )
+
+
 def not_(validator, not_schema, instance, schema):
     if validator.is_valid(instance, not_schema):
         yield ValidationError(
