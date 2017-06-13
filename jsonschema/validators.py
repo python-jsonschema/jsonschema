@@ -76,7 +76,12 @@ def create(meta_schema, validators=(), version=None, default_types=None):
             self._types.update(types)
 
             if resolver is None:
-                resolver = RefResolver.from_schema(schema)
+                if schema == True:
+                    resolver = RefResolver.from_schema({})
+                elif schema == False:
+                    resolver = RefResolver.from_schema({"not": {}})
+                else:
+                    resolver = RefResolver.from_schema(schema)
 
             self.resolver = resolver
             self.format_checker = format_checker
@@ -90,6 +95,11 @@ def create(meta_schema, validators=(), version=None, default_types=None):
         def iter_errors(self, instance, _schema=None):
             if _schema is None:
                 _schema = self.schema
+
+            if _schema == True:
+                _schema = {}
+            elif _schema == False:
+                _schema = {"not": {}}
 
             scope = _schema.get(u"id")
             if scope:
