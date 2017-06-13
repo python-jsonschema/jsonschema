@@ -82,6 +82,13 @@ def additionalItems(validator, aI, instance, schema):
         )
 
 
+def const(validator, const, instance, schema):
+    if instance != const:
+        yield ValidationError(
+            "XXX"
+        )
+
+
 def minimum_draft3_draft4(validator, minimum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
