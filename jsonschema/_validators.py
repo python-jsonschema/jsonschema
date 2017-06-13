@@ -89,6 +89,16 @@ def const(validator, const, instance, schema):
         )
 
 
+def contains(validator, contains, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    if not any(validator.is_valid(element, contains) for element in instance):
+        yield ValidationError(
+            "XXX"
+        )
+
+
 def minimum_draft3_draft4(validator, minimum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
