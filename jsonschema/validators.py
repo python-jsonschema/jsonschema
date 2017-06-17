@@ -76,9 +76,9 @@ def create(meta_schema, validators=(), version=None, default_types=None):
             self._types.update(types)
 
             if resolver is None:
-                if schema == True:
+                if schema is True:
                     resolver = RefResolver.from_schema({})
-                elif schema == False:
+                elif schema is False:
                     resolver = RefResolver.from_schema({"not": {}})
                 else:
                     resolver = RefResolver.from_schema(schema)
@@ -96,9 +96,9 @@ def create(meta_schema, validators=(), version=None, default_types=None):
             if _schema is None:
                 _schema = self.schema
 
-            if _schema == True:
+            if _schema is True:
                 _schema = {}
-            elif _schema == False:
+            elif _schema is False:
                 _schema = {"not": {}}
 
             scope = _schema.get(u"$id")

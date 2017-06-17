@@ -275,9 +275,9 @@ def dependencies(validator, dependencies, instance, schema):
         if property not in instance:
             continue
 
-        if dependency == True:
+        if dependency is True:
             dependency = {}
-        elif dependency == False:
+        elif dependency is False:
             dependency = {"not": {}}
 
         if validator.is_type(dependency, "object"):
@@ -433,9 +433,9 @@ def allOf_draft4(validator, allOf, instance, schema):
 
 def allOf_draft6(validator, allOf, instance, schema):
     for index, subschema in enumerate(allOf):
-        if subschema == True:  # FIXME: Messages
+        if subschema is True:  # FIXME: Messages
             subschema = {}
-        elif subschema == False:
+        elif subschema is False:
             subschema = {"not": {}}
         for error in validator.descend(instance, subschema, schema_path=index):
             yield error
@@ -482,9 +482,9 @@ def anyOf_draft4(validator, anyOf, instance, schema):
 def anyOf_draft6(validator, anyOf, instance, schema):
     all_errors = []
     for index, subschema in enumerate(anyOf):
-        if subschema == True:  # FIXME: Messages
+        if subschema is True:  # FIXME: Messages
             subschema = {}
-        elif subschema == False:
+        elif subschema is False:
             subschema = {"not": {}}
         errs = list(validator.descend(instance, subschema, schema_path=index))
         if not errs:
