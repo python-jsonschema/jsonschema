@@ -167,7 +167,7 @@ def is_email(instance):
 _ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
 
-@_checks_drafts(draft3="ip-address", draft4="ipv4")
+@_checks_drafts(draft3="ip-address", draft4="ipv4", draft6="ipv4")
 def is_ipv4(instance):
     if not isinstance(instance, str_types):
         return True
