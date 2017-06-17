@@ -277,6 +277,7 @@ Draft6Validator = create(
         u"propertyNames": _validators.propertyNames,
         u"required": _validators.required,
         u"type": _validators.type,
+        u"uniqueItems": _validators.uniqueItems,
     },
     version="draft6",
 )
