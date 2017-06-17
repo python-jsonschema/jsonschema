@@ -271,6 +271,7 @@ Draft6Validator = create(
         u"multipleOf": _validators.multipleOf,
         u"not": _validators.not_,
         u"oneOf": _validators.oneOf_draft6,
+        u"pattern": _validators.pattern,
         u"patternProperties": _validators.patternProperties,
         u"properties": _validators.properties,
         u"required": _validators.required,
