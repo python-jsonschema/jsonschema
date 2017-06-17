@@ -254,6 +254,7 @@ Draft6Validator = create(
         u"anyOf": _validators.anyOf_draft6,
         u"const": _validators.const,
         u"contains": _validators.contains,
+        u"dependencies": _validators.dependencies,
         u"enum": _validators.enum,
         u"exclusiveMaximum": _validators.exclusiveMaximum_draft6,
         u"exclusiveMinimum": _validators.exclusiveMinimum_draft6,

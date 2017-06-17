@@ -244,6 +244,11 @@ def dependencies(validator, dependencies, instance, schema):
         if property not in instance:
             continue
 
+        if dependency == True:
+            dependency = {}
+        elif dependency == False:
+            dependency = {"not": {}}
+
         if validator.is_type(dependency, "object"):
             for error in validator.descend(
                 instance, dependency, schema_path=property,
