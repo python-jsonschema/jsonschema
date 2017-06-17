@@ -260,6 +260,7 @@ Draft6Validator = create(
         u"exclusiveMinimum": _validators.exclusiveMinimum_draft6,
         u"format": _validators.format,
         u"items": _validators.items,
+        u"maxItems": _validators.maxItems,
         u"maxLength": _validators.maxLength,
         u"maximum": _validators.maximum_draft6,
         u"minLength": _validators.minLength,
