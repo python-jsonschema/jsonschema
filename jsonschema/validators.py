@@ -101,7 +101,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):
             elif _schema == False:
                 _schema = {"not": {}}
 
-            scope = _schema.get(u"id")
+            scope = _schema.get(u"$id")
             if scope:
                 self.resolver.push_scope(scope)
             try:
@@ -372,7 +372,7 @@ class RefResolver(object):
 
         """
 
-        return cls(schema.get(u"id", u""), schema, *args, **kwargs)
+        return cls(schema.get(u"$id", u""), schema, *args, **kwargs)
 
     def push_scope(self, scope):
         self._scopes_stack.append(
