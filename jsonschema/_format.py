@@ -132,9 +132,16 @@ class FormatChecker(object):
 _draft_checkers = {"draft3": [], "draft4": [], "draft6": []}
 
 
-def _checks_drafts(both=None, draft3=None, draft4=None, raises=()):
-    draft3 = draft3 or both
-    draft4 = draft4 or both
+def _checks_drafts(
+    name=None,
+    draft3=None,
+    draft4=None,
+    draft6=None,
+    raises=(),
+):
+    draft3 = draft3 or name
+    draft4 = draft4 or name
+    draft6 = draft6 or name
 
     def wrap(func):
         if draft3:
@@ -143,11 +150,14 @@ def _checks_drafts(both=None, draft3=None, draft4=None, raises=()):
         if draft4:
             _draft_checkers["draft4"].append(draft4)
             func = FormatChecker.cls_checks(draft4, raises)(func)
+        if draft6:
+            _draft_checkers["draft6"].append(draft6)
+            func = FormatChecker.cls_checks(draft6, raises)(func)
         return func
     return wrap
 
 
-@_checks_drafts("email")
+@_checks_drafts(name="email")
 def is_email(instance):
     if not isinstance(instance, str_types):
         return True
@@ -167,7 +177,7 @@ def is_ipv4(instance):
 
 
 if hasattr(socket, "inet_pton"):
-    @_checks_drafts("ipv6", raises=socket.error)
+    @_checks_drafts(name="ipv6", raises=socket.error)
     def is_ipv6(instance):
         if not isinstance(instance, str_types):
             return True
@@ -195,7 +205,7 @@ try:
 except ImportError:
     pass
 else:
-    @_checks_drafts("uri", raises=ValueError)
+    @_checks_drafts(name="uri", raises=ValueError)
     def is_uri(instance):
         if not isinstance(instance, str_types):
             return True
@@ -210,20 +220,23 @@ except ImportError:
     except ImportError:
         pass
     else:
-        @_checks_drafts("date-time", raises=(ValueError, isodate.ISO8601Error))
+        @_checks_drafts(
+            name="date-time",
+            raises=(ValueError, isodate.ISO8601Error),
+        )
         def is_datetime(instance):
             if not isinstance(instance, str_types):
                 return True
             return isodate.parse_datetime(instance)
 else:
-    @_checks_drafts("date-time")
+    @_checks_drafts(name="date-time")
     def is_datetime(instance):
         if not isinstance(instance, str_types):
             return True
         return strict_rfc3339.validate_rfc3339(instance)
 
 
-@_checks_drafts("regex", raises=re.error)
+@_checks_drafts(name="regex", raises=re.error)
 def is_regex(instance):
     if not isinstance(instance, str_types):
         return True
