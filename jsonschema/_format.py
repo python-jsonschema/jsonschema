@@ -221,7 +221,8 @@ except ImportError:
         pass
     else:
         @_checks_drafts(
-            name="date-time",
+            draft3="date-time",
+            draft4="date-time",
             raises=(ValueError, isodate.ISO8601Error),
         )
         def is_datetime(instance):
