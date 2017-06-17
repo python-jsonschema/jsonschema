@@ -18,6 +18,16 @@ def patternProperties(validator, patternProperties, instance, schema):
                     yield error
 
 
+def propertyNames(validator, propertyNames, instance, schema):
+    for property in instance:
+        for error in validator.descend(
+            instance=property,
+            schema=propertyNames,
+            path=property,  # FIXME: path?
+        ):
+            yield error
+
+
 def additionalProperties(validator, aP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
