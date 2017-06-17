@@ -187,7 +187,7 @@ if hasattr(socket, "inet_pton"):
 _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
 
 
-@_checks_drafts(draft3="host-name", draft4="hostname")
+@_checks_drafts(draft3="host-name", draft4="hostname", draft6="hostname")
 def is_host_name(instance):
     if not isinstance(instance, str_types):
         return True
