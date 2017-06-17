@@ -408,7 +408,7 @@ def minProperties_draft4(validator, mP, instance, schema):
         )
 
 
-def maxProperties_draft4(validator, mP, instance, schema):
+def maxProperties(validator, mP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     if validator.is_type(instance, "object") and len(instance) > mP:
