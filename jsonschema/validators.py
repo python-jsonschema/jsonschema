@@ -149,8 +149,11 @@ def create(meta_schema, validators=(), version=None, default_types=None):
                 raise UnknownType(type, instance, self.schema)
             pytypes = self._types[type]
 
+            # FIXME: draft < 6
+            if isinstance(instance, float) and type == "integer":
+                return instance.is_integer()
             # bool inherits from int, so ensure bools aren't reported as ints
-            if isinstance(instance, bool):
+            elif isinstance(instance, bool):
                 pytypes = _utils.flatten(pytypes)
                 is_number = any(
                     issubclass(pytype, numbers.Number) for pytype in pytypes
