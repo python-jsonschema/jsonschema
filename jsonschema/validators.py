@@ -270,6 +270,7 @@ Draft6Validator = create(
         u"minimum": _validators.minimum_draft6,
         u"multipleOf": _validators.multipleOf,
         u"not": _validators.not_,
+        u"oneOf": _validators.oneOf_draft6,
         u"properties": _validators.properties,
         u"required": _validators.required,
         u"type": _validators.type,
