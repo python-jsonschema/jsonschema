@@ -401,7 +401,7 @@ def required(validator, required, instance, schema):
             yield ValidationError("%r is a required property" % property)
 
 
-def minProperties_draft4(validator, mP, instance, schema):
+def minProperties(validator, mP, instance, schema):
     if validator.is_type(instance, "object") and len(instance) < mP:
         yield ValidationError(
             "%r does not have enough properties" % (instance,)
