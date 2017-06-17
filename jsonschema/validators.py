@@ -247,12 +247,14 @@ Draft4Validator = create(
 Draft6Validator = create(
     meta_schema=_utils.load_schema("draft6"),
     validators={
+        u"$ref": _validators.ref,
         u"additionalItems": _validators.additionalItems,
         u"additionalProperties": _validators.additionalProperties,
         u"allOf": _validators.allOf_draft6,
         u"anyOf": _validators.anyOf_draft6,
         u"const": _validators.const,
         u"contains": _validators.contains,
+        u"enum": _validators.enum,
         u"exclusiveMaximum": _validators.exclusiveMaximum_draft6,
         u"exclusiveMinimum": _validators.exclusiveMinimum_draft6,
         u"items": _validators.items,
