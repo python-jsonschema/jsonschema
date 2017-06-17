@@ -264,6 +264,7 @@ Draft6Validator = create(
         u"maxLength": _validators.maxLength,
         u"maxProperties": _validators.maxProperties,
         u"maximum": _validators.maximum_draft6,
+        u"minItems": _validators.minItems,
         u"minLength": _validators.minLength,
         u"minimum": _validators.minimum_draft6,
         u"not": _validators.not_,
