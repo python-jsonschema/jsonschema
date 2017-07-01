@@ -19,6 +19,9 @@ def patternProperties(validator, patternProperties, instance, schema):
 
 
 def propertyNames(validator, propertyNames, instance, schema):
+    if not validator.is_type(instance, "object"):
+        return
+
     for property in instance:
         for error in validator.descend(
             instance=property,
