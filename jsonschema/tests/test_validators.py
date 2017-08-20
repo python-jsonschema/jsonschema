@@ -2,7 +2,7 @@ from collections import deque
 from contextlib import contextmanager
 import json
 
-from jsonschema import FormatChecker, ValidationError
+from jsonschema import FormatChecker, SchemaError, ValidationError
 from jsonschema.tests.compat import mock, unittest
 from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
@@ -781,6 +781,22 @@ class TestValidate(unittest.TestCase):
         with mock.patch.object(Draft4Validator, "check_schema") as chk_schema:
             validate({}, {})
             chk_schema.assert_called_once_with({})
+
+    def test_validation_error_message(self):
+        with self.assertRaises(ValidationError) as e:
+            validate(12, {"type": "string"})
+        self.assertRegexpMatches(
+            str(e.exception),
+            "(?s)Failed validating u?'.*' in schema.*On instance",
+        )
+
+    def test_schema_error_message(self):
+        with self.assertRaises(SchemaError) as e:
+            validate(12, {"type": 12})
+        self.assertRegexpMatches(
+            str(e.exception),
+            "(?s)Failed validating u?'.*' in metaschema.*On schema",
+        )
 
 
 class TestRefResolver(unittest.TestCase):

@@ -67,16 +67,18 @@ class _Error(Exception):
         pinstance = pprint.pformat(self.instance, width=72)
         return self.message + textwrap.dedent("""
 
-            Failed validating %r in schema%s:
+            Failed validating %r in %s%s:
             %s
 
-            On instance%s:
+            On %s%s:
             %s
             """.rstrip()
         ) % (
             self.validator,
+            self._word_for_schema_in_error_message,
             _utils.format_as_index(list(self.relative_schema_path)[:-1]),
             _utils.indent(pschema),
+            self._word_for_instance_in_error_message,
             _utils.format_as_index(self.relative_path),
             _utils.indent(pinstance),
         )
@@ -125,11 +127,13 @@ class _Error(Exception):
 
 
 class ValidationError(_Error):
-    pass
+    _word_for_schema_in_error_message = "schema"
+    _word_for_instance_in_error_message = "instance"
 
 
 class SchemaError(_Error):
-    pass
+    _word_for_schema_in_error_message = "metaschema"
+    _word_for_instance_in_error_message = "schema"
 
 
 class RefResolutionError(Exception):
