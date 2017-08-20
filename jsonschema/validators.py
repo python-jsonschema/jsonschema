@@ -56,7 +56,7 @@ def validates(version):
     return _validates
 
 
-def create(meta_schema, validators=(), version=None, default_types=None):  # noqa: C901, E501
+def create(meta_schema, validators=(), version=None, default_types=None):
     if default_types is None:
         default_types = {
             u"array": list, u"boolean": bool, u"integer": int_types,
