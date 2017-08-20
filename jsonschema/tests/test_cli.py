@@ -1,7 +1,9 @@
+from unittest import TestCase
+
 from jsonschema import Draft4Validator, ValidationError, cli
 from jsonschema.compat import StringIO
 from jsonschema.exceptions import SchemaError
-from jsonschema.tests.compat import mock, unittest
+from jsonschema.tests.compat import mock
 
 
 def fake_validator(*errors):
@@ -22,7 +24,7 @@ def fake_validator(*errors):
     return FakeValidator
 
 
-class TestParser(unittest.TestCase):
+class TestParser(TestCase):
     FakeValidator = fake_validator()
 
     def setUp(self):
@@ -59,7 +61,7 @@ class TestParser(unittest.TestCase):
         self.assertIs(arguments["validator"], Draft4Validator)
 
 
-class TestCLI(unittest.TestCase):
+class TestCLI(TestCase):
     def test_draft3_schema_draft4_validator(self):
         stdout, stderr = StringIO(), StringIO()
         with self.assertRaises(SchemaError):

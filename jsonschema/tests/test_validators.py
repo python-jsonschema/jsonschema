@@ -1,16 +1,17 @@
 from collections import deque
 from contextlib import contextmanager
+from unittest import TestCase
 import json
 
 from jsonschema import FormatChecker, SchemaError, ValidationError
-from jsonschema.tests.compat import mock, unittest
+from jsonschema.tests.compat import mock
 from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
     Draft4Validator, RefResolver, create, extend, validator_for, validate,
 )
 
 
-class TestCreateAndExtend(unittest.TestCase):
+class TestCreateAndExtend(TestCase):
     def setUp(self):
         self.meta_schema = {u"properties": {u"smelly": {}}}
         self.smelly = mock.MagicMock()
@@ -74,7 +75,7 @@ class TestCreateAndExtend(unittest.TestCase):
         self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
 
 
-class TestIterErrors(unittest.TestCase):
+class TestIterErrors(TestCase):
     def setUp(self):
         self.validator = Draft3Validator({})
 
@@ -108,7 +109,7 @@ class TestIterErrors(unittest.TestCase):
         self.assertEqual(len(errors), 4)
 
 
-class TestValidationErrorMessages(unittest.TestCase):
+class TestValidationErrorMessages(TestCase):
     def message_for(self, instance, schema, *args, **kwargs):
         kwargs.setdefault("cls", Draft3Validator)
         with self.assertRaises(ValidationError) as e:
@@ -216,7 +217,7 @@ class TestValidationErrorMessages(unittest.TestCase):
         )
 
 
-class TestValidationErrorDetails(unittest.TestCase):
+class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
     def test_anyOf(self):
@@ -692,7 +693,7 @@ class ValidatorTestMixin(object):
             self.validator.is_type("foo", object())
 
 
-class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
+class TestDraft3Validator(ValidatorTestMixin, TestCase):
     validator_class = Draft3Validator
 
     def test_is_type_is_true_for_any_type(self):
@@ -708,11 +709,11 @@ class TestDraft3Validator(ValidatorTestMixin, unittest.TestCase):
         cls.validate(None, schema)
 
 
-class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
+class TestDraft4Validator(ValidatorTestMixin, TestCase):
     validator_class = Draft4Validator
 
 
-class TestBuiltinFormats(unittest.TestCase):
+class TestBuiltinFormats(TestCase):
     """
     The built-in (specification-defined) formats do not raise type errors.
 
@@ -732,7 +733,7 @@ for format in FormatChecker.checkers:
     del test  # Ugh py.test. Stop discovering top level tests.
 
 
-class TestValidatorFor(unittest.TestCase):
+class TestValidatorFor(TestCase):
     def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}
         self.assertIs(validator_for(schema), Draft3Validator)
@@ -759,7 +760,7 @@ class TestValidatorFor(unittest.TestCase):
         self.assertIs(validator_for({}, default=None), None)
 
 
-class TestValidate(unittest.TestCase):
+class TestValidate(TestCase):
     def test_draft3_validator_is_chosen(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema#"}
         with mock.patch.object(Draft3Validator, "check_schema") as chk_schema:
@@ -799,7 +800,7 @@ class TestValidate(unittest.TestCase):
         )
 
 
-class TestRefResolver(unittest.TestCase):
+class TestRefResolver(TestCase):
 
     base_uri = ""
     stored_uri = "foo://stored"
@@ -951,11 +952,11 @@ class UniqueTupleItemsMixin(object):
         self.assertIn("(1, 1) has non-unique elements", str(e.exception))
 
 
-class TestDraft4UniqueTupleItems(UniqueTupleItemsMixin, unittest.TestCase):
+class TestDraft4UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
     validator_class = Draft4Validator
 
 
-class TestDraft3UniqueTupleItems(UniqueTupleItemsMixin, unittest.TestCase):
+class TestDraft3UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
     validator_class = Draft3Validator
 
 

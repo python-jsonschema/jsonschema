@@ -17,6 +17,7 @@ import os
 import re
 import subprocess
 import sys
+import unittest
 
 try:
     from sys import pypy_version_info
@@ -29,7 +30,7 @@ from jsonschema import (
     draft4_format_checker, validate,
 )
 from jsonschema.compat import PY3
-from jsonschema.tests.compat import mock, unittest
+from jsonschema.tests.compat import mock
 import jsonschema
 
 
