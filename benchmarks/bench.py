@@ -12,7 +12,10 @@ Example benchmark:
 from __future__ import print_function
 import argparse
 import cProfile
-import json
+try:
+    import ujson as json
+except:
+    import json
 import time
 
 import jsonschema

@@ -1,7 +1,10 @@
 from __future__ import division
 
 import contextlib
-import json
+try:
+    import ujson as json
+except:
+    import json
 import numbers
 
 try:
