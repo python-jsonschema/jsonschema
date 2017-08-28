@@ -147,11 +147,16 @@ def _checks_drafts(both=None, draft3=None, draft4=None, raises=()):
     return wrap
 
 
+_email_re = re.compile(r"^[a-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$")
+
+
 @_checks_drafts("email")
 def is_email(instance):
     if not isinstance(instance, str_types):
         return True
-    return "@" in instance
+    if not _email_re.match(instance):
+        return False
+    return True
 
 
 _ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
