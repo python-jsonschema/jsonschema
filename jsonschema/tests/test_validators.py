@@ -1,7 +1,10 @@
 from collections import deque
 from contextlib import contextmanager
 from unittest import TestCase
-import json
+try:
+    import ujson as json
+except:
+    import json
 
 from jsonschema import FormatChecker, SchemaError, ValidationError
 from jsonschema.tests.compat import mock

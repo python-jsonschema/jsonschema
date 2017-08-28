@@ -10,7 +10,10 @@ See https://github.com/json-schema/JSON-Schema-Test-Suite for details.
 from contextlib import closing
 from decimal import Decimal
 import glob
-import json
+try:
+    import ujson as json
+except:
+    import json
 import io
 import itertools
 import os

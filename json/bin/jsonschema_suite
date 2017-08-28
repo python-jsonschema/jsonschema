@@ -18,7 +18,10 @@ except ImportError:
 
 import errno
 import fnmatch
-import json
+try:
+    import ujson as json
+except:
+    import json
 import os
 import random
 import shutil

@@ -1,6 +1,9 @@
 from __future__ import absolute_import
 import argparse
-import json
+try:
+    import ujson as json
+except:
+    import json
 import sys
 
 from jsonschema._reflect import namedAny

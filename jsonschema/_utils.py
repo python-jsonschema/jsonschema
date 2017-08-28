@@ -1,5 +1,8 @@
 import itertools
-import json
+try:
+    import ujson as json
+except:
+    import json
 import pkgutil
 import re
 
