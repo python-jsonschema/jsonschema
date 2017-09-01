@@ -152,7 +152,7 @@ more general instance checks can introduce significant slowdown, especially
 given how common validating these types are.
 
 If you *do* want the generality, or just want to add a few specific additional
-types as being acceptible for a validator object, :class:`IValidator`\s have a
+types as being acceptable for a validator object, :class:`IValidator`\s have a
 ``types`` argument that can be used to provide additional or new types.
 
 .. code-block:: python
