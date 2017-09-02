@@ -2,16 +2,16 @@ Performance benchmarks
 ======================
 
 These benchmark scripts make use of `Perf
-<https://perf.readthedocs.io>`_ to benchmark jsonschema validation.
+<https://perf.readthedocs.io>`_ to benchmark ``jsonschema`` validation.
 
 Basic usage
 -----------
 
-To benchmark the package ``perf`` is required:
+To benchmark the package ``perf`` is required (as is ``jsonschema`` itself):
 
 .. code-block:: bash
 
-    $ pip install perf
+    $ pip install perf jsonschema
     
 To run the test-suite benchmarks,
 
