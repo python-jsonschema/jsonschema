@@ -2,14 +2,16 @@
 """Benchmark the performance of jsonschema.
 
 This benchmarks jsonschema using every valid example in the
-jsonschema-test-suite, it will take some time to complete.
+JSON-Schema-Test-Suite. It will take some time to complete.
 """
+
 import os
 
-import jsonschema
 from perf import Runner
-
 from utils import load_json_test_cases, performance_test
+
+import jsonschema
+
 
 REPO_ROOT = os.path.join(os.path.dirname(jsonschema.__file__), os.path.pardir)
 SUITE = os.getenv("JSON_SCHEMA_TEST_SUITE", os.path.join(REPO_ROOT, "json"))

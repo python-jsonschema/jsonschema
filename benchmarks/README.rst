@@ -7,14 +7,19 @@ These benchmark scripts make use of `Perf
 Basic usage
 -----------
 
-To benchmark the package ``perf`` is required, ``pip install
-perf``. To run the test-suite benchmarks,
+To benchmark the package ``perf`` is required:
+
+.. code-block:: bash
+
+    $ pip install perf
+    
+To run the test-suite benchmarks,
 
 .. code-block:: bash
 
     $ python test_suite.py -o perf.json
 
-to compare against a reference run use,
+To compare against a reference run use,
 
 .. code-block:: bash
 
