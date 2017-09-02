@@ -30,7 +30,3 @@ def performance_test(runner, cases, validator_class):
     validate = partial(jsonschema.validate, cls=validator_class)
     for case in cases:
         runner.bench_func(case.name, validate, case.data, case.schema)
-
-
-if __name__ == "__main__":
-    main()
