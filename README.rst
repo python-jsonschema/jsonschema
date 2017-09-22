@@ -70,7 +70,7 @@ Running the Test Suite
 ----------------------
 
 If you have ``tox`` installed (perhaps via ``pip install tox`` or your
-package manager), running``tox`` in the directory of your source checkout will
+package manager), running ``tox`` in the directory of your source checkout will
 run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema``
 supports. Note that you'll need to have all of those versions installed in
 order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
