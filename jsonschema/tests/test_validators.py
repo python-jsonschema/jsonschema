@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, namedtuple
 from contextlib import contextmanager
 from unittest import TestCase
 import json
@@ -958,6 +958,39 @@ class TestDraft4UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
 
 class TestDraft3UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
     validator_class = Draft3Validator
+
+
+ParentTuple = namedtuple('ParentTuple', ['some_int', 'some_child'])
+ChildTuple = namedtuple('ChildTuple', ['some_string'])
+
+
+class TestNamedTuples(TestCase):
+    def setUp(self):
+        self.schema = {
+            'type': 'object',
+            'properties': {
+                'some_int': {
+                    'type': 'integer'
+                },
+                'some_child': {
+                    'type': 'object',
+                    'properties': {
+                        'some_string': {
+                            'type': 'string'
+                        }
+                    }
+                }
+            }
+        }
+        self.validator = Draft4Validator(self.schema)
+
+    def test_standard_case(self):
+        instance = {'some_int': 1, 'some_child': {'some_string': 'hi'}}
+        self.assertEqual(list(self.validator.iter_errors(instance)), [])
+
+    def test_tuple_case(self):
+        instance = ParentTuple(some_int=1, some_child=ChildTuple(some_string='hi'))
+        self.assertEqual(list(self.validator.iter_errors(instance)), [])
 
 
 def sorted_errors(errors):

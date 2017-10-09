@@ -60,7 +60,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):
     if default_types is None:
         default_types = {
             u"array": list, u"boolean": bool, u"integer": int_types,
-            u"null": type(None), u"number": numbers.Number, u"object": dict,
+            u"null": type(None), u"number": numbers.Number,
             u"string": str_types,
         }
 
@@ -135,7 +135,15 @@ def create(meta_schema, validators=(), version=None, default_types=None):
                 raise error
 
         def is_type(self, instance, type):
-            if type not in self._types:
+            if type == u"object":
+                if isinstance(instance, dict):
+                    return True
+                elif isinstance(instance, tuple) and \
+                        hasattr(instance.__class__, '_fields'):
+                    return True
+                else:
+                    return False
+            elif type not in self._types:
                 raise UnknownType(type, instance, self.schema)
             pytypes = self._types[type]
 
