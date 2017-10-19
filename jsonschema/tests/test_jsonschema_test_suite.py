@@ -19,11 +19,6 @@ import subprocess
 import sys
 import unittest
 
-try:
-    from sys import pypy_version_info
-except ImportError:
-    pypy_version_info = None
-
 from jsonschema import (
     FormatError, SchemaError, ValidationError, Draft3Validator,
     Draft4Validator, FormatChecker, draft3_format_checker,
@@ -159,13 +154,6 @@ def missing_format(checker):
         format = case["schema"].get("format")
         if format not in checker.checkers:
             return "Format checker {0!r} not found.".format(format)
-        elif (
-            format == "date-time" and
-            pypy_version_info is not None and
-            pypy_version_info[:2] <= (1, 9)
-        ):
-            # datetime.datetime is overzealous about typechecking in <=1.9
-            return "datetime.datetime is broken on this version of PyPy."
     return missing_format
 
 
