@@ -7,15 +7,7 @@ See https://github.com/json-schema/JSON-Schema-Test-Suite for details.
 
 """
 
-from contextlib import closing
 from decimal import Decimal
-import glob
-import json
-import io
-import itertools
-import os
-import re
-import subprocess
 import sys
 import unittest
 
@@ -27,7 +19,6 @@ from jsonschema import (
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock
 from jsonschema.tests._suite import Suite
-import jsonschema
 
 
 SUITE = Suite()
