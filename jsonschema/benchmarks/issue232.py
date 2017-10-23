@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """
-A performance benchmark using the example from issue #.
+A performance benchmark using the example from issue #232:
+
+https://github.com/Julian/jsonschema/pull/232
 
 """
 from bp.filepath import FilePath
@@ -12,9 +14,9 @@ import jsonschema
 
 
 collection = Collection(
-    path=FilePath(__file__).sibling("issue"),
+    path=FilePath(__file__).sibling("issue232"),
     remotes=m(),
-    name="issue",
+    name="issue232",
     validator=jsonschema.Draft4Validator,
 )
 
