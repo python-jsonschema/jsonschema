@@ -55,7 +55,7 @@ class Suite(object):
         return pvector(self.version(name=name) for name in validators)
 
     def version(self, name):
-        return _Version(
+        return Version(
             name=name,
             path=self._root.descendant(["tests", name]),
             validator=validators[name],
@@ -64,7 +64,7 @@ class Suite(object):
 
 
 @attr.s(hash=True)
-class _Version(object):
+class Version(object):
 
     _path = attr.ib()
     _remotes = attr.ib()
@@ -167,6 +167,12 @@ class _Test(object):
             resolver=resolver,
             **self._validate_kwargs
         )
+
+    def validate_ignoring_errors(self):
+        try:
+            self.validate()
+        except jsonschema.ValidationError:
+            pass
 
     def with_validate_kwargs(self, **kwargs):
         validate_kwargs = self._validate_kwargs.update(kwargs)

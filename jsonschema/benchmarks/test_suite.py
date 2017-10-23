@@ -7,17 +7,7 @@ JSON-Schema-Test-Suite. It will take some time to complete.
 """
 from perf import Runner
 
-from jsonschema import ValidationError
 from jsonschema.tests._suite import Suite
-
-
-def swallow_errors(test):
-    def func():
-        try:
-            test.validate()
-        except ValidationError:
-            pass
-    return func
 
 
 def main():
@@ -27,7 +17,7 @@ def main():
         for test in version.tests():
             runner.bench_func(
                 name=test.fully_qualified_name,
-                func=swallow_errors(test),
+                func=test.validate_ignoring_errors,
             )
 
 
