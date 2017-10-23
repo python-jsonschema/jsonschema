@@ -10,16 +10,5 @@ from perf import Runner
 from jsonschema.tests._suite import Suite
 
 
-def main():
-    runner = Runner()
-    suite = Suite()
-    for collection in suite.collections():
-        for test in collection.tests():
-            runner.bench_func(
-                name=test.fully_qualified_name,
-                func=test.validate_ignoring_errors,
-            )
-
-
 if __name__ == "__main__":
-    main()
+    Suite().benchmark(runner=Runner())

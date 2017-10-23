@@ -51,8 +51,9 @@ class Suite(object):
             for name, schema in json.loads(remotes).items()
         }
 
-    def collections(self):
-        return pvector(self.collection(name=name) for name in validators)
+    def benchmark(self, runner):
+        for name in validators:
+            self.collection(name=name).benchmark(runner=runner)
 
     def collection(self, name):
         return Collection(
@@ -71,6 +72,13 @@ class Collection(object):
 
     name = attr.ib()
     validator = attr.ib()
+
+    def benchmark(self, runner):
+        for test in self.tests():
+            runner.bench_func(
+                name=test.fully_qualified_name,
+                func=test.validate_ignoring_errors,
+            )
 
     def tests(self):
         return (
