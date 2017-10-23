@@ -51,11 +51,11 @@ class Suite(object):
             for name, schema in json.loads(remotes).items()
         }
 
-    def versions(self):
-        return pvector(self.version(name=name) for name in validators)
+    def collections(self):
+        return pvector(self.collection(name=name) for name in validators)
 
-    def version(self, name):
-        return Version(
+    def collection(self, name):
+        return Collection(
             name=name,
             path=self._root.descendant(["tests", name]),
             validator=validators[name],
@@ -64,7 +64,7 @@ class Suite(object):
 
 
 @attr.s(hash=True)
-class Version(object):
+class Collection(object):
 
     _path = attr.ib()
     _remotes = attr.ib()
@@ -98,7 +98,7 @@ class Version(object):
         for each in json.loads(path.getContent()):
             for test in each["tests"]:
                 yield _Test(
-                    version=self,
+                    collection=self,
                     subject=subject,
                     case_description=each["description"],
                     schema=each["schema"],
@@ -110,7 +110,7 @@ class Version(object):
 @attr.s(hash=True)
 class _Test(object):
 
-    version = attr.ib()
+    collection = attr.ib()
 
     subject = attr.ib()
     case_description = attr.ib()
@@ -128,7 +128,7 @@ class _Test(object):
     def fully_qualified_name(self):
         return " > ".join(
             [
-                self.version.name,
+                self.collection.name,
                 self.subject,
                 self.case_description,
                 self.description,
@@ -163,7 +163,7 @@ class _Test(object):
         jsonschema.validate(
             instance=self.data,
             schema=self.schema,
-            cls=self.version.validator,
+            cls=self.collection.validator,
             resolver=resolver,
             **self._validate_kwargs
         )

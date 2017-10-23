@@ -22,8 +22,8 @@ from jsonschema.tests._suite import Suite
 
 
 SUITE = Suite()
-DRAFT3 = SUITE.version(name="draft3")
-DRAFT4 = SUITE.version(name="draft4")
+DRAFT3 = SUITE.collection(name="draft3")
+DRAFT4 = SUITE.collection(name="draft4")
 
 
 def maybe_skip(skip, test_case, test):

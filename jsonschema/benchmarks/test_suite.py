@@ -13,8 +13,8 @@ from jsonschema.tests._suite import Suite
 def main():
     runner = Runner()
     suite = Suite()
-    for version in suite.versions():
-        for test in version.tests():
+    for collection in suite.collections():
+        for test in collection.tests():
             runner.bench_func(
                 name=test.fully_qualified_name,
                 func=test.validate_ignoring_errors,
