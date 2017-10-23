@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 from bp.filepath import FilePath
-from pyrsistent import pmap, pvector
+from pyrsistent import pmap
 import attr
 
 from jsonschema.compat import PY3
