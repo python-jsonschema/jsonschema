@@ -299,6 +299,22 @@ else:
         return jsonpointer.JsonPointer(instance)
 
 
+try:
+    import uritemplate.exceptions
+except ImportError:
+    pass
+else:
+    @_checks_drafts(
+        draft6="uri-template", raises=uritemplate.exceptions.InvalidTemplate,
+    )
+    def is_uri_template(
+        instance,
+        template_validator=uritemplate.Validator().force_balanced_braces(),
+    ):
+        template = uritemplate.URITemplate(instance)
+        return template_validator.validate(template)
+
+
 draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
 draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
 draft6_format_checker = FormatChecker(_draft_checkers["draft6"])
