@@ -287,6 +287,18 @@ else:
         return is_css_color_code(instance)
 
 
+try:
+    import jsonpointer
+except ImportError:
+    pass
+else:
+    @_checks_drafts(
+        draft6="json-pointer", raises=jsonpointer.JsonPointerException,
+    )
+    def is_json_pointer(instance):
+        return jsonpointer.JsonPointer(instance)
+
+
 draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
 draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
 draft6_format_checker = FormatChecker(_draft_checkers["draft6"])
