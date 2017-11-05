@@ -15,7 +15,10 @@ runTest(4);
 runTest(6);
 
 function runTest(draft) {
-  var opts = {format: 'full'};
+  var opts = {
+    format: 'full',
+    formats: {'json-pointer': /^(?:\/(?:[^~\/]|~0|~1)*)*$/}
+  };
   if (draft == 4) opts.meta = false;
   var ajv = new Ajv(opts);
   ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-04.json'));
