@@ -6,3 +6,10 @@ _static
 _templates
 
 TODO
+
+_trial_temp/
+.eggs/
+.tox/
+build/
+*.pyc
+*.egg-info
