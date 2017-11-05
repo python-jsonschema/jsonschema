@@ -56,7 +56,7 @@ def validates(version):
     return _validates
 
 
-def create(meta_schema, validators=(), version=None, default_types=None):
+def create(meta_schema, validators=(), version=None, default_types=None, scope_key="id"):
     if default_types is None:
         default_types = {
             u"array": list, u"boolean": bool, u"integer": int_types,
@@ -68,6 +68,7 @@ def create(meta_schema, validators=(), version=None, default_types=None):
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
         DEFAULT_TYPES = dict(default_types)
+        SCOPE_KEY = scope_key
 
         def __init__(
             self, schema, types=(), resolver=None, format_checker=None,
@@ -76,12 +77,13 @@ def create(meta_schema, validators=(), version=None, default_types=None):
             self._types.update(types)
 
             if resolver is None:
+                _schema = schema
                 if schema is True:
-                    resolver = RefResolver.from_schema({})
+                    _schema = {}
                 elif schema is False:
-                    resolver = RefResolver.from_schema({"not": {}})
-                else:
-                    resolver = RefResolver.from_schema(schema)
+                    _schema = {"not": {}}
+
+                resolver = RefResolver(_schema.get(scope_key, u""), _schema)
 
             self.resolver = resolver
             self.format_checker = format_checker
@@ -101,7 +103,8 @@ def create(meta_schema, validators=(), version=None, default_types=None):
             elif _schema is False:
                 _schema = {"not": {}}
 
-            scope = _schema.get(u"$id")
+            scope = _schema.get(scope_key)
+
             if scope:
                 self.resolver.push_scope(scope)
             try:
@@ -149,11 +152,8 @@ def create(meta_schema, validators=(), version=None, default_types=None):
                 raise UnknownType(type, instance, self.schema)
             pytypes = self._types[type]
 
-            # FIXME: draft < 6
-            if isinstance(instance, float) and type == "integer":
-                return instance.is_integer()
             # bool inherits from int, so ensure bools aren't reported as ints
-            elif isinstance(instance, bool):
+            if isinstance(instance, bool):
                 pytypes = _utils.flatten(pytypes)
                 is_number = any(
                     issubclass(pytype, numbers.Number) for pytype in pytypes
@@ -181,6 +181,7 @@ def extend(validator, validators, version=None):
         validators=all_validators,
         version=version,
         default_types=validator.DEFAULT_TYPES,
+        scope_key=validator.SCOPE_KEY
     )
 
 
@@ -279,10 +280,11 @@ Draft6Validator = create(
         u"properties": _validators.properties,
         u"propertyNames": _validators.propertyNames,
         u"required": _validators.required,
-        u"type": _validators.type,
+        u"type": _validators.type_draft6,
         u"uniqueItems": _validators.uniqueItems,
     },
     version="draft6",
+    scope_key="$id",
 )
 
 
@@ -356,7 +358,7 @@ class RefResolver(object):
         self._remote_cache = remote_cache
 
     @classmethod
-    def from_schema(cls, schema, *args, **kwargs):
+    def from_schema(cls, schema, scope_key="id", *args, **kwargs):
         """
         Construct a resolver from a JSON schema object.
 
@@ -366,13 +368,17 @@ class RefResolver(object):
 
                 the referring schema
 
+            scope_key:
+
+                the attribute used to adjust the scope
+
         Returns:
 
             :class:`RefResolver`
 
         """
 
-        return cls(schema.get(u"$id", u""), schema, *args, **kwargs)
+        return cls(schema.get(scope_key, u""), schema, *args, **kwargs)
 
     def push_scope(self, scope):
         self._scopes_stack.append(
@@ -458,7 +464,6 @@ class RefResolver(object):
                 a URI fragment to resolve within it
 
         """
-
         fragment = fragment.lstrip(u"/")
         parts = unquote(fragment).split(u"/") if fragment else []
 

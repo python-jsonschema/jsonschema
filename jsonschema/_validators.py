@@ -391,6 +391,15 @@ def type(validator, types, instance, schema):
         yield ValidationError(_utils.types_msg(instance, types))
 
 
+def type_draft6(validator, types, instance, schema):
+    # Draft 6 changes integer type to include floats with no fractional part
+    if isinstance(instance, float) and "integer" in types and instance.is_integer():
+        return
+
+    for e in type(validator, types, instance, schema):
+        yield e
+
+
 def properties(validator, properties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
