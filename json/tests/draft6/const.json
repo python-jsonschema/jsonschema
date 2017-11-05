@@ -47,6 +47,27 @@
         ]
     },
     {
+        "description": "const with array",
+        "schema": {"const": [{ "foo": "bar" }]},
+        "tests": [
+            {
+                "description": "same array is valid",
+                "data": [{"foo": "bar"}],
+                "valid": true
+            },
+            {
+                "description": "another array item is invalid",
+                "data": [2],
+                "valid": false
+            },
+            {
+                "description": "array with additional items is invalid",
+                "data": [1, 2, 3],
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "const with null",
         "schema": {"const": null},
         "tests": [

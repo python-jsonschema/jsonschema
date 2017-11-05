@@ -155,6 +155,7 @@ for more information.
 ### PostgreSQL ###
 
 * [postgres-json-schema](https://github.com/gavinwahl/postgres-json-schema)
+* [is_jsonb_valid](https://github.com/furstenheim/is_jsonb_valid)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).
