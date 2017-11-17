@@ -299,6 +299,7 @@ class RefResolver(object):
         )
         self.store.update(store)
         self.store[base_uri] = referrer
+        self.subschema_store = self.extract_store_subschemas()
 
         self._urljoin_cache = urljoin_cache
         self._remote_cache = remote_cache
@@ -321,6 +322,14 @@ class RefResolver(object):
         """
 
         return cls(schema.get(u"id", u""), schema, *args, **kwargs)
+
+    def extract_store_subschemas(self):
+        subschemas = dict()
+        for base_id, schema in self.store.items():
+            subschemas[base_id] = {
+                subschema[u"id"].lstrip(u'#'): subschema for subschema in _utils.subschemas(schema)
+            }
+        return subschemas
 
     def push_scope(self, scope):
         self._scopes_stack.append(
@@ -407,6 +416,12 @@ class RefResolver(object):
 
         """
 
+        # First try looking up the fragment schema reference in the subschema_store.
+        try:
+            return self.subschema_store[document[u'id']][fragment]
+        except (KeyError, LookupError, TypeError):
+            pass
+
         fragment = fragment.lstrip(u"/")
         parts = unquote(fragment).split(u"/") if fragment else []
 
@@ -480,6 +495,9 @@ class RefResolver(object):
 
         if self.cache_remote:
             self.store[uri] = result
+            self.subschema_store[uri] = {
+                subschema[u"id"].lstrip(u'#'): subschema for subschema in _utils.subschemas(result)
+            }
         return result
 
 

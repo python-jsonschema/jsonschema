@@ -897,7 +897,8 @@ class TestRefResolver(TestCase):
 
     def test_cache_remote_on(self):
         ref = "foo://bar"
-        foo_handler = mock.Mock()
+        foo_handler = mock.MagicMock(spec=dict())
+        foo_handler.__getitem__.side_effect = ''
         resolver = RefResolver(
             "", {}, cache_remote=True, handlers={"foo": foo_handler},
         )
@@ -909,7 +910,8 @@ class TestRefResolver(TestCase):
 
     def test_cache_remote_off(self):
         ref = "foo://bar"
-        foo_handler = mock.Mock()
+        foo_handler = mock.MagicMock(spec=dict())
+        foo_handler.__getitem__.side_effect = ''
         resolver = RefResolver(
             "", {}, cache_remote=False, handlers={"foo": foo_handler},
         )

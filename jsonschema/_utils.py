@@ -215,3 +215,42 @@ def uniq(container):
                     return False
                 seen.append(e)
     return True
+
+
+def subschemas(schema, key=u'id'):
+    """
+        Finds all explicitly identified (sub)schemas contained in the provided ``schema``, including the root schema.
+        The optional ``key`` parameter is to allow for easier interop between draft-03/04 and draft-06+.
+
+        Arguments:
+
+            schema (dict):
+
+                The schema to extract all constituent (sub)schemas from.
+
+            key (str):
+
+                The keyword used to define a URI reference for a schema. id for draft-03/04 and $id for draft-06+.
+
+        Returns:
+
+            list: A list of the (sub)schemas defined within the provided ``schema``.
+
+        """
+    schemas = list()
+    if not isinstance(schema, dict):
+        return schemas
+    schema_id = schema.get(key, None)
+    if schema_id is not None and isinstance(schema_id, str_types):
+        schemas.append(schema)
+    for key, value in schema.items():
+        # Recurse if the value is a dictionary.
+        if isinstance(value, dict):
+            schemas.extend(subschemas(value))
+        # Check all list members. We don't have to worry about iterables due to raw schema type mapping.
+        if isinstance(value, list):
+            for item in value:
+                # Recurse if the value is a dictionary.
+                if isinstance(item, dict):
+                    schemas.extend(subschemas(item))
+    return schemas
