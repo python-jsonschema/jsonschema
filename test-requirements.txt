@@ -1,4 +1,4 @@
+git+https://github.com/Julian/betterpath#egg=betterpath
 attrs
-betterpath
 mock
 pyrsistent
