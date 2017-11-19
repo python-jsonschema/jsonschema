@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 extras_require = {
-    "format" : ["rfc3987", "strict-rfc3339", "webcolors"],
+    "format": ["rfc3987", "strict-rfc3339", "webcolors"],
     ":python_version=='2.7'": ["functools32"],
 }
 
@@ -42,5 +42,5 @@ setup(
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
     entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
-    vcversioner={"version_module_paths" : ["jsonschema/_version.py"]},
+    vcversioner={"version_module_paths": ["jsonschema/_version.py"]},
 )
