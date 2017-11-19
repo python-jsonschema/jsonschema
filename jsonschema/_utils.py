@@ -101,7 +101,9 @@ def find_additional_properties(instance, schema):
     patterns = "|".join(schema.get("patternProperties", {}))
     for property in instance:
         if property not in properties:
-            if patterns and re.search(patterns, property):
+            if (patterns and
+                    isinstance(property, str_types) and
+                    re.search(patterns, property)):
                 continue
             yield property
 
