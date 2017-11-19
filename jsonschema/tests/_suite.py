@@ -48,7 +48,7 @@ class Suite(object):
         )
         return {
             "http://localhost:1234/" + name: schema
-            for name, schema in json.loads(remotes).items()
+            for name, schema in json.loads(remotes.decode("utf-8")).items()
         }
 
     def benchmark(self, runner):
@@ -103,7 +103,7 @@ class Collection(object):
         )
 
     def _tests_in(self, subject, path):
-        for each in json.loads(path.getContent()):
+        for each in json.loads(path.getContent().decode("utf-8")):
             for test in each["tests"]:
                 yield _Test(
                     collection=self,
