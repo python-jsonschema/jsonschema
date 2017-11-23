@@ -72,8 +72,19 @@ def create(meta_schema, validators=(), version=None, default_types=None):
         def __init__(
             self, schema, types=(), resolver=None, format_checker=None,
         ):
-            self._types = dict(self.DEFAULT_TYPES)
-            self._types.update(types)
+            _types = dict(self.DEFAULT_TYPES)
+            _types.update(types)
+
+            # prepare types
+            self._types = {}
+            for type_key, pytypes in _types.items():
+                pytypes = _utils.flatten(pytypes)
+                self._types[type_key] = {
+                    "pytypes": pytypes,
+                    "is_non_bool_number": any(
+                        issubclass(type_, numbers.Number) for type_ in pytypes
+                    ) and bool not in pytypes
+                }
 
             if resolver is None:
                 resolver = RefResolver.from_schema(schema)
@@ -135,19 +146,15 @@ def create(meta_schema, validators=(), version=None, default_types=None):
                 raise error
 
         def is_type(self, instance, type):
-            if type not in self._types:
+            try:
+                types_ = self._types[type]
+            except KeyError:
                 raise UnknownType(type, instance, self.schema)
-            pytypes = self._types[type]
 
             # bool inherits from int, so ensure bools aren't reported as ints
-            if isinstance(instance, bool):
-                pytypes = _utils.flatten(pytypes)
-                is_number = any(
-                    issubclass(pytype, numbers.Number) for pytype in pytypes
-                )
-                if is_number and bool not in pytypes:
-                    return False
-            return isinstance(instance, pytypes)
+            if isinstance(instance, bool) and types_["is_non_bool_number"]:
+                return False
+            return isinstance(instance, types_["pytypes"])
 
         def is_valid(self, instance, _schema=None):
             error = next(self.iter_errors(instance, _schema), None)
