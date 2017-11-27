@@ -47,6 +47,7 @@ Contents:
     references
     creating
     faq
+    types
 
 
 Indices and tables

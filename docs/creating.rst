@@ -29,10 +29,16 @@ Creating or Extending Validator Classes
         will have :func:`validates` automatically called for the given
         version.
 
-    :argument dict default_types: a default mapping to use for instances
-        of the validator class when mapping between JSON types to Python
-        types. The default for this argument is probably fine. Instances
-        can still have their types customized on a per-instance basis.
+    :argument dict default_types: Deprecated. Please use the type_checker
+        argument instead.
+
+        If set, it provides mappings of JSON types to Python types that will
+        be converted to functions and redefined in this object's TypeChecker
+
+    :argument jsonschema.TypeChecker type_checker: an instance
+        of :class:`TypeChecker`, whose :meth:`is_type` will be called to
+        validate the :validator:`type` property If unprovided, a default
+        :class:`TypeChecker` will be created, with no support types.
 
     :returns: a new :class:`jsonschema.IValidator` class
 
@@ -58,6 +64,10 @@ Creating or Extending Validator Classes
             ``OldValidator.VALIDATORS["validator_name"]``.
 
     :argument str version: a version for the new validator class
+
+    :argument jsonschema.TypeChecker type_checker: an instance
+        of :class:`TypeChecker`. If unprovided, the existing
+        :class:`TypeChecker` will be used.
 
     :returns: a new :class:`jsonschema.IValidator` class
 

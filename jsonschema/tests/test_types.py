@@ -57,12 +57,12 @@ class TestTypeChecker(TestCase):
 
     def test_initialised_empty(self):
         tc = _types.TypeChecker()
-        self.assertEqual(len(tc.type_checkers), 0)
+        self.assertEqual(len(tc._type_checkers), 0)
 
     def test_checks_can_be_added(self):
         tc = _types.TypeChecker()
         tc = tc.redefine("integer", _types.is_integer)
-        self.assertEqual(len(tc.type_checkers), 1)
+        self.assertEqual(len(tc._type_checkers), 1)
 
     def test_added_checks_are_accessible(self):
         tc = _types.TypeChecker()
@@ -74,9 +74,9 @@ class TestTypeChecker(TestCase):
     def test_checks_can_be_redefined(self):
         tc = _types.TypeChecker()
         tc = tc.redefine("integer", _types.is_integer)
-        self.assertEqual(tc.type_checkers["integer"], _types.is_integer)
+        self.assertEqual(tc._type_checkers["integer"], _types.is_integer)
         tc = tc.redefine("integer", _types.is_string)
-        self.assertEqual(tc.type_checkers["integer"], _types.is_string)
+        self.assertEqual(tc._type_checkers["integer"], _types.is_string)
 
     def test_checks_can_be_removed(self):
         tc = _types.TypeChecker()
@@ -89,10 +89,10 @@ class TestTypeChecker(TestCase):
     def test_changes_do_not_affect_original(self):
         tc = _types.TypeChecker()
         tc2 = tc.redefine("integer", _types.is_integer)
-        self.assertEqual(len(tc.type_checkers), 0)
+        self.assertEqual(len(tc._type_checkers), 0)
 
         tc3 = tc2.remove("integer")
-        self.assertEqual(len(tc2.type_checkers), 1)
+        self.assertEqual(len(tc2._type_checkers), 1)
 
     def test_many_checks_can_be_added(self):
         tc = _types.TypeChecker()
@@ -101,7 +101,7 @@ class TestTypeChecker(TestCase):
             "string": _types.is_string
         })
 
-        self.assertEqual(len(tc.type_checkers), 2)
+        self.assertEqual(len(tc._type_checkers), 2)
 
     def test_many_checks_can_be_removed(self):
         tc = _types.TypeChecker()
@@ -112,7 +112,7 @@ class TestTypeChecker(TestCase):
 
         tc = tc.remove_many(("integer", "string"))
 
-        self.assertEqual(len(tc.type_checkers), 0)
+        self.assertEqual(len(tc._type_checkers), 0)
 
 
 class TestCustomTypes(TestCase):

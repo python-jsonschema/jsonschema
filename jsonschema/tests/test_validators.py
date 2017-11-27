@@ -105,7 +105,7 @@ class TestLegacyTypeCheckCreation(TestCase):
 
         self.assertEqual(set(Validator.DEFAULT_TYPES), expected_types)
 
-        self.assertEqual(set(Validator.TYPE_CHECKER.type_checkers),
+        self.assertEqual(set(Validator.TYPE_CHECKER._type_checkers),
                          expected_types)
 
     def test_default_types_update_type_checker(self):
@@ -120,7 +120,7 @@ class TestLegacyTypeCheckCreation(TestCase):
 
         self.assertEqual(set(Validator.DEFAULT_TYPES), {u"array"})
 
-        self.assertEqual(set(Validator.TYPE_CHECKER.type_checkers),
+        self.assertEqual(set(Validator.TYPE_CHECKER._type_checkers),
                          {u"array", u"integer"})
 
     def test_types_update_type_checker(self):
@@ -133,10 +133,10 @@ class TestLegacyTypeCheckCreation(TestCase):
         )
 
         v = Validator({})
-        self.assertEqual(set(v.type_checker.type_checkers), {u"integer"})
+        self.assertEqual(set(v.type_checker._type_checkers), {u"integer"})
 
         v = Validator({}, types={u"array": list})
-        self.assertEqual(set(v.type_checker.type_checkers), {u"integer",
+        self.assertEqual(set(v.type_checker._type_checkers), {u"integer",
                                                              u"array"})
 
 

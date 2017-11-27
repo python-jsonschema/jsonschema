@@ -52,18 +52,21 @@ class TypeChecker(object):
 
     A :class:`TypeChecker` performs type checking for an instance of
     :class:`Validator`. Type checks to perform are set using
-    :meth:`TypeChecker.redefine or :meth:`TypeChecker.redefine_many` and
+    :meth:`TypeChecker.redefine` or :meth:`TypeChecker.redefine_many` and
     removed via :meth:`TypeChecker.remove` or
     :meth:`TypeChecker.remove_many`. Each of these return a new
     :class:`TypeChecker` object.
 
     Arguments:
 
-        None
-    """
-    type_checkers = attr.ib(default=pyrsistent.pmap({}))
+        type_checkers (pyrsistent.pmap):
 
-    def is_type(self, instance, type_):
+            It is recommend to set type checkers through
+            :meth:`TypeChecker.redefine` or :meth:`TypeChecker.redefine_many`
+    """
+    _type_checkers = attr.ib(default=pyrsistent.pmap({}))
+
+    def is_type(self, instance, type):
         """
         Check if the instance is of the appropriate type.
 
@@ -73,7 +76,7 @@ class TypeChecker(object):
 
                 The instance to check
 
-            type_ (str):
+            type (str):
 
                 The name of the type that is expected.
 
@@ -84,21 +87,21 @@ class TypeChecker(object):
 
         Raises:
 
-            :exc:`UndefinedTypeCheck` if type_ is unknown to this object.
-
+            :exc:`jsonschema.exceptions.UndefinedTypeCheck`:
+                if type is unknown to this object.
         """
         try:
-            return self.type_checkers[type_](instance)
+            return self._type_checkers[type](instance)
         except KeyError:
             raise UndefinedTypeCheck
 
-    def redefine(self, type_, fn):
+    def redefine(self, type, fn):
         """
-        Redefine the checker for type_ to the function fn.
+        Redefine the checker for type to the function fn.
 
         Arguments:
 
-            type_ (str):
+            type (str):
 
                 The name of the type to check.
 
@@ -112,7 +115,7 @@ class TypeChecker(object):
             A new :class:`TypeChecker` instance.
 
         """
-        return self.redefine_many({type_:fn})
+        return self.redefine_many({type:fn})
 
     def redefine_many(self, definitions=()):
         """
@@ -130,20 +133,20 @@ class TypeChecker(object):
 
         """
         definitions = dict(definitions)
-        evolver = self.type_checkers.evolver()
+        evolver = self._type_checkers.evolver()
 
         for type_, checker in iteritems(definitions):
             evolver[type_] = checker
 
         return attr.evolve(self, type_checkers=evolver.persistent())
 
-    def remove(self, type_):
+    def remove(self, type):
         """
         Remove the type from the checkers that this object understands.
 
         Arguments:
 
-            type_ (str):
+            type (str):
 
                 The name of the type to remove.
 
@@ -153,10 +156,11 @@ class TypeChecker(object):
 
         Raises:
 
-            :exc:`UndefinedTypeCheck` if type_ is unknown to this object
+            :exc:`jsonschema.exceptions.UndefinedTypeCheck`:
+                if type is unknown to this object
 
         """
-        return self.remove_many((type_,))
+        return self.remove_many((type,))
 
     def remove_many(self, types):
         """
@@ -174,11 +178,10 @@ class TypeChecker(object):
 
         Raises:
 
-            :exc:`UndefinedTypeCheck` if any of the types are unknown to
-            this object
-
+            :exc:`jsonschema.exceptions.UndefinedTypeCheck`:
+                if any of the types are unknown to this object
         """
-        evolver = self.type_checkers.evolver()
+        evolver = self._type_checkers.evolver()
 
         for type_ in types:
             try:
