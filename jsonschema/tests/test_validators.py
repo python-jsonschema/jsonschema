@@ -3,11 +3,14 @@ from contextlib import contextmanager
 from unittest import TestCase
 import json
 
-from jsonschema import FormatChecker, SchemaError, ValidationError
+from jsonschema import (
+    FormatChecker, SchemaError, ValidationError, TypeChecker, _types
+)
 from jsonschema.tests.compat import mock
 from jsonschema.validators import (
     RefResolutionError, UnknownType, Draft3Validator,
     Draft4Validator, RefResolver, create, extend, validator_for, validate,
+    _generate_legacy_type_checks
 )
 
 
@@ -16,11 +19,11 @@ class TestCreateAndExtend(TestCase):
         self.meta_schema = {u"properties": {u"smelly": {}}}
         self.smelly = mock.MagicMock()
         self.validators = {u"smelly": self.smelly}
-        self.types = {u"dict": dict}
+        self.type_checker = TypeChecker()
         self.Validator = create(
             meta_schema=self.meta_schema,
             validators=self.validators,
-            default_types=self.types,
+            type_checker=self.type_checker
         )
 
         self.validator_value = 12
@@ -30,7 +33,8 @@ class TestCreateAndExtend(TestCase):
     def test_attrs(self):
         self.assertEqual(self.Validator.VALIDATORS, self.validators)
         self.assertEqual(self.Validator.META_SCHEMA, self.meta_schema)
-        self.assertEqual(self.Validator.DEFAULT_TYPES, self.types)
+        self.assertEqual(self.Validator.TYPE_CHECKER, self.type_checker)
+        self.assertEqual(self.Validator.DEFAULT_TYPES, {})
 
     def test_init(self):
         self.assertEqual(self.validator.schema, self.schema)
@@ -73,6 +77,67 @@ class TestCreateAndExtend(TestCase):
 
         self.assertEqual(Extended.META_SCHEMA, self.Validator.META_SCHEMA)
         self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
+        self.assertEqual(Extended.TYPE_CHECKER, self.Validator.TYPE_CHECKER)
+
+
+class TestLegacyTypeCheckCreation(TestCase):
+    def setUp(self):
+        self.meta_schema = {u"properties": {u"smelly": {}}}
+        self.smelly = mock.MagicMock()
+        self.validators = {u"smelly": self.smelly}
+
+    def test_empty_dict_is_default(self):
+        definitions = _generate_legacy_type_checks()
+        self.assertEqual(definitions, {})
+
+    def test_functions_are_created(self):
+        definitions = _generate_legacy_type_checks({"object": dict})
+        self.assertTrue(callable(definitions["object"]))
+
+    def test_default_types_used_if_no_type_checker_given(self):
+        Validator = create(
+            meta_schema=self.meta_schema,
+            validators=self.validators,
+        )
+
+        expected_types = {u"array", u"boolean", u"integer", u"null", u"number",
+                          u"object", u"string"}
+
+        self.assertEqual(set(Validator.DEFAULT_TYPES), expected_types)
+
+        self.assertEqual(set(Validator.TYPE_CHECKER.type_checkers),
+                         expected_types)
+
+    def test_default_types_update_type_checker(self):
+        tc = TypeChecker()
+        tc = tc.redefine(u"integer", _types.is_integer)
+        Validator = create(
+            meta_schema=self.meta_schema,
+            validators=self.validators,
+            type_checker=tc,
+            default_types={u"array": list}
+        )
+
+        self.assertEqual(set(Validator.DEFAULT_TYPES), {u"array"})
+
+        self.assertEqual(set(Validator.TYPE_CHECKER.type_checkers),
+                         {u"array", u"integer"})
+
+    def test_types_update_type_checker(self):
+        tc = TypeChecker()
+        tc = tc.redefine(u"integer", _types.is_integer)
+        Validator = create(
+            meta_schema=self.meta_schema,
+            validators=self.validators,
+            type_checker=tc,
+        )
+
+        v = Validator({})
+        self.assertEqual(set(v.type_checker.type_checkers), {u"integer"})
+
+        v = Validator({}, types={u"array": list})
+        self.assertEqual(set(v.type_checker.type_checkers), {u"integer",
+                                                             u"array"})
 
 
 class TestIterErrors(TestCase):

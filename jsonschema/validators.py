@@ -3,18 +3,21 @@ from __future__ import division
 import contextlib
 import json
 import numbers
+from warnings import warn
 
 try:
     import requests
 except ImportError:
     requests = None
 
-from jsonschema import _utils, _validators
+from jsonschema import _utils, _validators, _types
 from jsonschema.compat import (
     Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
     str_types, int_types, iteritems, lru_cache,
 )
-from jsonschema.exceptions import RefResolutionError, SchemaError, UnknownType
+from jsonschema.exceptions import (
+    RefResolutionError, SchemaError, UnknownType, UndefinedTypeCheck
+)
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
 #       https://github.com/pyga/ebb-lint/issues/7
@@ -56,24 +59,80 @@ def validates(version):
     return _validates
 
 
-def create(meta_schema, validators=(), version=None, default_types=None):
-    if default_types is None:
+def _generate_legacy_type_checks(types=()):
+    """
+    Generate type check definitions suitable for TypeChecker.redefine_many,
+    using the supplied types. Type Checks are simple isinstance checks,
+    except checking that numbers aren't really bools.
+
+    Arguments:
+
+        types (dict):
+
+            A mapping of type names to their Python Types
+
+    Returns:
+
+        A dictionary of definitions to pass to TypeChecker
+
+    """
+    types = dict(types)
+
+    def gen_type_check(pytypes):
+        pytypes = _utils.flatten(pytypes)
+
+        def type_check(instance):
+            if isinstance(instance, bool):
+                if bool not in pytypes:
+                    return False
+            return isinstance(instance, pytypes)
+
+        return type_check
+
+    definitions = {}
+    for typename, pytypes in iteritems(types):
+        definitions[typename] = gen_type_check(pytypes)
+
+    return definitions
+
+
+def create(meta_schema, validators=(), version=None, default_types=(),
+           type_checker=None):
+
+    if not default_types and not type_checker:
+        warn("default_types is deprecated, use type_checker",
+             DeprecationWarning)
         default_types = {
             u"array": list, u"boolean": bool, u"integer": int_types,
             u"null": type(None), u"number": numbers.Number, u"object": dict,
             u"string": str_types,
         }
 
+    if type_checker is None:
+        type_checker = _types.TypeChecker()
+
+    type_checker = type_checker.redefine_many(
+        _generate_legacy_type_checks(default_types))
+
+
     class Validator(object):
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
         DEFAULT_TYPES = dict(default_types)
+        TYPE_CHECKER = type_checker
+
 
         def __init__(
-            self, schema, types=(), resolver=None, format_checker=None,
-        ):
-            self._types = dict(self.DEFAULT_TYPES)
-            self._types.update(types)
+            self, schema, types=(), resolver=None, format_checker=None):
+
+            if types:
+                warn("The use of types is deprecated, use type_checker in "
+                     "create",
+                     DeprecationWarning)
+
+            self.type_checker = self.TYPE_CHECKER.redefine_many(
+                _generate_legacy_type_checks(types))
+
 
             if resolver is None:
                 resolver = RefResolver.from_schema(schema)
@@ -135,19 +194,10 @@ def create(meta_schema, validators=(), version=None, default_types=None):
                 raise error
 
         def is_type(self, instance, type):
-            if type not in self._types:
+            try:
+                return self.type_checker.is_type(instance, type)
+            except UndefinedTypeCheck:
                 raise UnknownType(type, instance, self.schema)
-            pytypes = self._types[type]
-
-            # bool inherits from int, so ensure bools aren't reported as ints
-            if isinstance(instance, bool):
-                pytypes = _utils.flatten(pytypes)
-                is_number = any(
-                    issubclass(pytype, numbers.Number) for pytype in pytypes
-                )
-                if is_number and bool not in pytypes:
-                    return False
-            return isinstance(instance, pytypes)
 
         def is_valid(self, instance, _schema=None):
             error = next(self.iter_errors(instance, _schema), None)
@@ -160,16 +210,20 @@ def create(meta_schema, validators=(), version=None, default_types=None):
     return Validator
 
 
-def extend(validator, validators, version=None):
+def extend(validator, validators=(), version=None, type_checker=None):
     all_validators = dict(validator.VALIDATORS)
     all_validators.update(validators)
+
+    if not type_checker:
+        type_checker = validator.TYPE_CHECKER
+
     return create(
         meta_schema=validator.META_SCHEMA,
         validators=all_validators,
         version=version,
         default_types=validator.DEFAULT_TYPES,
+        type_checker=type_checker
     )
-
 
 Draft3Validator = create(
     meta_schema=_utils.load_schema("draft3"),
@@ -197,6 +251,7 @@ Draft3Validator = create(
         u"type": _validators.type_draft3,
         u"uniqueItems": _validators.uniqueItems,
     },
+    type_checker=_types.draft3_type_checker,
     version="draft3",
 )
 
@@ -230,6 +285,7 @@ Draft4Validator = create(
         u"type": _validators.type_draft4,
         u"uniqueItems": _validators.uniqueItems,
     },
+    type_checker=_types.draft4_type_checker,
     version="draft4",
 )
 

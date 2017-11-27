@@ -28,7 +28,7 @@ else:
     )
     from urllib import unquote  # noqa
     from urllib2 import urlopen  # noqa
-    str_types = basestring
+    str_types = basestring,
     int_types = int, long
     iteritems = operator.methodcaller("iteritems")
 

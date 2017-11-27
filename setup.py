@@ -32,6 +32,7 @@ setup(
     name="jsonschema",
     packages=["jsonschema", "jsonschema.tests"],
     package_data={"jsonschema": ["schemas/*.json"]},
+    install_requires=["attrs>=17.3.0", "pyrsistent>=0.14.0"],
     setup_requires=["vcversioner>=2.16.0.0"],
     extras_require=extras_require,
     author="Julian Berman",

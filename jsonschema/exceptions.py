@@ -140,6 +140,9 @@ class RefResolutionError(Exception):
     pass
 
 
+class UndefinedTypeCheck(Exception):
+    pass
+
 class UnknownType(Exception):
     def __init__(self, type, instance, schema):
         self.type = type
