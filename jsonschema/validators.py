@@ -5,6 +5,8 @@ import json
 import numbers
 from warnings import warn
 
+from six import add_metaclass
+
 try:
     import requests
 except ImportError:
@@ -95,13 +97,24 @@ def _generate_legacy_type_checks(types=()):
 
     return definitions
 
+class ValidatorMetaClass(type):
+    @property
+    def DEFAULT_TYPES(self):
+        warn("DEFAULT_TYPES is deprecated, use type_checker",
+             DeprecationWarning)
+        return self._DEFAULT_TYPES
 
-def create(meta_schema, validators=(), version=None, default_types=(),
+
+def create(meta_schema, validators=(), version=None, default_types=None,
            type_checker=None):
 
-    if not default_types and not type_checker:
+    use_default_types=False
+    if default_types is not None or type_checker is None:
+        use_default_types = True
         warn("default_types is deprecated, use type_checker",
              DeprecationWarning)
+
+    if default_types is None:
         default_types = {
             u"array": list, u"boolean": bool, u"integer": int_types,
             u"null": type(None), u"number": numbers.Number, u"object": dict,
@@ -111,16 +124,16 @@ def create(meta_schema, validators=(), version=None, default_types=(),
     if type_checker is None:
         type_checker = _types.TypeChecker()
 
-    type_checker = type_checker.redefine_many(
-        _generate_legacy_type_checks(default_types))
+    if use_default_types:
+        type_checker = type_checker.redefine_many(
+            _generate_legacy_type_checks(default_types))
 
-
+    @add_metaclass(ValidatorMetaClass)
     class Validator(object):
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
-        DEFAULT_TYPES = dict(default_types)
+        _DEFAULT_TYPES = dict(default_types)
         TYPE_CHECKER = type_checker
-
 
         def __init__(
             self, schema, types=(), resolver=None, format_checker=None):
@@ -217,13 +230,18 @@ def extend(validator, validators=(), version=None, type_checker=None):
     if not type_checker:
         type_checker = validator.TYPE_CHECKER
 
-    return create(
+    # Set the default_types to None during class creation to avoid
+    # overwriting the type checker (and triggering the deprecation warning).
+    # Then set them directly
+    new_validator_cls = create(
         meta_schema=validator.META_SCHEMA,
         validators=all_validators,
         version=version,
-        default_types=validator.DEFAULT_TYPES,
+        default_types=None,
         type_checker=type_checker
     )
+    new_validator_cls._DEFAULT_TYPES = validator._DEFAULT_TYPES
+    return new_validator_cls
 
 Draft3Validator = create(
     meta_schema=_utils.load_schema("draft3"),
