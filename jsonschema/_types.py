@@ -51,7 +51,7 @@ class TypeChecker(object):
     A ``type`` property checker.
 
     A :class:`TypeChecker` performs type checking for an instance of
-    :class:`Validator`. Type checks to perform are updated using
+    :class:`Validator`. Type checks to perform are set using
     :meth:`TypeChecker.redefine` or :meth:`TypeChecker.redefine_many` and
     removed via :meth:`TypeChecker.remove` or
     :meth:`TypeChecker.remove_many`. Each of these return a new
@@ -59,15 +59,12 @@ class TypeChecker(object):
 
     Arguments:
 
-        type_checkers (dict):
+        type_checkers (pyrsistent.pmap):
 
-            The initial mapping of types to their checking functions.
+            It is recommend to set type checkers through
+            :meth:`TypeChecker.redefine` or :meth:`TypeChecker.redefine_many`
     """
-    _type_checkers = attr.ib(default=())
-
-    def __attrs_post_init__(self):
-        object.__setattr__(self, "_type_checkers",
-                           pyrsistent.pmap(dict(self._type_checkers)))
+    _type_checkers = attr.ib(default=pyrsistent.pmap({}))
 
     def is_type(self, instance, type):
         """
@@ -195,7 +192,7 @@ class TypeChecker(object):
         return attr.evolve(self, type_checkers=evolver.persistent())
 
 
-draft3_type_checker = TypeChecker({
+draft3_type_checker = TypeChecker().redefine_many({
     u"any": is_any,
     u"array": is_array,
     u"boolean": is_bool,
