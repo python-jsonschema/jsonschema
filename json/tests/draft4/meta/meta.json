@@ -1,0 +1,105 @@
+[
+  {
+    "description": "invalid type",
+    "tests": [
+      {
+        "description": "is float",
+        "schema": {
+          "type": "float"
+        }
+      },
+      {
+        "description": "contains duplicate",
+        "schema": {
+          "type": [
+            "null",
+            "null"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "description": "invalid enum",
+    "tests": [
+      {
+        "description": "not array",
+        "schema": {
+          "enum": "not_an_array"
+        }
+      },
+      {
+        "description": "empty array",
+        "schema": {
+          "enum": []
+        }
+      },
+      {
+        "description": "contains duplicate",
+        "schema": {
+          "enum": [
+            "not_unique",
+            "not_unique"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "description": "invalid multipleOf",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "multipleOf": "one"
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "multipleOf": null
+        }
+      },
+      {
+        "description": "is not greater than zero",
+        "schema": {
+          "multipleOf": 0
+        }
+      }
+    ]
+  },
+  {
+    "description": "invalid maximum",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "multipleOf": "one"
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "multipleOf": null
+        }
+      }
+    ]
+  },
+  {
+    "description": "invalid exclusiveMaximum",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "multipleOf": "one"
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "multipleOf": null
+        }
+      }
+    ]
+  }
+]

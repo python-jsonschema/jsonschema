@@ -120,6 +120,31 @@ def load_json_cases(tests_glob, ignore_glob="", basedir=TESTS_DIR, skip=None):
     return add_test_methods
 
 
+def load_meta_cases(meta_tests_file, basedir=TESTS_DIR):
+    def add_test_methods(test_class):
+        with open(os.path.join(basedir, meta_tests_file)) as test_file:
+            for case in json.load(test_file):
+                for (idx, test) in enumerate(case["tests"]):
+                    name = "test_meta_%s_%s_%s" % (
+                        case["description"],
+                        idx,
+                        re.sub(r"[\W ]+", "_", test["description"]),
+                    )
+                    assert not hasattr(test_class, name), name
+                    test_method = create_meta_test(test["schema"])
+                    setattr(test_class, name, test_method)
+        return test_class
+    return add_test_methods
+
+
+def create_meta_test(schema):
+    def test(self):
+        kwargs = getattr(self, "validator_kwargs", {})
+        with self.assertRaises(SchemaError):
+            validate({}, schema, cls=self.validator_class, **kwargs)
+    return test
+
+
 def skip_tests_containing_descriptions(descriptions_and_reasons):
     def skipper(case, test):
         return next(
@@ -275,21 +300,10 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 )
 @load_json_cases("draft4/optional/bignum.json")
 @load_json_cases("draft4/optional/zeroTerminatedFloats.json")
+@load_meta_cases("draft4/meta/meta.json")
 class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     validator_class = Draft4Validator
     validator_kwargs = {"format_checker": draft4_format_checker}
-
-    # TODO: we're in need of more meta schema tests
-    def test_invalid_properties(self):
-        with self.assertRaises(SchemaError):
-            validate({}, {"properties": {"test": True}},
-                     cls=self.validator_class)
-
-    def test_minItems_invalid_string(self):
-        with self.assertRaises(SchemaError):
-            # needs to be an integer
-            validate([1], {"minItems": "1"}, cls=self.validator_class)
-
 
 class RemoteRefResolutionMixin(object):
     def setUp(self):
