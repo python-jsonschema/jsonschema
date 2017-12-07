@@ -126,7 +126,7 @@ def load_meta_cases(meta_tests_file, basedir=TESTS_DIR):
             for case in json.load(test_file):
                 for (idx, test) in enumerate(case["tests"]):
                     name = "test_meta_%s_%s_%s" % (
-                        case["description"],
+                        re.sub(r"[\W ]+", "_", case["description"]),
                         idx,
                         re.sub(r"[\W ]+", "_", test["description"]),
                     )
