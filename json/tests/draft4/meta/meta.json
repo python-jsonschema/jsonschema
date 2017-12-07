@@ -484,5 +484,211 @@
         }
       }
     ]
+  },
+  {
+    "description": "Object - invalid maxProperties",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "maxProperties": "one"
+        }
+      },
+      {
+        "description": "is boolean not number",
+        "schema": {
+          "maxProperties": true
+        }
+      },
+      {
+        "description": "is array not number",
+        "schema": {
+          "maxProperties": [
+            1
+          ]
+        }
+      },
+      {
+        "description": "is object not number",
+        "schema": {
+          "maxProperties": {}
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "maxProperties": null
+        }
+      },
+      {
+        "description": "is decimal not integer",
+        "schema": {
+          "maxProperties": 1.5
+        }
+      },
+      {
+        "description": "is negative",
+        "schema": {
+          "maxProperties": -1
+        }
+      }
+    ]
+  },
+  {
+    "description": "Object - invalid minProperties",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "minProperties": "one"
+        }
+      },
+      {
+        "description": "is boolean not number",
+        "schema": {
+          "minProperties": true
+        }
+      },
+      {
+        "description": "is array not number",
+        "schema": {
+          "minProperties": [
+            1
+          ]
+        }
+      },
+      {
+        "description": "is object not number",
+        "schema": {
+          "minProperties": {}
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "minProperties": null
+        }
+      },
+      {
+        "description": "is decimal not integer",
+        "schema": {
+          "minProperties": 1.5
+        }
+      },
+      {
+        "description": "is negative",
+        "schema": {
+          "minProperties": -1
+        }
+      }
+    ]
+  },
+  {
+    "description": "Object - invalid required",
+    "tests": [
+      {
+        "description": "is string not array",
+        "schema": {
+          "required": "one"
+        }
+      },
+      {
+        "description": "is empty array",
+        "schema": {
+          "required": []
+        }
+      },
+      {
+        "description": "array contains non-string",
+        "schema": {
+          "required": [
+            1
+          ]
+        }
+      },
+      {
+        "description": "array elements not unique",
+        "schema": {
+          "required": [
+            "prop",
+            "prop"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "description": "Object - invalid additionalProperties",
+    "tests": [
+      {
+        "description": "is string not boolean",
+        "schema": {
+          "additionalProperties": "one"
+        }
+      },
+      {
+        "description": "is number not boolean",
+        "schema": {
+          "additionalProperties": 1
+        }
+      },
+      {
+        "description": "is array not boolean",
+        "schema": {
+          "additionalProperties": [
+            true
+          ]
+        }
+      },
+      {
+        "description": "not a schema",
+        "schema": {
+          "additionalProperties": "not a schema"
+        }
+      },
+      {
+        "description": "is null not boolean",
+        "schema": {
+          "additionalProperties": null
+        }
+      }
+    ]
+  },
+  {
+    "description": "Object - invalid properties",
+    "tests": [
+      {
+        "description": "is string not object",
+        "schema": {
+          "properties": "one"
+        }
+      },
+      {
+        "description": "is number not object",
+        "schema": {
+          "properties": 1
+        }
+      },
+      {
+        "description": "is array not object",
+        "schema": {
+          "properties": [
+            true
+          ]
+        }
+      },
+      {
+        "description": "child not a schema",
+        "schema": {
+          "properties": {"child": "not a schema"}
+        }
+      },
+      {
+        "description": "is null not object",
+        "schema": {
+          "properties": null
+        }
+      }
+    ]
   }
 ]
