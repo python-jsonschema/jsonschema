@@ -88,19 +88,19 @@
       {
         "description": "is string not number",
         "schema": {
-          "multipleOf": "one"
+          "maximum": "one"
         }
       },
       {
         "description": "is boolean not number",
         "schema": {
-          "multipleOf": true
+          "maximum": true
         }
       },
       {
         "description": "is array not number",
         "schema": {
-          "multipleOf": [
+          "maximum": [
             1
           ]
         }
@@ -108,13 +108,13 @@
       {
         "description": "is object not number",
         "schema": {
-          "multipleOf": {}
+          "maximum": {}
         }
       },
       {
         "description": "is null not number",
         "schema": {
-          "multipleOf": null
+          "maximum": null
         }
       }
     ]
@@ -125,19 +125,19 @@
       {
         "description": "is string not number",
         "schema": {
-          "multipleOf": "one"
+          "exclusiveMaximum": "one"
         }
       },
       {
         "description": "is boolean not number",
         "schema": {
-          "multipleOf": true
+          "exclusiveMaximum": true
         }
       },
       {
         "description": "is array not number",
         "schema": {
-          "multipleOf": [
+          "exclusiveMaximum": [
             1
           ]
         }
@@ -145,13 +145,13 @@
       {
         "description": "is object not number",
         "schema": {
-          "multipleOf": {}
+          "exclusiveMaximum": {}
         }
       },
       {
         "description": "is null not number",
         "schema": {
-          "multipleOf": null
+          "exclusiveMaximum": null
         }
       }
     ]
@@ -162,19 +162,19 @@
       {
         "description": "is string not number",
         "schema": {
-          "multipleOf": "one"
+          "minimum": "one"
         }
       },
       {
         "description": "is boolean not number",
         "schema": {
-          "multipleOf": true
+          "minimum": true
         }
       },
       {
         "description": "is array not number",
         "schema": {
-          "multipleOf": [
+          "minimum": [
             1
           ]
         }
@@ -182,13 +182,13 @@
       {
         "description": "is object not number",
         "schema": {
-          "multipleOf": {}
+          "minimum": {}
         }
       },
       {
         "description": "is null not number",
         "schema": {
-          "multipleOf": null
+          "minimum": null
         }
       }
     ]
@@ -199,19 +199,19 @@
       {
         "description": "is string not number",
         "schema": {
-          "multipleOf": "one"
+          "exclusiveMinimum": "one"
         }
       },
       {
         "description": "is boolean not number",
         "schema": {
-          "multipleOf": true
+          "exclusiveMinimum": true
         }
       },
       {
         "description": "is array not number",
         "schema": {
-          "multipleOf": [
+          "exclusiveMinimum": [
             1
           ]
         }
@@ -219,13 +219,13 @@
       {
         "description": "is object not number",
         "schema": {
-          "multipleOf": {}
+          "exclusiveMinimum": {}
         }
       },
       {
         "description": "is null not number",
         "schema": {
-          "multipleOf": null
+          "exclusiveMinimum": null
         }
       }
     ]
@@ -236,19 +236,19 @@
       {
         "description": "is string not number",
         "schema": {
-          "multipleOf": "one"
+          "maxLength": "one"
         }
       },
       {
         "description": "is boolean not number",
         "schema": {
-          "multipleOf": true
+          "maxLength": true
         }
       },
       {
         "description": "is array not number",
         "schema": {
-          "multipleOf": [
+          "maxLength": [
             1
           ]
         }
@@ -256,13 +256,13 @@
       {
         "description": "is object not number",
         "schema": {
-          "multipleOf": {}
+          "maxLength": {}
         }
       },
       {
         "description": "is null not number",
         "schema": {
-          "multipleOf": null
+          "maxLength": null
         }
       },
       {
@@ -285,19 +285,19 @@
       {
         "description": "is string not number",
         "schema": {
-          "multipleOf": "one"
+          "minLength": "one"
         }
       },
       {
         "description": "is boolean not number",
         "schema": {
-          "multipleOf": true
+          "minLength": true
         }
       },
       {
         "description": "is array not number",
         "schema": {
-          "multipleOf": [
+          "minLength": [
             1
           ]
         }
@@ -305,13 +305,13 @@
       {
         "description": "is object not number",
         "schema": {
-          "multipleOf": {}
+          "minLength": {}
         }
       },
       {
         "description": "is null not number",
         "schema": {
-          "multipleOf": null
+          "minLength": null
         }
       },
       {
@@ -324,6 +324,174 @@
         "description": "is negative",
         "schema": {
           "maxLength": -1
+        }
+      }
+    ]
+  },
+  {
+    "description": "Array - invalid items",
+    "tests": [
+      {
+        "description": "not a schema",
+        "schema": {
+          "items": "not a schema"
+        }
+      }
+    ]
+  },
+  {
+    "description": "Array - invalid additionalItems",
+    "tests": [
+      {
+        "description": "not a schema",
+        "schema": {
+          "additionalItems": "not a schema"
+        }
+      }
+    ]
+  },
+  {
+    "description": "Array - invalid contains",
+    "tests": [
+      {
+        "description": "not a schema",
+        "schema": {
+          "contains": "not a schema"
+        }
+      }
+    ]
+  },
+  {
+    "description": "Array - invalid maxItems",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "maxItems": "one"
+        }
+      },
+      {
+        "description": "is boolean not number",
+        "schema": {
+          "maxItems": true
+        }
+      },
+      {
+        "description": "is array not number",
+        "schema": {
+          "maxItems": [
+            1
+          ]
+        }
+      },
+      {
+        "description": "is object not number",
+        "schema": {
+          "maxItems": {}
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "maxItems": null
+        }
+      },
+      {
+        "description": "is decimal not integer",
+        "schema": {
+          "maxItems": 1.5
+        }
+      },
+      {
+        "description": "is negative",
+        "schema": {
+          "maxItems": -1
+        }
+      }
+    ]
+  },
+  {
+    "description": "Array - invalid minItems",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "minItems": "one"
+        }
+      },
+      {
+        "description": "is boolean not number",
+        "schema": {
+          "minItems": true
+        }
+      },
+      {
+        "description": "is array not number",
+        "schema": {
+          "minItems": [
+            1
+          ]
+        }
+      },
+      {
+        "description": "is object not number",
+        "schema": {
+          "minItems": {}
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "minItems": null
+        }
+      },
+      {
+        "description": "is decimal not integer",
+        "schema": {
+          "minItems": 1.5
+        }
+      },
+      {
+        "description": "is negative",
+        "schema": {
+          "minItems": -1
+        }
+      }
+    ]
+  },
+  {
+    "description": "Array - invalid uniqueItems",
+    "tests": [
+      {
+        "description": "is string not boolean",
+        "schema": {
+          "uniqueItems": "one"
+        }
+      },
+      {
+        "description": "is number not boolean",
+        "schema": {
+          "uniqueItems": 1
+        }
+      },
+      {
+        "description": "is array not boolean",
+        "schema": {
+          "uniqueItems": [
+            true
+          ]
+        }
+      },
+      {
+        "description": "is object not boolean",
+        "schema": {
+          "uniqueItems": {}
+        }
+      },
+      {
+        "description": "is null not boolean",
+        "schema": {
+          "uniqueItems": null
         }
       }
     ]
