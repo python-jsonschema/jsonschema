@@ -78,6 +78,12 @@
         }
       },
       {
+        "description": "is boolean not number",
+        "schema": {
+          "multipleOf": true
+        }
+      },
+      {
         "description": "is null not number",
         "schema": {
           "multipleOf": null
@@ -92,6 +98,58 @@
         "description": "is string not number",
         "schema": {
           "multipleOf": "one"
+        }
+      },
+      {
+        "description": "is boolean not number",
+        "schema": {
+          "multipleOf": true
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "multipleOf": null
+        }
+      }
+    ]
+  },
+  {
+    "description": "invalid minimum",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "multipleOf": "one"
+        }
+      },
+      {
+        "description": "is boolean not number",
+        "schema": {
+          "multipleOf": true
+        }
+      },
+      {
+        "description": "is null not number",
+        "schema": {
+          "multipleOf": null
+        }
+      }
+    ]
+  },
+  {
+    "description": "invalid exclusiveMinimum",
+    "tests": [
+      {
+        "description": "is string not number",
+        "schema": {
+          "multipleOf": "one"
+        }
+      },
+      {
+        "description": "is boolean not number",
+        "schema": {
+          "multipleOf": true
         }
       },
       {
