@@ -46,6 +46,94 @@
     ]
   },
   {
+    "description": "Any type - invalid allOf",
+    "tests": [
+      {
+        "description": "not array",
+        "schema": {
+          "allOf": "not_an_array"
+        }
+      },
+      {
+        "description": "empty array",
+        "schema": {
+          "allOf": []
+        }
+      },
+      {
+        "description": "not a schema",
+        "schema": {
+          "allOf": [
+            "not a schema"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "description": "Any type - invalid anyOf",
+    "tests": [
+      {
+        "description": "not array",
+        "schema": {
+          "anyOf": "not_an_array"
+        }
+      },
+      {
+        "description": "empty array",
+        "schema": {
+          "anyOf": []
+        }
+      },
+      {
+        "description": "not a schema",
+        "schema": {
+          "anyOf": [
+            "not a schema"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "description": "Any type - invalid oneOf",
+    "tests": [
+      {
+        "description": "not array",
+        "schema": {
+          "oneOf": "not_an_array"
+        }
+      },
+      {
+        "description": "empty array",
+        "schema": {
+          "oneOf": []
+        }
+      },
+      {
+        "description": "not a schema",
+        "schema": {
+          "oneOf": [
+            "not a schema"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "description": "Any type - invalid not",
+    "tests": [
+      {
+        "description": "not a schema",
+        "schema": {
+          "not": [
+            "not a schema"
+          ]
+        }
+      }
+    ]
+  },
+  {
     "description": "Numeric - invalid multipleOf",
     "tests": [
       {
