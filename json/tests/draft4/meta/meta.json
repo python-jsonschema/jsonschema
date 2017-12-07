@@ -351,17 +351,6 @@
     ]
   },
   {
-    "description": "Array - invalid contains",
-    "tests": [
-      {
-        "description": "not a schema",
-        "schema": {
-          "contains": "not a schema"
-        }
-      }
-    ]
-  },
-  {
     "description": "Array - invalid maxItems",
     "tests": [
       {
