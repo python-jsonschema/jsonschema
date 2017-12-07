@@ -61,6 +61,18 @@
         }
       },
       {
+        "description": "is array not number",
+        "schema": {
+          "multipleOf": [1]
+        }
+      },
+      {
+        "description": "is array not object",
+        "schema": {
+          "multipleOf": {}
+        }
+      },
+      {
         "description": "is not greater than zero",
         "schema": {
           "multipleOf": 0
@@ -81,6 +93,18 @@
         "description": "is boolean not number",
         "schema": {
           "multipleOf": true
+        }
+      },
+      {
+        "description": "is array not number",
+        "schema": {
+          "multipleOf": [1]
+        }
+      },
+      {
+        "description": "is array not object",
+        "schema": {
+          "multipleOf": {}
         }
       },
       {
@@ -107,6 +131,18 @@
         }
       },
       {
+        "description": "is array not number",
+        "schema": {
+          "multipleOf": [1]
+        }
+      },
+      {
+        "description": "is array not object",
+        "schema": {
+          "multipleOf": {}
+        }
+      },
+      {
         "description": "is null not number",
         "schema": {
           "multipleOf": null
@@ -130,6 +166,18 @@
         }
       },
       {
+        "description": "is array not number",
+        "schema": {
+          "multipleOf": [1]
+        }
+      },
+      {
+        "description": "is array not object",
+        "schema": {
+          "multipleOf": {}
+        }
+      },
+      {
         "description": "is null not number",
         "schema": {
           "multipleOf": null
@@ -150,6 +198,18 @@
         "description": "is boolean not number",
         "schema": {
           "multipleOf": true
+        }
+      },
+      {
+        "description": "is array not number",
+        "schema": {
+          "multipleOf": [1]
+        }
+      },
+      {
+        "description": "is array not object",
+        "schema": {
+          "multipleOf": {}
         }
       },
       {
