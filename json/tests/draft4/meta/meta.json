@@ -1,6 +1,6 @@
 [
   {
-    "description": "invalid type",
+    "description": "Any type - invalid type",
     "tests": [
       {
         "description": "is float",
@@ -20,7 +20,7 @@
     ]
   },
   {
-    "description": "invalid enum",
+    "description": "Any type - invalid enum",
     "tests": [
       {
         "description": "not array",
@@ -46,7 +46,7 @@
     ]
   },
   {
-    "description": "invalid multipleOf",
+    "description": "Numeric - invalid multipleOf",
     "tests": [
       {
         "description": "is string not number",
@@ -83,7 +83,7 @@
     ]
   },
   {
-    "description": "invalid maximum",
+    "description": "Numeric - invalid maximum",
     "tests": [
       {
         "description": "is string not number",
@@ -120,7 +120,7 @@
     ]
   },
   {
-    "description": "invalid exclusiveMaximum",
+    "description": "Numeric - invalid exclusiveMaximum",
     "tests": [
       {
         "description": "is string not number",
@@ -157,7 +157,7 @@
     ]
   },
   {
-    "description": "invalid minimum",
+    "description": "Numeric - invalid minimum",
     "tests": [
       {
         "description": "is string not number",
@@ -194,7 +194,7 @@
     ]
   },
   {
-    "description": "invalid exclusiveMinimum",
+    "description": "Numeric - invalid exclusiveMinimum",
     "tests": [
       {
         "description": "is string not number",
@@ -231,7 +231,7 @@
     ]
   },
   {
-    "description": "invalid maxLength",
+    "description": "String - invalid maxLength",
     "tests": [
       {
         "description": "is string not number",
@@ -280,7 +280,7 @@
     ]
   },
   {
-    "description": "invalid minLength",
+    "description": "String - invalid minLength",
     "tests": [
       {
         "description": "is string not number",
