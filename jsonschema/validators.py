@@ -140,9 +140,11 @@ def create(meta_schema, validators=(), version=None, default_types=None):
             pytypes = self._types[type]
 
             # bool inherits from int, so ensure bools aren't reported as ints
-            if (isinstance(instance, bool) and
+            if (
+                isinstance(instance, bool) and
                 issubclass(int, pytypes) and
-                bool not in _utils.flatten(pytypes)):
+                bool not in _utils.flatten(pytypes)
+            ):
                 return False
             return isinstance(instance, pytypes)
 
