@@ -136,12 +136,8 @@ class TypeChecker(object):
 
         """
         definitions = dict(definitions)
-        evolver = self._type_checkers.evolver()
-
-        for type_, checker in iteritems(definitions):
-            evolver[type_] = checker
-
-        return attr.evolve(self, type_checkers=evolver.persistent())
+        type_checkers = self._type_checkers.update(definitions)
+        return attr.evolve(self, type_checkers=type_checkers)
 
     def remove(self, type):
         """
