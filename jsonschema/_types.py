@@ -71,7 +71,7 @@ class TypeChecker(object):
 
         Arguments:
 
-            instance (any primitive type, i.e. str, number, bool):
+            instance (object):
 
                 The instance to check
 
@@ -90,9 +90,11 @@ class TypeChecker(object):
                 if type is unknown to this object.
         """
         try:
-            return self._type_checkers[type](self, instance)
+            fn = self._type_checkers[type]
         except KeyError:
-            raise UndefinedTypeCheck
+            raise UndefinedTypeCheck(type)
+
+        return fn(self, instance)
 
     def redefine(self, type, fn):
         """
@@ -106,8 +108,10 @@ class TypeChecker(object):
 
             fn (callable):
 
-                A function taking exactly one parameter, instance,
-                that checks if instance is of this type.
+                A function taking exactly two parameters - the type checker
+                calling the function and the instance to check. The function
+                should return true if instance is of this type and false
+                otherwise.
 
         Returns:
 
@@ -186,7 +190,7 @@ class TypeChecker(object):
             try:
                 del evolver[type_]
             except KeyError:
-                raise UndefinedTypeCheck
+                raise UndefinedTypeCheck(type_)
 
         return attr.evolve(self, type_checkers=evolver.persistent())
 

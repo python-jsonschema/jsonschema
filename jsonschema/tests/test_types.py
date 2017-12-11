@@ -59,6 +59,10 @@ class TestTypeChecker(TestCase):
         tc = _types.TypeChecker()
         self.assertEqual(len(tc._type_checkers), 0)
 
+    def test_checks_can_be_added_at_init(self):
+        tc = _types.TypeChecker({"integer": _types.is_integer})
+        self.assertEqual(len(tc._type_checkers), 1)
+
     def test_checks_can_be_added(self):
         tc = _types.TypeChecker()
         tc = tc.redefine("integer", _types.is_integer)
@@ -113,6 +117,32 @@ class TestTypeChecker(TestCase):
         tc = tc.remove_many(("integer", "string"))
 
         self.assertEqual(len(tc._type_checkers), 0)
+
+    def test_unknown_type_raises_exception_on_is_type(self):
+        tc = _types.TypeChecker()
+        with self.assertRaises(UndefinedTypeCheck) as context:
+            tc.is_type(4, 'foobar')
+
+        self.assertIn('foobar', str(context.exception))
+
+    def test_unknown_type_raises_exception_on_remove(self):
+        tc = _types.TypeChecker()
+        with self.assertRaises(UndefinedTypeCheck) as context:
+            tc.remove('foobar')
+
+        self.assertIn('foobar', str(context.exception))
+
+    def test_type_check_can_raise_key_error(self):
+        def raises_keyerror(checker, instance):
+            raise KeyError("internal error")
+
+        tc = _types.TypeChecker({"object": raises_keyerror})
+
+        with self.assertRaises(KeyError) as context:
+            tc.is_type(4, "object")
+
+        self.assertNotIn("object", str(context.exception))
+        self.assertIn("internal error", str(context.exception))
 
 
 class TestCustomTypes(TestCase):

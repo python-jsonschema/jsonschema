@@ -32,8 +32,10 @@ classes should adhere to.
         will validate with. It is assumed to be valid, and providing
         an invalid schema can lead to undefined behavior. See
         :meth:`IValidator.check_schema` to validate a schema first.
-    :argument types: Deprecated. Instead, create a custom TypeChecker
-        and extend the validator. See :ref:`validating-types` for details.
+    :argument types:
+        .. deprecated:: 2.7.0
+           Instead, create a custom type checker and extend the validator. See
+           :ref:`validating-types` for details.
 
         If used, this overrides or extends the list of known type when
         validating the :validator:`type` property. Should map strings (type
@@ -50,10 +52,13 @@ classes should adhere to.
 
     .. attribute:: DEFAULT_TYPES
 
-        Deprecated. Under normal usage, this will be an empty dictionary.
+        .. deprecated:: 2.7.0
+           Use of this attribute is deprecated in favour of the the new type
+           checkers.
 
-        If set, it provides mappings of JSON types to Python types that will
-        be converted to functions and redefined in this object's TypeChecker
+        It provides mappings of JSON types to Python types that will
+        be converted to functions and redefined in this object's type checker
+        if one is not provided.
 
     .. attribute:: META_SCHEMA
 
@@ -135,6 +140,27 @@ implementors of validator classes that extend or complement the
 ones included should adhere to it as well. For more information see
 :ref:`creating-validators`.
 
+Type Checking
+-------------
+
+To handle JSON Schema's :validator:`type` property, a :class:`IValidator` uses
+an associated :class:`TypeChecker`. The type checker provides an immutable
+mapping between names of types and functions that can test if an instance is
+of that type. The defaults are suitable for most users - each of the
+predefined Validators (Draft3, Draft4) has a :class:`TypeChecker` that can
+correctly handle that draft.
+
+See :ref:`validating-types` for an example of providing a custom type check.
+
+.. autoclass:: TypeChecker
+    :members:
+
+.. autoexception:: jsonschema.exceptions.UndefinedTypeCheck
+
+    Raised when trying to remove a type check that is not known to this
+    TypeChecker. Internally this is also raised when calling
+    :meth:`TypeChecker.is_type`, but is caught and re-raised as a
+    :class:`jsonschema.exceptions.UnknownType` exception.
 
 .. _validating-types:
 
@@ -166,9 +192,9 @@ existing :class:`TypeChecker` or create a new one. You may then create a new
     class MyInteger(object):
         pass
 
-    def is_my_int(instance):
-        return Draft3Validator.TYPE_CHECKER.is_type(instance, "number") or \
-        isinstance(instance, MyInteger)
+    def is_my_int(checker, instance):
+        return (Draft3Validator.TYPE_CHECKER.is_type(instance, "number") or
+               isinstance(instance, MyInteger))
 
     type_checker = Draft3Validator.TYPE_CHECKER.redefine("number", is_my_int)
 
