@@ -11,11 +11,11 @@ from jsonschema.exceptions import UndefinedTypeCheck
 from jsonschema.validators import Draft4Validator, extend
 
 
-def is_int_or_string_int(instance):
+def is_int_or_string_int(checker, instance):
     if Draft4Validator.TYPE_CHECKER.is_type(instance, "integer"):
         return True
 
-    if Draft4Validator.TYPE_CHECKER.is_type(instance, "string"):
+    if checker.is_type(instance, "string"):
         try:
             int(instance)
             return True
@@ -32,7 +32,7 @@ def is_namedtuple(instance):
     return False
 
 
-def is_object_or_named_tuple(instance):
+def is_object_or_named_tuple(checker, instance):
     if Draft4Validator.TYPE_CHECKER.is_type(instance, "object"):
         return True
 

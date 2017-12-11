@@ -83,7 +83,7 @@ def _generate_legacy_type_checks(types=()):
     def gen_type_check(pytypes):
         pytypes = _utils.flatten(pytypes)
 
-        def type_check(instance):
+        def type_check(checker, instance):
             if isinstance(instance, bool):
                 if bool not in pytypes:
                     return False

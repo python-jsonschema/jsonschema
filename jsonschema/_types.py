@@ -7,41 +7,41 @@ from jsonschema.compat import str_types, int_types, iteritems
 from jsonschema.exceptions import UndefinedTypeCheck
 
 
-def is_array(instance):
+def is_array(checker, instance):
     return isinstance(instance, list)
 
 
-def is_bool(instance):
+def is_bool(checker, instance):
     return isinstance(instance, bool)
 
 
-def is_integer(instance):
+def is_integer(checker, instance):
     # bool inherits from int, so ensure bools aren't reported as ints
     if isinstance(instance, bool):
         return False
     return isinstance(instance, int_types)
 
 
-def is_null(instance):
+def is_null(checker, instance):
     return instance is None
 
 
-def is_number(instance):
+def is_number(checker, instance):
     # bool inherits from int, so ensure bools aren't reported as ints
     if isinstance(instance, bool):
         return False
     return isinstance(instance, numbers.Number)
 
 
-def is_object(instance):
+def is_object(checker, instance):
     return isinstance(instance, dict)
 
 
-def is_string(instance):
+def is_string(checker, instance):
     return isinstance(instance, str_types)
 
 
-def is_any(instance):
+def is_any(checker, instance):
     return True
 
 
@@ -90,7 +90,7 @@ class TypeChecker(object):
                 if type is unknown to this object.
         """
         try:
-            return self._type_checkers[type](instance)
+            return self._type_checkers[type](self, instance)
         except KeyError:
             raise UndefinedTypeCheck
 
