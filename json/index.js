@@ -1,35 +1,43 @@
 'use strict';
 
-var Ajv = require('ajv');
-var jsonSchemaTest = require('json-schema-test');
-var assert = require('assert');
+const Ajv = require('ajv');
+const jsonSchemaTest = require('json-schema-test');
+const assert = require('assert');
 
-var refs = {
+const refs = {
   'http://localhost:1234/integer.json': require('./remotes/integer.json'),
   'http://localhost:1234/subSchemas.json': require('./remotes/subSchemas.json'),
   'http://localhost:1234/folder/folderInteger.json': require('./remotes/folder/folderInteger.json'),
   'http://localhost:1234/name.json': require('./remotes/name.json')
 };
 
-runTest(4);
-runTest(6);
+const SKIP = {
+  4: ['optional/zeroTerminatedFloats'],
+  7: [
+    'format/idn-email',
+    'format/idn-hostname',
+    'format/iri',
+    'format/iri-reference',
+    'optional/content'
+  ]
+};
 
-function runTest(draft) {
-  var opts = {
-    format: 'full',
-    formats: {'json-pointer': /^(?:\/(?:[^~\/]|~0|~1)*)*$/}
-  };
-  if (draft == 4) opts.meta = false;
-  var ajv = new Ajv(opts);
-  ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-04.json'));
-  if (draft == 4) ajv._opts.defaultMeta = 'http://json-schema.org/draft-04/schema#';
-  for (var uri in refs) ajv.addSchema(refs[uri], uri);
+[4, 6, 7].forEach((draft) => {
+  let ajv;
+  if (draft == 7) {
+    ajv = new Ajv({format: 'full'});
+  } else {
+    ajv = new Ajv({format: 'full', meta: false});
+    ajv.addMetaSchema(require(`ajv/lib/refs/json-schema-draft-0${draft}.json`));
+    ajv._opts.defaultMeta = `http://json-schema.org/draft-0${draft}/schema#`;
+  }
+  for (const uri in refs) ajv.addSchema(refs[uri], uri);
 
   jsonSchemaTest(ajv, {
-    description: 'Test suite draft-0' + draft,
-    suites: {tests: './tests/draft' + draft + '/{**/,}*.json'},
-    skip: draft == 4 ? ['optional/zeroTerminatedFloats'] : [],
+    description: `Test suite draft-0${draft}`,
+    suites: {tests: `./tests/draft${draft}/{**/,}*.json`},
+    skip: SKIP[draft],
     cwd: __dirname,
     hideFolder: 'tests/'
   });
-}
+});
