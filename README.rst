@@ -80,6 +80,24 @@ Of course you're also free to just run the tests on a single version with your
 favorite test runner. The tests live in the ``jsonschema.tests`` package.
 
 
+Benchmarks
+----------
+
+``jsonschema``'s benchmarks make use of `perf <https://perf.readthedocs.io>`_.
+
+Running them can be done via ``tox -e perf``, or by invoking the ``perf``
+commands externally (after ensuring that both it and ``jsonschema`` itself are
+installed)::
+
+    $ python -m perf jsonschema/benchmarks/test_suite.py --hist --output results.json
+
+To compare to a previous run, use::
+
+    $ python -m perf compare_to --table reference.json results.json
+
+See the ``perf`` documentation for more details.
+
+
 Community
 ---------
 
