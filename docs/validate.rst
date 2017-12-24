@@ -82,7 +82,7 @@ classes should adhere to.
 
     .. classmethod:: check_schema(schema)
 
-        Validate the given schema against the validator's :attr:`META_SCHEMA`.
+        Validate the given schema against the validator's `META_SCHEMA`.
 
         :raises: :exc:`jsonschema.exceptions.SchemaError` if the schema
             is invalid
@@ -98,7 +98,7 @@ classes should adhere to.
 
     .. method:: is_valid(instance)
 
-        Check if the instance is valid under the current :attr:`schema`.
+        Check if the instance is valid under the current `schema`.
 
         :rtype: bool
 
@@ -126,7 +126,7 @@ classes should adhere to.
 
     .. method:: validate(instance)
 
-        Check if the instance is valid under the current :attr:`schema`.
+        Check if the instance is valid under the current `schema`.
 
         :raises: :exc:`jsonschema.exceptions.ValidationError` if the
             instance is invalid
@@ -284,14 +284,14 @@ validation can be enabled by hooking in a format-checking object into an
         :argument Exception raises: the exception(s) raised
             by the decorated function when an invalid instance is
             found. The exception object will be accessible as the
-            :attr:`~jsonschema.exceptions.ValidationError.cause` attribute
+            `jsonschema.exceptions.ValidationError.cause` attribute
             of the resulting validation error.
 
 
 
 There are a number of default checkers that `FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
-:attr:`FormatChecker.checkers` attribute. Certain checkers will only be
+`FormatChecker.checkers` attribute. Certain checkers will only be
 available if an appropriate package is available for use. The available
 checkers, along with their requirement (if any,) are listed below.
 

@@ -60,11 +60,11 @@ raised or returned, depending on which method or function is used.
         A `collections.deque` containing the path to the failed
         validator within the schema, but always relative to the
         *original* schema as opposed to any subschema (i.e. the one
-        originally passed into a validator class, *not* :attr:`schema`\).
+        originally passed into a validator class, *not* `schema`\).
 
     .. attribute:: schema_path
 
-        Same as :attr:`relative_schema_path`.
+        Same as `relative_schema_path`.
 
     .. attribute:: relative_path
 
@@ -78,12 +78,12 @@ raised or returned, depending on which method or function is used.
         offending element within the instance. The absolute path
         is always relative to the *original* instance that was
         validated (i.e. the one passed into a validation method, *not*
-        :attr:`instance`\). The deque can be empty if the error happened
+        `instance`\). The deque can be empty if the error happened
         at the root of the instance.
 
     .. attribute:: path
 
-        Same as :attr:`relative_path`.
+        Same as `relative_path`.
 
     .. attribute:: instance
 
@@ -91,14 +91,14 @@ raised or returned, depending on which method or function is used.
         the instance originally passed into ``validate`` if the
         validator object was in the process of validating a (possibly
         nested) element within the top-level instance. The path within
-        the top-level instance (i.e. :attr:`ValidationError.path`) could
+        the top-level instance (i.e. `ValidationError.path`) could
         be used to find this object, but it is provided for convenience.
 
     .. attribute:: context
 
         If the error was caused by errors in subschemas, the list of errors
         from the subschemas will be available on this property. The
-        :attr:`.schema_path` and :attr:`.path` of these errors will be relative
+        `schema_path` and `path` of these errors will be relative
         to the parent error.
 
     .. attribute:: cause
@@ -110,7 +110,7 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: parent
 
-        A validation error which this error is the :attr:`context` of.
+        A validation error which this error is the `context` of.
         ``None`` if there wasn't one.
 
 
@@ -155,9 +155,9 @@ outputs:
     3 is not valid under any of the given schemas
     'foo' is not valid under any of the given schemas
 
-If we look at :attr:`~ValidationError.path` on each of the errors, we can find
+If we look at `ValidationError.path` on each of the errors, we can find
 out which elements in the instance correspond to each of the errors. In
-this example, :attr:`~ValidationError.path` will have only one element, which
+this example, `ValidationError.path` will have only one element, which
 will be the index in our list.
 
 .. testcode::
@@ -173,16 +173,16 @@ will be the index in our list.
 
 Since our schema contained nested subschemas, it can be helpful to look at
 the specific part of the instance and subschema that caused each of the errors.
-This can be seen with the :attr:`~ValidationError.instance` and
-:attr:`~ValidationError.schema` attributes.
+This can be seen with the `ValidationError.instance` and
+`ValidationError.schema` attributes.
 
-With validators like :validator:`anyOf`, the :attr:`~ValidationError.context`
+With validators like :validator:`anyOf`, the `ValidationError.context`
 attribute can be used to see the sub-errors which caused the failure. Since
 these errors actually came from two separate subschemas, it can be helpful to
-look at the :attr:`~ValidationError.schema_path` attribute as well to see where
+look at the `ValidationError.schema_path` attribute as well to see where
 exactly in the schema each of these errors come from. In the case of sub-errors
-from the :attr:`~ValidationError.context` attribute, this path will be relative
-to the :attr:`~ValidationError.schema_path` of the parent error.
+from the `ValidationError.context` attribute, this path will be relative
+to the `ValidationError.schema_path` of the parent error.
 
 .. testcode::
 
@@ -272,7 +272,7 @@ error objects.
 As you can see, `jsonschema.exceptions.ErrorTree` takes an
 iterable of `ValidationError`\s when constructing a tree so
 you can directly pass it the return value of a validator object's
-:attr:`~jsonschema.IValidator.iter_errors` method.
+`jsonschema.IValidator.iter_errors` method.
 
 `ErrorTree`\s support a number of useful operations. The first one we
 might want to perform is to check whether a given element in our instance
@@ -291,7 +291,7 @@ did have an error (in fact it had 2), while the 1th index (``2``) did not (i.e.
 it was valid).
 
 If we want to see which errors a child had, we index into the tree and look at
-the :attr:`~ErrorTree.errors` attribute.
+the `ErrorTree.errors` attribute.
 
 .. doctest::
 
@@ -299,7 +299,7 @@ the :attr:`~ErrorTree.errors` attribute.
     ['enum', 'type']
 
 Here we see that the :validator:`enum` and :validator:`type` validators failed
-for index ``0``. In fact :attr:`~ErrorTree.errors` is a dict, whose values are
+for index ``0``. In fact `ErrorTree.errors` is a dict, whose values are
 the `ValidationError`\s, so we can get at those directly if we want
 them.
 
@@ -310,7 +310,7 @@ them.
 
 Of course this means that if we want to know if a given named
 validator failed for a given index, we check for its presence in
-:attr:`~ErrorTree.errors`:
+`ErrorTree.errors`:
 
 .. doctest::
 
@@ -334,7 +334,7 @@ That's all you need to know to use error trees.
 
 To summarize, each tree contains child trees that can be accessed by
 indexing the tree to get the corresponding child tree for a given index
-into the instance. Each tree and child has a :attr:`~ErrorTree.errors`
+into the instance. Each tree and child has a `ErrorTree.errors`
 attribute, a dict, that maps the failed validator name to the
 corresponding validation error.
 
@@ -363,7 +363,7 @@ to guess the most relevant error in a given bunch.
     Try to find an error that appears to be the best match among given errors.
 
     In general, errors that are higher up in the instance (i.e. for which
-    :attr:`ValidationError.path` is shorter) are considered better matches,
+    `ValidationError.path` is shorter) are considered better matches,
     since they indicate "more" is wrong with the instance.
 
     If the resulting match is either :validator:`oneOf` or :validator:`anyOf`,
@@ -376,7 +376,7 @@ to guess the most relevant error in a given bunch.
         (i.e. from different instances or schemas), since it won't
         produce sensical output.
     :argument callable key: the key to use when sorting errors. See
-        :attr:`relevance` and transitively :func:`by_relevance` for more
+        `relevance` and transitively :func:`by_relevance` for more
         details (the default is to sort with the defaults of that function).
         Changing the default is only useful if you want to change the function
         that rates errors but still want the error context descent done by
