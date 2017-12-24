@@ -97,7 +97,8 @@ def _generate_legacy_type_checks(types=()):
 
     return definitions
 
-class ValidatorMetaClass(type):
+
+class _ValidatorMetaClass(type):
     @property
     def DEFAULT_TYPES(self):
         warn("DEFAULT_TYPES is deprecated, use type_checker",
@@ -128,7 +129,7 @@ def create(meta_schema, validators=(), version=None, default_types=None,
         type_checker = type_checker.redefine_many(
             _generate_legacy_type_checks(default_types))
 
-    @add_metaclass(ValidatorMetaClass)
+    @add_metaclass(_ValidatorMetaClass)
     class Validator(object):
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
