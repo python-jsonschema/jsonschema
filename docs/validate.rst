@@ -85,7 +85,8 @@ classes should adhere to.
     .. attribute:: DEFAULT_TYPES
 
         .. deprecated:: 2.7.0
-           Use of this attribute is deprecated in favour of the the new type
+
+           Use of this attribute is deprecated in favor of the the new type
            checkers.
 
         It provides mappings of JSON types to Python types that will

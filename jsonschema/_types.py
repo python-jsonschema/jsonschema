@@ -96,7 +96,7 @@ class TypeChecker(object):
 
     def redefine(self, type, fn):
         """
-        Redefine the checker for type to the function fn.
+        Redefine the checker for ``type`` to the function ``fn``.
 
         Arguments:
 
