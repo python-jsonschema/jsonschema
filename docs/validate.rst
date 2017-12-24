@@ -32,10 +32,14 @@ classes should adhere to.
         will validate with. It is assumed to be valid, and providing
         an invalid schema can lead to undefined behavior. See
         :meth:`IValidator.check_schema` to validate a schema first.
-    :argument types: Override or extend the list of known types when
+    :argument types:
+        .. deprecated:: 2.7.0
+           Instead, create a custom type checker and extend the validator. See
+           :ref:`validating-types` for details.
+
+        If used, this overrides or extends the list of known type when
         validating the :validator:`type` property. Should map strings (type
         names) to class objects that will be checked via :func:`isinstance`.
-        See :ref:`validating-types` for details.
     :type types: dict or ~collections.Iterable of 2-`tuple`\s
     :argument resolver: an instance of :class:`RefResolver` that will be
         used to resolve :validator:`$ref` properties (JSON references). If
@@ -48,8 +52,13 @@ classes should adhere to.
 
     .. attribute:: DEFAULT_TYPES
 
-        The default mapping of JSON types to Python types used when validating
-        :validator:`type` properties in JSON schemas.
+        .. deprecated:: 2.7.0
+           Use of this attribute is deprecated in favour of the the new type
+           checkers.
+
+        It provides mappings of JSON types to Python types that will
+        be converted to functions and redefined in this object's type checker
+        if one is not provided.
 
     .. attribute:: META_SCHEMA
 
@@ -61,6 +70,10 @@ classes should adhere to.
         A mapping of validator names (:class:`str`\s) to functions
         that validate the validator property with that name. For more
         information see :ref:`creating-validators`.
+
+    .. attribute:: TYPE_CHECKER
+        A :class:`TypeChecker` that can be used validating :validator:`type`
+         properties in JSON schemas.
 
     .. attribute:: schema
 
@@ -131,6 +144,27 @@ implementers of validator classes that extend or complement the
 ones included should adhere to it as well. For more information see
 :ref:`creating-validators`.
 
+Type Checking
+-------------
+
+To handle JSON Schema's :validator:`type` property, a :class:`IValidator` uses
+an associated :class:`TypeChecker`. The type checker provides an immutable
+mapping between names of types and functions that can test if an instance is
+of that type. The defaults are suitable for most users - each of the
+predefined Validators (Draft3, Draft4) has a :class:`TypeChecker` that can
+correctly handle that draft.
+
+See :ref:`validating-types` for an example of providing a custom type check.
+
+.. autoclass:: TypeChecker
+    :members:
+
+.. autoexception:: jsonschema.exceptions.UndefinedTypeCheck
+
+    Raised when trying to remove a type check that is not known to this
+    TypeChecker. Internally this is also raised when calling
+    :meth:`TypeChecker.is_type`, but is caught and re-raised as a
+    :class:`jsonschema.exceptions.UnknownType` exception.
 
 .. _validating-types:
 
@@ -138,10 +172,7 @@ Validating With Additional Types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Occasionally it can be useful to provide additional or alternate types when
-validating the JSON Schema's :validator:`type` property. Validators allow this
-by taking a ``types`` argument on construction that specifies additional types,
-or which can be used to specify a different set of Python types to map to a
-given JSON type.
+validating the JSON Schema's :validator:`type` property.
 
 :mod:`jsonschema` tries to strike a balance between performance in the common
 case and generality. For instance, JSON Schema defines a ``number`` type, which
@@ -156,24 +187,24 @@ more general instance checks can introduce significant slowdown, especially
 given how common validating these types are.
 
 If you *do* want the generality, or just want to add a few specific additional
-types as being acceptable for a validator object, :class:`IValidator`\s have a
-``types`` argument that can be used to provide additional or new types.
+types as being acceptable for a validator object, then you should update an
+existing :class:`TypeChecker` or create a new one. You may then create a new
+:class:`IValidator` via :meth:`extend`.
 
 .. code-block:: python
 
     class MyInteger(object):
-        ...
+        pass
 
-    Draft3Validator(
-        schema={"type" : "number"},
-        types={"number" : (numbers.Number, MyInteger)},
-    )
+    def is_my_int(checker, instance):
+        return (Draft3Validator.TYPE_CHECKER.is_type(instance, "number") or
+               isinstance(instance, MyInteger))
 
-The list of default Python types for each JSON type is available on each
-validator object in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note
-that you need to specify all types to match if you override one of the
-existing JSON types, so you may want to access the set of default types
-when specifying your additional type.
+    type_checker = Draft3Validator.TYPE_CHECKER.redefine("number", is_my_int)
+
+    CustomValidator = extend(Draft3Validator, type_checker=type_checker)
+    validator = CustomValidator(schema={"type" : "number"})
+
 
 .. autoexception:: jsonschema.exceptions.UnknownType
 

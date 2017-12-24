@@ -140,6 +140,20 @@ class RefResolutionError(Exception):
     pass
 
 
+class UndefinedTypeCheck(Exception):
+    def __init__(self, type):
+        self.type = type
+
+    def __unicode__(self):
+        return "Type %r is unknown to this type checker" % self.type
+
+    if PY3:
+        __str__ = __unicode__
+    else:
+        def __str__(self):
+            return unicode(self).encode("utf-8")
+
+
 class UnknownType(Exception):
     def __init__(self, type, instance, schema):
         self.type = type
