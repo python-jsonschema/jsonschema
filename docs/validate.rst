@@ -33,9 +33,12 @@ classes should adhere to.
         an invalid schema can lead to undefined behavior. See
         `IValidator.check_schema` to validate a schema first.
     :argument types:
+
         .. deprecated:: 2.7.0
-           Instead, create a custom type checker and extend the validator. See
-           :ref:`validating-types` for details.
+
+            Instead, create a custom type checker and extend the validator.
+           
+            See `validating-types` for details.
 
         If used, this overrides or extends the list of known type when
         validating the :validator:`type` property. Should map strings (type
@@ -69,7 +72,7 @@ classes should adhere to.
 
         A mapping of validator names (`str`\s) to functions
         that validate the validator property with that name. For more
-        information see :ref:`creating-validators`.
+        information see `creating-validators`.
 
     .. attribute:: TYPE_CHECKER
         A `TypeChecker` that can be used validating :validator:`type`
@@ -84,23 +87,31 @@ classes should adhere to.
 
         Validate the given schema against the validator's `META_SCHEMA`.
 
-        :raises: `jsonschema.exceptions.SchemaError` if the schema
-            is invalid
+        Raises:
+
+            `jsonschema.exceptions.SchemaError`: if the schema is invalid
 
     .. method:: is_type(instance, type)
 
         Check if the instance is of the given (JSON Schema) type.
 
         :type type: str
-        :rtype: bool
-        :raises: `jsonschema.exceptions.UnknownType` if ``type``
-            is not a known type.
+
+        Returns:
+
+            bool
+
+        Raises:
+
+            jsonschema.exceptions.UnknownType: if ``type`` is not a known type
 
     .. method:: is_valid(instance)
 
         Check if the instance is valid under the current `schema`.
 
-        :rtype: bool
+        Returns:
+
+            bool
 
         >>> schema = {"maxItems" : 2}
         >>> Draft3Validator(schema).is_valid([2, 3, 4])
@@ -110,8 +121,9 @@ classes should adhere to.
 
         Lazily yield each of the validation errors in the given instance.
 
-        :rtype: an `collections.Iterable` of
-            `jsonschema.exceptions.ValidationError`\s
+        Returns:
+
+            `collections.Iterable` of `jsonschema.exceptions.ValidationError`\s
 
         >>> schema = {
         ...     "type" : "array",
@@ -128,8 +140,9 @@ classes should adhere to.
 
         Check if the instance is valid under the current `schema`.
 
-        :raises: `jsonschema.exceptions.ValidationError` if the
-            instance is invalid
+        Raises:
+
+            jsonschema.exceptions.ValidationError: if the instance is invalid
 
         >>> schema = {"maxItems" : 2}
         >>> Draft3Validator(schema).validate([2, 3, 4])
@@ -138,11 +151,10 @@ classes should adhere to.
         ValidationError: [2, 3, 4] is too long
 
 
-All of the :ref:`versioned validators <versioned-validators>` that
-are included with `jsonschema` adhere to the interface, and
-implementers of validator classes that extend or complement the
-ones included should adhere to it as well. For more information see
-:ref:`creating-validators`.
+All of the `versioned validators <versioned-validators>` that are included with
+`jsonschema` adhere to the interface, and implementers of validator classes
+that extend or complement the ones included should adhere to it as well. For
+more information see `creating-validators`.
 
 Type Checking
 -------------
@@ -154,7 +166,7 @@ of that type. The defaults are suitable for most users - each of the
 predefined Validators (Draft3, Draft4) has a `TypeChecker` that can
 correctly handle that draft.
 
-See :ref:`validating-types` for an example of providing a custom type check.
+See `validating-types` for an example of providing a custom type check.
 
 .. autoclass:: TypeChecker
     :members:
