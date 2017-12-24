@@ -18,8 +18,8 @@ class FormatChecker(object):
     formats that they do not know how to validate.
 
     To check a custom format using a function that takes an instance and
-    returns a ``bool``, use the :meth:`FormatChecker.checks` or
-    :meth:`FormatChecker.cls_checks` decorators.
+    returns a ``bool``, use the `FormatChecker.checks` or
+    `FormatChecker.cls_checks` decorators.
 
     Arguments:
 
@@ -83,7 +83,7 @@ class FormatChecker(object):
 
         Raises:
 
-            :exc:`jsonschema.exceptions.FormatError` if instance does not
+            `jsonschema.exceptions.FormatError` if instance does not
                 conform to ``format``
 
         """

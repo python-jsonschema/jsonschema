@@ -16,7 +16,7 @@ It's perfectly valid (and perhaps even useful) to have a default that is not
 valid under the schema it lives in! So an instance modified by the default
 would pass validation the first time, but fail the second!
 
-Still, filling in defaults is a thing that is useful. :mod:`jsonschema` allows
+Still, filling in defaults is a thing that is useful. `jsonschema` allows
 you to `define your own validator classes and callables <creating>`, so you can
 easily create an `jsonschema.IValidator` that does do default setting. Here's
 some code to get you started. (In this code, we add the default properties to
@@ -68,7 +68,7 @@ defaults.
     If you're interested in a more interesting solution to a larger class of these
     types of transformations, keep an eye on `Seep
     <https://github.com/Julian/Seep>`_, which is an experimental data
-    transformation and extraction library written on top of :mod:`jsonschema`.
+    transformation and extraction library written on top of `jsonschema`.
 
 
 .. hint::

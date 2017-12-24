@@ -594,7 +594,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     valid, since not doing so can lead to less obvious error messages and fail
     in less obvious or consistent ways. If you know you have a valid schema
     already or don't care, you might prefer using the
-    :meth:`~IValidator.validate` method directly on a specific validator
+    `IValidator.validate` method directly on a specific validator
     (e.g. ``Draft4Validator.validate``).
 
 
@@ -625,10 +625,10 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
     Raises:
 
-        :exc:`jsonschema.exceptions.ValidationError` if the instance
+        `jsonschema.exceptions.ValidationError` if the instance
             is invalid
 
-        :exc:`jsonschema.exceptions.SchemaError` if the schema itself
+        `jsonschema.exceptions.SchemaError` if the schema itself
             is invalid
 
     .. rubric:: Footnotes

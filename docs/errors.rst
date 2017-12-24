@@ -4,7 +4,7 @@ Handling Validation Errors
 
 .. currentmodule:: jsonschema.exceptions
 
-When an invalid instance is encountered, a :exc:`ValidationError` will be
+When an invalid instance is encountered, a `ValidationError` will be
 raised or returned, depending on which method or function is used.
 
 .. autoexception:: ValidationError
@@ -106,7 +106,7 @@ raised or returned, depending on which method or function is used.
         If the error was caused by a *non*-validation error, the
         exception object will be here. Currently this is only used
         for the exception raised by a failed format checker in
-        :meth:`jsonschema.FormatChecker.check`.
+        `jsonschema.FormatChecker.check`.
 
     .. attribute:: parent
 
@@ -114,14 +114,14 @@ raised or returned, depending on which method or function is used.
         ``None`` if there wasn't one.
 
 
-In case an invalid schema itself is encountered, a :exc:`SchemaError` is
+In case an invalid schema itself is encountered, a `SchemaError` is
 raised.
 
 .. autoexception:: SchemaError
 
     The provided schema is malformed.
 
-    The same attributes are present as for :exc:`ValidationError`\s.
+    The same attributes are present as for `ValidationError`\s.
 
 
 These attributes can be clarified with a short example:
@@ -381,7 +381,10 @@ to guess the most relevant error in a given bunch.
         Changing the default is only useful if you want to change the function
         that rates errors but still want the error context descent done by
         this function.
-    :returns: the best matching error, or ``None`` if the iterable was empty
+
+    Returns:
+
+        the best matching error, or ``None`` if the iterable was empty
 
     .. note::
 

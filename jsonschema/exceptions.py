@@ -230,7 +230,7 @@ class ErrorTree(object):
         If the index is not in the instance that this tree corresponds to and
         is not known by this tree, whatever error would be raised by
         ``instance.__getitem__`` will be propagated (usually this is some
-        subclass of :exc:`~exceptions.LookupError`.
+        subclass of `exceptions.LookupError`.
 
         """
 

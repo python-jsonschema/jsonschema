@@ -50,12 +50,10 @@ class TypeChecker(object):
     """
     A ``type`` property checker.
 
-    A `TypeChecker` performs type checking for
-    an `IValidator`. Type checks to perform
-    are updated using :meth:`TypeChecker.redefine` or
-    :meth:`TypeChecker.redefine_many` and removed via
-    :meth:`TypeChecker.remove` or :meth:`TypeChecker.remove_many`. Each
-    of these return a new `TypeChecker` object.
+    A `TypeChecker` performs type checking for an `IValidator`. Type checks to
+    perform are updated using `TypeChecker.redefine` or
+    `TypeChecker.redefine_many` and removed via `TypeChecker.remove` or
+    `TypeChecker.remove_many`. Each of these return a new `TypeChecker` object.
 
     Arguments:
 
@@ -86,7 +84,7 @@ class TypeChecker(object):
 
         Raises:
 
-            :exc:`jsonschema.exceptions.UndefinedTypeCheck`:
+            `jsonschema.exceptions.UndefinedTypeCheck`:
                 if type is unknown to this object.
         """
         try:
@@ -155,7 +153,7 @@ class TypeChecker(object):
 
         Raises:
 
-            :exc:`jsonschema.exceptions.UndefinedTypeCheck`:
+            `jsonschema.exceptions.UndefinedTypeCheck`:
                 if type is unknown to this object
 
         """
@@ -177,7 +175,7 @@ class TypeChecker(object):
 
         Raises:
 
-            :exc:`jsonschema.exceptions.UndefinedTypeCheck`:
+            `jsonschema.exceptions.UndefinedTypeCheck`:
                 if any of the types are unknown to this object
         """
         evolver = self._type_checkers.evolver()

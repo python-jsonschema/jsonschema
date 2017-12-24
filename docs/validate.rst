@@ -23,7 +23,7 @@ The simplest way to validate an instance under a given schema is to use the
 The Validator Interface
 -----------------------
 
-:mod:`jsonschema` defines an (informal) interface that all validator
+`jsonschema` defines an (informal) interface that all validator
 classes should adhere to.
 
 .. class:: IValidator(schema, types=(), resolver=None, format_checker=None)
@@ -31,7 +31,7 @@ classes should adhere to.
     :argument dict schema: the schema that the validator object
         will validate with. It is assumed to be valid, and providing
         an invalid schema can lead to undefined behavior. See
-        :meth:`IValidator.check_schema` to validate a schema first.
+        `IValidator.check_schema` to validate a schema first.
     :argument types:
         .. deprecated:: 2.7.0
            Instead, create a custom type checker and extend the validator. See
@@ -45,7 +45,7 @@ classes should adhere to.
         used to resolve :validator:`$ref` properties (JSON references). If
         unprovided, one will be created.
     :argument format_checker: an instance of `FormatChecker`
-        whose :meth:`~FormatChecker.conforms` method will be called to
+        whose `FormatChecker.conforms` method will be called to
         check and see if instances conform to each :validator:`format`
         property present in the schema. If unprovided, no validation
         will be done for :validator:`format`.
@@ -84,7 +84,7 @@ classes should adhere to.
 
         Validate the given schema against the validator's `META_SCHEMA`.
 
-        :raises: :exc:`jsonschema.exceptions.SchemaError` if the schema
+        :raises: `jsonschema.exceptions.SchemaError` if the schema
             is invalid
 
     .. method:: is_type(instance, type)
@@ -93,7 +93,7 @@ classes should adhere to.
 
         :type type: str
         :rtype: bool
-        :raises: :exc:`jsonschema.exceptions.UnknownType` if ``type``
+        :raises: `jsonschema.exceptions.UnknownType` if ``type``
             is not a known type.
 
     .. method:: is_valid(instance)
@@ -111,7 +111,7 @@ classes should adhere to.
         Lazily yield each of the validation errors in the given instance.
 
         :rtype: an `collections.Iterable` of
-            :exc:`jsonschema.exceptions.ValidationError`\s
+            `jsonschema.exceptions.ValidationError`\s
 
         >>> schema = {
         ...     "type" : "array",
@@ -128,7 +128,7 @@ classes should adhere to.
 
         Check if the instance is valid under the current `schema`.
 
-        :raises: :exc:`jsonschema.exceptions.ValidationError` if the
+        :raises: `jsonschema.exceptions.ValidationError` if the
             instance is invalid
 
         >>> schema = {"maxItems" : 2}
@@ -139,7 +139,7 @@ classes should adhere to.
 
 
 All of the :ref:`versioned validators <versioned-validators>` that
-are included with :mod:`jsonschema` adhere to the interface, and
+are included with `jsonschema` adhere to the interface, and
 implementers of validator classes that extend or complement the
 ones included should adhere to it as well. For more information see
 :ref:`creating-validators`.
@@ -162,7 +162,7 @@ See :ref:`validating-types` for an example of providing a custom type check.
 .. autoexception:: jsonschema.exceptions.UndefinedTypeCheck
 
     Raised when trying to remove a type check that is not known to this
-    TypeChecker, or when calling :meth:`jsonschema.TypeChecker.is_type`
+    TypeChecker, or when calling `jsonschema.TypeChecker.is_type`
     directly.
 
 .. _validating-types:
@@ -173,7 +173,7 @@ Validating With Additional Types
 Occasionally it can be useful to provide additional or alternate types when
 validating the JSON Schema's :validator:`type` property.
 
-:mod:`jsonschema` tries to strike a balance between performance in the common
+`jsonschema` tries to strike a balance between performance in the common
 case and generality. For instance, JSON Schema defines a ``number`` type, which
 can be validated with a schema such as ``{"type" : "number"}``. By default,
 this will accept instances of Python `numbers.Number`. This includes in
@@ -181,7 +181,7 @@ particular `int`\s and `float`\s, along with
 `decimal.Decimal` objects, `complex` numbers etc. For
 ``integer`` and ``object``, however, rather than checking for
 `numbers.Integral` and `collections.abc.Mapping`,
-:mod:`jsonschema` simply checks for `int` and `dict`, since the
+`jsonschema` simply checks for `int` and `dict`, since the
 more general instance checks can introduce significant slowdown, especially
 given how common validating these types are.
 
@@ -212,7 +212,7 @@ existing `TypeChecker` or create a new one. You may then create a new
 Versioned Validators
 --------------------
 
-:mod:`jsonschema` ships with validator classes for various versions of
+`jsonschema` ships with validator classes for various versions of
 the JSON Schema specification. For details on the methods and attributes
 that each validator class provides see the `IValidator` interface,
 which each included validator class implements.
@@ -270,8 +270,8 @@ validation can be enabled by hooking in a format-checking object into an
         A mapping of currently known formats to tuple of functions that
         validate them and errors that should be caught. New checkers can be
         added and removed either per-instance or globally for all checkers
-        using the :meth:`FormatChecker.checks` or
-        :meth:`FormatChecker.cls_checks` decorators respectively.
+        using the `FormatChecker.checks` or `FormatChecker.cls_checks`
+        decorators respectively.
 
     .. classmethod:: cls_checks(format, raises=())
 

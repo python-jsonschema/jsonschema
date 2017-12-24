@@ -40,7 +40,9 @@ Creating or Extending Validator Classes
         unprovided, a `jsonschema.TypeChecker` will created with no
         supported types.
 
-    :returns: a new `jsonschema.IValidator` class
+    Returns:
+
+        a new `jsonschema.IValidator` class
 
 
 .. autofunction:: extend
@@ -68,7 +70,9 @@ Creating or Extending Validator Classes
     :argument jsonschema.TypeChecker type_checker: a type checker. If
         unprovided, the existing `jsonschema.TypeChecker` will be used.
 
-    :returns: a new `jsonschema.IValidator` class
+    Returns:
+
+        a new `jsonschema.IValidator` class extending the one provided
 
     .. note:: Meta Schemas
 
