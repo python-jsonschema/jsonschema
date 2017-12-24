@@ -15,7 +15,7 @@ Creating or Extending Validator Classes
     :argument dict validators: a mapping from names to callables, where
         each callable will validate the schema property with the given
         name.
-        
+
         Each callable should take 4 arguments:
 
             1. a validator instance,

@@ -3,8 +3,8 @@ Frequently Asked Questions
 ==========================
 
 
-Why doesn't my schema that has a default property actually set the default on my instance?
-------------------------------------------------------------------------------------------
+Why doesn't my schema's default property set the default on my instance?
+------------------------------------------------------------------------
 
 The basic answer is that the specification does not require that
 :validator:`default` actually do anything.
@@ -94,14 +94,14 @@ defaults.
                 }
             }
         }
-        
+
         obj = {}
         DefaultValidatingDraft4Validator(schema).validate(obj)
         assert obj == {'outer-object': {'inner-object': 'INNER-DEFAULT'}}
 
-    ...but if you don't provide a default value for your object, 
+    ...but if you don't provide a default value for your object,
     then it won't be instantiated at all, much less populated with default properties.
-    
+
     .. code-block:: python
 
         del schema["properties"]["outer-object"]["default"]
