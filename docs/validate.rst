@@ -39,7 +39,7 @@ classes should adhere to.
 
         If used, this overrides or extends the list of known type when
         validating the :validator:`type` property. Should map strings (type
-        names) to class objects that will be checked via :func:`isinstance`.
+        names) to class objects that will be checked via `isinstance`.
     :type types: dict or ~collections.Iterable of 2-`tuple`\s
     :argument resolver: an instance of `RefResolver` that will be
         used to resolve :validator:`$ref` properties (JSON references). If
@@ -188,7 +188,7 @@ given how common validating these types are.
 If you *do* want the generality, or just want to add a few specific additional
 types as being acceptable for a validator object, then you should update an
 existing `TypeChecker` or create a new one. You may then create a new
-`IValidator` via :func:`jsonschema.validators.extend`.
+`IValidator` via `jsonschema.validators.extend`.
 
 .. code-block:: python
 
@@ -300,7 +300,7 @@ Checker     Notes
 ==========  ====================
 hostname
 ipv4
-ipv6        OS must have :func:`socket.inet_pton` function
+ipv6        OS must have `socket.inet_pton` function
 email
 uri         requires rfc3987_
 date-time   requires strict-rfc3339_ [#]_

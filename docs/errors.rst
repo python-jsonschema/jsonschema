@@ -342,7 +342,7 @@ corresponding validation error.
 best_match and relevance
 ------------------------
 
-The :func:`best_match` function is a simple but useful function for attempting
+The `best_match` function is a simple but useful function for attempting
 to guess the most relevant error in a given bunch.
 
 .. doctest::
@@ -376,7 +376,7 @@ to guess the most relevant error in a given bunch.
         (i.e. from different instances or schemas), since it won't
         produce sensical output.
     :argument callable key: the key to use when sorting errors. See
-        `relevance` and transitively :func:`by_relevance` for more
+        `relevance` and transitively `by_relevance` for more
         details (the default is to sort with the defaults of that function).
         Changing the default is only useful if you want to change the function
         that rates errors but still want the error context descent done by
@@ -395,7 +395,7 @@ to guess the most relevant error in a given bunch.
 
     If you want to sort a bunch of errors entirely, you can use
     this function to do so. Using this function as a key to e.g.
-    :func:`sorted` or :func:`max` will cause more relevant errors to be
+    `sorted` or `max` will cause more relevant errors to be
     considered greater than less relevant ones.
 
     Within the different validators that can fail, this function
@@ -404,7 +404,7 @@ to guess the most relevant error in a given bunch.
     the same level in the instance.
 
     If you want to change the set of weak [or strong] validators you can create
-    a custom version of this function with :func:`by_relevance` and provide a
+    a custom version of this function with `by_relevance` and provide a
     different set of each.
 
 .. doctest::

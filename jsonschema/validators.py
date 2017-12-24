@@ -633,7 +633,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
     .. rubric:: Footnotes
     .. [#] known by a validator registered with
-        :func:`jsonschema.validators.validates`
+        `jsonschema.validators.validates`
     """
     if cls is None:
         cls = validator_for(schema)

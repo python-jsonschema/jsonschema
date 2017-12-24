@@ -26,7 +26,7 @@ Creating or Extending Validator Classes
     :argument str version: an identifier for the version that this
         validator class will validate. If provided, the returned validator
         class will have its ``__name__`` set to include the version, and
-        also will have :func:`jsonschema.validators.validates` automatically
+        also will have `jsonschema.validators.validates` automatically
         called for the given version.
 
     :argument dict default_types:
@@ -50,7 +50,7 @@ Creating or Extending Validator Classes
     :argument jsonschema.IValidator validator: an existing validator class
 
     :argument dict validators: a mapping of new validator callables to extend
-        with, whose structure is as in :func:`create`\ .
+        with, whose structure is as in `create`\ .
 
         .. note::
 
