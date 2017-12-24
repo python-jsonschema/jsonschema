@@ -162,9 +162,8 @@ See :ref:`validating-types` for an example of providing a custom type check.
 .. autoexception:: jsonschema.exceptions.UndefinedTypeCheck
 
     Raised when trying to remove a type check that is not known to this
-    TypeChecker. Internally this is also raised when calling
-    :meth:`TypeChecker.is_type`, but is caught and re-raised as a
-    :class:`jsonschema.exceptions.UnknownType` exception.
+    TypeChecker, or when calling :meth:`jsonschema.TypeChecker.is_type`
+    directly.
 
 .. _validating-types:
 
@@ -189,7 +188,7 @@ given how common validating these types are.
 If you *do* want the generality, or just want to add a few specific additional
 types as being acceptable for a validator object, then you should update an
 existing :class:`TypeChecker` or create a new one. You may then create a new
-:class:`IValidator` via :meth:`extend`.
+:class:`IValidator` via :func:`jsonschema.validators.extend`.
 
 .. code-block:: python
 

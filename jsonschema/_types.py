@@ -50,12 +50,12 @@ class TypeChecker(object):
     """
     A ``type`` property checker.
 
-    A :class:`TypeChecker` performs type checking for an instance of
-    :class:`Validator`. Type checks to perform are updated using
-    :meth:`TypeChecker.redefine` or :meth:`TypeChecker.redefine_many` and
-    removed via :meth:`TypeChecker.remove` or
-    :meth:`TypeChecker.remove_many`. Each of these return a new
-    :class:`TypeChecker` object.
+    A :class:`TypeChecker` performs type checking for
+    an :class:`IValidator`. Type checks to perform
+    are updated using :meth:`TypeChecker.redefine` or
+    :meth:`TypeChecker.redefine_many` and removed via
+    :meth:`TypeChecker.remove` or :meth:`TypeChecker.remove_many`. Each
+    of these return a new :class:`TypeChecker` object.
 
     Arguments:
 
@@ -167,7 +167,7 @@ class TypeChecker(object):
 
         Arguments:
 
-            types (iterable):
+            types (~collections.Iterable):
 
                 An iterable of types to remove.
 
