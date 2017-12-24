@@ -371,16 +371,23 @@ to guess the most relevant error in a given bunch.
     since these validators only need to match once, and any other errors may
     not be relevant.
 
-    :argument collections.Iterable errors: the errors to select from. Do not
-        provide a mixture of errors from different validation attempts
-        (i.e. from different instances or schemas), since it won't
-        produce sensical output.
-    :argument callable key: the key to use when sorting errors. See
-        `relevance` and transitively `by_relevance` for more
-        details (the default is to sort with the defaults of that function).
-        Changing the default is only useful if you want to change the function
-        that rates errors but still want the error context descent done by
-        this function.
+    Arguments:
+
+        errors (collections.Iterable):
+
+            the errors to select from. Do not provide a mixture of errors from
+            different validation attempts (i.e. from different instances or
+            schemas), since it won't produce sensical output.
+
+        key (callable):
+
+            the key to use when sorting errors.
+
+            See `relevance` and transitively `by_relevance` for more details
+            (the default is to sort with the defaults of that function).
+            Changing the default is only useful if you want to change the
+            function that rates errors but still want the error context descent
+            done by this function.
 
     Returns:
 
@@ -435,11 +442,17 @@ to guess the most relevant error in a given bunch.
 
     Create a key function that can be used to sort errors by relevance.
 
-    :argument set weak: a collection of validator names to consider to
-        be "weak". If there are two errors at the same level of the
-        instance and one is in the set of weak validator names, the
-        other error will take priority. By default, :validator:`anyOf`
-        and :validator:`oneOf` are considered weak validators and will
-        be superseded by other same-level validation errors.
-    :argument set strong: a collection of validator names to consider to
-        be "strong"
+    Arguments:
+
+        weak (collections.Set):
+
+            a collection of validator names to consider to be "weak". If there
+            are two errors at the same level of the instance and one is in the
+            set of weak validator names, the other error will take priority. By
+            default, :validator:`anyOf` and :validator:`oneOf` are considered
+            weak validators and will be superseded by other same-level
+            validation errors.
+
+        strong (collections.Set):
+
+            a collection of validator names to consider to be "strong"

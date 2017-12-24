@@ -10,35 +10,49 @@ Creating or Extending Validator Classes
 
     Create a new validator class.
 
-    :argument dict meta_schema: the meta schema for the new validator class
+    Arguments:
 
-    :argument dict validators: a mapping from names to callables, where
-        each callable will validate the schema property with the given
-        name.
+        meta_schema (collections.Mapping):
 
-        Each callable should take 4 arguments:
+            the meta schema for the new validator class
 
-            1. a validator instance,
-            2. the value of the property being validated within the instance
-            3. the instance
-            4. the schema
+        validators (collections.Mapping):
 
-    :argument str version: an identifier for the version that this
-        validator class will validate. If provided, the returned validator
-        class will have its ``__name__`` set to include the version, and
-        also will have `jsonschema.validators.validates` automatically
-        called for the given version.
+            a mapping from names to callables, where each callable will
+            validate the schema property with the given name.
 
-    :argument dict default_types:
-        .. deprecated:: 2.7.0 Please use the type_checker argument instead.
+            Each callable should take 4 arguments:
 
-        If set, it provides mappings of JSON types to Python types that will
-        be converted to functions and redefined in this object's
-        `jsonschema.TypeChecker`.
+                1. a validator instance,
+                2. the value of the property being validated within the
+                   instance
+                3. the instance
+                4. the schema
 
-    :argument jsonschema.TypeChecker type_checker: a type checker. If
-        unprovided, a `jsonschema.TypeChecker` will created with no
-        supported types.
+        version (str):
+
+            an identifier for the version that this validator class will
+            validate. If provided, the returned validator class will have its
+            ``__name__`` set to include the version, and also will have
+            `jsonschema.validators.validates` automatically called for the
+            given version.
+
+        type_checker (jsonschema.TypeChecker):
+
+            a type checker, used when applying the :validator:`type` validator.
+
+            If unprovided, an empty `jsonschema.TypeChecker` will created with
+            no known default types.
+
+        default_types (collections.Mapping):
+
+            .. deprecated:: 2.7.0
+
+                Please use the type_checker argument instead.
+
+            If set, it provides mappings of JSON types to Python types that
+            will be converted to functions and redefined in this object's
+            `jsonschema.TypeChecker`.
 
     Returns:
 
@@ -49,26 +63,39 @@ Creating or Extending Validator Classes
 
     Create a new validator class by extending an existing one.
 
-    :argument jsonschema.IValidator validator: an existing validator class
+    Arguments:
 
-    :argument dict validators: a mapping of new validator callables to extend
-        with, whose structure is as in `create`\ .
+        validator (jsonschema.IValidator):
 
-        .. note::
+            an existing validator class
 
-            Any validator callables with the same name as an existing one will
-            (silently) replace the old validator callable entirely, effectively
-            overriding any validation done in the "parent" validator class.
+        validators (collections.Mapping):
 
-            If you wish to instead extend the behavior of a parent's
-            validator callable, delegate and call it directly in
-            the new validator function by retrieving it using
-            ``OldValidator.VALIDATORS["validator_name"]``.
+            a mapping of new validator callables to extend with, whose
+            structure is as in `create`.
 
-    :argument str version: a version for the new validator class
+            .. note::
 
-    :argument jsonschema.TypeChecker type_checker: a type checker. If
-        unprovided, the existing `jsonschema.TypeChecker` will be used.
+                Any validator callables with the same name as an existing one
+                will (silently) replace the old validator callable entirely,
+                effectively overriding any validation done in the "parent"
+                validator class.
+
+                If you wish to instead extend the behavior of a parent's
+                validator callable, delegate and call it directly in the new
+                validator function by retrieving it using
+                ``OldValidator.VALIDATORS["validator_name"]``.
+
+        version (str):
+
+            a version for the new validator class
+
+        type_checker (jsonschema.TypeChecker):
+
+            a type checker, used when applying the :validator:`type` validator.
+
+            If unprovided, the type checker of the extended
+            `jsonschema.IValidator` will be carried along.`
 
     Returns:
 
@@ -92,10 +119,19 @@ Creating or Extending Validator Classes
     Uses the :validator:`$schema` property that should be present in the given
     schema to look up the appropriate validator class.
 
-    :argument schema: the schema to look at
-    :argument default: the default to return if the appropriate validator class
-        cannot be determined. If unprovided, the default is to return
-        `jsonschema.Draft4Validator`
+    Arguments:
+
+        schema (dict):
+
+            the schema to look at
+
+        default:
+
+            the default to return if the appropriate validator class cannot be
+            determined.
+
+            If unprovided, the default is to return
+            `jsonschema.Draft4Validator`.
 
 
 .. autofunction:: validates

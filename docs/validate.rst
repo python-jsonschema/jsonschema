@@ -28,40 +28,40 @@ classes should adhere to.
 
 .. class:: IValidator(schema, types=(), resolver=None, format_checker=None)
 
-    :argument dict schema: the schema that the validator object
-        will validate with. It is assumed to be valid, and providing
-        an invalid schema can lead to undefined behavior. See
-        `IValidator.check_schema` to validate a schema first.
-    :argument types:
+    Arguments:
 
-        .. deprecated:: 2.7.0
+        schema (dict):
 
-            Instead, create a custom type checker and extend the validator.
-           
-            See `validating-types` for details.
+            the schema that the validator object will validate with. It is
+            assumed to be valid, and providing an invalid schema can lead to
+            undefined behavior. See `IValidator.check_schema` to validate a
+            schema first.
 
-        If used, this overrides or extends the list of known type when
-        validating the :validator:`type` property. Should map strings (type
-        names) to class objects that will be checked via `isinstance`.
-    :type types: dict or ~collections.Iterable of 2-`tuple`\s
-    :argument resolver: an instance of `RefResolver` that will be
-        used to resolve :validator:`$ref` properties (JSON references). If
-        unprovided, one will be created.
-    :argument format_checker: an instance of `FormatChecker`
-        whose `FormatChecker.conforms` method will be called to
-        check and see if instances conform to each :validator:`format`
-        property present in the schema. If unprovided, no validation
-        will be done for :validator:`format`.
+        resolver (RefResolver):
 
-    .. attribute:: DEFAULT_TYPES
+            an instance of `RefResolver` that will be used to resolve
+            :validator:`$ref` properties (JSON references). If unprovided, one
+            will be created.
 
-        .. deprecated:: 2.7.0
-           Use of this attribute is deprecated in favour of the the new type
-           checkers.
+        format_checker (FormatChecker):
 
-        It provides mappings of JSON types to Python types that will
-        be converted to functions and redefined in this object's type checker
-        if one is not provided.
+            a format checker whose `FormatChecker.conforms` method will be
+            called to check and see if instances conform to each
+            :validator:`format` property present in the schema.
+
+            If unprovided, no validation will be done for :validator:`format`.
+
+        types (dict or collections.Iterable of 2-tuples):
+
+            .. deprecated:: 2.7.0
+
+                Instead, create a custom type checker and extend the validator.
+
+                See `validating-types` for details.
+
+            If used, this overrides or extends the list of known type when
+            validating the :validator:`type` property. Should map strings (type
+            names) to class objects that will be checked via `isinstance`.
 
     .. attribute:: META_SCHEMA
 
@@ -81,6 +81,16 @@ classes should adhere to.
     .. attribute:: schema
 
         The schema that was passed in when initializing the object.
+
+    .. attribute:: DEFAULT_TYPES
+
+        .. deprecated:: 2.7.0
+           Use of this attribute is deprecated in favour of the the new type
+           checkers.
+
+        It provides mappings of JSON types to Python types that will
+        be converted to functions and redefined in this object's type checker
+        if one is not provided.
 
 
     .. classmethod:: check_schema(schema)
