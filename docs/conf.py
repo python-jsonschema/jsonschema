@@ -72,7 +72,7 @@ version = release.partition("-")[0]
 exclude_patterns = ["_build", "_cache", "_static", "_templates"]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
-# default_role = None
+default_role = "any"
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
