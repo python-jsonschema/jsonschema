@@ -270,6 +270,12 @@ class RefResolver(object):
             A cache that will be used for caching the results of
             resolved remote URLs.
 
+    Attributes:
+
+        cache_remote (bool):
+
+            Whether remote refs should be cached after first resolution
+
     """
 
     def __init__(
@@ -502,7 +508,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     in less obvious or consistent ways. If you know you have a valid schema
     already or don't care, you might prefer using the
     :meth:`~IValidator.validate` method directly on a specific validator
-    (e.g. :meth:`Draft4Validator.validate`).
+    (e.g. ``Draft4Validator.validate``).
 
 
     Arguments:
@@ -532,12 +538,15 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
     Raises:
 
-        :exc:`ValidationError` if the instance is invalid
+        :exc:`jsonschema.exceptions.ValidationError` if the instance
+            is invalid
 
-        :exc:`SchemaError` if the schema itself is invalid
+        :exc:`jsonschema.exceptions.SchemaError` if the schema itself
+            is invalid
 
     .. rubric:: Footnotes
-    .. [#] known by a validator registered with :func:`validates`
+    .. [#] known by a validator registered with
+        :func:`jsonschema.validators.validates`
     """
     if cls is None:
         cls = validator_for(schema)

@@ -36,15 +36,15 @@ classes should adhere to.
         validating the :validator:`type` property. Should map strings (type
         names) to class objects that will be checked via :func:`isinstance`.
         See :ref:`validating-types` for details.
-    :type types: dict or iterable of 2-tuples
+    :type types: dict or ~collections.Iterable of 2-`tuple`\s
     :argument resolver: an instance of :class:`RefResolver` that will be
         used to resolve :validator:`$ref` properties (JSON references). If
         unprovided, one will be created.
     :argument format_checker: an instance of :class:`FormatChecker`
-        whose :meth:`~conforms` method will be called to check and see if
-        instances conform to each :validator:`format` property present
-        in the schema. If unprovided, no validation will be done for
-        :validator:`format`.
+        whose :meth:`~FormatChecker.conforms` method will be called to
+        check and see if instances conform to each :validator:`format`
+        property present in the schema. If unprovided, no validation
+        will be done for :validator:`format`.
 
     .. attribute:: DEFAULT_TYPES
 
@@ -71,7 +71,8 @@ classes should adhere to.
 
         Validate the given schema against the validator's :attr:`META_SCHEMA`.
 
-        :raises: :exc:`SchemaError` if the schema is invalid
+        :raises: :exc:`jsonschema.exceptions.SchemaError` if the schema
+            is invalid
 
     .. method:: is_type(instance, type)
 
@@ -79,7 +80,8 @@ classes should adhere to.
 
         :type type: str
         :rtype: bool
-        :raises: :exc:`UnknownType` if ``type`` is not a known type.
+        :raises: :exc:`jsonschema.exceptions.UnknownType` if ``type``
+            is not a known type.
 
     .. method:: is_valid(instance)
 
@@ -95,7 +97,8 @@ classes should adhere to.
 
         Lazily yield each of the validation errors in the given instance.
 
-        :rtype: an iterable of :exc:`ValidationError`\s
+        :rtype: an `~collections.Iterable` of
+            :exc:`jsonschema.exceptions.ValidationError`\s
 
         >>> schema = {
         ...     "type" : "array",
@@ -112,7 +115,8 @@ classes should adhere to.
 
         Check if the instance is valid under the current :attr:`schema`.
 
-        :raises: :exc:`ValidationError` if the instance is invalid
+        :raises: :exc:`jsonschema.exceptions.ValidationError` if the
+            instance is invalid
 
         >>> schema = {"maxItems" : 2}
         >>> Draft3Validator(schema).validate([2, 3, 4])
@@ -170,6 +174,8 @@ validator object in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note
 that you need to specify all types to match if you override one of the
 existing JSON types, so you may want to access the set of default types
 when specifying your additional type.
+
+.. autoexception:: jsonschema.exceptions.UnknownType
 
 .. _versioned-validators:
 
@@ -245,9 +251,10 @@ validation can be enabled by hooking in a format-checking object into an
         supplied checker.
 
         :argument str format: the format that the decorated function will check
-        :argument Exception raises: the exception(s) raised by the decorated
-            function when an invalid instance is found. The exception object
-            will be accessible as the :attr:`ValidationError.cause` attribute
+        :argument Exception raises: the exception(s) raised
+            by the decorated function when an invalid instance is
+            found. The exception object will be accessible as the
+            :attr:`~jsonschema.exceptions.ValidationError.cause` attribute
             of the resulting validation error.
 
 

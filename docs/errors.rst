@@ -88,7 +88,7 @@ raised or returned, depending on which method or function is used.
     .. attribute:: instance
 
         The instance that was being validated. This will differ from
-        the instance originally passed into :meth:`validate` if the
+        the instance originally passed into ``validate`` if the
         validator object was in the process of validating a (possibly
         nested) element within the top-level instance. The path within
         the top-level instance (i.e. :attr:`ValidationError.path`) could
@@ -103,9 +103,10 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: cause
 
-        If the error was caused by a *non*-validation error, the exception
-        object will be here. Currently this is only used for the exception
-        raised by a failed format checker in :meth:`FormatChecker.check`.
+        If the error was caused by a *non*-validation error, the
+        exception object will be here. Currently this is only used
+        for the exception raised by a failed format checker in
+        :meth:`jsonschema.FormatChecker.check`.
 
     .. attribute:: parent
 
@@ -222,9 +223,9 @@ ErrorTrees
 
 If you want to programmatically be able to query which properties or validators
 failed when validating a given instance, you probably will want to do so using
-:class:`ErrorTree` objects.
+:class:`jsonschema.exceptions.ErrorTree` objects.
 
-.. autoclass:: jsonschema.validators.ErrorTree
+.. autoclass:: jsonschema.exceptions.ErrorTree
     :members:
     :special-members:
     :exclude-members: __dict__,__weakref__
@@ -232,7 +233,8 @@ failed when validating a given instance, you probably will want to do so using
     .. attribute:: errors
 
         The mapping of validator names to the error objects (usually
-        :class:`ValidationError`\s) at this level of the tree.
+        :class:`jsonschema.exceptions.ValidationError`\s) at this level
+        of the tree.
 
 Consider the following example:
 
@@ -259,17 +261,18 @@ For clarity's sake, the given instance has three errors under this schema:
     'spam' is not one of [1, 2, 3]
     ['spam', 2] is too short
 
-Let's construct an :class:`ErrorTree` so that we can query the errors a bit
-more easily than by just iterating over the error objects.
+Let's construct an :class:`~jsonschema.exceptions.ErrorTree` so that we
+can query the errors a bit more easily than by just iterating over the
+error objects.
 
 .. testcode::
 
     tree = ErrorTree(v.iter_errors(instance))
 
-As you can see, :class:`ErrorTree` takes an iterable of
-:class:`ValidationError`\s when constructing a tree so you
-can directly pass it the return value of a validator object's
-:attr:`~IValidator.iter_errors` method.
+As you can see, :class:`~jsonschema.exceptions.ErrorTree` takes an
+iterable of :class:`ValidationError`\s when constructing a tree so
+you can directly pass it the return value of a validator object's
+:attr:`~jsonschema.IValidator.iter_errors` method.
 
 :class:`ErrorTree`\s support a number of useful operations. The first one we
 might want to perform is to check whether a given element in our instance
@@ -368,10 +371,10 @@ to guess the most relevant error in a given bunch.
     since these validators only need to match once, and any other errors may
     not be relevant.
 
-    :argument iterable errors: the errors to select from. Do not provide a
-        mixture of errors from different validation attempts (i.e. from
-        different instances or schemas), since it won't produce sensical
-        output.
+    :argument collections.Iterable errors: the errors to select from. Do not
+        provide a mixture of errors from different validation attempts
+        (i.e. from different instances or schemas), since it won't
+        produce sensical output.
     :argument callable key: the key to use when sorting errors. See
         :attr:`relevance` and transitively :func:`by_relevance` for more
         details (the default is to sort with the defaults of that function).

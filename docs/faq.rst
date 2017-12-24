@@ -18,10 +18,11 @@ would pass validation the first time, but fail the second!
 
 Still, filling in defaults is a thing that is useful. :mod:`jsonschema`
 allows you to :doc:`define your own validator classes and callables
-<creating>`, so you can easily create a :class:`IValidator` that does do
-default setting. Here's some code to get you started. (In this code, we add
-the default properties to each object *before* the properties are validated,
-so the default values themselves will need to be valid under the schema.)
+<creating>`, so you can easily create an :class:`~jsonschema.IValidator`
+that does do default setting. Here's some code to get you started. (In
+this code, we add the default properties to each object *before* the
+properties are validated, so the default values themselves will need to
+be valid under the schema.)
 
     .. code-block:: python
 
@@ -58,9 +59,10 @@ so the default values themselves will need to be valid under the schema.)
         assert obj == {'foo': 'bar'}
 
 
-See the above-linked document for more info on how this works, but basically,
-it just extends the :validator:`properties` validator on a
-:class:`Draft4Validator` to then go ahead and update all the defaults.
+See the above-linked document for more info on how this works, but
+basically, it just extends the :validator:`properties` validator on a
+:class:`~jsonschema.Draft4Validator` to then go ahead and update all the
+defaults.
 
 .. note::
 

@@ -1,10 +1,10 @@
+.. currentmodule:: jsonschema.validators
+
 .. _creating-validators:
 
 =======================================
 Creating or Extending Validator Classes
 =======================================
-
-.. currentmodule:: jsonschema.validators
 
 .. autofunction:: create
 
@@ -23,11 +23,11 @@ Creating or Extending Validator Classes
             3. the instance
             4. the schema
 
-    :argument str version: an identifier for the version that this validator
-        class will validate. If provided, the returned validator class
-        will have its ``__name__`` set to include the version, and also
-        will have :func:`validates` automatically called for the given
-        version.
+    :argument str version: an identifier for the version that this
+        validator class will validate. If provided, the returned validator
+        class will have its ``__name__`` set to include the version, and
+        also will have :func:`jsonschema.validators.validates` automatically
+        called for the given version.
 
     :argument dict default_types: a default mapping to use for instances
         of the validator class when mapping between JSON types to Python
@@ -82,7 +82,7 @@ Creating or Extending Validator Classes
     :argument schema: the schema to look at
     :argument default: the default to return if the appropriate validator class
         cannot be determined. If unprovided, the default is to return
-        :class:`Draft4Validator`
+        :class:`jsonschema.Draft4Validator`
 
 
 .. autofunction:: validates
@@ -92,8 +92,7 @@ Creating Validation Errors
 --------------------------
 
 Any validating function that validates against a subschema should call
-:meth:`ValidatorMixin.descend`, rather than :meth:`ValidatorMixin.iter_errors`.
-If it recurses into the instance, or schema, it should pass one or both of the
-``path`` or ``schema_path`` arguments to :meth:`ValidatorMixin.descend` in
-order to properly maintain where in the instance or schema respectively the
-error occurred.
+``descend``, rather than ``iter_errors``. If it recurses into the
+instance, or schema, it should pass one or both of the ``path`` or
+``schema_path`` arguments to ``descend`` in order to properly maintain
+where in the instance or schema respectively the error occurred.

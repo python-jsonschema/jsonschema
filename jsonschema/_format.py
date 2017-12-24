@@ -23,7 +23,7 @@ class FormatChecker(object):
 
     Arguments:
 
-        formats (iterable):
+        formats (~collections.Iterable):
 
             The known formats to validate. This argument can be used to
             limit which formats will be used during validation.
@@ -54,8 +54,8 @@ class FormatChecker(object):
                 an invalid instance is found.
 
                 The exception object will be accessible as the
-                :attr:`ValidationError.cause` attribute of the resulting
-                validation error.
+                :attr:`jsonschema.exceptions.ValidationError.cause`
+                attribute of the resulting validation error.
 
         """
 
@@ -72,7 +72,7 @@ class FormatChecker(object):
 
         Arguments:
 
-            instance (any primitive type, i.e. str, number, bool):
+            instance (*any primitive type*, i.e. str, number, bool):
 
                 The instance to check
 
@@ -83,7 +83,8 @@ class FormatChecker(object):
 
         Raises:
 
-            :exc:`FormatError` if instance does not conform to ``format``
+            :exc:`jsonschema.exceptions.FormatError` if instance does not
+                conform to ``format``
 
         """
 
@@ -107,7 +108,7 @@ class FormatChecker(object):
 
         Arguments:
 
-            instance (any primitive type, i.e. str, number, bool):
+            instance (*any primitive type*, i.e. str, number, bool):
 
                 The instance to check
 
