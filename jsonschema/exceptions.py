@@ -251,7 +251,7 @@ class ErrorTree(object):
 
     def __len__(self):
         """
-        Same as :attr:`total_errors`.
+        Same as `total_errors`.
 
         """
 
