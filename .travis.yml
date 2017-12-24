@@ -10,3 +10,8 @@ install:
 script:
   - tox
 sudo: false
+addons:
+  apt:
+    packages:
+    - libenchant
+    - libenchant-dev
