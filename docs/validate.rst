@@ -127,7 +127,7 @@ classes should adhere to.
 
 All of the :ref:`versioned validators <versioned-validators>` that
 are included with :mod:`jsonschema` adhere to the interface, and
-implementors of validator classes that extend or complement the
+implementers of validator classes that extend or complement the
 ones included should adhere to it as well. For more information see
 :ref:`creating-validators`.
 

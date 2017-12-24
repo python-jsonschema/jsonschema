@@ -29,6 +29,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinxcontrib.spelling",
     "jsonschema_role",
 ]
 
@@ -249,7 +250,6 @@ texinfo_documents = [
 # How to display URL addresses: "footnote", "no", or "inline".
 # texinfo_show_urls = "footnote"
 
-# -- Read the Docs -------------------------------------------------------------
+# -- Options for sphinxcontrib-spelling -----------------------------------
 
-# Ooo pretty.
-RTD_NEW_THEME = True
+spelling_word_list_filename = "spelling-wordlist.txt"

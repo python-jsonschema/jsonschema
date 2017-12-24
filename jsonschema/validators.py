@@ -404,7 +404,7 @@ class RefResolver(object):
 
             document:
 
-                The referrant document
+                The referent document
 
             fragment (str):
 
