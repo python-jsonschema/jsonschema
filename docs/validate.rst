@@ -55,13 +55,17 @@ classes should adhere to.
 
             .. deprecated:: 2.7.0
 
-                Instead, create a custom type checker and extend the validator.
+                Use `TypeChecker.redefine` and `jsonschema.validators.extend`
+                instead of this argument.
 
                 See `validating-types` for details.
 
-            If used, this overrides or extends the list of known type when
-            validating the :validator:`type` property. Should map strings (type
-            names) to class objects that will be checked via `isinstance`.
+            If used, this overrides or extends the list of known types when
+            validating the :validator:`type` property.
+
+            What is provided should map strings (type names) to class objects
+            that will be checked via `isinstance`.
+
 
     .. attribute:: META_SCHEMA
 
@@ -75,8 +79,9 @@ classes should adhere to.
         information see `creating-validators`.
 
     .. attribute:: TYPE_CHECKER
-        A `TypeChecker` that can be used validating :validator:`type`
-         properties in JSON schemas.
+
+        A `TypeChecker` that will be used when validating :validator:`type`
+        properties in JSON schemas.
 
     .. attribute:: schema
 
@@ -86,12 +91,17 @@ classes should adhere to.
 
         .. deprecated:: 2.7.0
 
-           Use of this attribute is deprecated in favor of the the new type
-           checkers.
+            Use of this attribute is deprecated in favor of the new `type
+            checkers <TypeChecker>`.
 
-        It provides mappings of JSON types to Python types that will
-        be converted to functions and redefined in this object's type checker
-        if one is not provided.
+            See `validating-types` for details.
+
+        For backwards compatibility on existing validator classes, a mapping of
+        JSON types to Python class objects which define the Python types for
+        each JSON type.
+
+        Any existing code using this attribute should likely transition to
+        using `TypeChecker.is_type`.
 
 
     .. classmethod:: check_schema(schema)
@@ -100,7 +110,7 @@ classes should adhere to.
 
         Raises:
 
-            `jsonschema.exceptions.SchemaError`: if the schema is invalid
+            jsonschema.exceptions.SchemaError: if the schema is invalid
 
     .. method:: is_type(instance, type)
 
@@ -303,12 +313,18 @@ validation can be enabled by hooking in a format-checking object into an
         Any instance created after this function is called will pick up the
         supplied checker.
 
-        :argument str format: the format that the decorated function will check
-        :argument Exception raises: the exception(s) raised
-            by the decorated function when an invalid instance is
-            found. The exception object will be accessible as the
-            `jsonschema.exceptions.ValidationError.cause` attribute
-            of the resulting validation error.
+        Arguments:
+
+            format (str):
+
+                the format that the decorated function will check
+
+            raises (Exception):
+
+            the exception(s) raised by the decorated function when an invalid
+            instance is found. The exception object will be accessible as the
+            `jsonschema.exceptions.ValidationError.cause` attribute of the
+            resulting validation error.
 
 
 .. autoexception:: FormatError
