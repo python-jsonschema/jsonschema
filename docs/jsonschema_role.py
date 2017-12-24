@@ -11,7 +11,7 @@ except ImportError:
 from lxml import html
 
 
-VALIDATION_SPEC = "http://json-schema.org/latest/json-schema-validation.html"
+VALIDATION_SPEC = "http://json-schema.org/draft-04/json-schema-validation.html"
 
 
 def setup(app):
@@ -84,8 +84,10 @@ def docutils_sucks(spec):
     """
 
     base_url = VALIDATION_SPEC
-    ref_url = "http://json-schema.org/latest/json-schema-core.html#anchor25"
-    schema_url = "http://json-schema.org/latest/json-schema-core.html#anchor22"
+    ref_url = "http://json-schema.org/draft-04/json-schema-core.html#rfc.section.4.1"
+    schema_url = (
+        "http://json-schema.org/draft-04/json-schema-core.html#rfc.section.6"
+    )
 
     def validator(name, raw_text, text, lineno, inliner):
         """
