@@ -50,12 +50,12 @@ class FormatChecker(object):
 
             raises (Exception):
 
-                The exception(s) raised by the decorated function when
-                an invalid instance is found.
+                The exception(s) raised by the decorated function when an
+                invalid instance is found.
 
                 The exception object will be accessible as the
-                :attr:`jsonschema.exceptions.ValidationError.cause`
-                attribute of the resulting validation error.
+                `jsonschema.exceptions.ValidationError.cause` attribute of the
+                resulting validation error.
 
         """
 
@@ -83,8 +83,7 @@ class FormatChecker(object):
 
         Raises:
 
-            `jsonschema.exceptions.FormatError` if instance does not
-                conform to ``format``
+            FormatError: if the instance does not conform to ``format``
 
         """
 
@@ -118,7 +117,7 @@ class FormatChecker(object):
 
         Returns:
 
-            bool: Whether it conformed
+            bool: whether it conformed
 
         """
 

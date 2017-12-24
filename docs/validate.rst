@@ -300,6 +300,9 @@ validation can be enabled by hooking in a format-checking object into an
             of the resulting validation error.
 
 
+.. autoexception:: FormatError
+    :members:
+
 
 There are a number of default checkers that `FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
