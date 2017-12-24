@@ -49,6 +49,7 @@ def coerce_named_tuple(fn):
         return fn(validator, value, instance, schema)
     return coerced
 
+
 required = coerce_named_tuple(_validators.required_draft4)
 properties = coerce_named_tuple(_validators.properties_draft4)
 
@@ -95,24 +96,22 @@ class TestTypeChecker(TestCase):
         tc2 = tc.redefine("integer", _types.is_integer)
         self.assertEqual(len(tc._type_checkers), 0)
 
-        tc3 = tc2.remove("integer")
+        tc2.remove("integer")
         self.assertEqual(len(tc2._type_checkers), 1)
 
     def test_many_checks_can_be_added(self):
         tc = _types.TypeChecker()
-        tc = tc.redefine_many({
-            "integer": _types.is_integer,
-            "string": _types.is_string
-        })
+        tc = tc.redefine_many(
+            {"integer": _types.is_integer, "string": _types.is_string},
+        )
 
         self.assertEqual(len(tc._type_checkers), 2)
 
     def test_many_checks_can_be_removed(self):
         tc = _types.TypeChecker()
-        tc = tc.redefine_many({
-            "integer": _types.is_integer,
-            "string": _types.is_string
-        })
+        tc = tc.redefine_many(
+            {"integer": _types.is_integer, "string": _types.is_string},
+        )
 
         tc = tc.remove_many(("integer", "string"))
 
@@ -178,7 +177,7 @@ class TestCustomTypes(TestCase):
         v.validate(Point(x=4, y=5))
 
     def test_object_extensions_require_custom_validators(self):
-        schema = {'type': 'object', 'required': ['x']}
+        schema = {"type": "object", "required": ["x"]}
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
             u"object", is_object_or_named_tuple
@@ -187,31 +186,31 @@ class TestCustomTypes(TestCase):
         CustomValidator = extend(Draft4Validator, type_checker=type_checker)
         v = CustomValidator(schema)
 
-        Point = namedtuple('Point', ['x', 'y'])
+        Point = namedtuple("Point", ["x", "y"])
         # Cannot handle required
         with self.assertRaises(ValidationError):
             v.validate(Point(x=4, y=5))
 
     def test_object_extensions_can_handle_custom_validators(self):
-        schema = {'type': 'object',
-                  'required': ['x'],
-                  'properties': {'x':
-                                     {'type': 'integer'}
-                                 }
-                  }
+        schema = {
+            "type": "object",
+            "required": ["x"],
+            "properties": {"x": {"type": "integer"}},
+        }
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
             u"object", is_object_or_named_tuple
         )
 
-        CustomValidator = extend(Draft4Validator,
-                                 type_checker=type_checker,
-                                 validators={"required": required,
-                                             'properties': properties})
+        CustomValidator = extend(
+            Draft4Validator,
+            type_checker=type_checker,
+            validators={"required": required, "properties": properties},
+        )
 
         v = CustomValidator(schema)
 
-        Point = namedtuple('Point', ['x', 'y'])
+        Point = namedtuple("Point", ["x", "y"])
         # Can now process required and properties
         v.validate(Point(x=4, y=5))
 

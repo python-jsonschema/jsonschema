@@ -140,8 +140,9 @@ class TestLegacyTypeCheckCreation(TestCase):
         self.assertEqual(set(v.type_checker._type_checkers), {u"integer"})
 
         v = Validator({}, types={u"array": list})
-        self.assertEqual(set(v.type_checker._type_checkers), {u"integer",
-                                                             u"array"})
+        self.assertEqual(
+            set(v.type_checker._type_checkers), {u"integer", u"array"},
+        )
 
 
 class TestLegacyTypeCheckingDeprecation(TestCase):
@@ -160,7 +161,7 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
                 type_checker=self.type_checker
             )
 
-            v = validator({})
+            validator({})
             self.assertFalse(mocked.called)
 
     def test_create_with_custom_default_types_generates_warning(self):
@@ -172,7 +173,7 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
                 type_checker=self.type_checker
             )
 
-            v = validator({})
+            validator({})
             self.assertEqual(mocked.call_count, 1)
             self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
 
@@ -186,13 +187,13 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
             )
             # The create should generate a warning, but not the extend
             self.assertEqual(mocked.call_count, 1)
-            extended = extend(validator)
+            extend(validator)
             self.assertEqual(mocked.call_count, 1)
 
     def test_create_without_type_checker_generates_warning(self):
         with mock.patch("jsonschema.validators.warn") as mocked:
             # type_checker=None enforces use of default_types
-            validator = create(
+            create(
                 meta_schema=self.meta_schema,
                 validators=self.validators,
                 type_checker=None
@@ -210,7 +211,7 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
             )
             self.assertEqual(mocked.call_count, 0)
 
-            _ = validator.DEFAULT_TYPES
+            validator.DEFAULT_TYPES
             self.assertEqual(mocked.call_count, 1)
             self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
 
@@ -222,7 +223,7 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
                 type_checker=self.type_checker
             )
             self.assertEqual(mocked.call_count, 0)
-            v = validator({}, types={"bar": object})
+            validator({}, types={"bar": object})
             self.assertEqual(mocked.call_count, 1)
             self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
 

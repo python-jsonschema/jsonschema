@@ -3,7 +3,7 @@ import numbers
 import attr
 import pyrsistent
 
-from jsonschema.compat import str_types, int_types, iteritems
+from jsonschema.compat import str_types, int_types
 from jsonschema.exceptions import UndefinedTypeCheck
 
 
@@ -118,7 +118,7 @@ class TypeChecker(object):
             A new :class:`TypeChecker` instance.
 
         """
-        return self.redefine_many({type:fn})
+        return self.redefine_many({type: fn})
 
     def redefine_many(self, definitions=()):
         """
@@ -191,15 +191,17 @@ class TypeChecker(object):
         return attr.evolve(self, type_checkers=evolver.persistent())
 
 
-draft3_type_checker = TypeChecker({
-    u"any": is_any,
-    u"array": is_array,
-    u"boolean": is_bool,
-    u"integer": is_integer,
-    u"object": is_object,
-    u"null": is_null,
-    u"number": is_number,
-    u"string": is_string
-})
+draft3_type_checker = TypeChecker(
+    {
+        u"any": is_any,
+        u"array": is_array,
+        u"boolean": is_bool,
+        u"integer": is_integer,
+        u"object": is_object,
+        u"null": is_null,
+        u"number": is_number,
+        u"string": is_string,
+    },
+)
 
 draft4_type_checker = draft3_type_checker.remove(u"any")

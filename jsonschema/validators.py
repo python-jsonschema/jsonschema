@@ -109,11 +109,13 @@ class _ValidatorMetaClass(type):
 def create(meta_schema, validators=(), version=None, default_types=None,
            type_checker=None):
 
-    use_default_types=False
+    use_default_types = False
     if default_types is not None or type_checker is None:
         use_default_types = True
-        warn("default_types is deprecated, use type_checker",
-             DeprecationWarning)
+        warn(
+            "default_types is deprecated, use type_checker",
+            DeprecationWarning,
+        )
 
     if default_types is None:
         default_types = {
@@ -137,16 +139,24 @@ def create(meta_schema, validators=(), version=None, default_types=None,
         TYPE_CHECKER = type_checker
 
         def __init__(
-            self, schema, types=(), resolver=None, format_checker=None):
-
+            self,
+            schema,
+            types=(),
+            resolver=None,
+            format_checker=None,
+        ):
             if types:
-                warn("The use of types is deprecated, use type_checker in "
-                     "create",
-                     DeprecationWarning)
+                warn(
+                    (
+                        "The use of types is deprecated, "
+                        "use type_checker in create"
+                    ),
+                    DeprecationWarning,
+                )
 
             self.type_checker = self.TYPE_CHECKER.redefine_many(
-                _generate_legacy_type_checks(types))
-
+                _generate_legacy_type_checks(types),
+            )
 
             if resolver is None:
                 resolver = RefResolver.from_schema(schema)
@@ -243,6 +253,7 @@ def extend(validator, validators=(), version=None, type_checker=None):
     )
     new_validator_cls._DEFAULT_TYPES = validator._DEFAULT_TYPES
     return new_validator_cls
+
 
 Draft3Validator = create(
     meta_schema=_utils.load_schema("draft3"),
