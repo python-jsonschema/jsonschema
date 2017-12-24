@@ -18,7 +18,7 @@ would pass validation the first time, but fail the second!
 
 Still, filling in defaults is a thing that is useful. :mod:`jsonschema`
 allows you to :doc:`define your own validator classes and callables
-<creating>`, so you can easily create an :class:`~jsonschema.IValidator`
+<creating>`, so you can easily create an `jsonschema.IValidator`
 that does do default setting. Here's some code to get you started. (In
 this code, we add the default properties to each object *before* the
 properties are validated, so the default values themselves will need to
@@ -61,7 +61,7 @@ be valid under the schema.)
 
 See the above-linked document for more info on how this works, but
 basically, it just extends the :validator:`properties` validator on a
-:class:`~jsonschema.Draft4Validator` to then go ahead and update all the
+`jsonschema.Draft4Validator` to then go ahead and update all the
 defaults.
 
 .. note::
@@ -135,7 +135,7 @@ The following are *not* considered public API and may change without notice:
     * the exact wording and contents of error messages; typical
       reasons to do this seem to involve unit tests. API users are
       encouraged to use the extensive introspection provided in
-      :class:`~jsonschema.exceptions.ValidationError`\s instead to make
+      `jsonschema.exceptions.ValidationError`\s instead to make
       meaningful assertions about what failed.
 
     * the order in which validation errors are returned or raised

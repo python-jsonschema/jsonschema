@@ -16,17 +16,17 @@ raised or returned, depending on which method or function is used.
     ===============  =================  ========================
      What Happened   Why Did It Happen  What Was Being Validated
     ===============  =================  ========================
-    :attr:`message`  :attr:`context`    :attr:`instance`
+    `message`        `context`          `instance`
 
-                     :attr:`cause`      :attr:`path`
+                     `cause`             `path`
 
-                                        :attr:`schema`
+                                        `schema`
 
-                                        :attr:`schema_path`
+                                        `schema_path`
 
-                                        :attr:`validator`
+                                        `validator`
 
-                                        :attr:`validator_value`
+                                        `validator_value`
     ===============  =================  ========================
 
 
@@ -52,12 +52,12 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: relative_schema_path
 
-        A :class:`collections.deque` containing the path to the failed
+        A `collections.deque` containing the path to the failed
         validator within the schema.
 
     .. attribute:: absolute_schema_path
 
-        A :class:`collections.deque` containing the path to the failed
+        A `collections.deque` containing the path to the failed
         validator within the schema, but always relative to the
         *original* schema as opposed to any subschema (i.e. the one
         originally passed into a validator class, *not* :attr:`schema`\).
@@ -68,13 +68,13 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: relative_path
 
-        A :class:`collections.deque` containing the path to the
+        A `collections.deque` containing the path to the
         offending element within the instance. The deque can be empty if
         the error happened at the root of the instance.
 
     .. attribute:: absolute_path
 
-        A :class:`collections.deque` containing the path to the
+        A `collections.deque` containing the path to the
         offending element within the instance. The absolute path
         is always relative to the *original* instance that was
         validated (i.e. the one passed into a validation method, *not*
@@ -223,7 +223,7 @@ ErrorTrees
 
 If you want to programmatically be able to query which properties or validators
 failed when validating a given instance, you probably will want to do so using
-:class:`jsonschema.exceptions.ErrorTree` objects.
+`jsonschema.exceptions.ErrorTree` objects.
 
 .. autoclass:: jsonschema.exceptions.ErrorTree
     :members:
@@ -233,7 +233,7 @@ failed when validating a given instance, you probably will want to do so using
     .. attribute:: errors
 
         The mapping of validator names to the error objects (usually
-        :class:`jsonschema.exceptions.ValidationError`\s) at this level
+        `jsonschema.exceptions.ValidationError`\s) at this level
         of the tree.
 
 Consider the following example:
@@ -261,7 +261,7 @@ For clarity's sake, the given instance has three errors under this schema:
     'spam' is not one of [1, 2, 3]
     ['spam', 2] is too short
 
-Let's construct an :class:`~jsonschema.exceptions.ErrorTree` so that we
+Let's construct an `jsonschema.exceptions.ErrorTree` so that we
 can query the errors a bit more easily than by just iterating over the
 error objects.
 
@@ -269,12 +269,12 @@ error objects.
 
     tree = ErrorTree(v.iter_errors(instance))
 
-As you can see, :class:`~jsonschema.exceptions.ErrorTree` takes an
-iterable of :class:`ValidationError`\s when constructing a tree so
+As you can see, `jsonschema.exceptions.ErrorTree` takes an
+iterable of `ValidationError`\s when constructing a tree so
 you can directly pass it the return value of a validator object's
 :attr:`~jsonschema.IValidator.iter_errors` method.
 
-:class:`ErrorTree`\s support a number of useful operations. The first one we
+`ErrorTree`\s support a number of useful operations. The first one we
 might want to perform is to check whether a given element in our instance
 failed validation. We do so using the :keyword:`in` operator:
 
@@ -300,7 +300,7 @@ the :attr:`~ErrorTree.errors` attribute.
 
 Here we see that the :validator:`enum` and :validator:`type` validators failed
 for index ``0``. In fact :attr:`~ErrorTree.errors` is a dict, whose values are
-the :class:`ValidationError`\s, so we can get at those directly if we want
+the `ValidationError`\s, so we can get at those directly if we want
 them.
 
 .. doctest::

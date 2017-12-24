@@ -41,10 +41,10 @@ classes should adhere to.
         validating the :validator:`type` property. Should map strings (type
         names) to class objects that will be checked via :func:`isinstance`.
     :type types: dict or ~collections.Iterable of 2-`tuple`\s
-    :argument resolver: an instance of :class:`RefResolver` that will be
+    :argument resolver: an instance of `RefResolver` that will be
         used to resolve :validator:`$ref` properties (JSON references). If
         unprovided, one will be created.
-    :argument format_checker: an instance of :class:`FormatChecker`
+    :argument format_checker: an instance of `FormatChecker`
         whose :meth:`~FormatChecker.conforms` method will be called to
         check and see if instances conform to each :validator:`format`
         property present in the schema. If unprovided, no validation
@@ -67,12 +67,12 @@ classes should adhere to.
 
     .. attribute:: VALIDATORS
 
-        A mapping of validator names (:class:`str`\s) to functions
+        A mapping of validator names (`str`\s) to functions
         that validate the validator property with that name. For more
         information see :ref:`creating-validators`.
 
     .. attribute:: TYPE_CHECKER
-        A :class:`TypeChecker` that can be used validating :validator:`type`
+        A `TypeChecker` that can be used validating :validator:`type`
          properties in JSON schemas.
 
     .. attribute:: schema
@@ -110,7 +110,7 @@ classes should adhere to.
 
         Lazily yield each of the validation errors in the given instance.
 
-        :rtype: an `~collections.Iterable` of
+        :rtype: an `collections.Iterable` of
             :exc:`jsonschema.exceptions.ValidationError`\s
 
         >>> schema = {
@@ -147,11 +147,11 @@ ones included should adhere to it as well. For more information see
 Type Checking
 -------------
 
-To handle JSON Schema's :validator:`type` property, a :class:`IValidator` uses
-an associated :class:`TypeChecker`. The type checker provides an immutable
+To handle JSON Schema's :validator:`type` property, a `IValidator` uses
+an associated `TypeChecker`. The type checker provides an immutable
 mapping between names of types and functions that can test if an instance is
 of that type. The defaults are suitable for most users - each of the
-predefined Validators (Draft3, Draft4) has a :class:`TypeChecker` that can
+predefined Validators (Draft3, Draft4) has a `TypeChecker` that can
 correctly handle that draft.
 
 See :ref:`validating-types` for an example of providing a custom type check.
@@ -176,19 +176,19 @@ validating the JSON Schema's :validator:`type` property.
 :mod:`jsonschema` tries to strike a balance between performance in the common
 case and generality. For instance, JSON Schema defines a ``number`` type, which
 can be validated with a schema such as ``{"type" : "number"}``. By default,
-this will accept instances of Python :class:`numbers.Number`. This includes in
-particular :class:`int`\s and :class:`float`\s, along with
-:class:`decimal.Decimal` objects, :class:`complex` numbers etc. For
+this will accept instances of Python `numbers.Number`. This includes in
+particular `int`\s and `float`\s, along with
+`decimal.Decimal` objects, `complex` numbers etc. For
 ``integer`` and ``object``, however, rather than checking for
-:class:`numbers.Integral` and :class:`collections.abc.Mapping`,
-:mod:`jsonschema` simply checks for :class:`int` and :class:`dict`, since the
+`numbers.Integral` and `collections.abc.Mapping`,
+:mod:`jsonschema` simply checks for `int` and `dict`, since the
 more general instance checks can introduce significant slowdown, especially
 given how common validating these types are.
 
 If you *do* want the generality, or just want to add a few specific additional
 types as being acceptable for a validator object, then you should update an
-existing :class:`TypeChecker` or create a new one. You may then create a new
-:class:`IValidator` via :func:`jsonschema.validators.extend`.
+existing `TypeChecker` or create a new one. You may then create a new
+`IValidator` via :func:`jsonschema.validators.extend`.
 
 .. code-block:: python
 
@@ -214,7 +214,7 @@ Versioned Validators
 
 :mod:`jsonschema` ships with validator classes for various versions of
 the JSON Schema specification. For details on the methods and attributes
-that each validator class provides see the :class:`IValidator` interface,
+that each validator class provides see the `IValidator` interface,
 which each included validator class implements.
 
 .. autoclass:: Draft3Validator
@@ -249,7 +249,7 @@ JSON Schema defines the :validator:`format` property which can be used to check
 if primitive types (``string``\s, ``number``\s, ``boolean``\s) conform to
 well-defined formats. By default, no validation is enforced, but optionally,
 validation can be enabled by hooking in a format-checking object into an
-:class:`IValidator`.
+`IValidator`.
 
 .. doctest::
 
@@ -289,7 +289,7 @@ validation can be enabled by hooking in a format-checking object into an
 
 
 
-There are a number of default checkers that :class:`FormatChecker`\s know how
+There are a number of default checkers that `FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
 :attr:`FormatChecker.checkers` attribute. Certain checkers will only be
 available if an appropriate package is available for use. The available

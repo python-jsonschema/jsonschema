@@ -408,7 +408,7 @@ class RefResolver(object):
 
         Returns:
 
-            :class:`RefResolver`
+            `RefResolver`
 
         """
 
@@ -608,7 +608,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
             The schema to validate with
 
-        cls (:class:`IValidator`):
+        cls (IValidator):
 
             The class that will be used to validate the instance.
 
@@ -618,7 +618,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     proper validator will be used.  The specification recommends that all
     schemas contain :validator:`$schema` properties for this reason. If no
     :validator:`$schema` property is found, the default validator class is
-    :class:`Draft4Validator`.
+    `Draft4Validator`.
 
     Any other provided positional and keyword arguments will be passed on when
     instantiating the ``cls``.

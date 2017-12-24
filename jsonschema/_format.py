@@ -14,7 +14,7 @@ class FormatChecker(object):
     validation. If validation is desired however, instances of this class can
     be hooked into validators to enable format validation.
 
-    :class:`FormatChecker` objects always return ``True`` when asked about
+    `FormatChecker` objects always return ``True`` when asked about
     formats that they do not know how to validate.
 
     To check a custom format using a function that takes an instance and

@@ -34,13 +34,13 @@ Creating or Extending Validator Classes
 
         If set, it provides mappings of JSON types to Python types that will
         be converted to functions and redefined in this object's
-        :class:`jsonschema.TypeChecker`.
+        `jsonschema.TypeChecker`.
 
     :argument jsonschema.TypeChecker type_checker: a type checker. If
-        unprovided, a :class:`jsonschema.TypeChecker` will created with no
+        unprovided, a `jsonschema.TypeChecker` will created with no
         supported types.
 
-    :returns: a new :class:`jsonschema.IValidator` class
+    :returns: a new `jsonschema.IValidator` class
 
 
 .. autofunction:: extend
@@ -66,9 +66,9 @@ Creating or Extending Validator Classes
     :argument str version: a version for the new validator class
 
     :argument jsonschema.TypeChecker type_checker: a type checker. If
-        unprovided, the existing :class:`jsonschema.TypeChecker` will be used.
+        unprovided, the existing `jsonschema.TypeChecker` will be used.
 
-    :returns: a new :class:`jsonschema.IValidator` class
+    :returns: a new `jsonschema.IValidator` class
 
     .. note:: Meta Schemas
 
@@ -91,7 +91,7 @@ Creating or Extending Validator Classes
     :argument schema: the schema to look at
     :argument default: the default to return if the appropriate validator class
         cannot be determined. If unprovided, the default is to return
-        :class:`jsonschema.Draft4Validator`
+        `jsonschema.Draft4Validator`
 
 
 .. autofunction:: validates
