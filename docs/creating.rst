@@ -8,12 +8,9 @@ Creating or Extending Validator Classes
 
 .. autofunction:: create
 
-
 .. autofunction:: extend
 
-
 .. autofunction:: validator_for
-
 
 .. autofunction:: validates
 
