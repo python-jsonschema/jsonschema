@@ -229,8 +229,10 @@ existing `TypeChecker` or create a new one. You may then create a new
         pass
 
     def is_my_int(checker, instance):
-        return (Draft3Validator.TYPE_CHECKER.is_type(instance, "number") or
-               isinstance(instance, MyInteger))
+        return (
+            checker.is_type(instance, "number") or
+            isinstance(instance, MyInteger)
+        )
 
     type_checker = Draft3Validator.TYPE_CHECKER.redefine("number", is_my_int)
 
