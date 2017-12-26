@@ -184,10 +184,13 @@ To handle JSON Schema's :validator:`type` property, a `IValidator` uses
 an associated `TypeChecker`. The type checker provides an immutable
 mapping between names of types and functions that can test if an instance is
 of that type. The defaults are suitable for most users - each of the
-predefined Validators (Draft3, Draft4) has a `TypeChecker` that can
-correctly handle that draft.
+`versioned validators <versioned-validators>` that are included with
+`jsonschema` have a `TypeChecker` that can correctly handle their respective
+versions.
 
-See `validating-types` for an example of providing a custom type check.
+.. seealso:: `validating-types`
+
+    For an example of providing a custom type check.
 
 .. autoclass:: TypeChecker
     :members:
