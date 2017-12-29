@@ -14,3 +14,5 @@ addons:
   apt:
     packages:
     - libenchant-dev
+git:
+  depth: false
