@@ -28,43 +28,31 @@ classes should adhere to.
 
 .. class:: IValidator(schema, types=(), resolver=None, format_checker=None)
 
-    Arguments:
+    :argument dict schema: the schema that the validator object
+        will validate with. It is assumed to be valid, and providing
+        an invalid schema can lead to undefined behavior. See
+        `IValidator.check_schema` to validate a schema first.
+    :argument resolver: an instance of `RefResolver` that will be
+        used to resolve :validator:`$ref` properties (JSON references). If
+        unprovided, one will be created.
+    :argument format_checker: an instance of `FormatChecker`
+        whose `FormatChecker.conforms` method will be called to
+        check and see if instances conform to each :validator:`format`
+        property present in the schema. If unprovided, no validation
+        will be done for :validator:`format`.
+    :argument types:
+        .. deprecated:: 2.7.0
 
-        schema (dict):
-
-            the schema that the validator object will validate with. It is
-            assumed to be valid, and providing an invalid schema can lead to
-            undefined behavior. See `IValidator.check_schema` to validate a
-            schema first.
-
-        resolver (RefResolver):
-
-            an instance of `RefResolver` that will be used to resolve
-            :validator:`$ref` properties (JSON references). If unprovided, one
-            will be created.
-
-        format_checker (FormatChecker):
-
-            a format checker whose `FormatChecker.conforms` method will be
-            called to check and see if instances conform to each
-            :validator:`format` property present in the schema.
-
-            If unprovided, no validation will be done for :validator:`format`.
-
-        types (dict or collections.Iterable of 2-tuples):
-
-            .. deprecated:: 2.7.0
-
-                Use `TypeChecker.redefine` and `jsonschema.validators.extend`
-                instead of this argument.
+            Use `TypeChecker.redefine` and
+            `jsonschema.validators.extend` instead of this argument.
 
                 See `validating-types` for details.
 
-            If used, this overrides or extends the list of known types when
-            validating the :validator:`type` property.
+        If used, this overrides or extends the list of known types when
+        validating the :validator:`type` property.
 
-            What is provided should map strings (type names) to class objects
-            that will be checked via `isinstance`.
+        What is provided should map strings (type names) to class objects
+        that will be checked via `isinstance`.
 
 
     .. attribute:: META_SCHEMA
@@ -108,31 +96,23 @@ classes should adhere to.
 
         Validate the given schema against the validator's `META_SCHEMA`.
 
-        Raises:
-
-            jsonschema.exceptions.SchemaError: if the schema is invalid
+        :raises: `jsonschema.exceptions.SchemaError` if the schema
+            is invalid
 
     .. method:: is_type(instance, type)
 
         Check if the instance is of the given (JSON Schema) type.
 
         :type type: str
-
-        Returns:
-
-            bool
-
-        Raises:
-
-            jsonschema.exceptions.UnknownType: if ``type`` is not a known type
+        :rtype: bool
+        :raises: `jsonschema.exceptions.UnknownType` if ``type``
+            is not a known type.
 
     .. method:: is_valid(instance)
 
         Check if the instance is valid under the current `schema`.
 
-        Returns:
-
-            bool
+        :rtype: bool
 
         >>> schema = {"maxItems" : 2}
         >>> Draft3Validator(schema).is_valid([2, 3, 4])
@@ -142,9 +122,8 @@ classes should adhere to.
 
         Lazily yield each of the validation errors in the given instance.
 
-        Returns:
-
-            `collections.Iterable` of `jsonschema.exceptions.ValidationError`\s
+        :rtype: an `collections.Iterable` of
+            `jsonschema.exceptions.ValidationError`\s
 
         >>> schema = {
         ...     "type" : "array",
@@ -161,9 +140,8 @@ classes should adhere to.
 
         Check if the instance is valid under the current `schema`.
 
-        Raises:
-
-            jsonschema.exceptions.ValidationError: if the instance is invalid
+        :raises: `jsonschema.exceptions.ValidationError` if the
+            instance is invalid
 
         >>> schema = {"maxItems" : 2}
         >>> Draft3Validator(schema).validate([2, 3, 4])
@@ -318,18 +296,12 @@ validation can be enabled by hooking in a format-checking object into an
         Any instance created after this function is called will pick up the
         supplied checker.
 
-        Arguments:
-
-            format (str):
-
-                the format that the decorated function will check
-
-            raises (Exception):
-
-            the exception(s) raised by the decorated function when an invalid
-            instance is found. The exception object will be accessible as the
-            `jsonschema.exceptions.ValidationError.cause` attribute of the
-            resulting validation error.
+        :argument str format: the format that the decorated function will check
+        :argument Exception raises: the exception(s) raised
+            by the decorated function when an invalid instance is
+            found. The exception object will be accessible as the
+            `jsonschema.exceptions.ValidationError.cause` attribute
+            of the resulting validation error.
 
 
 .. autoexception:: FormatError
