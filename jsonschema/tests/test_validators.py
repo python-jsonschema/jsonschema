@@ -166,17 +166,21 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
             validator({})
             self.assertFalse(mocked.called)
 
-    def test_create_with_custom_default_types_generates_warning(self):
-        with mock.patch("jsonschema.validators.warn") as mocked:
-            validator = validators.create(
-                meta_schema=self.meta_schema,
-                validators=self.validators,
-                default_types={"foo": object},
-            )
+    def test_providing_default_types_warns(self):
+        self.assertWarns(
+            category=DeprecationWarning,
+            message=(
+                "The default_types argument is deprecated. "
+                "Use the type_checker argument instead."
+            ),
+            # https://tm.tl/9363 :'(
+            filename=sys.modules[self.assertWarns.__module__].__file__,
 
-            validator({})
-            self.assertEqual(mocked.call_count, 1)
-            self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
+            f=validators.create,
+            meta_schema={},
+            validators={},
+            default_types={"foo": object},
+        )
 
     def test_extend_does_not_generate_warning(self):
         with mock.patch("jsonschema.validators.warn") as mocked:

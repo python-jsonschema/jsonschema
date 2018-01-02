@@ -183,6 +183,7 @@ def create(
                 "Use the type_checker argument instead."
             ),
             DeprecationWarning,
+            stacklevel=2,
         )
 
     if default_types is None:
