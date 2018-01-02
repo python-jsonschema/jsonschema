@@ -141,7 +141,7 @@ class TestLegacyTypeCheckCreation(TestCase):
         )
 
         v = Validator({})
-        self.assertEqual(set(v.type_checker._type_checkers), {u"integer"})
+        self.assertEqual(set(v.TYPE_CHECKER._type_checkers), {u"integer"})
 
         v = Validator({}, types={u"array": list})
         self.assertEqual(

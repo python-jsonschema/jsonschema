@@ -227,9 +227,9 @@ def create(
                     stacklevel=2,
                 )
 
-            self.type_checker = self.TYPE_CHECKER.redefine_many(
-                _generate_legacy_type_checks(types),
-            )
+                self.TYPE_CHECKER = self.TYPE_CHECKER.redefine_many(
+                    _generate_legacy_type_checks(types),
+                )
 
             if resolver is None:
                 resolver = RefResolver.from_schema(schema)
@@ -292,7 +292,7 @@ def create(
 
         def is_type(self, instance, type):
             try:
-                return self.type_checker.is_type(instance, type)
+                return self.TYPE_CHECKER.is_type(instance, type)
             except UndefinedTypeCheck:
                 raise UnknownType(type, instance, self.schema)
 
