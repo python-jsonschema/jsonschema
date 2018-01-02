@@ -100,14 +100,6 @@ class TestLegacyTypeCheckCreation(TestCase):
         self.smelly = mock.MagicMock()
         self.validators = {u"smelly": self.smelly}
 
-    def test_empty_dict_is_default(self):
-        definitions = validators._generate_legacy_type_checks()
-        self.assertEqual(definitions, {})
-
-    def test_functions_are_created(self):
-        definitions = validators._generate_legacy_type_checks({"object": dict})
-        self.assertTrue(callable(definitions["object"]))
-
     def test_default_types_used_if_no_type_checker_given(self):
         Validator = validators.create(
             meta_schema=self.meta_schema,
