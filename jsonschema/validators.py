@@ -172,6 +172,10 @@ def create(
 
     use_default_types = False
     if default_types is not None or type_checker is None:
+        if type_checker is not None:
+            raise TypeError(
+                "Do not specify default_types when providing a type checker.",
+            )
         use_default_types = True
         warn(
             (

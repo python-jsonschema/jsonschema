@@ -2,6 +2,10 @@ from collections import deque
 from contextlib import contextmanager
 from unittest import TestCase
 import json
+import sys
+import unittest
+
+from twisted.trial.unittest import SynchronousTestCase
 
 from jsonschema import (
     FormatChecker,
@@ -118,20 +122,21 @@ class TestLegacyTypeCheckCreation(TestCase):
         self.assertEqual(set(Validator.TYPE_CHECKER._type_checkers),
                          expected_types)
 
+    @unittest.skip("This logic is actually incorrect.")
     def test_default_types_update_type_checker(self):
-        tc = TypeChecker()
-        tc = tc.redefine(u"integer", _types.is_integer)
         Validator = validators.create(
             meta_schema=self.meta_schema,
             validators=self.validators,
-            type_checker=tc,
             default_types={u"array": list}
         )
 
         self.assertEqual(set(Validator.DEFAULT_TYPES), {u"array"})
+        Extended = validators.extend(
+            Validator,
+            type_checker=Validator.TYPE_CHECKER.remove(u"array")
+        )
 
-        self.assertEqual(set(Validator.TYPE_CHECKER._type_checkers),
-                         {u"array", u"integer"})
+        self.assertEqual(set(Extended.DEFAULT_TYPES), {})
 
     def test_types_update_type_checker(self):
         tc = TypeChecker()
@@ -151,8 +156,7 @@ class TestLegacyTypeCheckCreation(TestCase):
         )
 
 
-class TestLegacyTypeCheckingDeprecation(TestCase):
-
+class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
     def setUp(self):
         self.meta_schema = {u"properties": {u"smelly": {}}}
         self.smelly = mock.MagicMock()
@@ -176,7 +180,6 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
                 meta_schema=self.meta_schema,
                 validators=self.validators,
                 default_types={"foo": object},
-                type_checker=self.type_checker
             )
 
             validator({})
@@ -189,7 +192,6 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
                 meta_schema=self.meta_schema,
                 validators=self.validators,
                 default_types={"foo": object},
-                type_checker=self.type_checker
             )
             # The create should generate a warning, but not the extend
             self.assertEqual(mocked.call_count, 1)
@@ -232,6 +234,21 @@ class TestLegacyTypeCheckingDeprecation(TestCase):
             validator({}, types={"bar": object})
             self.assertEqual(mocked.call_count, 1)
             self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
+
+    def test_providing_default_types_with_type_checker_errors(self):
+        with self.assertRaises(TypeError) as e:
+            Validator = validators.create(
+                meta_schema={},
+                validators={},
+                default_types={"foo": object},
+                type_checker=TypeChecker(),
+            )
+
+        self.assertIn(
+            "Do not specify default_types when providing a type checker",
+            str(e.exception),
+        )
+        self.assertFalse(self.flushWarnings())
 
 
 class TestIterErrors(TestCase):
