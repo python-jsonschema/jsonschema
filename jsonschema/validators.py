@@ -101,8 +101,13 @@ def _generate_legacy_type_checks(types=()):
 class _DefaultTypesDeprecatingMetaClass(type):
     @property
     def DEFAULT_TYPES(self):
-        warn("DEFAULT_TYPES is deprecated, use type_checker",
-             DeprecationWarning)
+        warn(
+            (
+                "The DEFAULT_TYPES attribute is deprecated. "
+                "See the type checker attached to this validator instead."
+            ),
+            DeprecationWarning,
+        )
         return self._DEFAULT_TYPES
 
 
@@ -169,7 +174,10 @@ def create(
     if default_types is not None or type_checker is None:
         use_default_types = True
         warn(
-            "default_types is deprecated, use type_checker",
+            (
+                "The default_types argument is deprecated. "
+                "Use the type_checker argument instead."
+            ),
             DeprecationWarning,
         )
 
@@ -206,8 +214,9 @@ def create(
             if types:
                 warn(
                     (
-                        "The use of types is deprecated, "
-                        "use type_checker in create"
+                        "The types argument is deprecated. Provide "
+                        "a type_checker to jsonschema.validators.extend "
+                        "instead."
                     ),
                     DeprecationWarning,
                 )
