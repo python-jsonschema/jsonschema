@@ -133,9 +133,9 @@ class TypeChecker(object):
             A new `TypeChecker` instance.
 
         """
-        definitions = dict(definitions)
-        type_checkers = self._type_checkers.update(definitions)
-        return attr.evolve(self, type_checkers=type_checkers)
+        return attr.evolve(
+            self, type_checkers=self._type_checkers.update(definitions),
+        )
 
     def remove(self, type):
         """
