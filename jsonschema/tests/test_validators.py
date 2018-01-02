@@ -155,12 +155,6 @@ class TestLegacyTypeCheckCreation(TestCase):
 
 
 class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
-    def setUp(self):
-        self.meta_schema = {u"properties": {u"smelly": {}}}
-        self.smelly = mock.MagicMock()
-        self.validators = {u"smelly": self.smelly}
-        self.type_checker = TypeChecker()
-
     def test_providing_default_types_warns(self):
         self.assertWarns(
             category=DeprecationWarning,
