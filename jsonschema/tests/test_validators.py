@@ -189,17 +189,12 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
         Validator({})
         self.assertFalse(self.flushWarnings())
 
-    def test_extend_does_not_generate_warning(self):
-        with mock.patch("jsonschema.validators.warn") as mocked:
-            validator = validators.create(
-                meta_schema=self.meta_schema,
-                validators=self.validators,
-                default_types={"foo": object},
-            )
-            # The create should generate a warning, but not the extend
-            self.assertEqual(mocked.call_count, 1)
-            validators.extend(validator)
-            self.assertEqual(mocked.call_count, 1)
+    def test_extending_a_legacy_validator_does_not_rewarn(self):
+        Validator = validators.create(meta_schema={}, default_types={})
+        self.assertTrue(self.flushWarnings())
+
+        Extended = validators.extend(Validator)
+        self.assertFalse(self.flushWarnings())
 
     def test_default_type_access_generates_warning(self):
         with mock.patch("jsonschema.validators.warn") as mocked:
