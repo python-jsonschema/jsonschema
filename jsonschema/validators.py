@@ -1,9 +1,9 @@
 from __future__ import division
 
+from warnings import warn
 import contextlib
 import json
 import numbers
-from warnings import warn
 
 from six import add_metaclass
 

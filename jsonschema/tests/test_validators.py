@@ -190,11 +190,26 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
         Validator({})
         self.assertFalse(self.flushWarnings())
 
+    def test_providing_default_types_with_type_checker_errors(self):
+        with self.assertRaises(TypeError) as e:
+            validators.create(
+                meta_schema={},
+                validators={},
+                default_types={"foo": object},
+                type_checker=TypeChecker(),
+            )
+
+        self.assertIn(
+            "Do not specify default_types when providing a type checker",
+            str(e.exception),
+        )
+        self.assertFalse(self.flushWarnings())
+
     def test_extending_a_legacy_validator_does_not_rewarn(self):
         Validator = validators.create(meta_schema={}, default_types={})
         self.assertTrue(self.flushWarnings())
 
-        Extended = validators.extend(Validator)
+        validators.extend(Validator)
         self.assertFalse(self.flushWarnings())
 
     def test_accessing_default_types_warns(self):
@@ -233,21 +248,6 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
             schema={},
             types={"bar": object},
         )
-
-    def test_providing_default_types_with_type_checker_errors(self):
-        with self.assertRaises(TypeError) as e:
-            Validator = validators.create(
-                meta_schema={},
-                validators={},
-                default_types={"foo": object},
-                type_checker=TypeChecker(),
-            )
-
-        self.assertIn(
-            "Do not specify default_types when providing a type checker",
-            str(e.exception),
-        )
-        self.assertFalse(self.flushWarnings())
 
 
 class TestIterErrors(TestCase):
