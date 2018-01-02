@@ -197,30 +197,42 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
         Extended = validators.extend(Validator)
         self.assertFalse(self.flushWarnings())
 
-    def test_default_type_access_generates_warning(self):
-        with mock.patch("jsonschema.validators.warn") as mocked:
-            validator = validators.create(
-                meta_schema=self.meta_schema,
-                validators=self.validators,
-                type_checker=self.type_checker
-            )
-            self.assertEqual(mocked.call_count, 0)
+    def test_accessing_default_types_warns(self):
+        Validator = validators.create(meta_schema={}, validators={})
+        self.assertFalse(self.flushWarnings())
 
-            validator.DEFAULT_TYPES
-            self.assertEqual(mocked.call_count, 1)
-            self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
+        self.assertWarns(
+            DeprecationWarning,
+            (
+                "The DEFAULT_TYPES attribute is deprecated. "
+                "See the type checker attached to this validator instead."
+            ),
+            # https://tm.tl/9363 :'(
+            sys.modules[self.assertWarns.__module__].__file__,
 
-    def test_custom_types_generates_warning(self):
-        with mock.patch("jsonschema.validators.warn") as mocked:
-            validator = validators.create(
-                meta_schema=self.meta_schema,
-                validators=self.validators,
-                type_checker=self.type_checker
-            )
-            self.assertEqual(mocked.call_count, 0)
-            validator({}, types={"bar": object})
-            self.assertEqual(mocked.call_count, 1)
-            self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
+            getattr,
+            Validator,
+            "DEFAULT_TYPES",
+        )
+
+    def test_providing_types_to_init_warns(self):
+        Validator = validators.create(meta_schema={}, validators={})
+        self.assertFalse(self.flushWarnings())
+
+        self.assertWarns(
+            category=DeprecationWarning,
+            message=(
+                "The types argument is deprecated. "
+                "Provide a type_checker to jsonschema.validators.extend "
+                "instead."
+            ),
+            # https://tm.tl/9363 :'(
+            filename=sys.modules[self.assertWarns.__module__].__file__,
+
+            f=Validator,
+            schema={},
+            types={"bar": object},
+        )
 
     def test_providing_default_types_with_type_checker_errors(self):
         with self.assertRaises(TypeError) as e:

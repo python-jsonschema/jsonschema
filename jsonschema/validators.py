@@ -107,6 +107,7 @@ class _DefaultTypesDeprecatingMetaClass(type):
                 "See the type checker attached to this validator instead."
             ),
             DeprecationWarning,
+            stacklevel=2,
         )
         return self._DEFAULT_TYPES
 
@@ -223,6 +224,7 @@ def create(
                         "instead."
                     ),
                     DeprecationWarning,
+                    stacklevel=2,
                 )
 
             self.type_checker = self.TYPE_CHECKER.redefine_many(
