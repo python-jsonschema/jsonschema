@@ -171,13 +171,11 @@ def create(
         a new `jsonschema.IValidator` class
     """
 
-    use_default_types = False
     if default_types is not None:
         if type_checker is not None:
             raise TypeError(
                 "Do not specify default_types when providing a type checker.",
             )
-        use_default_types = True
         warn(
             (
                 "The default_types argument is deprecated. "
@@ -186,19 +184,17 @@ def create(
             DeprecationWarning,
             stacklevel=2,
         )
-
-    default_types = {
-        u"array": list, u"boolean": bool, u"integer": int_types,
-        u"null": type(None), u"number": numbers.Number, u"object": dict,
-        u"string": str_types,
-    }
-
-    if type_checker is None:
-        type_checker = _types.TypeChecker()
-
-    if use_default_types:
-        type_checker = type_checker.redefine_many(
-            _generate_legacy_type_checks(default_types))
+        type_checker = _types.TypeChecker(
+            type_checkers=_generate_legacy_type_checks(default_types),
+        )
+    else:
+        default_types = {
+            u"array": list, u"boolean": bool, u"integer": int_types,
+            u"null": type(None), u"number": numbers.Number, u"object": dict,
+            u"string": str_types,
+        }
+        if type_checker is None:
+            type_checker = _types.TypeChecker()
 
     @add_metaclass(_DefaultTypesDeprecatingMetaClass)
     class Validator(object):
