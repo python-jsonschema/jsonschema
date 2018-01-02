@@ -178,15 +178,14 @@ class TypeChecker(object):
             `jsonschema.exceptions.UndefinedTypeCheck`:
                 if any of the types are unknown to this object
         """
-        evolver = self._type_checkers.evolver()
 
-        for type_ in types:
+        checkers = self._type_checkers
+        for each in types:
             try:
-                del evolver[type_]
+                checkers = checkers.remove(each)
             except KeyError:
-                raise UndefinedTypeCheck(type_)
-
-        return attr.evolve(self, type_checkers=evolver.persistent())
+                raise UndefinedTypeCheck(each)
+        return attr.evolve(self, type_checkers=checkers)
 
 
 draft3_type_checker = TypeChecker(
