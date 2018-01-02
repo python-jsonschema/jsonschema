@@ -186,12 +186,11 @@ def create(
             stacklevel=2,
         )
 
-    if default_types is None:
-        default_types = {
-            u"array": list, u"boolean": bool, u"integer": int_types,
-            u"null": type(None), u"number": numbers.Number, u"object": dict,
-            u"string": str_types,
-        }
+    default_types = {
+        u"array": list, u"boolean": bool, u"integer": int_types,
+        u"null": type(None), u"number": numbers.Number, u"object": dict,
+        u"string": str_types,
+    }
 
     if type_checker is None:
         type_checker = _types.TypeChecker()
