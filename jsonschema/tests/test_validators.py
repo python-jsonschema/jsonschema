@@ -155,17 +155,6 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
         self.validators = {u"smelly": self.smelly}
         self.type_checker = TypeChecker()
 
-    def test_default_usage_does_not_generate_warning(self):
-        with mock.patch("jsonschema.validators.warn") as mocked:
-            validator = validators.create(
-                meta_schema=self.meta_schema,
-                validators=self.validators,
-                type_checker=self.type_checker
-            )
-
-            validator({})
-            self.assertFalse(mocked.called)
-
     def test_providing_default_types_warns(self):
         self.assertWarns(
             category=DeprecationWarning,
@@ -182,6 +171,24 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
             default_types={"foo": object},
         )
 
+    def test_providing_explicit_type_checker_does_not_warn(self):
+        Validator = validators.create(
+            meta_schema={},
+            validators={},
+            type_checker=TypeChecker(),
+        )
+        self.assertFalse(self.flushWarnings())
+
+        Validator({})
+        self.assertFalse(self.flushWarnings())
+
+    def test_providing_neither_does_not_warn(self):
+        Validator = validators.create(meta_schema={}, validators={})
+        self.assertFalse(self.flushWarnings())
+
+        Validator({})
+        self.assertFalse(self.flushWarnings())
+
     def test_extend_does_not_generate_warning(self):
         with mock.patch("jsonschema.validators.warn") as mocked:
             validator = validators.create(
@@ -193,18 +200,6 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
             self.assertEqual(mocked.call_count, 1)
             validators.extend(validator)
             self.assertEqual(mocked.call_count, 1)
-
-    def test_create_without_type_checker_generates_warning(self):
-        with mock.patch("jsonschema.validators.warn") as mocked:
-            # type_checker=None enforces use of default_types
-            validators.create(
-                meta_schema=self.meta_schema,
-                validators=self.validators,
-                type_checker=None
-            )
-
-            self.assertEqual(mocked.call_count, 1)
-            self.assertEqual(mocked.call_args[0][1], DeprecationWarning)
 
     def test_default_type_access_generates_warning(self):
         with mock.patch("jsonschema.validators.warn") as mocked:
