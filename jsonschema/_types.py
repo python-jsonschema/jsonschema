@@ -1,7 +1,7 @@
 import numbers
 
+from pyrsistent import pmap
 import attr
-import pyrsistent
 
 from jsonschema.compat import str_types, int_types
 from jsonschema.exceptions import UndefinedTypeCheck
@@ -61,7 +61,7 @@ class TypeChecker(object):
 
             The initial mapping of types to their checking functions.
     """
-    _type_checkers = attr.ib(default={}, convert=pyrsistent.pmap)
+    _type_checkers = attr.ib(default=pmap(), convert=pmap)
 
     def is_type(self, instance, type):
         """
