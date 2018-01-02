@@ -131,6 +131,7 @@ class TestLegacyTypeCheckCreation(TestCase):
 
         self.assertEqual(set(Extended.DEFAULT_TYPES), {})
 
+    @unittest.skip("This logic is actually incorrect.")
     def test_types_update_type_checker(self):
         tc = TypeChecker()
         tc = tc.redefine(u"integer", _types.is_integer)
@@ -141,11 +142,15 @@ class TestLegacyTypeCheckCreation(TestCase):
         )
 
         v = Validator({})
-        self.assertEqual(set(v.TYPE_CHECKER._type_checkers), {u"integer"})
+        self.assertEqual(
+            v.TYPE_CHECKER,
+            TypeChecker(type_checkers={u"integer": _types.is_integer}),
+        )
 
         v = Validator({}, types={u"array": list})
         self.assertEqual(
-            set(v.type_checker._type_checkers), {u"integer", u"array"},
+            v.TYPE_CHECKER,
+            TypeChecker(type_checkers={u"array": _types.is_array}),
         )
 
 
