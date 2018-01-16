@@ -230,7 +230,7 @@ def is_regex(instance):
     return re.compile(instance)
 
 
-@_checks_drafts(draft3="date", raises=ValueError)
+@_checks_drafts("date", raises=ValueError)
 def is_date(instance):
     if not isinstance(instance, str_types):
         return True
