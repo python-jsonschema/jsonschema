@@ -211,6 +211,7 @@ def create(
             types=(),
             resolver=None,
             format_checker=None,
+            strict_validation=True,
         ):
             if types:
                 warn(
@@ -233,6 +234,7 @@ def create(
             self.resolver = resolver
             self.format_checker = format_checker
             self.schema = schema
+            self.strict_validation = strict_validation
 
         @classmethod
         def check_schema(cls, schema):
