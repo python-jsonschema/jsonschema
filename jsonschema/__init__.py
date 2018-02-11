@@ -24,6 +24,5 @@ from jsonschema.validators import (
     Draft3Validator, Draft4Validator, RefResolver, validate
 )
 
-from jsonschema._version import __version__
-
-# flake8: noqa
+from pkg_resources import get_distribution
+__version__ = get_distribution(__name__).version

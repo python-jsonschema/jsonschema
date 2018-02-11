@@ -30,18 +30,23 @@ extras_require = {
 
 setup(
     name="jsonschema",
-    packages=["jsonschema", "jsonschema.tests"],
-    package_data={"jsonschema": ["schemas/*.json"]},
-    install_requires=["attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0"],
-    setup_requires=["vcversioner>=2.16.0.0"],
-    extras_require=extras_require,
-    author="Julian Berman",
-    author_email="Julian@GrayVines.com",
     classifiers=classifiers,
     description="An implementation of JSON Schema validation for Python",
     license="MIT",
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
+
+    author="Julian Berman",
+    author_email="Julian@GrayVines.com",
+
+    setup_requires=["setuptools_scm"],
+    use_scm_version=True,
+
+    install_requires=["attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0"],
+    extras_require=extras_require,
+
+    packages=["jsonschema", "jsonschema.tests"],
+    package_data={"jsonschema": ["schemas/*.json"]},
+
     entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
-    vcversioner={"version_module_paths": ["jsonschema/_version.py"]},
 )
