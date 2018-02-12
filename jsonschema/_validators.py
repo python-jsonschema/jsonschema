@@ -286,8 +286,27 @@ def extends_draft3(validator, extends, instance, schema):
 
 def type_draft4(validator, types, instance, schema):
     types = _utils.ensure_list(types)
+    pass_strict_validation = any(validator.is_type(instance, type) for type in types)
 
-    if not any(validator.is_type(instance, type) for type in types):
+    if validator.strict_validation:
+        if not pass_strict_validation:
+            yield ValidationError(_utils.types_msg(instance, types))
+        return
+
+    is_int = is_float = False
+    if 'integer' in types:
+        try:
+            is_int = any(validator.is_type(int(instance), type) for type in types)
+        except (ValueError, TypeError):
+            pass
+
+    if 'number' in types:
+        try:
+            is_float = any(validator.is_type(float(instance), type) for type in types)
+        except (ValueError, TypeError):
+            pass
+
+    if not pass_strict_validation and not is_int and not is_float:
         yield ValidationError(_utils.types_msg(instance, types))
 
 
