@@ -24,8 +24,7 @@ classifiers = [
 ]
 
 extras_require = {
-    "format": ["rfc3987", "strict-rfc3339", "webcolors"],
-    ":python_version=='2.7'": ["functools32"],
+    "format": ["rfc3987", "strict-rfc3339", "webcolors"]
 }
 
 setup(
@@ -42,7 +41,10 @@ setup(
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
 
-    install_requires=["attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0"],
+    install_requires=[
+        "attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0"
+        "functools32;python_version<'3'"
+    ],
     extras_require=extras_require,
 
     packages=["jsonschema", "jsonschema.tests"],
