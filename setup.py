@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 extras_require = {
-    "format": ["rfc3987", "strict-rfc3339", "webcolors"]
+    "format": ["rfc3987", "strict-rfc3339", "webcolors"],
 }
 
 setup(
@@ -43,7 +43,7 @@ setup(
 
     install_requires=[
         "attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0",
-        "functools32;python_version<'3'"
+        "functools32;python_version<'3'",
     ],
     extras_require=extras_require,
 
