@@ -22,10 +22,6 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-extras_require = {
-    "format": ["rfc3987", "strict-rfc3339", "webcolors"],
-}
-
 setup(
     name="jsonschema",
     classifiers=classifiers,
@@ -41,10 +37,14 @@ setup(
     use_scm_version=True,
 
     install_requires=[
-        "attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0",
+        "attrs>=17.3.0",
+        "pyrsistent>=0.14.0",
+        "six>=1.11.0",
         "functools32;python_version<'3'",
     ],
-    extras_require=extras_require,
+    extras_require={
+        "format": ["rfc3987", "strict-rfc3339", "webcolors"],
+    },
 
     packages=["jsonschema", "jsonschema.tests"],
     package_data={"jsonschema": ["schemas/*.json"]},
