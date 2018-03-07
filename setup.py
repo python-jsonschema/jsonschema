@@ -2,7 +2,6 @@ import os
 
 from setuptools import setup
 
-
 with open(os.path.join(os.path.dirname(__file__), "README.rst")) as readme:
     long_description = readme.read()
 
@@ -25,7 +24,6 @@ classifiers = [
 
 extras_require = {
     "format": ["rfc3987", "strict-rfc3339", "webcolors"],
-    ":python_version=='2.7'": ["functools32"],
 }
 
 setup(
@@ -42,7 +40,10 @@ setup(
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
 
-    install_requires=["attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0"],
+    install_requires=[
+        "attrs>=17.3.0", "pyrsistent>=0.14.0", "six>=1.11.0",
+        "functools32;python_version<'3'",
+    ],
     extras_require=extras_require,
 
     packages=["jsonschema", "jsonschema.tests"],
