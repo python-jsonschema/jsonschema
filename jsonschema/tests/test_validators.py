@@ -76,6 +76,28 @@ class TestCreateAndExtend(TestCase):
             validators.create(meta_schema={u"id": "id"})
         self.assertFalse(validates.called)
 
+    def test_if_validates_registers_meta_schema_id(self):
+        meta_schema_key = "meta schema id"
+        my_meta_schema = {u"id": meta_schema_key}
+
+        validators.create(
+            meta_schema=my_meta_schema,
+            version="my version",
+        )
+
+        self.assertIn(meta_schema_key, validators.meta_schemas)
+
+    def test_if_validates_registers_meta_schema_draft6_id(self):
+        meta_schema_key = "meta schema $id"
+        my_meta_schema = {u"$id": meta_schema_key}
+
+        validators.create(
+            meta_schema=my_meta_schema,
+            version="my version",
+        )
+
+        self.assertIn(meta_schema_key, validators.meta_schemas)
+
     def test_extend(self):
         original_validators = dict(self.Validator.VALIDATORS)
         new = mock.Mock()
@@ -1020,6 +1042,17 @@ class TestValidatorFor(TestCase):
             version="12",
         )
         schema = {"$schema": "meta schema id"}
+        self.assertIs(
+            validators.validator_for(schema),
+            Validator,
+        )
+
+    def test_custom_validator_draft6(self):
+        Validator = validators.create(
+            meta_schema={"$id": "meta schema $id"},
+            version="13",
+        )
+        schema = {"$schema": "meta schema $id"}
         self.assertIs(
             validators.validator_for(schema),
             Validator,

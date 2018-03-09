@@ -36,7 +36,9 @@ def validates(version):
     Register the decorated validator for a ``version`` of the specification.
 
     Registered validators and their meta schemas will be considered when
-    parsing ``$schema`` properties' URIs.
+    parsing ``$schema`` properties' URIs. Meta schemas can use either
+    ``id`` or ``$id`` depending on whether they follow pre-draft6 or draft6
+    and later, respectively.
 
     Arguments:
 
@@ -54,6 +56,8 @@ def validates(version):
         validators[version] = cls
         if u"id" in cls.META_SCHEMA:
             meta_schemas[cls.META_SCHEMA[u"id"]] = cls
+        elif u"$id" in cls.META_SCHEMA:
+            meta_schemas[cls.META_SCHEMA[u"$id"]] = cls
         return cls
     return _validates
 
