@@ -1144,7 +1144,7 @@ class TestRefResolver(TestCase):
         def mock_cache_dec(f):
             return f
 
-        resolver = RefResolver(
+        resolver = validators.RefResolver(
             "", {}, remote_cache_dec=mock_cache_dec, urljoin_cache_dec=mock_cache_dec,
             handlers={"foo": foo_handler},
         )
