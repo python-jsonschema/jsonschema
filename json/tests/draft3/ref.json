@@ -141,6 +141,39 @@
         ]
     },
     {
+        "description": "ref overrides any sibling keywords",
+        "schema": {
+            "definitions": {
+                "reffed": {
+                    "type": "array"
+                }
+            },
+            "properties": {
+                "foo": {
+                    "$ref": "#/definitions/reffed",
+                    "maxItems": 2
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "remote ref valid",
+                "data": { "foo": [] },
+                "valid": true
+            },
+            {
+                "description": "remote ref valid, maxItems ignored",
+                "data": { "foo": [ 1, 2, 3] },
+                "valid": true
+            },
+            {
+                "description": "ref invalid",
+                "data": { "foo": "string" },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "remote ref, containing refs itself",
         "schema": {"$ref": "http://json-schema.org/draft-03/schema#"},
         "tests": [

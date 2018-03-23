@@ -23,7 +23,7 @@ The simplest way to validate an instance under a given schema is to use the
 The Validator Interface
 -----------------------
 
-:mod:`jsonschema` defines an (informal) interface that all validator
+`jsonschema` defines an (informal) interface that all validator
 classes should adhere to.
 
 .. class:: IValidator(schema, types=(), resolver=None, format_checker=None)
@@ -31,25 +31,29 @@ classes should adhere to.
     :argument dict schema: the schema that the validator object
         will validate with. It is assumed to be valid, and providing
         an invalid schema can lead to undefined behavior. See
-        :meth:`IValidator.check_schema` to validate a schema first.
-    :argument types: Override or extend the list of known types when
-        validating the :validator:`type` property. Should map strings (type
-        names) to class objects that will be checked via :func:`isinstance`.
-        See :ref:`validating-types` for details.
-    :type types: dict or iterable of 2-tuples
-    :argument resolver: an instance of :class:`RefResolver` that will be
+        `IValidator.check_schema` to validate a schema first.
+    :argument resolver: an instance of `RefResolver` that will be
         used to resolve :validator:`$ref` properties (JSON references). If
         unprovided, one will be created.
-    :argument format_checker: an instance of :class:`FormatChecker`
-        whose :meth:`~conforms` method will be called to check and see if
-        instances conform to each :validator:`format` property present
-        in the schema. If unprovided, no validation will be done for
-        :validator:`format`.
+    :argument format_checker: an instance of `FormatChecker`
+        whose `FormatChecker.conforms` method will be called to
+        check and see if instances conform to each :validator:`format`
+        property present in the schema. If unprovided, no validation
+        will be done for :validator:`format`.
+    :argument types:
+        .. deprecated:: 2.7.0
 
-    .. attribute:: DEFAULT_TYPES
+            Use `TypeChecker.redefine` and
+            `jsonschema.validators.extend` instead of this argument.
 
-        The default mapping of JSON types to Python types used when validating
-        :validator:`type` properties in JSON schemas.
+                See `validating-types` for details.
+
+        If used, this overrides or extends the list of known types when
+        validating the :validator:`type` property.
+
+        What is provided should map strings (type names) to class objects
+        that will be checked via `isinstance`.
+
 
     .. attribute:: META_SCHEMA
 
@@ -58,20 +62,42 @@ classes should adhere to.
 
     .. attribute:: VALIDATORS
 
-        A mapping of validator names (:class:`str`\s) to functions
+        A mapping of validator names (`str`\s) to functions
         that validate the validator property with that name. For more
-        information see :ref:`creating-validators`.
+        information see `creating-validators`.
+
+    .. attribute:: TYPE_CHECKER
+
+        A `TypeChecker` that will be used when validating :validator:`type`
+        properties in JSON schemas.
 
     .. attribute:: schema
 
         The schema that was passed in when initializing the object.
 
+    .. attribute:: DEFAULT_TYPES
+
+        .. deprecated:: 2.7.0
+
+            Use of this attribute is deprecated in favor of the new `type
+            checkers <TypeChecker>`.
+
+            See `validating-types` for details.
+
+        For backwards compatibility on existing validator classes, a mapping of
+        JSON types to Python class objects which define the Python types for
+        each JSON type.
+
+        Any existing code using this attribute should likely transition to
+        using `TypeChecker.is_type`.
+
 
     .. classmethod:: check_schema(schema)
 
-        Validate the given schema against the validator's :attr:`META_SCHEMA`.
+        Validate the given schema against the validator's `META_SCHEMA`.
 
-        :raises: :exc:`SchemaError` if the schema is invalid
+        :raises: `jsonschema.exceptions.SchemaError` if the schema
+            is invalid
 
     .. method:: is_type(instance, type)
 
@@ -79,54 +105,79 @@ classes should adhere to.
 
         :type type: str
         :rtype: bool
-        :raises: :exc:`UnknownType` if ``type`` is not a known type.
+        :raises: `jsonschema.exceptions.UnknownType` if ``type``
+            is not a known type.
 
     .. method:: is_valid(instance)
 
-        Check if the instance is valid under the current :attr:`schema`.
+        Check if the instance is valid under the current `schema`.
 
         :rtype: bool
 
-            >>> schema = {"maxItems" : 2}
-            >>> Draft3Validator(schema).is_valid([2, 3, 4])
-            False
+        >>> schema = {"maxItems" : 2}
+        >>> Draft3Validator(schema).is_valid([2, 3, 4])
+        False
 
     .. method:: iter_errors(instance)
 
         Lazily yield each of the validation errors in the given instance.
 
-        :rtype: an iterable of :exc:`ValidationError`\s
+        :rtype: an `collections.Iterable` of
+            `jsonschema.exceptions.ValidationError`\s
 
-            >>> schema = {
-            ...     "type" : "array",
-            ...     "items" : {"enum" : [1, 2, 3]},
-            ...     "maxItems" : 2,
-            ... }
-            >>> v = Draft3Validator(schema)
-            >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
-            ...     print(error.message)
-            4 is not one of [1, 2, 3]
-            [2, 3, 4] is too long
+        >>> schema = {
+        ...     "type" : "array",
+        ...     "items" : {"enum" : [1, 2, 3]},
+        ...     "maxItems" : 2,
+        ... }
+        >>> v = Draft3Validator(schema)
+        >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
+        ...     print(error.message)
+        4 is not one of [1, 2, 3]
+        [2, 3, 4] is too long
 
     .. method:: validate(instance)
 
-        Check if the instance is valid under the current :attr:`schema`.
+        Check if the instance is valid under the current `schema`.
 
-        :raises: :exc:`ValidationError` if the instance is invalid
+        :raises: `jsonschema.exceptions.ValidationError` if the
+            instance is invalid
 
-            >>> schema = {"maxItems" : 2}
-            >>> Draft3Validator(schema).validate([2, 3, 4])
-            Traceback (most recent call last):
-                ...
-            ValidationError: [2, 3, 4] is too long
+        >>> schema = {"maxItems" : 2}
+        >>> Draft3Validator(schema).validate([2, 3, 4])
+        Traceback (most recent call last):
+            ...
+        ValidationError: [2, 3, 4] is too long
 
 
-All of the :ref:`versioned validators <versioned-validators>` that
-are included with :mod:`jsonschema` adhere to the interface, and
-implementors of validator classes that extend or complement the
-ones included should adhere to it as well. For more information see
-:ref:`creating-validators`.
+All of the `versioned validators <versioned-validators>` that are included with
+`jsonschema` adhere to the interface, and implementers of validator classes
+that extend or complement the ones included should adhere to it as well. For
+more information see `creating-validators`.
 
+Type Checking
+-------------
+
+To handle JSON Schema's :validator:`type` property, a `IValidator` uses
+an associated `TypeChecker`. The type checker provides an immutable
+mapping between names of types and functions that can test if an instance is
+of that type. The defaults are suitable for most users - each of the
+`versioned validators <versioned-validators>` that are included with
+`jsonschema` have a `TypeChecker` that can correctly handle their respective
+versions.
+
+.. seealso:: `validating-types`
+
+    For an example of providing a custom type check.
+
+.. autoclass:: TypeChecker
+    :members:
+
+.. autoexception:: jsonschema.exceptions.UndefinedTypeCheck
+
+    Raised when trying to remove a type check that is not known to this
+    TypeChecker, or when calling `jsonschema.TypeChecker.is_type`
+    directly.
 
 .. _validating-types:
 
@@ -134,51 +185,52 @@ Validating With Additional Types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Occasionally it can be useful to provide additional or alternate types when
-validating the JSON Schema's :validator:`type` property. Validators allow this
-by taking a ``types`` argument on construction that specifies additional types,
-or which can be used to specify a different set of Python types to map to a
-given JSON type.
+validating the JSON Schema's :validator:`type` property.
 
-:mod:`jsonschema` tries to strike a balance between performance in the common
+`jsonschema` tries to strike a balance between performance in the common
 case and generality. For instance, JSON Schema defines a ``number`` type, which
 can be validated with a schema such as ``{"type" : "number"}``. By default,
-this will accept instances of Python :class:`numbers.Number`. This includes in
-particular :class:`int`\s and :class:`float`\s, along with
-:class:`decimal.Decimal` objects, :class:`complex` numbers etc. For
+this will accept instances of Python `numbers.Number`. This includes in
+particular `int`\s and `float`\s, along with
+`decimal.Decimal` objects, `complex` numbers etc. For
 ``integer`` and ``object``, however, rather than checking for
-:class:`numbers.Integral` and :class:`collections.abc.Mapping`,
-:mod:`jsonschema` simply checks for :class:`int` and :class:`dict`, since the
+`numbers.Integral` and `collections.abc.Mapping`,
+`jsonschema` simply checks for `int` and `dict`, since the
 more general instance checks can introduce significant slowdown, especially
 given how common validating these types are.
 
 If you *do* want the generality, or just want to add a few specific additional
-types as being acceptible for a validator object, :class:`IValidator`\s have a
-``types`` argument that can be used to provide additional or new types.
+types as being acceptable for a validator object, then you should update an
+existing `TypeChecker` or create a new one. You may then create a new
+`IValidator` via `jsonschema.validators.extend`.
 
 .. code-block:: python
 
     class MyInteger(object):
-        ...
+        pass
 
-    Draft3Validator(
-        schema={"type" : "number"},
-        types={"number" : (numbers.Number, MyInteger)},
-    )
+    def is_my_int(checker, instance):
+        return (
+            checker.is_type(instance, "number") or
+            isinstance(instance, MyInteger)
+        )
 
-The list of default Python types for each JSON type is available on each
-validator object in the :attr:`IValidator.DEFAULT_TYPES` attribute. Note
-that you need to specify all types to match if you override one of the
-existing JSON types, so you may want to access the set of default types
-when specifying your additional type.
+    type_checker = Draft3Validator.TYPE_CHECKER.redefine("number", is_my_int)
+
+    CustomValidator = extend(Draft3Validator, type_checker=type_checker)
+    validator = CustomValidator(schema={"type" : "number"})
+
+
+.. autoexception:: jsonschema.exceptions.UnknownType
 
 .. _versioned-validators:
 
 Versioned Validators
 --------------------
 
-:mod:`jsonschema` ships with validator classes for various versions of
+`jsonschema` ships with validator classes for various versions of
 the JSON Schema specification. For details on the methods and attributes
-that each validator class provides see the :class:`IValidator` interface,
+that each validator class provides see the `IValidator` interface,
 which each included validator class implements.
 
 .. autoclass:: Draft3Validator
@@ -213,7 +265,7 @@ JSON Schema defines the :validator:`format` property which can be used to check
 if primitive types (``string``\s, ``number``\s, ``boolean``\s) conform to
 well-defined formats. By default, no validation is enforced, but optionally,
 validation can be enabled by hooking in a format-checking object into an
-:class:`IValidator`.
+`IValidator`.
 
 .. doctest::
 
@@ -234,8 +286,8 @@ validation can be enabled by hooking in a format-checking object into an
         A mapping of currently known formats to tuple of functions that
         validate them and errors that should be caught. New checkers can be
         added and removed either per-instance or globally for all checkers
-        using the :meth:`FormatChecker.checks` or
-        :meth:`FormatChecker.cls_checks` decorators respectively.
+        using the `FormatChecker.checks` or `FormatChecker.cls_checks`
+        decorators respectively.
 
     .. classmethod:: cls_checks(format, raises=())
 
@@ -245,16 +297,20 @@ validation can be enabled by hooking in a format-checking object into an
         supplied checker.
 
         :argument str format: the format that the decorated function will check
-        :argument Exception raises: the exception(s) raised by the decorated
-            function when an invalid instance is found. The exception object
-            will be accessible as the :attr:`ValidationError.cause` attribute
+        :argument Exception raises: the exception(s) raised
+            by the decorated function when an invalid instance is
+            found. The exception object will be accessible as the
+            `jsonschema.exceptions.ValidationError.cause` attribute
             of the resulting validation error.
 
 
+.. autoexception:: FormatError
+    :members:
 
-There are a number of default checkers that :class:`FormatChecker`\s know how
+
+There are a number of default checkers that `FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
-:attr:`FormatChecker.checkers` attribute. Certain checkers will only be
+`FormatChecker.checkers` attribute. Certain checkers will only be
 available if an appropriate package is available for use. The available
 checkers, along with their requirement (if any,) are listed below.
 
@@ -263,7 +319,7 @@ Checker     Notes
 ==========  ====================
 hostname
 ipv4
-ipv6        OS must have :func:`socket.inet_pton` function
+ipv6        OS must have `socket.inet_pton` function
 email
 uri         requires rfc3987_
 date-time   requires strict-rfc3339_ [#]_

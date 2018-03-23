@@ -1,11 +1,12 @@
+from unittest import TestCase
 import textwrap
 
 from jsonschema import Draft4Validator, exceptions
 from jsonschema.compat import PY3
-from jsonschema.tests.compat import mock, unittest
+from jsonschema.tests.compat import mock
 
 
-class TestBestMatch(unittest.TestCase):
+class TestBestMatch(TestCase):
     def best_match(self, errors):
         errors = list(errors)
         best = exceptions.best_match(errors)
@@ -159,7 +160,7 @@ class TestBestMatch(unittest.TestCase):
         self.assertIsNone(exceptions.best_match(validator.iter_errors({})))
 
 
-class TestByRelevance(unittest.TestCase):
+class TestByRelevance(TestCase):
     def test_short_paths_are_better_matches(self):
         shallow = exceptions.ValidationError("Oh no!", path=["baz"])
         deep = exceptions.ValidationError("Oh yes!", path=["foo", "bar"])
@@ -211,7 +212,7 @@ class TestByRelevance(unittest.TestCase):
         self.assertIs(match, strong)
 
 
-class TestErrorTree(unittest.TestCase):
+class TestErrorTree(TestCase):
     def test_it_knows_how_many_total_errors_it_contains(self):
         errors = [mock.MagicMock() for _ in range(8)]
         tree = exceptions.ErrorTree(errors)
@@ -287,7 +288,7 @@ class TestErrorTree(unittest.TestCase):
         self.assertIsInstance(tree["foo"], exceptions.ErrorTree)
 
 
-class TestErrorInitReprStr(unittest.TestCase):
+class TestErrorInitReprStr(TestCase):
     def make_error(self, **kwargs):
         defaults = dict(
             message=u"hello",

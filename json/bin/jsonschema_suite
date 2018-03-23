@@ -38,47 +38,29 @@ else:
     )
 
 
-ROOT_DIR = os.path.join(
-    os.path.dirname(__file__), os.pardir).rstrip("__pycache__")
+ROOT_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), os.pardir).rstrip("__pycache__"),
+)
 SUITE_ROOT_DIR = os.path.join(ROOT_DIR, "tests")
 
 REMOTES = {
-    "integer.json": {"type": "integer"},
-    "subSchemas.json": {
-        "integer": {"type": "integer"},
-        "refToInteger": {"$ref": "#/integer"},
+    "integer.json": {u"type": u"integer"},
+    "name.json": {
+        u"type": "string",
+        u"definitions": {
+            u"orNull": {u"anyOf": [{u"type": u"null"}, {u"$ref": u"#"}]},
+        },
     },
-    "folder/folderInteger.json": {"type": "integer"}
+    "subSchemas.json": {
+        u"integer": {u"type": u"integer"},
+        u"refToInteger": {u"$ref": u"#/integer"},
+    },
+    "folder/folderInteger.json": {u"type": u"integer"}
 }
 REMOTES_DIR = os.path.join(ROOT_DIR, "remotes")
 
-TESTSUITE_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-03/schema#",
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "description": {"type": "string", "required": True},
-            "schema": {"required": True},
-            "tests": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "description": {"type": "string", "required": True},
-                        "data": {"required": True},
-                        "valid": {"type": "boolean", "required": True}
-                    },
-                    "additionalProperties": False
-                },
-                "minItems": 1
-            }
-        },
-        "additionalProperties": False,
-        "minItems": 1
-    }
-}
-
+with open(os.path.join(ROOT_DIR, "test-schema.json")) as schema:
+    TESTSUITE_SCHEMA = json.load(schema)
 
 def files(paths):
     for path in paths:
@@ -164,10 +146,19 @@ class SanityTests(unittest.TestCase):
                 self.fail(str(error))
 
     def test_remote_schemas_are_updated(self):
-        for url, schema in REMOTES.items():
-            filepath = os.path.join(REMOTES_DIR, url)
-            with open(filepath) as schema_file:
-                self.assertEqual(json.load(schema_file), schema)
+        files = {}
+        for parent, _, paths in os.walk(REMOTES_DIR):
+            for path in paths:
+                absolute_path = os.path.join(parent, path)
+                with open(absolute_path) as schema_file:
+                    files[absolute_path] = json.load(schema_file)
+
+        self.assertEqual(
+            files, {
+                os.path.join(REMOTES_DIR, path): contents
+                for path, contents in REMOTES.iteritems()
+            },
+        )
 
 
 def main(arguments):

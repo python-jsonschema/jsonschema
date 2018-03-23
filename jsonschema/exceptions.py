@@ -67,16 +67,18 @@ class _Error(Exception):
         pinstance = pprint.pformat(self.instance, width=72)
         return self.message + textwrap.dedent("""
 
-            Failed validating %r in schema%s:
+            Failed validating %r in %s%s:
             %s
 
-            On instance%s:
+            On %s%s:
             %s
             """.rstrip()
         ) % (
             self.validator,
+            self._word_for_schema_in_error_message,
             _utils.format_as_index(list(self.relative_schema_path)[:-1]),
             _utils.indent(pschema),
+            self._word_for_instance_in_error_message,
             _utils.format_as_index(self.relative_path),
             _utils.indent(pinstance),
         )
@@ -125,15 +127,31 @@ class _Error(Exception):
 
 
 class ValidationError(_Error):
-    pass
+    _word_for_schema_in_error_message = "schema"
+    _word_for_instance_in_error_message = "instance"
 
 
 class SchemaError(_Error):
-    pass
+    _word_for_schema_in_error_message = "metaschema"
+    _word_for_instance_in_error_message = "schema"
 
 
 class RefResolutionError(Exception):
     pass
+
+
+class UndefinedTypeCheck(Exception):
+    def __init__(self, type):
+        self.type = type
+
+    def __unicode__(self):
+        return "Type %r is unknown to this type checker" % self.type
+
+    if PY3:
+        __str__ = __unicode__
+    else:
+        def __str__(self):
+            return unicode(self).encode("utf-8")
 
 
 class UnknownType(Exception):
@@ -212,7 +230,7 @@ class ErrorTree(object):
         If the index is not in the instance that this tree corresponds to and
         is not known by this tree, whatever error would be raised by
         ``instance.__getitem__`` will be propagated (usually this is some
-        subclass of :class:`LookupError`.
+        subclass of `exceptions.LookupError`.
 
         """
 
@@ -233,7 +251,7 @@ class ErrorTree(object):
 
     def __len__(self):
         """
-        Same as :attr:`total_errors`.
+        Same as `total_errors`.
 
         """
 

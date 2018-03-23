@@ -1,0 +1,4 @@
+git+https://github.com/Julian/betterpath#egg=betterpath
+attrs
+mock
+pyrsistent

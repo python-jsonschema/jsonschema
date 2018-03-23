@@ -3,13 +3,14 @@ Tests for the parts of jsonschema related to the :validator:`format` property.
 
 """
 
-from jsonschema.tests.compat import mock, unittest
+from unittest import TestCase
 
 from jsonschema import FormatError, ValidationError, FormatChecker
+from jsonschema.tests.compat import mock
 from jsonschema.validators import Draft4Validator
 
 
-class TestFormatChecker(unittest.TestCase):
+class TestFormatChecker(TestCase):
     def setUp(self):
         self.fn = mock.Mock()
 
