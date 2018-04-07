@@ -1013,6 +1013,26 @@ class TestValidate(TestCase):
         )
 
 
+class MockImport(object):
+
+    def __init__(self, module, _mock):
+        self._module = module
+        self._mock = _mock
+        self._orig_import = None
+
+    def __enter__(self):
+        self._orig_import = sys.modules.get(self._module, None)
+        sys.modules[self._module] = self._mock
+        return self._mock
+
+    def __exit__(self, *args):
+        if self._orig_import is None:
+            del sys.modules[self._module]
+        else:
+            sys.modules[self._module] = self._orig_import
+        return True
+
+
 class TestRefResolver(TestCase):
 
     base_uri = ""
@@ -1062,7 +1082,7 @@ class TestRefResolver(TestCase):
         ref = "http://bar#baz"
         schema = {"baz": 12}
 
-        with mock.patch("jsonschema.validators.requests") as requests:
+        with MockImport("requests", mock.Mock()) as requests:
             requests.get.return_value.json.return_value = schema
             with self.resolver.resolving(ref) as resolved:
                 self.assertEqual(resolved, 12)
@@ -1072,7 +1092,7 @@ class TestRefResolver(TestCase):
         ref = "http://bar#baz"
         schema = {"baz": 12}
 
-        with mock.patch("jsonschema.validators.requests", None):
+        with MockImport("requests", None):
             with mock.patch("jsonschema.validators.urlopen") as urlopen:
                 urlopen.return_value.read.return_value = (
                     json.dumps(schema).encode("utf8"))
