@@ -27,7 +27,8 @@ const SKIP = {
   if (draft == 7) {
     ajv = new Ajv({format: 'full'});
   } else {
-    ajv = new Ajv({format: 'full', meta: false});
+    const schemaId = draft == 4 ? 'id' : '$id';
+    ajv = new Ajv({format: 'full', meta: false, schemaId});
     ajv.addMetaSchema(require(`ajv/lib/refs/json-schema-draft-0${draft}.json`));
     ajv._opts.defaultMeta = `http://json-schema.org/draft-0${draft}/schema#`;
   }
