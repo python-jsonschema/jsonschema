@@ -316,9 +316,11 @@ to validate. Their names can be viewed by inspecting the
 available if an appropriate package is available for use. The available
 checkers, along with their requirement (if any,) are listed below.
 
-*Note*: If the following packages are not installed when using checkers
-that require additional packages, validation will pass without throwing
-an error.
+.. note::
+
+    If the following packages are not installed when using a checker
+    that requires it, validation will succeed without throwing an error,
+    as specified by the JSON Schema specification.
 
 ==========  ====================
 Checker     Notes
