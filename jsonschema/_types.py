@@ -61,7 +61,7 @@ class TypeChecker(object):
 
             The initial mapping of types to their checking functions.
     """
-    _type_checkers = attr.ib(default=pmap(), convert=pmap)
+    _type_checkers = attr.ib(default=pmap(), converter=pmap)
 
     def is_type(self, instance, type):
         """
