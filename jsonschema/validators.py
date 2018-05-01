@@ -153,7 +153,7 @@ def create(
 
         default_types (collections.Mapping):
 
-            .. deprecated:: 2.7.0
+            .. deprecated:: 3.0.0
 
                 Please use the type_checker argument instead.
 
