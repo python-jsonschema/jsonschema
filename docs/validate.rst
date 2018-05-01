@@ -43,7 +43,7 @@ classes should adhere to.
         additional packages to be installed (ipv5, uri, color, date-time).
         The required packages can be found at the bottom of this page.
     :argument types:
-        .. deprecated:: 2.7.0
+        .. deprecated:: 3.0.0
 
             Use `TypeChecker.redefine` and
             `jsonschema.validators.extend` instead of this argument.
@@ -79,7 +79,7 @@ classes should adhere to.
 
     .. attribute:: DEFAULT_TYPES
 
-        .. deprecated:: 2.7.0
+        .. deprecated:: 3.0.0
 
             Use of this attribute is deprecated in favor of the new `type
             checkers <TypeChecker>`.
