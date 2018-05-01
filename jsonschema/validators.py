@@ -481,6 +481,7 @@ Draft6Validator = create(
         u"type": _validators.type,
         u"uniqueItems": _validators.uniqueItems,
     },
+    type_checker=_types.draft6_type_checker,
     version="draft6",
 )
 

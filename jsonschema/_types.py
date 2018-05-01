@@ -202,3 +202,4 @@ draft3_type_checker = TypeChecker(
 )
 
 draft4_type_checker = draft3_type_checker.remove(u"any")
+draft6_type_checker = draft4_type_checker
