@@ -140,6 +140,20 @@ class RefResolutionError(Exception):
     pass
 
 
+class UndefinedTypeCheck(Exception):
+    def __init__(self, type):
+        self.type = type
+
+    def __unicode__(self):
+        return "Type %r is unknown to this type checker" % self.type
+
+    if PY3:
+        __str__ = __unicode__
+    else:
+        def __str__(self):
+            return unicode(self).encode("utf-8")
+
+
 class UnknownType(Exception):
     def __init__(self, type, instance, schema):
         self.type = type
@@ -216,7 +230,7 @@ class ErrorTree(object):
         If the index is not in the instance that this tree corresponds to and
         is not known by this tree, whatever error would be raised by
         ``instance.__getitem__`` will be propagated (usually this is some
-        subclass of :class:`LookupError`.
+        subclass of `exceptions.LookupError`.
 
         """
 
@@ -237,7 +251,7 @@ class ErrorTree(object):
 
     def __len__(self):
         """
-        Same as :attr:`total_errors`.
+        Same as `total_errors`.
 
         """
 

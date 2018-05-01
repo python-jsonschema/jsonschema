@@ -4,7 +4,7 @@ An implementation of JSON Schema for Python
 The main functionality is provided by the validator classes for each of the
 supported JSON Schema versions.
 
-Most commonly, :func:`validate` is the quickest way to simply validate a given
+Most commonly, `validate` is the quickest way to simply validate a given
 instance under a schema, and will create a validator for you.
 
 """
@@ -18,6 +18,11 @@ from jsonschema._format import (
     draft4_format_checker,
     draft6_format_checker,
 )
+from jsonschema._types import (
+    TypeChecker,
+    draft3_type_checker,
+    draft4_type_checker,
+)
 from jsonschema.validators import (
     Draft3Validator,
     Draft4Validator,
@@ -26,6 +31,5 @@ from jsonschema.validators import (
     validate,
 )
 
-from jsonschema._version import __version__
-
-# flake8: noqa
+from pkg_resources import get_distribution
+__version__ = get_distribution(__name__).version

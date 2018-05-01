@@ -1,0 +1,29 @@
+# this appears to be misinterpreting Napoleon types as prose, sigh...
+IValidator
+TypeChecker
+UnknownType
+ValidationError
+
+# 0th, sigh...
+th
+callables
+deque
+hostname
+implementers
+indices
+# ipv4/6, sigh...
+ipv
+iterable
+jsonschema
+programmatically
+recurses
+regex
+sensical
+subschema
+subschemas
+subscopes
+uri
+validator
+validators
+versioned
+schemas

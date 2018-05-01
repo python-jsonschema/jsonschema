@@ -23,30 +23,38 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-extras_require = {
-    "format": [
-        "jsonpointer>1.13",
-        "rfc3987",
-        "strict-rfc3339",
-        "uritemplate>3.0.0",
-        "webcolors",
-    ],
-    ":python_version=='2.7'": ["functools32"],
-}
-
 setup(
     name="jsonschema",
-    packages=["jsonschema", "jsonschema.tests"],
-    package_data={"jsonschema": ["schemas/*.json"]},
-    setup_requires=["vcversioner>=2.16.0.0"],
-    extras_require=extras_require,
-    author="Julian Berman",
-    author_email="Julian@GrayVines.com",
     classifiers=classifiers,
     description="An implementation of JSON Schema validation for Python",
     license="MIT",
     long_description=long_description,
     url="http://github.com/Julian/jsonschema",
+
+    author="Julian Berman",
+    author_email="Julian@GrayVines.com",
+
+    setup_requires=["setuptools_scm"],
+    use_scm_version=True,
+
+    install_requires=[
+        "attrs>=17.4.0",
+        "pyrsistent>=0.14.0",
+        "six>=1.11.0",
+        "functools32;python_version<'3'",
+    ],
+    extras_require={
+        "format": [
+            "jsonpointer>1.13",
+            "rfc3987",
+            "strict-rfc3339",
+            "uritemplate>3.0.0",
+            "webcolors",
+        ],
+    },
+
+    packages=["jsonschema", "jsonschema.tests"],
+    package_data={"jsonschema": ["schemas/*.json"]},
+
     entry_points={"console_scripts": ["jsonschema = jsonschema.cli:main"]},
-    vcversioner={"version_module_paths" : ["jsonschema/_version.py"]},
 )

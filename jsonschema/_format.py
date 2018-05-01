@@ -14,16 +14,16 @@ class FormatChecker(object):
     validation. If validation is desired however, instances of this class can
     be hooked into validators to enable format validation.
 
-    :class:`FormatChecker` objects always return ``True`` when asked about
+    `FormatChecker` objects always return ``True`` when asked about
     formats that they do not know how to validate.
 
     To check a custom format using a function that takes an instance and
-    returns a ``bool``, use the :meth:`FormatChecker.checks` or
-    :meth:`FormatChecker.cls_checks` decorators.
+    returns a ``bool``, use the `FormatChecker.checks` or
+    `FormatChecker.cls_checks` decorators.
 
     Arguments:
 
-        formats (iterable):
+        formats (~collections.Iterable):
 
             The known formats to validate. This argument can be used to
             limit which formats will be used during validation.
@@ -50,12 +50,12 @@ class FormatChecker(object):
 
             raises (Exception):
 
-                The exception(s) raised by the decorated function when
-                an invalid instance is found.
+                The exception(s) raised by the decorated function when an
+                invalid instance is found.
 
                 The exception object will be accessible as the
-                :attr:`ValidationError.cause` attribute of the resulting
-                validation error.
+                `jsonschema.exceptions.ValidationError.cause` attribute of the
+                resulting validation error.
 
         """
 
@@ -72,7 +72,7 @@ class FormatChecker(object):
 
         Arguments:
 
-            instance (any primitive type, i.e. str, number, bool):
+            instance (*any primitive type*, i.e. str, number, bool):
 
                 The instance to check
 
@@ -83,7 +83,7 @@ class FormatChecker(object):
 
         Raises:
 
-            :exc:`FormatError` if instance does not conform to ``format``
+            FormatError: if the instance does not conform to ``format``
 
         """
 
@@ -107,7 +107,7 @@ class FormatChecker(object):
 
         Arguments:
 
-            instance (any primitive type, i.e. str, number, bool):
+            instance (*any primitive type*, i.e. str, number, bool):
 
                 The instance to check
 
@@ -117,7 +117,7 @@ class FormatChecker(object):
 
         Returns:
 
-            bool: Whether it conformed
+            bool: whether it conformed
 
         """
 

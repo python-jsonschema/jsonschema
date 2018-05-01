@@ -16,7 +16,7 @@ If you're going to use this suite, you need to know how tests are laid out. The
 tests are contained in the `tests` directory at the root of this repository.
 
 Inside that directory is a subdirectory for each draft or version of the
-schema. We'll use `draft3` as an example.
+schema.
 
 If you look inside the draft directory, there are a number of `.json` files,
 which logically group a set of test cases together. Often the grouping is by
@@ -52,8 +52,13 @@ they should be valid or invalid.
 Coverage
 --------
 
-Draft 3 and 4 should have full coverage. If you see anything missing or think
-there is a useful test missing, please send a pull request or open an issue.
+Drafts 03, 04, 06, and 07 should have full coverage, with drafts 06 and 07
+being considered current and actively supported.  Bug fixes will be made as
+needed for draft-04 as it is still the most widely used, while draft-03
+is long since deprecated.
+
+If you see anything missing from the current supported drafts, or incorrect
+on any draft still accepting bug fixes, please file an issue or submit a PR.
 
 Who Uses the Test Suite
 -----------------------
