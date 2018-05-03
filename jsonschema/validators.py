@@ -111,12 +111,17 @@ class _DefaultTypesDeprecatingMetaClass(type):
         return self._DEFAULT_TYPES
 
 
+def _id_of(schema):
+    return schema.get(u"$id", u"")
+
+
 def create(
     meta_schema,
     validators=(),
     version=None,
     default_types=None,
     type_checker=None,
+    id_of=_id_of,
 ):
     """
     Create a new validator class.
@@ -228,11 +233,13 @@ def create(
 
             if resolver is None:
                 if schema is True:
-                    resolver = RefResolver.from_schema({})
+                    resolver = RefResolver.from_schema({}, id_of=id_of)
                 elif schema is False:
-                    resolver = RefResolver.from_schema({"not": {}})
+                    resolver = RefResolver.from_schema(
+                        {"not": {}}, id_of=id_of,
+                    )
                 else:
-                    resolver = RefResolver.from_schema(schema)
+                    resolver = RefResolver.from_schema(schema, id_of=id_of)
 
             self.resolver = resolver
             self.format_checker = format_checker
@@ -255,7 +262,7 @@ def create(
                 )
                 return
 
-            scope = _schema.get(u"$id")
+            scope = id_of(_schema)
             if scope:
                 self.resolver.push_scope(scope)
             try:
@@ -416,6 +423,7 @@ Draft3Validator = create(
     },
     type_checker=_types.draft3_type_checker,
     version="draft3",
+    id_of=lambda schema: schema.get(u"id", ""),
 )
 
 Draft4Validator = create(
@@ -450,6 +458,7 @@ Draft4Validator = create(
     },
     type_checker=_types.draft4_type_checker,
     version="draft4",
+    id_of=lambda schema: schema.get(u"id", ""),
 )
 
 
@@ -572,7 +581,7 @@ class RefResolver(object):
     def from_schema(
         cls,
         schema,
-        id_of=lambda schema: schema.get(u"$id", u""),
+        id_of=_id_of,
         *args,
         **kwargs
     ):
