@@ -951,6 +951,19 @@ class TestValidatorFor(TestCase):
             validators.Draft4Validator,
         )
 
+    def test_draft_6(self):
+        schema = {"$schema": "http://json-schema.org/draft-06/schema"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft6Validator,
+        )
+
+        schema = {"$schema": "http://json-schema.org/draft-06/schema#"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft6Validator,
+        )
+
     def test_custom_validator(self):
         Validator = validators.create(
             meta_schema={"id": "meta schema id"},
@@ -963,7 +976,7 @@ class TestValidatorFor(TestCase):
         )
 
     def test_validator_for_jsonschema_default(self):
-        self.assertIs(validators.validator_for({}), validators.Draft4Validator)
+        self.assertIs(validators.validator_for({}), validators.Draft6Validator)
 
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)
@@ -996,9 +1009,18 @@ class TestValidate(TestCase):
             validators.validate({}, schema)
             chk_schema.assert_called_once_with(schema)
 
-    def test_draft4_validator_is_the_default(self):
+    def test_draft6_validator_is_chosen(self):
+        schema = {"$schema": "http://json-schema.org/draft-06/schema#"}
         with mock.patch.object(
-            validators.Draft4Validator,
+            validators.Draft6Validator,
+            "check_schema",
+        ) as chk_schema:
+            validators.validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
+
+    def test_draft6_validator_is_the_default(self):
+        with mock.patch.object(
+            validators.Draft6Validator,
             "check_schema",
         ) as chk_schema:
             validators.validate({}, {})

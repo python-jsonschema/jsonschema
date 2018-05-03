@@ -781,10 +781,10 @@ def validator_for(schema, default=_unset):
             determined.
 
             If unprovided, the default is to return
-            `jsonschema.Draft4Validator`.
+            `jsonschema.Draft6Validator`.
     """
     if default is _unset:
-        default = Draft4Validator
+        default = Draft6Validator
     return meta_schemas.get(schema.get(u"$schema", u""), default)
 
 
@@ -802,7 +802,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     in less obvious or consistent ways. If you know you have a valid schema
     already or don't care, you might prefer using the
     `IValidator.validate` method directly on a specific validator
-    (e.g. ``Draft4Validator.validate``).
+    (e.g. ``Draft6Validator.validate``).
 
 
     Arguments:
@@ -825,7 +825,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     proper validator will be used.  The specification recommends that all
     schemas contain :validator:`$schema` properties for this reason. If no
     :validator:`$schema` property is found, the default validator class is
-    `Draft4Validator`.
+    `Draft6Validator`.
 
     Any other provided positional and keyword arguments will be passed on when
     instantiating the ``cls``.
