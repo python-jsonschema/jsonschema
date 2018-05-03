@@ -964,6 +964,18 @@ class TestValidatorFor(TestCase):
             validators.Draft6Validator,
         )
 
+    def test_True(self):
+        self.assertIs(
+            validators.validator_for(True),
+            validators._LATEST_VERSION,
+        )
+
+    def test_False(self):
+        self.assertIs(
+            validators.validator_for(False),
+            validators._LATEST_VERSION,
+        )
+
     def test_custom_validator(self):
         Validator = validators.create(
             meta_schema={"id": "meta schema id"},
@@ -976,7 +988,7 @@ class TestValidatorFor(TestCase):
         )
 
     def test_validator_for_jsonschema_default(self):
-        self.assertIs(validators.validator_for({}), validators.Draft6Validator)
+        self.assertIs(validators.validator_for({}), validators._LATEST_VERSION)
 
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)

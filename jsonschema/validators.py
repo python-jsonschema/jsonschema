@@ -494,6 +494,8 @@ Draft6Validator = create(
     version="draft6",
 )
 
+_LATEST_VERSION = Draft6Validator
+
 
 class RefResolver(object):
     """
@@ -820,7 +822,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     cls(schema, *args, **kwargs).validate(instance)
 
 
-def validator_for(schema, default=Draft6Validator):
+def validator_for(schema, default=_LATEST_VERSION):
     """
     Retrieve the validator class appropriate for validating the given schema.
 
@@ -839,6 +841,8 @@ def validator_for(schema, default=Draft6Validator):
             determined.
 
             If unprovided, the default is to return
-            `jsonschema.Draft6Validator`.
+            the latest supported draft.
     """
+    if schema is True or schema is False:
+        return default
     return meta_schemas.get(schema.get(u"$schema", u""), default)
