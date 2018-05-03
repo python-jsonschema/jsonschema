@@ -829,7 +829,7 @@ def validator_for(schema, default=_LATEST_VERSION):
 
     Arguments:
 
-        schema (dict or bool):
+        schema (collections.Mapping or bool):
 
             the schema to look at
 
