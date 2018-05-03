@@ -239,18 +239,6 @@ class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     validator_kwargs = {"format_checker": draft6_format_checker}
 
 
-class RemoteRefResolutionMixin(object):
-    def setUp(self):
-        patch = mock.patch("jsonschema.validators.requests")
-        requests = patch.start()
-        requests.get.side_effect = self.resolve
-        self.addCleanup(patch.stop)
-
-    def resolve(self, reference):
-        _, _, reference = reference.partition("http://localhost:1234/")
-        return mock.Mock(**{"json.return_value": REMOTES.get(reference)})
-
-
 @load_json_cases(tests=DRAFT3.tests_of(name="refRemote"))
 class Draft3RemoteResolution(unittest.TestCase):
     validator_class = Draft3Validator
@@ -278,7 +266,7 @@ class Draft4RemoteResolution(unittest.TestCase):
         },
     ),
 )
-class Draft6RemoteResolution(RemoteRefResolutionMixin, unittest.TestCase):
+class Draft6RemoteResolution(unittest.TestCase):
     validator_class = Draft6Validator
 
 
