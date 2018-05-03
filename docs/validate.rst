@@ -340,13 +340,6 @@ color       requires webcolors_
 ==========  ====================
 
 
-.. [#] For backwards compatibility, isodate_ is also supported, but it will
-      allow any `ISO 8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ date-time,
-      not just `RFC 3339 <http://www.ietf.org/rfc/rfc3339.txt>`_ as mandated by
-      the JSON Schema specification.
-
-
-.. _isodate: http://pypi.python.org/pypi/isodate/
 .. _rfc3987: http://pypi.python.org/pypi/rfc3987/
 .. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
