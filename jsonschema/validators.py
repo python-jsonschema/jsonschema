@@ -13,7 +13,11 @@ from jsonschema.compat import (
     str_types, int_types, iteritems, lru_cache,
 )
 from jsonschema.exceptions import (
-    RefResolutionError, SchemaError, UnknownType, UndefinedTypeCheck
+    RefResolutionError,
+    SchemaError,
+    UnknownType,
+    UndefinedTypeCheck,
+    ValidationError,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -244,9 +248,12 @@ def create(
                 _schema = self.schema
 
             if _schema is True:
-                _schema = {}
+                return
             elif _schema is False:
-                _schema = {"not": {}}
+                yield ValidationError(
+                    "False schema does not allow %r" % (instance,),
+                )
+                return
 
             scope = _schema.get(u"$id")
             if scope:
