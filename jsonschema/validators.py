@@ -562,7 +562,13 @@ class RefResolver(object):
         self._remote_cache = remote_cache
 
     @classmethod
-    def from_schema(cls, schema, *args, **kwargs):
+    def from_schema(
+        cls,
+        schema,
+        id_of=lambda schema: schema.get(u"$id", u""),
+        *args,
+        **kwargs
+    ):
         """
         Construct a resolver from a JSON schema object.
 
@@ -578,7 +584,7 @@ class RefResolver(object):
 
         """
 
-        return cls(schema.get(u"$id", u""), schema, *args, **kwargs)
+        return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)
 
     def push_scope(self, scope):
         self._scopes_stack.append(

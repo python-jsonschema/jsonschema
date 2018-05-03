@@ -1072,7 +1072,10 @@ class TestRefResolver(TestCase):
 
     def test_it_resolves_local_refs_with_id(self):
         schema = {"id": "http://bar/schema#", "a": {"foo": "bar"}}
-        resolver = validators.RefResolver.from_schema(schema)
+        resolver = validators.RefResolver.from_schema(
+            schema,
+            id_of=lambda schema: schema.get(u"id", u""),
+        )
         with resolver.resolving("#/a") as resolved:
             self.assertEqual(resolved, schema["a"])
         with resolver.resolving("http://bar/schema#/a") as resolved:
@@ -1110,7 +1113,10 @@ class TestRefResolver(TestCase):
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
-        resolver = validators.RefResolver.from_schema(schema)
+        resolver = validators.RefResolver.from_schema(
+            schema,
+            id_of=lambda schema: schema.get(u"id", u""),
+        )
         self.assertEqual(resolver.base_uri, "foo")
         self.assertEqual(resolver.resolution_scope, "foo")
         with resolver.resolving("") as resolved:
