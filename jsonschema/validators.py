@@ -234,14 +234,7 @@ def create(
                 )
 
             if resolver is None:
-                if schema is True:
-                    resolver = RefResolver.from_schema({}, id_of=id_of)
-                elif schema is False:
-                    resolver = RefResolver.from_schema(
-                        {"not": {}}, id_of=id_of,
-                    )
-                else:
-                    resolver = RefResolver.from_schema(schema, id_of=id_of)
+                resolver = RefResolver.from_schema(schema, id_of=id_of)
 
             self.resolver = resolver
             self.format_checker = format_checker
