@@ -60,19 +60,17 @@ def validates(version):
 
 def _generate_legacy_type_checks(types=()):
     """
-    Generate type check definitions suitable for TypeChecker.redefine_many,
-    using the supplied types. Type Checks are simple isinstance checks,
-    except checking that numbers aren't really bools.
+    Generate newer-style type checks out of JSON-type-name-to-type mappings.
 
     Arguments:
 
         types (dict):
 
-            A mapping of type names to their Python Types
+            A mapping of type names to their Python types
 
     Returns:
 
-        A dictionary of definitions to pass to TypeChecker
+        A dictionary of definitions to pass to `TypeChecker`
 
     """
     types = dict(types)
