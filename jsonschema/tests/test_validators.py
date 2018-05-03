@@ -396,6 +396,14 @@ class TestValidationErrorMessages(TestCase):
             ),
         )
 
+    def test_False_schema(self):
+        message = self.message_for(
+            instance="something",
+            schema=False,
+            cls=validators.Draft6Validator,
+        )
+        self.assertIn("False schema does not allow 'something'", message)
+
 
 class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
