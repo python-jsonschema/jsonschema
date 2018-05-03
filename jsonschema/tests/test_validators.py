@@ -896,9 +896,29 @@ class TestDraft3Validator(ValidatorTestMixin, TestCase):
         cls = self.validator_class(schema, types={None: type(None)})
         cls.validate(None, schema)
 
+    def test_True_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(True)
+        self.assertIn("True is not of type", str(e.exception))
+
+    def test_False_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(False)
+        self.assertIn("False is not of type", str(e.exception))
+
 
 class TestDraft4Validator(ValidatorTestMixin, TestCase):
     validator_class = validators.Draft4Validator
+
+    def test_True_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(True)
+        self.assertIn("True is not of type", str(e.exception))
+
+    def test_False_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(False)
+        self.assertIn("False is not of type", str(e.exception))
 
 
 class TestBuiltinFormats(TestCase):
