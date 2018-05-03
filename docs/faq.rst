@@ -25,7 +25,7 @@ themselves will need to be valid under the schema.)
 
     .. code-block:: python
 
-        from jsonschema import Draft4Validator, validators
+        from jsonschema import Draft6Validator, validators
 
 
         def extend_with_default(validator_class):
@@ -46,21 +46,21 @@ themselves will need to be valid under the schema.)
             )
 
 
-        DefaultValidatingDraft4Validator = extend_with_default(Draft4Validator)
+        DefaultValidatingDraft6Validator = extend_with_default(Draft6Validator)
 
 
         # Example usage:
         obj = {}
         schema = {'properties': {'foo': {'default': 'bar'}}}
-        # Note jsonschem.validate(obj, schema, cls=DefaultValidatingDraft4Validator)
+        # Note jsonschem.validate(obj, schema, cls=DefaultValidatingDraft6Validator)
         # will not work because the metaschema contains `default` directives.
-        DefaultValidatingDraft4Validator(schema).validate(obj)
+        DefaultValidatingDraft6Validator(schema).validate(obj)
         assert obj == {'foo': 'bar'}
 
 
 See the above-linked document for more info on how this works, but
 basically, it just extends the :validator:`properties` validator on a
-`jsonschema.Draft4Validator` to then go ahead and update all the
+`jsonschema.Draft6Validator` to then go ahead and update all the
 defaults.
 
 .. note::
@@ -95,7 +95,7 @@ defaults.
         }
 
         obj = {}
-        DefaultValidatingDraft4Validator(schema).validate(obj)
+        DefaultValidatingDraft6Validator(schema).validate(obj)
         assert obj == {'outer-object': {'inner-object': 'INNER-DEFAULT'}}
 
     ...but if you don't provide a default value for your object,
@@ -105,7 +105,7 @@ defaults.
 
         del schema["properties"]["outer-object"]["default"]
         obj2 = {}
-        DefaultValidatingDraft4Validator(schema).validate(obj2)
+        DefaultValidatingDraft6Validator(schema).validate(obj2)
         assert obj2 == {} # whoops
 
 

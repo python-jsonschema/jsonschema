@@ -1,3 +1,10 @@
+v3.0.0
+------
+
+* Support for Draft 6
+* Draft 6 is now the default
+* New ``TypeChecker`` object for more complex type definitions (and overrides)
+
 v2.6.0
 ------
 

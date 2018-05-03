@@ -235,17 +235,19 @@ the JSON Schema specification. For details on the methods and attributes
 that each validator class provides see the `IValidator` interface,
 which each included validator class implements.
 
-.. autoclass:: Draft3Validator
+.. autoclass:: Draft6Validator
 
 .. autoclass:: Draft4Validator
 
+.. autoclass:: Draft3Validator
+
 
 For example, if you wanted to validate a schema you created against the
-Draft 4 meta-schema, you could use:
+Draft 6 meta-schema, you could use:
 
 .. code-block:: python
 
-    from jsonschema import Draft4Validator
+    from jsonschema import Draft6Validator
 
     schema = {
         "$schema": "http://json-schema.org/schema#",
@@ -257,7 +259,7 @@ Draft 4 meta-schema, you could use:
         },
         "required": ["email"]
     }
-    Draft4Validator.check_schema(schema)
+    Draft6Validator.check_schema(schema)
 
 
 Validating Formats
