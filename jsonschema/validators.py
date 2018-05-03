@@ -112,6 +112,8 @@ class _DefaultTypesDeprecatingMetaClass(type):
 
 
 def _id_of(schema):
+    if schema is True or schema is False:
+        return u""
     return schema.get(u"$id", u"")
 
 
