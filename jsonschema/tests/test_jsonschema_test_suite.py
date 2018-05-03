@@ -230,7 +230,7 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 )
 @load_json_cases(
     tests=DRAFT6.optional_tests_of(name="format"),
-    skip=missing_format(draft4_format_checker),
+    skip=missing_format(draft6_format_checker),
 )
 @load_json_cases(tests=DRAFT6.optional_tests_of(name="bignum"))
 @load_json_cases(tests=DRAFT6.optional_tests_of(name="zeroTerminatedFloats"))
