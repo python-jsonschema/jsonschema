@@ -90,6 +90,17 @@ class Collection(object):
             )
         )
 
+    def format_tests(self):
+        path = self._path.descendant(["optional", "format"])
+        return (
+            test
+            for child in path.globChildren("*.json")
+            for test in self._tests_in(
+                subject=child.basename()[:-5],
+                path=child,
+            )
+        )
+
     def tests_of(self, name):
         return self._tests_in(
             subject=name,
