@@ -18,11 +18,7 @@ from jsonschema._format import (
     draft4_format_checker,
     draft6_format_checker,
 )
-from jsonschema._types import (
-    TypeChecker,
-    draft3_type_checker,
-    draft4_type_checker,
-)
+from jsonschema._types import TypeChecker
 from jsonschema.validators import (
     Draft3Validator,
     Draft4Validator,
