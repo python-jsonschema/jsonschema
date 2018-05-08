@@ -278,6 +278,12 @@ validation can be enabled by hooking in a format-checking object into an
     Traceback (most recent call last):
         ...
     ValidationError: "-12" is not a "hostname"
+    
+.. note::
+    
+    For the sake of speed and simplicity, format checkers may implement only 
+    partial validation; in particular, full rfc5322_ validation for email 
+    addresses is not provided. 
 
 .. autoclass:: FormatChecker
     :members:
@@ -348,3 +354,4 @@ color       requires webcolors_
 .. _rfc3987: http://pypi.python.org/pypi/rfc3987/
 .. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
 .. _webcolors: http://pypi.python.org/pypi/webcolors/
+.. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
