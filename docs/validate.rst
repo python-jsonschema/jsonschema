@@ -278,12 +278,13 @@ validation can be enabled by hooking in a format-checking object into an
     Traceback (most recent call last):
         ...
     ValidationError: "-12" is not a "hostname"
-    
+
 .. note::
-    
-    For the sake of speed and simplicity, format checkers may implement only 
-    partial validation; in particular, full rfc5322_ validation for email 
-    addresses is not provided. 
+
+    Since fully validating an email address requires checking that it is
+    formatted correctly, as well as that it belongs to the correct recipient,
+    the email format validator only provides a sanity check, not full rfc5322_
+    validation.
 
 .. autoclass:: FormatChecker
     :members:
