@@ -283,6 +283,8 @@ else:
         draft6="json-pointer", raises=jsonpointer.JsonPointerException,
     )
     def is_json_pointer(instance):
+        if not isinstance(instance, str_types):
+            return True
         return jsonpointer.JsonPointer(instance)
 
 
