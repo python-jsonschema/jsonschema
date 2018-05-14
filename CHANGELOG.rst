@@ -1,3 +1,7 @@
+v3.0.0
+------
+
+* New ``TypeChecker`` object for more complex type definitions (and overrides)
 v2.6.0
 ------
 
