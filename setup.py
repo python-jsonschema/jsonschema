@@ -48,7 +48,6 @@ setup(
             "jsonpointer>1.13",
             "rfc3987",
             "strict-rfc3339",
-            "uritemplate>3.0.0",
             "webcolors",
         ],
     },
