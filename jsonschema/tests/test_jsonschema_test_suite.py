@@ -162,7 +162,14 @@ else:
 )
 @load_json_cases(
     tests=DRAFT3.optional_tests_of(name="format"),
-    skip=missing_format(draft3_format_checker),
+    skip=lambda test: (
+        missing_format(draft3_format_checker)(test) or
+        skip_tests_containing_descriptions(
+            {
+                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
+            },
+        )(test)
+    ),
 )
 @load_json_cases(tests=DRAFT3.optional_tests_of(name="bignum"))
 @load_json_cases(tests=DRAFT3.optional_tests_of(name="zeroTerminatedFloats"))
@@ -198,7 +205,14 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 )
 @load_json_cases(
     tests=DRAFT4.optional_tests_of(name="format"),
-    skip=missing_format(draft4_format_checker),
+    skip=lambda test: (
+        missing_format(draft4_format_checker)(test) or
+        skip_tests_containing_descriptions(
+            {
+                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
+            },
+        )(test)
+    ),
 )
 @load_json_cases(tests=DRAFT4.optional_tests_of(name="bignum"))
 @load_json_cases(tests=DRAFT4.optional_tests_of(name="zeroTerminatedFloats"))

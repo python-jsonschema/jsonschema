@@ -126,7 +126,7 @@ class Collection(object):
                 )
 
 
-@attr.s(hash=True)
+@attr.s(hash=True, repr=False)
 class _Test(object):
 
     collection = attr.ib()
@@ -142,6 +142,9 @@ class _Test(object):
 
     _remotes = attr.ib()
     _validate_kwargs = attr.ib(default=pmap())
+
+    def __repr__(self):
+        return "<Test {}>".format(self.fully_qualified_name)
 
     @property
     def fully_qualified_name(self):
