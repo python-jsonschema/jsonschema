@@ -205,16 +205,7 @@ else:
 try:
     import strict_rfc3339
 except ImportError:
-    try:
-        import isodate
-    except ImportError:
-        pass
-    else:
-        @_checks_drafts("date-time", raises=(ValueError, isodate.ISO8601Error))
-        def is_datetime(instance):
-            if not isinstance(instance, str_types):
-                return True
-            return isodate.parse_datetime(instance)
+    pass
 else:
     @_checks_drafts("date-time")
     def is_datetime(instance):
