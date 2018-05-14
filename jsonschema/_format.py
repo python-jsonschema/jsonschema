@@ -211,7 +211,7 @@ else:
             return True
         return rfc3987.parse(instance, rule="URI")
 
-    @_checks_drafts(name="uri-reference", raises=ValueError)
+    @_checks_drafts(draft6="uri-reference", raises=ValueError)
     def is_uri_reference(instance):
         if not isinstance(instance, str_types):
             return True
