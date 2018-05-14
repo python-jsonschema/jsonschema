@@ -244,7 +244,14 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 )
 @load_json_cases(
     tests=DRAFT6.optional_tests_of(name="format"),
-    skip=missing_format(draft6_format_checker),
+    skip=lambda test: (
+        missing_format(draft6_format_checker)(test) or
+        skip_tests_containing_descriptions(
+            {
+                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
+            },
+        )(test)
+    ),
 )
 @load_json_cases(tests=DRAFT6.optional_tests_of(name="bignum"))
 @load_json_cases(tests=DRAFT6.optional_tests_of(name="zeroTerminatedFloats"))
