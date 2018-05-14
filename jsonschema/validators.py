@@ -23,8 +23,6 @@ from jsonschema.exceptions import ErrorTree
 ErrorTree
 
 
-_unset = _utils.Unset()
-
 validators = {}
 meta_schemas = _utils.URIDict()
 
@@ -435,6 +433,8 @@ Draft4Validator = create(
     version="draft4",
 )
 
+_LATEST_VERSION = Draft4Validator
+
 
 class RefResolver(object):
     """
@@ -695,32 +695,6 @@ class RefResolver(object):
         return result
 
 
-def validator_for(schema, default=_unset):
-    """
-    Retrieve the validator class appropriate for validating the given schema.
-
-    Uses the :validator:`$schema` property that should be present in the given
-    schema to look up the appropriate validator class.
-
-    Arguments:
-
-        schema (dict):
-
-            the schema to look at
-
-        default:
-
-            the default to return if the appropriate validator class cannot be
-            determined.
-
-            If unprovided, the default is to return
-            `jsonschema.Draft4Validator`.
-    """
-    if default is _unset:
-        default = Draft4Validator
-    return meta_schemas.get(schema.get(u"$schema", u""), default)
-
-
 def validate(instance, schema, cls=None, *args, **kwargs):
     """
     Validate an instance under the given schema.
@@ -779,3 +753,27 @@ def validate(instance, schema, cls=None, *args, **kwargs):
         cls = validator_for(schema)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
+
+
+def validator_for(schema, default=_LATEST_VERSION):
+    """
+    Retrieve the validator class appropriate for validating the given schema.
+
+    Uses the :validator:`$schema` property that should be present in the given
+    schema to look up the appropriate validator class.
+
+    Arguments:
+
+        schema (collections.Mapping or bool):
+
+            the schema to look at
+
+        default:
+
+            the default to return if the appropriate validator class cannot be
+            determined.
+
+            If unprovided, the default is to return
+            the latest supported draft.
+    """
+    return meta_schemas.get(schema.get(u"$schema", u""), default)
