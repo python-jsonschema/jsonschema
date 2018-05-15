@@ -118,9 +118,7 @@ def additionalItems(validator, aI, instance, schema):
 
 def const(validator, const, instance, schema):
     if instance != const:
-        yield ValidationError(
-            "XXX"
-        )
+        yield ValidationError("%r was expected" % (const,))
 
 
 def contains(validator, contains, instance, schema):

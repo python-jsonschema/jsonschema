@@ -359,6 +359,15 @@ class TestValidationErrorMessages(TestCase):
         self.assertIn(repr("bar"), message)
         self.assertIn("were unexpected)", message)
 
+    def test_const(self):
+        schema = {u"const": 12}
+        message = self.message_for(
+            instance={"foo": "bar"},
+            schema=schema,
+            cls=validators.Draft6Validator,
+        )
+        self.assertIn("12 was expected", message)
+
     def test_invalid_format_default_message(self):
         checker = FormatChecker(formats=())
         check_fn = mock.Mock(return_value=False)
