@@ -325,30 +325,35 @@ class TestValidationErrorMessages(TestCase):
     def test_dependencies_failure_has_single_element_not_list(self):
         depend, on = "bar", "foo"
         schema = {u"dependencies": {depend: on}}
-        message = self.message_for({"bar": 2}, schema)
+        message = self.message_for(instance={"bar": 2}, schema=schema)
         self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
 
     def test_additionalItems_single_failure(self):
         message = self.message_for(
-            [2], {u"items": [], u"additionalItems": False},
+            instance=[2],
+            schema={u"items": [], u"additionalItems": False},
         )
         self.assertIn("(2 was unexpected)", message)
 
     def test_additionalItems_multiple_failures(self):
         message = self.message_for(
-            [1, 2, 3], {u"items": [], u"additionalItems": False}
+            instance=[1, 2, 3],
+            schema={u"items": [], u"additionalItems": False}
         )
         self.assertIn("(1, 2, 3 were unexpected)", message)
 
     def test_additionalProperties_single_failure(self):
         additional = "foo"
         schema = {u"additionalProperties": False}
-        message = self.message_for({additional: 2}, schema)
+        message = self.message_for(instance={additional: 2}, schema=schema)
         self.assertIn("(%r was unexpected)" % (additional,), message)
 
     def test_additionalProperties_multiple_failures(self):
         schema = {u"additionalProperties": False}
-        message = self.message_for(dict.fromkeys(["foo", "bar"]), schema)
+        message = self.message_for(
+            instance=dict.fromkeys(["foo", "bar"]),
+            schema=schema,
+        )
 
         self.assertIn(repr("foo"), message)
         self.assertIn(repr("bar"), message)
@@ -360,7 +365,11 @@ class TestValidationErrorMessages(TestCase):
         checker.checks(u"thing")(check_fn)
 
         schema = {u"format": u"thing"}
-        message = self.message_for("bla", schema, format_checker=checker)
+        message = self.message_for(
+            instance="bla",
+            schema=schema,
+            format_checker=checker,
+        )
 
         self.assertIn(repr("bla"), message)
         self.assertIn(repr("thing"), message)
@@ -374,8 +383,8 @@ class TestValidationErrorMessages(TestCase):
                       u"^def$": {u"type": u"string"},
                   }}
         message = self.message_for(
-            {u"zebra": 123},
-            schema,
+            instance={u"zebra": 123},
+            schema=schema,
             cls=validators.Draft4Validator,
         )
         self.assertEqual(
@@ -385,8 +394,8 @@ class TestValidationErrorMessages(TestCase):
             ),
         )
         message = self.message_for(
-            {u"zebra": 123, u"fish": 456},
-            schema,
+            instance={u"zebra": 123, u"fish": 456},
+            schema=schema,
             cls=validators.Draft4Validator,
         )
         self.assertEqual(
