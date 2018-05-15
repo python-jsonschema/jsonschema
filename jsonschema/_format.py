@@ -129,12 +129,19 @@ class FormatChecker(object):
             return True
 
 
-_draft_checkers = {"draft3": [], "draft4": []}
+_draft_checkers = {"draft3": [], "draft4": [], "draft6": []}
 
 
-def _checks_drafts(name=None, draft3=None, draft4=None, raises=()):
+def _checks_drafts(
+    name=None,
+    draft3=None,
+    draft4=None,
+    draft6=None,
+    raises=(),
+):
     draft3 = draft3 or name
     draft4 = draft4 or name
+    draft6 = draft6 or name
 
     def wrap(func):
         if draft3:
@@ -143,6 +150,9 @@ def _checks_drafts(name=None, draft3=None, draft4=None, raises=()):
         if draft4:
             _draft_checkers["draft4"].append(draft4)
             func = FormatChecker.cls_checks(draft4, raises)(func)
+        if draft6:
+            _draft_checkers["draft6"].append(draft6)
+            func = FormatChecker.cls_checks(draft6, raises)(func)
         return func
     return wrap
 
@@ -157,7 +167,7 @@ def is_email(instance):
 _ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
 
-@_checks_drafts(draft3="ip-address", draft4="ipv4")
+@_checks_drafts(draft3="ip-address", draft4="ipv4", draft6="ipv4")
 def is_ipv4(instance):
     if not isinstance(instance, str_types):
         return True
@@ -177,7 +187,7 @@ if hasattr(socket, "inet_pton"):
 _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
 
 
-@_checks_drafts(draft3="host-name", draft4="hostname")
+@_checks_drafts(draft3="host-name", draft4="hostname", draft6="hostname")
 def is_host_name(instance):
     if not isinstance(instance, str_types):
         return True
@@ -200,6 +210,12 @@ else:
         if not isinstance(instance, str_types):
             return True
         return rfc3987.parse(instance, rule="URI")
+
+    @_checks_drafts(draft6="uri-reference", raises=ValueError)
+    def is_uri_reference(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return rfc3987.parse(instance, rule="URI_reference")
 
 
 try:
@@ -258,5 +274,36 @@ else:
         return is_css_color_code(instance)
 
 
+try:
+    import jsonpointer
+except ImportError:
+    pass
+else:
+    @_checks_drafts(
+        draft6="json-pointer", raises=jsonpointer.JsonPointerException,
+    )
+    def is_json_pointer(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return jsonpointer.JsonPointer(instance)
+
+
+try:
+    import uritemplate.exceptions
+except ImportError:
+    pass
+else:
+    @_checks_drafts(
+        draft6="uri-template", raises=uritemplate.exceptions.InvalidTemplate,
+    )
+    def is_uri_template(
+        instance,
+        template_validator=uritemplate.Validator().force_balanced_braces(),
+    ):
+        template = uritemplate.URITemplate(instance)
+        return template_validator.validate(template)
+
+
 draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
 draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
+draft6_format_checker = FormatChecker(_draft_checkers["draft6"])

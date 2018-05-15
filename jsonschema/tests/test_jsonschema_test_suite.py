@@ -13,8 +13,8 @@ import unittest
 
 from jsonschema import (
     FormatError, SchemaError, ValidationError, Draft3Validator,
-    Draft4Validator, FormatChecker, draft3_format_checker,
-    draft4_format_checker, validate,
+    Draft4Validator, Draft6Validator, FormatChecker, draft3_format_checker,
+    draft4_format_checker, draft6_format_checker, validate,
 )
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock
@@ -25,6 +25,7 @@ from jsonschema.validators import create
 SUITE = Suite()
 DRAFT3 = SUITE.collection(name="draft3")
 DRAFT4 = SUITE.collection(name="draft4")
+DRAFT6 = SUITE.collection(name="draft6")
 
 
 def maybe_skip(skip, test_case, test):
@@ -231,6 +232,34 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
             validate([1], {"minItems": "1"}, cls=self.validator_class)
 
 
+@load_json_cases(
+    tests=(test for test in DRAFT6.tests() if test.subject != "refRemote"),
+    skip=lambda test: (
+        narrow_unicode_build(test) or skip_tests_containing_descriptions(
+            {
+                "valid tree":  "An actual bug, this needs fixing.",
+            },
+        )(test)
+    ),
+)
+@load_json_cases(
+    tests=DRAFT6.optional_tests_of(name="format"),
+    skip=lambda test: (
+        missing_format(draft6_format_checker)(test) or
+        skip_tests_containing_descriptions(
+            {
+                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
+            },
+        )(test)
+    ),
+)
+@load_json_cases(tests=DRAFT6.optional_tests_of(name="bignum"))
+@load_json_cases(tests=DRAFT6.optional_tests_of(name="zeroTerminatedFloats"))
+class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+    validator_class = Draft6Validator
+    validator_kwargs = {"format_checker": draft6_format_checker}
+
+
 @load_json_cases(tests=DRAFT3.tests_of(name="refRemote"))
 class Draft3RemoteResolution(unittest.TestCase):
     validator_class = Draft3Validator
@@ -247,6 +276,19 @@ class Draft3RemoteResolution(unittest.TestCase):
 )
 class Draft4RemoteResolution(unittest.TestCase):
     validator_class = Draft4Validator
+
+
+@load_json_cases(
+    tests=DRAFT6.tests_of(name="refRemote"),
+    skip=skip_tests_containing_descriptions(
+        {
+            "number is valid": "An actual bug, this needs fixing.",
+            "string is invalid": "An actual bug, this needs fixing.",
+        },
+    ),
+)
+class Draft6RemoteResolution(unittest.TestCase):
+    validator_class = Draft6Validator
 
 
 @load_json_cases(tests=DRAFT3.tests_of(name="type"))

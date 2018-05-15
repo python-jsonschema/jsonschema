@@ -202,3 +202,10 @@ draft3_type_checker = TypeChecker(
 )
 
 draft4_type_checker = draft3_type_checker.remove(u"any")
+draft6_type_checker = draft4_type_checker.redefine(
+    u"integer",
+    lambda checker, instance: (
+        is_integer(checker, instance) or
+        isinstance(instance, float) and instance.is_integer()
+    ),
+)

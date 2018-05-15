@@ -50,8 +50,8 @@ def coerce_named_tuple(fn):
     return coerced
 
 
-required = coerce_named_tuple(_validators.required_draft4)
-properties = coerce_named_tuple(_validators.properties_draft4)
+required = coerce_named_tuple(_validators.required)
+properties = coerce_named_tuple(_validators.properties)
 
 
 class TestTypeChecker(TestCase):

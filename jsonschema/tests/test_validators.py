@@ -396,6 +396,14 @@ class TestValidationErrorMessages(TestCase):
             ),
         )
 
+    def test_False_schema(self):
+        message = self.message_for(
+            instance="something",
+            schema=False,
+            cls=validators.Draft6Validator,
+        )
+        self.assertIn("False schema does not allow 'something'", message)
+
 
 class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
@@ -888,9 +896,29 @@ class TestDraft3Validator(ValidatorTestMixin, TestCase):
         cls = self.validator_class(schema, types={None: type(None)})
         cls.validate(None, schema)
 
+    def test_True_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(True)
+        self.assertIn("True is not of type", str(e.exception))
+
+    def test_False_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(False)
+        self.assertIn("False is not of type", str(e.exception))
+
 
 class TestDraft4Validator(ValidatorTestMixin, TestCase):
     validator_class = validators.Draft4Validator
+
+    def test_True_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(True)
+        self.assertIn("True is not of type", str(e.exception))
+
+    def test_False_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.validator_class.check_schema(False)
+        self.assertIn("False is not of type", str(e.exception))
 
 
 class TestBuiltinFormats(TestCase):
@@ -943,6 +971,31 @@ class TestValidatorFor(TestCase):
             validators.Draft4Validator,
         )
 
+    def test_draft_6(self):
+        schema = {"$schema": "http://json-schema.org/draft-06/schema"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft6Validator,
+        )
+
+        schema = {"$schema": "http://json-schema.org/draft-06/schema#"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft6Validator,
+        )
+
+    def test_True(self):
+        self.assertIs(
+            validators.validator_for(True),
+            validators._LATEST_VERSION,
+        )
+
+    def test_False(self):
+        self.assertIs(
+            validators.validator_for(False),
+            validators._LATEST_VERSION,
+        )
+
     def test_custom_validator(self):
         Validator = validators.create(
             meta_schema={"id": "meta schema id"},
@@ -955,7 +1008,7 @@ class TestValidatorFor(TestCase):
         )
 
     def test_validator_for_jsonschema_default(self):
-        self.assertIs(validators.validator_for({}), validators.Draft4Validator)
+        self.assertIs(validators.validator_for({}), validators._LATEST_VERSION)
 
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)
@@ -988,9 +1041,18 @@ class TestValidate(TestCase):
             validators.validate({}, schema)
             chk_schema.assert_called_once_with(schema)
 
-    def test_draft4_validator_is_the_default(self):
+    def test_draft6_validator_is_chosen(self):
+        schema = {"$schema": "http://json-schema.org/draft-06/schema#"}
         with mock.patch.object(
-            validators.Draft4Validator,
+            validators.Draft6Validator,
+            "check_schema",
+        ) as chk_schema:
+            validators.validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
+
+    def test_draft6_validator_is_the_default(self):
+        with mock.patch.object(
+            validators.Draft6Validator,
             "check_schema",
         ) as chk_schema:
             validators.validate({}, {})
@@ -1064,7 +1126,10 @@ class TestRefResolver(TestCase):
 
     def test_it_resolves_local_refs_with_id(self):
         schema = {"id": "http://bar/schema#", "a": {"foo": "bar"}}
-        resolver = validators.RefResolver.from_schema(schema)
+        resolver = validators.RefResolver.from_schema(
+            schema,
+            id_of=lambda schema: schema.get(u"id", u""),
+        )
         with resolver.resolving("#/a") as resolved:
             self.assertEqual(resolved, schema["a"])
         with resolver.resolving("http://bar/schema#/a") as resolved:
@@ -1102,7 +1167,10 @@ class TestRefResolver(TestCase):
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
-        resolver = validators.RefResolver.from_schema(schema)
+        resolver = validators.RefResolver.from_schema(
+            schema,
+            id_of=lambda schema: schema.get(u"id", u""),
+        )
         self.assertEqual(resolver.base_uri, "foo")
         self.assertEqual(resolver.resolution_scope, "foo")
         with resolver.resolving("") as resolved:

@@ -2,6 +2,7 @@ import os
 
 from setuptools import setup
 
+
 with open(os.path.join(os.path.dirname(__file__), "README.rst")) as readme:
     long_description = readme.read()
 
@@ -43,7 +44,12 @@ setup(
         "functools32;python_version<'3'",
     ],
     extras_require={
-        "format": ["rfc3987", "strict-rfc3339", "webcolors"],
+        "format": [
+            "jsonpointer>1.13",
+            "rfc3987",
+            "strict-rfc3339",
+            "webcolors",
+        ],
     },
 
     packages=["jsonschema", "jsonschema.tests"],

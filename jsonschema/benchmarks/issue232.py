@@ -17,7 +17,7 @@ collection = Collection(
     path=FilePath(__file__).sibling("issue232"),
     remotes=m(),
     name="issue232",
-    validator=jsonschema.Draft4Validator,
+    validator=jsonschema.Draft6Validator,
 )
 
 

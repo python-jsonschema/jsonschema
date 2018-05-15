@@ -13,7 +13,11 @@ from jsonschema.compat import (
     str_types, int_types, iteritems, lru_cache,
 )
 from jsonschema.exceptions import (
-    RefResolutionError, SchemaError, UnknownType, UndefinedTypeCheck
+    RefResolutionError,
+    SchemaError,
+    UnknownType,
+    UndefinedTypeCheck,
+    ValidationError,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -56,19 +60,17 @@ def validates(version):
 
 def _generate_legacy_type_checks(types=()):
     """
-    Generate type check definitions suitable for TypeChecker.redefine_many,
-    using the supplied types. Type Checks are simple isinstance checks,
-    except checking that numbers aren't really bools.
+    Generate newer-style type checks out of JSON-type-name-to-type mappings.
 
     Arguments:
 
         types (dict):
 
-            A mapping of type names to their Python Types
+            A mapping of type names to their Python types
 
     Returns:
 
-        A dictionary of definitions to pass to TypeChecker
+        A dictionary of definitions to pass to `TypeChecker`
 
     """
     types = dict(types)
@@ -105,12 +107,19 @@ class _DefaultTypesDeprecatingMetaClass(type):
         return self._DEFAULT_TYPES
 
 
+def _id_of(schema):
+    if schema is True or schema is False:
+        return u""
+    return schema.get(u"$id", u"")
+
+
 def create(
     meta_schema,
     validators=(),
     version=None,
     default_types=None,
     type_checker=None,
+    id_of=_id_of,
 ):
     """
     Create a new validator class.
@@ -221,7 +230,7 @@ def create(
                 )
 
             if resolver is None:
-                resolver = RefResolver.from_schema(schema)
+                resolver = RefResolver.from_schema(schema, id_of=id_of)
 
             self.resolver = resolver
             self.format_checker = format_checker
@@ -236,7 +245,15 @@ def create(
             if _schema is None:
                 _schema = self.schema
 
-            scope = _schema.get(u"id")
+            if _schema is True:
+                return
+            elif _schema is False:
+                yield ValidationError(
+                    "False schema does not allow %r" % (instance,),
+                )
+                return
+
+            scope = id_of(_schema)
             if scope:
                 self.resolver.push_scope(scope)
             try:
@@ -381,13 +398,13 @@ Draft3Validator = create(
         u"enum": _validators.enum,
         u"extends": _validators.extends_draft3,
         u"format": _validators.format,
-        u"items": _validators.items,
+        u"items": _validators.items_draft3_draft4,
         u"maxItems": _validators.maxItems,
         u"maxLength": _validators.maxLength,
-        u"maximum": _validators.maximum,
+        u"maximum": _validators.maximum_draft3_draft4,
         u"minItems": _validators.minItems,
         u"minLength": _validators.minLength,
-        u"minimum": _validators.minimum,
+        u"minimum": _validators.minimum_draft3_draft4,
         u"multipleOf": _validators.multipleOf,
         u"pattern": _validators.pattern,
         u"patternProperties": _validators.patternProperties,
@@ -397,6 +414,7 @@ Draft3Validator = create(
     },
     type_checker=_types.draft3_type_checker,
     version="draft3",
+    id_of=lambda schema: schema.get(u"id", ""),
 )
 
 Draft4Validator = create(
@@ -410,30 +428,71 @@ Draft4Validator = create(
         u"dependencies": _validators.dependencies,
         u"enum": _validators.enum,
         u"format": _validators.format,
-        u"items": _validators.items,
+        u"items": _validators.items_draft3_draft4,
         u"maxItems": _validators.maxItems,
         u"maxLength": _validators.maxLength,
-        u"maxProperties": _validators.maxProperties_draft4,
-        u"maximum": _validators.maximum,
+        u"maxProperties": _validators.maxProperties,
+        u"maximum": _validators.maximum_draft3_draft4,
         u"minItems": _validators.minItems,
         u"minLength": _validators.minLength,
-        u"minProperties": _validators.minProperties_draft4,
-        u"minimum": _validators.minimum,
+        u"minProperties": _validators.minProperties,
+        u"minimum": _validators.minimum_draft3_draft4,
         u"multipleOf": _validators.multipleOf,
-        u"not": _validators.not_draft4,
+        u"not": _validators.not_,
         u"oneOf": _validators.oneOf_draft4,
         u"pattern": _validators.pattern,
         u"patternProperties": _validators.patternProperties,
-        u"properties": _validators.properties_draft4,
-        u"required": _validators.required_draft4,
-        u"type": _validators.type_draft4,
+        u"properties": _validators.properties,
+        u"required": _validators.required,
+        u"type": _validators.type,
         u"uniqueItems": _validators.uniqueItems,
     },
     type_checker=_types.draft4_type_checker,
     version="draft4",
+    id_of=lambda schema: schema.get(u"id", ""),
 )
 
-_LATEST_VERSION = Draft4Validator
+
+Draft6Validator = create(
+    meta_schema=_utils.load_schema("draft6"),
+    validators={
+        u"$ref": _validators.ref,
+        u"additionalItems": _validators.additionalItems,
+        u"additionalProperties": _validators.additionalProperties,
+        u"allOf": _validators.allOf_draft6,
+        u"anyOf": _validators.anyOf_draft6,
+        u"const": _validators.const,
+        u"contains": _validators.contains,
+        u"dependencies": _validators.dependencies,
+        u"enum": _validators.enum,
+        u"exclusiveMaximum": _validators.exclusiveMaximum_draft6,
+        u"exclusiveMinimum": _validators.exclusiveMinimum_draft6,
+        u"format": _validators.format,
+        u"items": _validators.items,
+        u"maxItems": _validators.maxItems,
+        u"maxLength": _validators.maxLength,
+        u"maxProperties": _validators.maxProperties,
+        u"maximum": _validators.maximum_draft6,
+        u"minItems": _validators.minItems,
+        u"minLength": _validators.minLength,
+        u"minProperties": _validators.minProperties,
+        u"minimum": _validators.minimum_draft6,
+        u"multipleOf": _validators.multipleOf,
+        u"not": _validators.not_,
+        u"oneOf": _validators.oneOf_draft6,
+        u"pattern": _validators.pattern,
+        u"patternProperties": _validators.patternProperties,
+        u"properties": _validators.properties,
+        u"propertyNames": _validators.propertyNames,
+        u"required": _validators.required,
+        u"type": _validators.type,
+        u"uniqueItems": _validators.uniqueItems,
+    },
+    type_checker=_types.draft6_type_checker,
+    version="draft6",
+)
+
+_LATEST_VERSION = Draft6Validator
 
 
 class RefResolver(object):
@@ -512,7 +571,13 @@ class RefResolver(object):
         self._remote_cache = remote_cache
 
     @classmethod
-    def from_schema(cls, schema, *args, **kwargs):
+    def from_schema(
+        cls,
+        schema,
+        id_of=_id_of,
+        *args,
+        **kwargs
+    ):
         """
         Construct a resolver from a JSON schema object.
 
@@ -528,7 +593,7 @@ class RefResolver(object):
 
         """
 
-        return cls(schema.get(u"id", u""), schema, *args, **kwargs)
+        return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)
 
     def push_scope(self, scope):
         self._scopes_stack.append(
@@ -709,7 +774,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     in less obvious or consistent ways. If you know you have a valid schema
     already or don't care, you might prefer using the
     `IValidator.validate` method directly on a specific validator
-    (e.g. ``Draft4Validator.validate``).
+    (e.g. ``Draft6Validator.validate``).
 
 
     Arguments:
@@ -732,7 +797,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     proper validator will be used.  The specification recommends that all
     schemas contain :validator:`$schema` properties for this reason. If no
     :validator:`$schema` property is found, the default validator class is
-    `Draft4Validator`.
+    `Draft6Validator`.
 
     Any other provided positional and keyword arguments will be passed on when
     instantiating the ``cls``.
@@ -776,4 +841,6 @@ def validator_for(schema, default=_LATEST_VERSION):
             If unprovided, the default is to return
             the latest supported draft.
     """
+    if schema is True or schema is False:
+        return default
     return meta_schemas.get(schema.get(u"$schema", u""), default)
