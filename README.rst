@@ -4,21 +4,22 @@ jsonschema
 
 |PyPI| |Pythons| |Travis| |AppVeyor|
 
-.. |PyPI| image:: https://img.shields.io/pypi/v/filesystems.svg
+.. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
-   :target: https://pypi.python.org/pypi/filesystems
+   :target: https://pypi.python.org/pypi/jsonschema
 
-.. |Pythons| image:: https://img.shields.io/pypi/pyversions/filesystems.svg
+.. |Pythons| image:: https://img.shields.io/pypi/pyversions/jsonschema.svg
    :alt: Supported Python versions
-   :target: https://pypi.python.org/pypi/filesystems
+   :target: https://pypi.python.org/pypi/jsonschema
 
-.. |Travis| image:: https://travis-ci.org/Julian/Filesystems.svg?branch=master
+.. |Travis| image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
    :alt: Travis build status
-   :target: https://travis-ci.org/Julian/Filesystems
+   :target: https://travis-ci.org/Julian/jsonschema
 
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/wyp8asrcj807jo2o/branch/master?svg=true
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn?svg=true
+
    :alt: AppVeyor build status
-   :target: https://ci.appveyor.com/project/Julian/Filesystems
+   :target: https://ci.appveyor.com/project/Julian/jsonschema
 
 
 ``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
