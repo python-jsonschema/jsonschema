@@ -1,0 +1,84 @@
+build: false
+environment:
+  VENV: "%APPVEYOR_BUILD_FOLDER%\\venv"
+
+  matrix:
+    - TOXENV: py27-build
+      PYTHON: "C:\\Python27"
+
+    - TOXENV: py27-build
+      PYTHON: "C:\\Python27-x64"
+
+    - TOXENV: py27-safety
+      PYTHON: "C:\\Python27"
+
+    - TOXENV: py27-safety
+      PYTHON: "C:\\Python27-x64"
+
+    - TOXENV: py27-tests
+      PYTHON: "C:\\Python27"
+
+    - TOXENV: py27-tests
+      PYTHON: "C:\\Python27-x64"
+
+    - TOXENV: py34-build
+      PYTHON: "C:\\Python34"
+
+    - TOXENV: py34-build
+      PYTHON: "C:\\Python34-x64"
+
+    - TOXENV: py34-safety
+      PYTHON: "C:\\Python34"
+
+    - TOXENV: py34-safety
+      PYTHON: "C:\\Python34-x64"
+
+    - TOXENV: py34-tests
+      PYTHON: "C:\\Python34"
+
+    - TOXENV: py34-tests
+      PYTHON: "C:\\Python34-x64"
+
+    - TOXENV: py35-build
+      PYTHON: "C:\\Python35"
+
+    - TOXENV: py35-build
+      PYTHON: "C:\\Python35-x64"
+
+    - TOXENV: py35-safety
+      PYTHON: "C:\\Python35"
+
+    - TOXENV: py35-safety
+      PYTHON: "C:\\Python35-x64"
+
+    - TOXENV: py35-tests
+      PYTHON: "C:\\Python35"
+
+    - TOXENV: py35-tests
+      PYTHON: "C:\\Python35-x64"
+
+    - TOXENV: py36-build
+      PYTHON: "C:\\Python36"
+
+    - TOXENV: py36-build
+      PYTHON: "C:\\Python36-x64"
+
+    - TOXENV: py36-safety
+      PYTHON: "C:\\Python36"
+
+    - TOXENV: py36-safety
+      PYTHON: "C:\\Python36-x64"
+
+    - TOXENV: py36-tests
+      PYTHON: "C:\\Python36"
+
+    - TOXENV: py36-tests
+      PYTHON: "C:\\Python36-x64"
+init:
+  - echo "TOXENV- %TOXENV%"
+
+install:
+  - C:\Python36\python -m pip install -U tox
+
+test_script:
+  - C:\Python36\scripts\tox

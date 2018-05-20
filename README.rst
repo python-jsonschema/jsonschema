@@ -16,6 +16,10 @@ jsonschema
    :alt: Travis build status
    :target: https://travis-ci.org/Julian/Filesystems
 
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/wyp8asrcj807jo2o/branch/master?svg=true
+   :alt: AppVeyor build status
+   :target: https://ci.appveyor.com/project/Julian/Filesystems
+
 
 ``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
 for Python (supporting 2.7+ including Python 3).
