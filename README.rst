@@ -17,7 +17,6 @@ jsonschema
    :target: https://travis-ci.org/Julian/jsonschema
 
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn?svg=true
-
    :alt: AppVeyor build status
    :target: https://ci.appveyor.com/project/Julian/jsonschema
 
