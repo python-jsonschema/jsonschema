@@ -1,13 +1,21 @@
-.. image:: https://img.shields.io/pypi/v/jsonschema.svg
-    :target: https://pypi.python.org/pypi/jsonschema
-.. image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
-    :target: https://travis-ci.org/Julian/jsonschema
-.. image:: https://img.shields.io/pypi/l/jsonschema.svg
-    :target: https://pypi.python.org/pypi/jsonschema
-
 ==========
 jsonschema
 ==========
+
+|PyPI| |Pythons| |Travis| |AppVeyor|
+
+.. |PyPI| image:: https://img.shields.io/pypi/v/filesystems.svg
+   :alt: PyPI version
+   :target: https://pypi.python.org/pypi/filesystems
+
+.. |Pythons| image:: https://img.shields.io/pypi/pyversions/filesystems.svg
+   :alt: Supported Python versions
+   :target: https://pypi.python.org/pypi/filesystems
+
+.. |Travis| image:: https://travis-ci.org/Julian/Filesystems.svg?branch=master
+   :alt: Travis build status
+   :target: https://travis-ci.org/Julian/Filesystems
+
 
 ``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
 for Python (supporting 2.7+ including Python 3).
