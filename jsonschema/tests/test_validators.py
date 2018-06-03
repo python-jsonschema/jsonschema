@@ -368,6 +368,18 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertIn("12 was expected", message)
 
+    def test_contains(self):
+        schema = {u"contains": {u"const": 12}}
+        message = self.message_for(
+            instance=[2, {}, []],
+            schema=schema,
+            cls=validators.Draft6Validator,
+        )
+        self.assertIn(
+            "None of [2, {}, []] are valid under the given schema",
+            message,
+        )
+
     def test_invalid_format_default_message(self):
         checker = FormatChecker(formats=())
         check_fn = mock.Mock(return_value=False)

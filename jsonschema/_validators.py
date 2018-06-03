@@ -127,7 +127,7 @@ def contains(validator, contains, instance, schema):
 
     if not any(validator.is_valid(element, contains) for element in instance):
         yield ValidationError(
-            "XXX"
+            "None of %r are valid under the given schema" % (instance,)
         )
 
 
