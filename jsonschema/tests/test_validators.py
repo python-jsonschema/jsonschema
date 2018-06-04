@@ -16,6 +16,7 @@ from jsonschema import (
     validators,
 )
 from jsonschema.tests.compat import mock
+from jsonschema.tests.fixtures import apple, orange, tree
 
 
 class TestCreateAndExtend(TestCase):
@@ -1272,6 +1273,19 @@ class TestRefResolver(TestCase):
         with self.assertRaises(validators.RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
+
+    def test_export_resolved_references(self):
+        ref_resolver = validators.RefResolver(
+            '',
+            None,
+            store={
+                'apples': apple,
+                'oranges': orange,
+            })
+        resolved_tree_refs = ref_resolver.export_resolved_references(tree)
+        self.assertTrue(apple, resolved_tree_refs['properties']['fruits']['properties']['apples'])
+        self.assertTrue(orange, resolved_tree_refs['properties']['fruits']['properties']['oranges'])
+
 
 
 class UniqueTupleItemsMixin(object):

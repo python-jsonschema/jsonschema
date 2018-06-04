@@ -3,3 +3,7 @@ _static
 _templates
 
 TODO
+.idea
+.python-version
+.eggs
+jsonschema.egg-info
