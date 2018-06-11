@@ -60,6 +60,12 @@ class FormatChecker(object):
         """
 
         def _checks(func):
+            if not isinstance(format, str_types):
+                raise FormatError('specified format %s is not a string'
+                                  % format)
+            if not callable(func):
+                raise FormatError('specified function %s is not callable'
+                                  % func)
             self.checkers[format] = (func, raises)
             return func
         return _checks
