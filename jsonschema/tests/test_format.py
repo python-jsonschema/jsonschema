@@ -62,3 +62,8 @@ class TestFormatChecker(TestCase):
             validator.validate("bar")
 
         self.assertIs(cm.exception.__cause__, cause)
+
+    def test_bad_args(self):
+        checker = FormatChecker()
+        func = checker.checks(self.fn, raises=ValueError)
+        self.assertRaises(FormatError, func, "foo")
