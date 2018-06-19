@@ -5,17 +5,29 @@ from jsonschema.exceptions import FormatError, ValidationError
 from jsonschema.compat import iteritems
 
 
+def validate_regex(pattern):
+    try:
+        re.compile(pattern)
+        return True
+    except re.error:
+        return False
+
+
 def patternProperties(validator, patternProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
     for pattern, subschema in iteritems(patternProperties):
-        for k, v in iteritems(instance):
-            if re.search(pattern, k):
-                for error in validator.descend(
-                    v, subschema, path=k, schema_path=pattern,
-                ):
-                    yield error
+        if not validate_regex(pattern):
+            yield ValidationError("Pattern error in {}".format(
+                schema))
+        else:
+            for k, v in iteritems(instance):
+                if re.search(pattern, k):
+                    for error in validator.descend(
+                        v, subschema, path=k, schema_path=pattern,
+                    ):
+                        yield error
 
 
 def propertyNames(validator, propertyNames, instance, schema):
@@ -186,12 +198,14 @@ def uniqueItems(validator, uI, instance, schema):
         yield ValidationError("%r has non-unique elements" % (instance,))
 
 
-def pattern(validator, patrn, instance, schema):
-    if (
-        validator.is_type(instance, "string") and
-        not re.search(patrn, instance)
-    ):
-        yield ValidationError("%r does not match %r" % (instance, patrn))
+def pattern(validator, pattern, instance, schema):
+    if not validate_regex(pattern):
+        yield ValidationError("Pattern error in {}".format(
+            schema))
+    elif (validator.is_type(instance, "string") and
+          not re.search(pattern, instance)):
+        yield ValidationError("%r does not match %r".format(
+            instance, pattern))
 
 
 def format(validator, format, instance, schema):
