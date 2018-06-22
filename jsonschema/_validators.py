@@ -204,7 +204,7 @@ def pattern(validator, pattern, instance, schema):
             schema))
     elif (validator.is_type(instance, "string") and
           not re.search(pattern, instance)):
-        yield ValidationError("%r does not match %r".format(
+        yield ValidationError("{} does not match {}".format(
             instance, pattern))
 
 
