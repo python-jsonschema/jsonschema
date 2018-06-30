@@ -3,3 +3,11 @@ _static
 _templates
 
 TODO
+
+.eggs/
+.tox/
+_trial_temp/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
