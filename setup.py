@@ -40,9 +40,11 @@ setup(
         "attrs>=17.4.0",
         "pyrsistent>=0.14.0",
         "six>=1.11.0",
-        "functools32;python_version<'3'",
     ],
     extras_require={
+        ":python_version<'3.2'": [
+            "functools32",
+        ],
         "format": [
             "jsonpointer>1.13",
             "rfc3987",
