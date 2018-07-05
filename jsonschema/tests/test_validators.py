@@ -1217,7 +1217,7 @@ class TestRefResolver(TestCase):
                     self.assertEqual(resolved, 12)
         requests.Session().get.assert_called_once_with("file://bar.json")
 
-    def test_it_retrieves_unstored_refs_via_urlopen_without_requests_file(self):
+    def test_it_retrieves_unstored_refs_via_urlopen_no_requests_file(self):
         ref = "file://bar.json#baz"
         schema = {"baz": 12}
 
