@@ -1201,12 +1201,13 @@ class TestRefResolver(TestCase):
 
         with MockImport("requests", None):
             with mock.patch("jsonschema.validators.urlopen") as urlopen:
-                urlopen.return_value.read.return_value = (json.dumps(schema).encode("utf8"))
+                urlopen.return_value.read.return_value = (
+                    json.dumps(schema).encode("utf8"))
                 with self.resolver.resolving(ref) as resolved:
                     self.assertEqual(resolved, 12)
         urlopen.assert_called_once_with("file://bar.json")
 
-    def test_it_retrieves_unstored_file_refs_via_requests_and_requests_file(self):
+    def test_it_retrieves_unstored_file_refs_via_requests_file(self):
         ref = "file://bar.json#baz"
         schema = {"baz": 12}
 
