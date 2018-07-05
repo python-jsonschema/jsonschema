@@ -1211,7 +1211,7 @@ class TestRefResolver(TestCase):
         schema = {"baz": 12}
 
         with MockImport("requests", mock.Mock()) as requests:
-            with MockImport("requests_file", mock.Mock()) as requests_file:
+            with MockImport("requests_file", mock.Mock()):
                 requests.Session.get.return_value.json.return_value = schema
                 with self.resolver.resolving(ref) as resolved:
                     self.assertEqual(resolved, 12)
