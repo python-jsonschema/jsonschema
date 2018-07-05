@@ -1195,6 +1195,41 @@ class TestRefResolver(TestCase):
                     self.assertEqual(resolved, 12)
         urlopen.assert_called_once_with("http://bar")
 
+    def test_it_retrieves_unstored_file_refs_via_urlopen(self):
+        ref = "file://bar.json#baz"
+        schema = {"baz": 12}
+
+        with MockImport("requests", None):
+            with mock.patch("jsonschema.validators.urlopen") as urlopen:
+                urlopen.return_value.read.return_value = (json.dumps(schema).encode("utf8"))
+                with self.resolver.resolving(ref) as resolved:
+                    self.assertEqual(resolved, 12)
+        urlopen.assert_called_once_with("file://bar.json")
+
+    def test_it_retrieves_unstored_file_refs_via_requests_and_requests_file(self):
+        ref = "file://bar.json#baz"
+        schema = {"baz": 12}
+
+        with MockImport("requests", mock.Mock()) as requests:
+            with MockImport("requests_file", mock.Mock()) as requests_file:
+                requests.Session.get.return_value.json.return_value = schema
+                with self.resolver.resolving(ref) as resolved:
+                    self.assertEqual(resolved, 12)
+        requests.Session().get.assert_called_once_with("file://bar.json")
+
+    def test_it_retrieves_unstored_refs_via_urlopen_when_requests_file_missing(self):
+        ref = "file://bar.json#baz"
+        schema = {"baz": 12}
+
+        with MockImport("requests", mock.Mock()) as requests:
+            with mock.patch("jsonschema.validators.urlopen") as urlopen:
+                urlopen.return_value.read.return_value = (
+                    json.dumps(schema).encode("utf8"))
+                with self.resolver.resolving(ref) as resolved:
+                    self.assertEqual(resolved, 12)
+        requests.Session().get.assert_not_called()
+        urlopen.assert_called_once_with("file://bar.json")
+
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
         resolver = validators.RefResolver.from_schema(
