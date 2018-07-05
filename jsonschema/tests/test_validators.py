@@ -1178,10 +1178,10 @@ class TestRefResolver(TestCase):
         schema = {"baz": 12}
 
         with MockImport("requests", mock.Mock()) as requests:
-            requests.get.return_value.json.return_value = schema
+            requests.Session.get.return_value.json.return_value = schema
             with self.resolver.resolving(ref) as resolved:
                 self.assertEqual(resolved, 12)
-        requests.get.assert_called_once_with("http://bar")
+        requests.Session().get.assert_called_once_with("http://bar")
 
     def test_it_retrieves_unstored_refs_via_urlopen(self):
         ref = "http://bar#baz"
