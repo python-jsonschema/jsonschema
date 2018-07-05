@@ -3,7 +3,8 @@ import json
 import pkgutil
 import re
 
-from jsonschema.compat import str_types, MutableMapping, urlsplit
+from jsonschema.compat import str_types, MutableMapping
+from uritools import urisplit
 
 
 class URIDict(MutableMapping):
@@ -13,7 +14,7 @@ class URIDict(MutableMapping):
     """
 
     def normalize(self, uri):
-        return urlsplit(uri).geturl()
+        return urisplit(uri).getpath()
 
     def __init__(self, *args, **kwargs):
         self.store = dict()
