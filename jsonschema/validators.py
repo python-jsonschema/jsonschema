@@ -694,7 +694,7 @@ class RefResolver(object):
             except Exception as exc:
                 raise RefResolutionError(exc)
 
-        return self.resolve_fragment(document, fragment)
+        return self.resolve_fragment(document, fragment or '')
 
     def resolve_fragment(self, document, fragment):
         """
