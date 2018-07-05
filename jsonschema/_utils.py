@@ -14,7 +14,7 @@ class URIDict(MutableMapping):
     """
 
     def normalize(self, uri):
-        return urisplit(uri).getpath()
+        return urisplit(uri).geturi()
 
     def __init__(self, *args, **kwargs):
         self.store = dict()
