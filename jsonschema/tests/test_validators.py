@@ -1030,6 +1030,7 @@ class TestValidatorFor(TestCase):
         Validator = validators.create(
             meta_schema={"id": "meta schema id"},
             version="12",
+            id_of=lambda s: s.get("id", ""),
         )
         schema = {"$schema": "meta schema id"}
         self.assertIs(
