@@ -14,7 +14,7 @@ if PY3:
     from functools import lru_cache
     from io import StringIO
     from urllib.parse import (
-        unquote, urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit
+        unquote, urljoin, urlunsplit, SplitResult
     )
     from urllib.request import urlopen
     str_types = str,
@@ -24,7 +24,7 @@ else:
     from itertools import izip as zip  # noqa
     from StringIO import StringIO
     from urlparse import (
-        urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit # noqa
+        urljoin, urlunsplit, SplitResult # noqa
     )
     from urllib import unquote  # noqa
     from urllib2 import urlopen  # noqa
@@ -33,24 +33,5 @@ else:
     iteritems = operator.methodcaller("iteritems")
 
     from functools32 import lru_cache
-
-
-# On python < 3.3 fragments are not handled properly with unknown schemes
-def urlsplit(url):
-    scheme, netloc, path, query, fragment = _urlsplit(url)
-    if "#" in path:
-        path, fragment = path.split("#", 1)
-    return SplitResult(scheme, netloc, path, query, fragment)
-
-
-def urldefrag(url):
-    if "#" in url:
-        s, n, p, q, frag = urlsplit(url)
-        defrag = urlunsplit((s, n, p, q, ''))
-    else:
-        defrag = url
-        frag = ''
-    return defrag, frag
-
 
 # flake8: noqa

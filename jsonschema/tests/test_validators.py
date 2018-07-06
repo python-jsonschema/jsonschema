@@ -870,12 +870,11 @@ class ValidatorTestMixin(object):
         resolver = validators.RefResolver("", {})
         schema = {"$ref": mock.Mock()}
 
-        with mock.patch.object(resolver, "resolve") as resolve:
-            resolve.return_value = "url", {"type": "integer"}
+        with mock.patch.object(resolver, "resolving") as resolving:
+            resolving.return_value.__enter__.return_value = {"type": "integer"}
             with self.assertRaises(ValidationError):
                 self.validator_class(schema, resolver=resolver).validate(None)
-
-        resolve.assert_called_once_with(schema["$ref"])
+        resolving.assert_called_once_with(schema["$ref"])
 
     def test_it_delegates_to_a_legacy_ref_resolver(self):
         """
@@ -885,6 +884,10 @@ class ValidatorTestMixin(object):
         """
 
         class LegacyRefResolver(object):
+            @contextmanager
+            def in_scope(self, scope):
+                yield
+
             @contextmanager
             def resolving(this, ref):
                 self.assertEqual(ref, "the ref")
@@ -1178,10 +1181,10 @@ class TestRefResolver(TestCase):
         schema = {"baz": 12}
 
         with MockImport("requests", mock.Mock()) as requests:
-            requests.get.return_value.json.return_value = schema
+            requests.Session.get.return_value.json.return_value = schema
             with self.resolver.resolving(ref) as resolved:
                 self.assertEqual(resolved, 12)
-        requests.get.assert_called_once_with("http://bar")
+        requests.Session().get.assert_called_once_with("http://bar")
 
     def test_it_retrieves_unstored_refs_via_urlopen(self):
         ref = "http://bar#baz"
@@ -1194,6 +1197,42 @@ class TestRefResolver(TestCase):
                 with self.resolver.resolving(ref) as resolved:
                     self.assertEqual(resolved, 12)
         urlopen.assert_called_once_with("http://bar")
+
+    def test_it_retrieves_unstored_file_refs_via_urlopen(self):
+        ref = "file://bar.json#baz"
+        schema = {"baz": 12}
+
+        with MockImport("requests", None):
+            with mock.patch("jsonschema.validators.urlopen") as urlopen:
+                urlopen.return_value.read.return_value = (
+                    json.dumps(schema).encode("utf8"))
+                with self.resolver.resolving(ref) as resolved:
+                    self.assertEqual(resolved, 12)
+        urlopen.assert_called_once_with("file://bar.json")
+
+    def test_it_retrieves_unstored_file_refs_via_requests_file(self):
+        ref = "file://bar.json#baz"
+        schema = {"baz": 12}
+
+        with MockImport("requests", mock.Mock()) as requests:
+            with MockImport("requests_file", mock.Mock()):
+                requests.Session.get.return_value.json.return_value = schema
+                with self.resolver.resolving(ref) as resolved:
+                    self.assertEqual(resolved, 12)
+        requests.Session().get.assert_called_once_with("file://bar.json")
+
+    def test_it_retrieves_unstored_refs_via_urlopen_no_requests_file(self):
+        ref = "file://bar.json#baz"
+        schema = {"baz": 12}
+
+        with MockImport("requests", mock.Mock()) as requests:
+            with mock.patch("jsonschema.validators.urlopen") as urlopen:
+                urlopen.return_value.read.return_value = (
+                    json.dumps(schema).encode("utf8"))
+                with self.resolver.resolving(ref) as resolved:
+                    self.assertEqual(resolved, 12)
+        requests.Session().get.assert_not_called()
+        urlopen.assert_called_once_with("file://bar.json")
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
