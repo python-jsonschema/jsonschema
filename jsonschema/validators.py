@@ -5,11 +5,12 @@ import contextlib
 import json
 import numbers
 
+from uritools import urisplit, uridefrag, urijoin
 from six import add_metaclass
 
 from jsonschema import _utils, _validators, _types
 from jsonschema.compat import (
-    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
+    Sequence,  unquote, urlopen,
     str_types, int_types, iteritems, lru_cache,
 )
 from jsonschema.exceptions import (
@@ -522,7 +523,7 @@ class RefResolver(object):
             A mapping from URI schemes to functions that should be used
             to retrieve them
 
-        urljoin_cache (functools.lru_cache):
+        urijoin_cache (functools.lru_cache):
 
             A cache that will be used for caching the results of joining
             the resolution scope to subscopes.
@@ -530,7 +531,7 @@ class RefResolver(object):
         remote_cache (functools.lru_cache):
 
             A cache that will be used for caching the results of
-            resolved remote URLs.
+            resolved remote URIs.
 
     Attributes:
 
@@ -547,17 +548,19 @@ class RefResolver(object):
         store=(),
         cache_remote=True,
         handlers=(),
-        urljoin_cache=None,
+        urijoin_cache=None,
         remote_cache=None,
     ):
-        if urljoin_cache is None:
-            urljoin_cache = lru_cache(1024)(urljoin)
+        if urijoin_cache is None:
+            urijoin_cache = lru_cache(1024)(urijoin)
         if remote_cache is None:
-            remote_cache = lru_cache(1024)(self.resolve_from_url)
+            remote_cache = lru_cache(1024)(self.resolve_from_uri)
 
         self.referrer = referrer
         self.cache_remote = cache_remote
-        self.handlers = dict(handlers)
+        self.handlers = {'http': self.http_handler, 'https': self.http_handler,
+                         'file': self.http_handler}
+        self.handlers.update(handlers)
 
         self._scopes_stack = [base_uri]
         self.store = _utils.URIDict(
@@ -567,7 +570,7 @@ class RefResolver(object):
         self.store.update(store)
         self.store[base_uri] = referrer
 
-        self._urljoin_cache = urljoin_cache
+        self._urijoin_cache = urijoin_cache
         self._remote_cache = remote_cache
 
     @classmethod
@@ -595,9 +598,38 @@ class RefResolver(object):
 
         return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)
 
+    def http_handler(self, uri):
+        try:
+            import requests
+        except ImportError:
+            pass
+        else:
+            if hasattr(requests.Response, "json"):
+                session = requests.Session()
+
+                requests_supports_scheme = True
+                if urisplit(uri).scheme == "file":
+                    try:
+                        import requests_file
+                    except ImportError:
+                        requests_supports_scheme = False
+                    else:
+                        session.mount("file://", requests_file.FileAdapter())
+
+                if requests_supports_scheme:
+                    # Requests has support for detecting the correct encoding of
+                    # json over http
+                    if callable(requests.Response.json):
+                        return session.get(uri).json()
+                    else:
+                        return session.get(uri).json
+
+            # Otherwise, pass off to urllib and assume utf-8
+        return json.loads(urlopen(uri).read().decode("utf-8"))
+
     def push_scope(self, scope):
         self._scopes_stack.append(
-            self._urljoin_cache(self.resolution_scope, scope),
+            self._urijoin_cache(self.resolution_scope, scope),
         )
 
     def pop_scope(self):
@@ -616,7 +648,7 @@ class RefResolver(object):
 
     @property
     def base_uri(self):
-        uri, _ = urldefrag(self.resolution_scope)
+        uri, _ = uridefrag(self.resolution_scope)
         return uri
 
     @contextlib.contextmanager
@@ -641,28 +673,28 @@ class RefResolver(object):
 
         """
 
-        url, resolved = self.resolve(ref)
-        self.push_scope(url)
+        uri, resolved = self.resolve(ref)
+        self.push_scope(uri)
         try:
             yield resolved
         finally:
             self.pop_scope()
 
     def resolve(self, ref):
-        url = self._urljoin_cache(self.resolution_scope, ref)
-        return url, self._remote_cache(url)
+        uri = self._urijoin_cache(self.resolution_scope, ref)
+        return uri, self._remote_cache(uri)
 
-    def resolve_from_url(self, url):
-        url, fragment = urldefrag(url)
+    def resolve_from_uri(self, uri):
+        uri, fragment = uridefrag(uri)
         try:
-            document = self.store[url]
+            document = self.store[uri]
         except KeyError:
             try:
-                document = self.resolve_remote(url)
+                document = self.resolve_remote(uri)
             except Exception as exc:
                 raise RefResolutionError(exc)
 
-        return self.resolve_fragment(document, fragment)
+        return self.resolve_fragment(document, fragment or '')
 
     def resolve_fragment(self, document, fragment):
         """
@@ -731,29 +763,12 @@ class RefResolver(object):
         .. _requests: http://pypi.python.org/pypi/requests/
 
         """
-        try:
-            import requests
-        except ImportError:
-            requests = None
-
-        scheme = urlsplit(uri).scheme
+        scheme = urisplit(uri).scheme
 
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
-        elif (
-            scheme in [u"http", u"https"] and
-            requests and
-            getattr(requests.Response, "json", None) is not None
-        ):
-            # Requests has support for detecting the correct encoding of
-            # json over http
-            if callable(requests.Response.json):
-                result = requests.get(uri).json()
-            else:
-                result = requests.get(uri).json
         else:
-            # Otherwise, pass off to urllib and assume utf-8
-            result = json.loads(urlopen(uri).read().decode("utf-8"))
+            raise ValueError(scheme)
 
         if self.cache_remote:
             self.store[uri] = result
