@@ -531,7 +531,7 @@ class RefResolver(object):
         remote_cache (functools.lru_cache):
 
             A cache that will be used for caching the results of
-            resolved remote URLs.
+            resolved remote URIs.
 
     Attributes:
 
@@ -554,7 +554,7 @@ class RefResolver(object):
         if urijoin_cache is None:
             urijoin_cache = lru_cache(1024)(urijoin)
         if remote_cache is None:
-            remote_cache = lru_cache(1024)(self.resolve_from_url)
+            remote_cache = lru_cache(1024)(self.resolve_from_uri)
 
         self.referrer = referrer
         self.cache_remote = cache_remote
@@ -673,24 +673,24 @@ class RefResolver(object):
 
         """
 
-        url, resolved = self.resolve(ref)
-        self.push_scope(url)
+        uri, resolved = self.resolve(ref)
+        self.push_scope(uri)
         try:
             yield resolved
         finally:
             self.pop_scope()
 
     def resolve(self, ref):
-        url = self._urijoin_cache(self.resolution_scope, ref)
-        return url, self._remote_cache(url)
+        uri = self._urijoin_cache(self.resolution_scope, ref)
+        return uri, self._remote_cache(uri)
 
-    def resolve_from_url(self, url):
-        url, fragment = uridefrag(url)
+    def resolve_from_uri(self, uri):
+        uri, fragment = uridefrag(uri)
         try:
-            document = self.store[url]
+            document = self.store[uri]
         except KeyError:
             try:
-                document = self.resolve_remote(url)
+                document = self.resolve_remote(uri)
             except Exception as exc:
                 raise RefResolutionError(exc)
 
