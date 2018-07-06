@@ -255,9 +255,7 @@ def create(
                 return
 
             scope = id_of(_schema)
-            if scope:
-                self.resolver.push_scope(scope)
-            try:
+            with self.resolver.in_scope(scope):
                 ref = _schema.get(u"$ref")
                 if ref is not None:
                     validators = [(u"$ref", ref)]
@@ -281,9 +279,6 @@ def create(
                         if k != u"$ref":
                             error.schema_path.appendleft(k)
                         yield error
-            finally:
-                if scope:
-                    self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
             for error in self.iter_errors(instance, schema):
@@ -653,11 +648,13 @@ class RefResolver(object):
 
     @contextlib.contextmanager
     def in_scope(self, scope):
-        self.push_scope(scope)
+        if scope:
+            self.push_scope(scope)
         try:
             yield
         finally:
-            self.pop_scope()
+            if scope:
+                self.pop_scope()
 
     @contextlib.contextmanager
     def resolving(self, ref):
@@ -674,11 +671,8 @@ class RefResolver(object):
         """
 
         uri, resolved = self.resolve(ref)
-        self.push_scope(uri)
-        try:
+        with self.in_scope(uri):
             yield resolved
-        finally:
-            self.pop_scope()
 
     def resolve(self, ref):
         uri = self._urijoin_cache(self.resolution_scope, ref)

@@ -870,12 +870,11 @@ class ValidatorTestMixin(object):
         resolver = validators.RefResolver("", {})
         schema = {"$ref": mock.Mock()}
 
-        with mock.patch.object(resolver, "resolve") as resolve:
-            resolve.return_value = "url", {"type": "integer"}
+        with mock.patch.object(resolver, "resolving") as resolving:
+            resolving.return_value.__enter__.return_value = {"type": "integer"}
             with self.assertRaises(ValidationError):
                 self.validator_class(schema, resolver=resolver).validate(None)
-
-        resolve.assert_called_once_with(schema["$ref"])
+        resolving.assert_called_once_with(schema["$ref"])
 
     def test_it_delegates_to_a_legacy_ref_resolver(self):
         """
@@ -885,6 +884,10 @@ class ValidatorTestMixin(object):
         """
 
         class LegacyRefResolver(object):
+            @contextmanager
+            def in_scope(self, scope):
+                yield
+
             @contextmanager
             def resolving(this, ref):
                 self.assertEqual(ref, "the ref")
