@@ -62,17 +62,16 @@ class TestCreateAndExtend(TestCase):
         )
 
     def test_if_a_version_is_provided_it_is_registered(self):
-        with mock.patch("jsonschema.validators.validates") as validates:
-            validates.side_effect = lambda version: lambda cls: cls
+        with mock.patch("jsonschema.validators.register_validator") as validates:
             Validator = validators.create(
                 meta_schema={u"id": ""},
                 version="my version",
             )
-        validates.assert_called_once_with("my version")
+        validates.assert_called_once_with("my version", Validator)
         self.assertEqual(Validator.__name__, "MyVersionValidator")
 
     def test_if_a_version_is_not_provided_it_is_not_registered(self):
-        with mock.patch("jsonschema.validators.validates") as validates:
+        with mock.patch("jsonschema.validators.register_validator") as validates:
             validators.create(meta_schema={u"id": "id"})
         self.assertFalse(validates.called)
 

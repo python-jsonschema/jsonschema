@@ -31,6 +31,12 @@ validators = {}
 meta_schemas = _utils.URIDict()
 
 
+def register_validator(version, cls):
+    validators[version] = cls
+    if u"id" in cls.META_SCHEMA:
+        meta_schemas[cls.META_SCHEMA[u"id"]] = cls
+
+
 def validates(version):
     """
     Register the decorated validator for a ``version`` of the specification.
@@ -51,9 +57,7 @@ def validates(version):
     """
 
     def _validates(cls):
-        validators[version] = cls
-        if u"id" in cls.META_SCHEMA:
-            meta_schemas[cls.META_SCHEMA[u"id"]] = cls
+        register_validator(version, cls)
         return cls
     return _validates
 
@@ -307,7 +311,7 @@ def create(
             return error is None
 
     if version is not None:
-        Validator = validates(version)(Validator)
+        register_validator(version, Validator)
         Validator.__name__ = version.title().replace(" ", "") + "Validator"
 
     return Validator
