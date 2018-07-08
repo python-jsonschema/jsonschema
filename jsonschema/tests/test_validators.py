@@ -76,18 +76,19 @@ class TestCreateAndExtend(TestCase):
             validators.create(meta_schema={u"id": "id"})
         self.assertFalse(validates.called)
 
-    def test_if_validates_registers_meta_schema_id(self):
+    def test_validates_registers_meta_schema_id(self):
         meta_schema_key = "meta schema id"
         my_meta_schema = {u"id": meta_schema_key}
 
         validators.create(
             meta_schema=my_meta_schema,
             version="my version",
+            id_of=lambda s: s.get("id", ""),
         )
 
         self.assertIn(meta_schema_key, validators.meta_schemas)
 
-    def test_if_validates_registers_meta_schema_draft6_id(self):
+    def test_validates_registers_meta_schema_draft6_id(self):
         meta_schema_key = "meta schema $id"
         my_meta_schema = {u"$id": meta_schema_key}
 
@@ -1052,6 +1053,7 @@ class TestValidatorFor(TestCase):
         Validator = validators.create(
             meta_schema={"id": "meta schema id"},
             version="12",
+            id_of=lambda s: s.get("id", ""),
         )
         schema = {"$schema": "meta schema id"}
         self.assertIs(
