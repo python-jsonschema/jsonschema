@@ -1199,10 +1199,8 @@ class TestRefResolver(TestCase):
                     self.assertEqual(resolved, 12)
 
         urlopen_mock.assert_called_once_with("http://bar")
-        self.assertIn(mock.call.__enter__(),
-                      resource_manager_mock.mock_calls)
-        self.assertIn(mock.call.__exit__(None, None, None),
-                      resource_manager_mock.mock_calls)
+        resource_manager_mock.__enter__.assert_called_once()
+        resource_manager_mock.__exit__.assert_called_once()
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
