@@ -6,10 +6,11 @@ import json
 import numbers
 
 from six import add_metaclass
+from rfc3986 import uri_reference
 
 from jsonschema import _utils, _validators, _types
 from jsonschema.compat import (
-    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
+    Sequence, unquote, urlopen,
     str_types, int_types, iteritems, lru_cache,
 )
 from jsonschema.exceptions import (
@@ -108,10 +109,31 @@ class _DefaultTypesDeprecatingMetaClass(type):
         return self._DEFAULT_TYPES
 
 
+def _as_uri(uri_or_str):
+    """Return URIReference parse result of input string,
+    or pass through URIReference argument
+    """
+    if isinstance(uri_or_str, basestring):
+        return uri_reference(uri_or_str)
+    return uri_or_str
+
+
+def _join_uri(base, ref):
+    """Join absolute base URI with relative URI reference"""
+    return _as_uri(ref).resolve_with(base, strict=True)
+
+
+def _load_uri_from_schema(schema, key):
+    """Return URIReference object from URI given by key in schema.
+    Return URIReference.fromstring('') if key not found
+    """
+    return uri_reference(schema.get(key, ""))
+
+
 def _id_of(schema):
     if schema is True or schema is False:
         return u""
-    return schema.get(u"$id", u"")
+    return _load_uri_from_schema(schema, "$id")
 
 
 def create(
@@ -256,7 +278,7 @@ def create(
                 return
 
             scope = id_of(_schema)
-            if scope:
+            if scope.unsplit():
                 self.resolver.push_scope(scope)
             try:
                 ref = _schema.get(u"$ref")
@@ -283,7 +305,7 @@ def create(
                             error.schema_path.appendleft(k)
                         yield error
             finally:
-                if scope:
+                if scope.unsplit():
                     self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
@@ -416,7 +438,7 @@ Draft3Validator = create(
     },
     type_checker=_types.draft3_type_checker,
     version="draft3",
-    id_of=lambda schema: schema.get(u"id", ""),
+    id_of=lambda schema: _load_uri_from_schema(schema, u"id"),
 )
 
 Draft4Validator = create(
@@ -451,7 +473,7 @@ Draft4Validator = create(
     },
     type_checker=_types.draft4_type_checker,
     version="draft4",
-    id_of=lambda schema: schema.get(u"id", ""),
+    id_of=lambda schema: _load_uri_from_schema(schema, u"id"),
 )
 
 
@@ -542,6 +564,10 @@ class RefResolver(object):
 
     """
 
+    DEFAULT_BASE_URI = uri_reference(
+        "urn:uuid:00000000-0000-0000-0000-000000000000"
+    )
+
     def __init__(
         self,
         base_uri,
@@ -553,9 +579,20 @@ class RefResolver(object):
         remote_cache=None,
     ):
         if urljoin_cache is None:
-            urljoin_cache = lru_cache(1024)(urljoin)
+            urljoin_cache = lru_cache(1024)(_join_uri)
         if remote_cache is None:
             remote_cache = lru_cache(1024)(self.resolve_from_url)
+
+        if isinstance(base_uri, basestring):
+            base_uri = uri_reference(base_uri)
+
+        if not base_uri.unsplit():
+            base_uri = self.DEFAULT_BASE_URI
+
+        if not base_uri.is_absolute():
+            if base_uri.fragment:
+                raise ValueError("Base URI must not have non-empty fragment")
+            base_uri = base_uri.copy_with(fragment=None)
 
         self.referrer = referrer
         self.cache_remote = cache_remote
@@ -566,7 +603,8 @@ class RefResolver(object):
             (id, validator.META_SCHEMA)
             for id, validator in iteritems(meta_schemas)
         )
-        self.store.update(store)
+
+        self.store.update({_as_uri(k): v for k, v in dict(store).items()})
         self.store[base_uri] = referrer
 
         self._urljoin_cache = urljoin_cache
@@ -599,7 +637,7 @@ class RefResolver(object):
 
     def push_scope(self, scope):
         self._scopes_stack.append(
-            self._urljoin_cache(self.resolution_scope, scope),
+            self._urljoin_cache(self.base_uri, scope)
         )
 
     def pop_scope(self):
@@ -618,8 +656,7 @@ class RefResolver(object):
 
     @property
     def base_uri(self):
-        uri, _ = urldefrag(self.resolution_scope)
-        return uri
+        return self.resolution_scope.copy_with(fragment=None)
 
     @contextlib.contextmanager
     def in_scope(self, scope):
@@ -651,11 +688,17 @@ class RefResolver(object):
             self.pop_scope()
 
     def resolve(self, ref):
-        url = self._urljoin_cache(self.resolution_scope, ref)
+        assert self.base_uri
+        url = self._urljoin_cache(self.base_uri, ref)
         return url, self._remote_cache(url)
 
     def resolve_from_url(self, url):
-        url, fragment = urldefrag(url)
+        if url.fragment:
+            fragment = url.fragment
+            url = url.copy_with(fragment=None)
+        else:
+            fragment = ''
+
         try:
             document = self.store[url]
         except KeyError:
@@ -722,7 +765,7 @@ class RefResolver(object):
 
         Arguments:
 
-            uri (str):
+            uri (URIReference):
 
                 The URI to resolve
 
@@ -738,8 +781,7 @@ class RefResolver(object):
         except ImportError:
             requests = None
 
-        scheme = urlsplit(uri).scheme
-
+        scheme = uri.scheme
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
         elif (
@@ -750,12 +792,12 @@ class RefResolver(object):
             # Requests has support for detecting the correct encoding of
             # json over http
             if callable(requests.Response.json):
-                result = requests.get(uri).json()
+                result = requests.get(uri.unsplit()).json()
             else:
-                result = requests.get(uri).json
+                result = requests.get(uri.unsplit()).json
         else:
             # Otherwise, pass off to urllib and assume utf-8
-            result = json.loads(urlopen(uri).read().decode("utf-8"))
+            result = json.loads(urlopen(uri.unsplit()).read().decode("utf-8"))
 
         if self.cache_remote:
             self.store[uri] = result
@@ -845,4 +887,4 @@ def validator_for(schema, default=_LATEST_VERSION):
     """
     if schema is True or schema is False:
         return default
-    return meta_schemas.get(schema.get(u"$schema", u""), default)
+    return meta_schemas.get(_load_uri_from_schema(schema, u"$schema"), default)

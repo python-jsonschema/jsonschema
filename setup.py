@@ -41,6 +41,7 @@ setup(
         "pyrsistent>=0.14.0",
         "six>=1.11.0",
         "functools32;python_version<'3'",
+        "rfc3986>=1.1.0",
     ],
     extras_require={
         "format": [

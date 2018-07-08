@@ -5,6 +5,7 @@ import json
 import sys
 import unittest
 
+from rfc3986 import uri_reference
 from twisted.trial.unittest import SynchronousTestCase
 
 from jsonschema import (
@@ -77,16 +78,16 @@ class TestCreateAndExtend(TestCase):
         self.assertFalse(validates.called)
 
     def test_validates_registers_meta_schema_id(self):
-        meta_schema_key = "meta schema id"
-        my_meta_schema = {u"id": meta_schema_key}
+        my_meta_schema = {u"id": "meta schema id"}
+        id_of = lambda s: uri_reference(s.get("id", ""))
 
         validators.create(
             meta_schema=my_meta_schema,
             version="my version",
-            id_of=lambda s: s.get("id", ""),
+            id_of=id_of,
         )
 
-        self.assertIn(meta_schema_key, validators.meta_schemas)
+        self.assertIn(id_of(my_meta_schema), validators.meta_schemas)
 
     def test_validates_registers_meta_schema_draft6_id(self):
         meta_schema_key = "meta schema $id"
@@ -97,7 +98,7 @@ class TestCreateAndExtend(TestCase):
             version="my version",
         )
 
-        self.assertIn(meta_schema_key, validators.meta_schemas)
+        self.assertIn(uri_reference(meta_schema_key), validators.meta_schemas)
 
     def test_extend(self):
         original_validators = dict(self.Validator.VALIDATORS)
@@ -1053,7 +1054,7 @@ class TestValidatorFor(TestCase):
         Validator = validators.create(
             meta_schema={"id": "meta schema id"},
             version="12",
-            id_of=lambda s: s.get("id", ""),
+            id_of=lambda s: uri_reference(s.get("id", "")),
         )
         schema = {"$schema": "meta schema id"}
         self.assertIs(
@@ -1204,7 +1205,9 @@ class TestRefResolver(TestCase):
         with self.resolver.resolving(self.stored_uri) as resolved:
             self.assertIs(resolved, self.stored_schema)
 
-        self.resolver.store["cached_ref"] = {"foo": 12}
+        cached_uri = uri_reference("cached_ref").resolve_with(
+            self.resolver.base_uri)
+        self.resolver.store[cached_uri] = {"foo": 12}
         with self.resolver.resolving("cached_ref#/foo") as resolved:
             self.assertEqual(resolved, 12)
 
@@ -1231,27 +1234,29 @@ class TestRefResolver(TestCase):
         urlopen.assert_called_once_with("http://bar")
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
-        schema = {"id": "foo"}
+        schema = {"id": "http://foo.json#"}
         resolver = validators.RefResolver.from_schema(
             schema,
             id_of=lambda schema: schema.get(u"id", u""),
         )
-        self.assertEqual(resolver.base_uri, "foo")
-        self.assertEqual(resolver.resolution_scope, "foo")
+        self.assertEqual(resolver.base_uri, "http://foo.json")
+        self.assertEqual(resolver.resolution_scope, "http://foo.json")
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:
             self.assertEqual(resolved, schema)
-        with resolver.resolving("foo") as resolved:
+        with resolver.resolving("http://foo.json") as resolved:
             self.assertEqual(resolved, schema)
-        with resolver.resolving("foo#") as resolved:
+        with resolver.resolving("http://foo.json#") as resolved:
             self.assertEqual(resolved, schema)
 
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
         resolver = validators.RefResolver.from_schema(schema)
-        self.assertEqual(resolver.base_uri, "")
-        self.assertEqual(resolver.resolution_scope, "")
+        self.assertEqual(resolver.base_uri,
+                         validators.RefResolver.DEFAULT_BASE_URI)
+        self.assertEqual(resolver.resolution_scope,
+                         validators.RefResolver.DEFAULT_BASE_URI)
         with resolver.resolving("") as resolved:
             self.assertEqual(resolved, schema)
         with resolver.resolving("#") as resolved:
