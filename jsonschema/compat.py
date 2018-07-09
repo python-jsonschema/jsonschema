@@ -18,6 +18,9 @@ if PY3:
     str_types = str,
     int_types = int,
     iteritems = operator.methodcaller("items")
+
+    import rfc3986
+    rfc3986.URIReference.__hash__ = tuple.__hash__
 else:
     from itertools import izip as zip  # noqa
     from StringIO import StringIO
