@@ -113,7 +113,7 @@ def _as_uri(uri_or_str):
     """Return URIReference parse result of input string,
     or pass through URIReference argument
     """
-    if isinstance(uri_or_str, basestring):
+    if isinstance(uri_or_str, str_types):
         return uri_reference(uri_or_str)
     return uri_or_str
 
@@ -583,7 +583,7 @@ class RefResolver(object):
         if remote_cache is None:
             remote_cache = lru_cache(1024)(self.resolve_from_url)
 
-        if isinstance(base_uri, basestring):
+        if isinstance(base_uri, str_types):
             base_uri = uri_reference(base_uri)
 
         if not base_uri.unsplit():
