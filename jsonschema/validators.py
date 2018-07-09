@@ -110,7 +110,8 @@ class _DefaultTypesDeprecatingMetaClass(type):
 
 
 def _as_uri(uri_or_str):
-    """Return URIReference parse result of input string,
+    """
+    Return URIReference parse result of input string,
     or pass through URIReference argument
     """
     if isinstance(uri_or_str, str_types):
@@ -124,7 +125,8 @@ def _join_uri(base, ref):
 
 
 def _load_uri_from_schema(schema, key):
-    """Return URIReference object from URI given by key in schema.
+    """
+    Return URIReference object from URI given by key in schema.
     Return URIReference.fromstring('') if key not found
     """
     return uri_reference(schema.get(key, ""))

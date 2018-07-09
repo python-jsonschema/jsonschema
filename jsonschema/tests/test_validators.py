@@ -79,7 +79,9 @@ class TestCreateAndExtend(TestCase):
 
     def test_validates_registers_meta_schema_id(self):
         my_meta_schema = {u"id": "meta schema id"}
-        id_of = lambda s: uri_reference(s.get("id", ""))
+
+        def id_of(schema):
+            return uri_reference(schema.get("id", ""))
 
         validators.create(
             meta_schema=my_meta_schema,
