@@ -134,7 +134,7 @@ def _load_uri_from_schema(schema, key):
 
 def _id_of(schema):
     if schema is True or schema is False:
-        return u""
+        return uri_reference("")
     return _load_uri_from_schema(schema, "$id")
 
 
