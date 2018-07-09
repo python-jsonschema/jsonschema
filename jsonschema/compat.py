@@ -13,6 +13,7 @@ if PY3:
     zip = zip
     from functools import lru_cache
     from io import StringIO
+    from urllib.parse import unquote
     from urllib.request import urlopen
     str_types = str,
     int_types = int,
