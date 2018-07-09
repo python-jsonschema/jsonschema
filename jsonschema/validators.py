@@ -6,7 +6,7 @@ import json
 import numbers
 
 from six import add_metaclass
-from rfc3986 import uri_reference
+from rfc3986 import uri_reference, URIReference
 
 from jsonschema import _utils, _validators, _types
 from jsonschema.compat import (
