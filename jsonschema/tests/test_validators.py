@@ -1,5 +1,6 @@
 from collections import deque
 from contextlib import contextmanager
+from io import BytesIO
 from unittest import TestCase
 import json
 import sys
@@ -1143,24 +1144,14 @@ class TestValidate(TestCase):
         )
 
 
-class MockImport(object):
-
-    def __init__(self, module, _mock):
-        self._module = module
-        self._mock = _mock
-        self._orig_import = None
-
-    def __enter__(self):
-        self._orig_import = sys.modules.get(self._module, None)
-        sys.modules[self._module] = self._mock
-        return self._mock
-
-    def __exit__(self, *args):
-        if self._orig_import is None:
-            del sys.modules[self._module]
-        else:
-            sys.modules[self._module] = self._orig_import
-        return True
+@contextmanager
+def MockImport(module, mock):
+    original, sys.modules[module] = sys.modules.get(module), mock
+    yield mock
+    if original is None:
+        del sys.modules[module]
+    else:
+        sys.modules[module] = original
 
 
 class TestRefResolver(TestCase):
@@ -1227,13 +1218,16 @@ class TestRefResolver(TestCase):
         ref = "http://bar#baz"
         schema = {"baz": 12}
 
+        @contextmanager
+        def fake_urlopen(url):
+            self.assertEqual(url, "http://bar")
+            yield BytesIO(json.dumps(schema).encode("utf8"))
+
         with MockImport("requests", None):
-            with mock.patch("jsonschema.validators.urlopen") as urlopen:
-                urlopen.return_value.read.return_value = (
-                    json.dumps(schema).encode("utf8"))
+            with mock.patch("jsonschema.validators.urlopen", fake_urlopen):
                 with self.resolver.resolving(ref) as resolved:
-                    self.assertEqual(resolved, 12)
-        urlopen.assert_called_once_with("http://bar")
+                    pass
+        self.assertEqual(resolved, 12)
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "http://foo.json#"}
