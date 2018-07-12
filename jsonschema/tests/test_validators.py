@@ -1140,24 +1140,14 @@ class TestValidate(TestCase):
         )
 
 
-class MockImport(object):
-
-    def __init__(self, module, _mock):
-        self._module = module
-        self._mock = _mock
-        self._orig_import = None
-
-    def __enter__(self):
-        self._orig_import = sys.modules.get(self._module, None)
-        sys.modules[self._module] = self._mock
-        return self._mock
-
-    def __exit__(self, *args):
-        if self._orig_import is None:
-            del sys.modules[self._module]
-        else:
-            sys.modules[self._module] = self._orig_import
-        return True
+@contextmanager
+def MockImport(module, mock):
+    original, sys.modules[module] = sys.modules.get(module), mock
+    yield mock
+    if original is None:
+        del sys.modules[module]
+    else:
+        sys.modules[module] = original
 
 
 class TestRefResolver(TestCase):
