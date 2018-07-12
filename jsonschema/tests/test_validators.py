@@ -1,5 +1,6 @@
 from collections import deque
 from contextlib import contextmanager
+from io import BytesIO
 from unittest import TestCase
 import json
 import sys
@@ -1211,21 +1212,17 @@ class TestRefResolver(TestCase):
     def test_it_retrieves_unstored_refs_via_urlopen(self):
         ref = "http://bar#baz"
         schema = {"baz": 12}
-        resource_manager_mock = mock.MagicMock()
-        (resource_manager_mock.
-         __enter__.return_value.
-         read.return_value.
-         decode.return_value) = json.dumps(schema).encode("utf8")
-        urlopen_mock = mock.MagicMock(return_value=resource_manager_mock)
+
+        @contextmanager
+        def fake_urlopen(url):
+            self.assertEqual(url, "http://bar")
+            yield BytesIO(json.dumps(schema).encode("utf8"))
 
         with MockImport("requests", None):
-            with mock.patch("jsonschema.validators.urlopen", urlopen_mock):
+            with mock.patch("jsonschema.validators.urlopen", fake_urlopen):
                 with self.resolver.resolving(ref) as resolved:
-                    self.assertEqual(resolved, 12)
-
-        urlopen_mock.assert_called_once_with("http://bar")
-        self.assertEqual(resource_manager_mock.__exit__.call_count, 1)
-        self.assertEqual(resource_manager_mock.__enter__.call_count, 1)
+                    pass
+        self.assertEqual(resolved, 12)
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
