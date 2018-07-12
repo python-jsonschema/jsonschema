@@ -1221,14 +1221,21 @@ class TestRefResolver(TestCase):
     def test_it_retrieves_unstored_refs_via_urlopen(self):
         ref = "http://bar#baz"
         schema = {"baz": 12}
+        resource_manager_mock = mock.MagicMock()
+        (resource_manager_mock.
+         __enter__.return_value.
+         read.return_value.
+         decode.return_value) = json.dumps(schema).encode("utf8")
+        urlopen_mock = mock.MagicMock(return_value=resource_manager_mock)
 
         with MockImport("requests", None):
-            with mock.patch("jsonschema.validators.urlopen") as urlopen:
-                urlopen.return_value.read.return_value = (
-                    json.dumps(schema).encode("utf8"))
+            with mock.patch("jsonschema.validators.urlopen", urlopen_mock):
                 with self.resolver.resolving(ref) as resolved:
                     self.assertEqual(resolved, 12)
-        urlopen.assert_called_once_with("http://bar")
+
+        urlopen_mock.assert_called_once_with("http://bar")
+        self.assertEqual(resource_manager_mock.__exit__.call_count, 1)
+        self.assertEqual(resource_manager_mock.__enter__.call_count, 1)
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
