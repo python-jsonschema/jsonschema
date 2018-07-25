@@ -78,7 +78,11 @@ init:
   - echo "TOXENV- %TOXENV%"
 
 install:
-  - C:\Python36\python -m pip install -U tox
+  - virtualenv -p "%PYTHON%\\python.exe" "%VENV%"
+  - "%VENV%\\Scripts\\activate"
+  - pip install tox
+
+build: false
 
 test_script:
   - C:\Python36\scripts\tox
