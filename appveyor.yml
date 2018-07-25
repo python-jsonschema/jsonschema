@@ -85,4 +85,4 @@ install:
 build: false
 
 test_script:
-  - C:\Python36\scripts\tox
+  - tox
