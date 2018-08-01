@@ -77,12 +77,10 @@ environment:
 init:
   - echo "TOXENV- %TOXENV%"
 
-install:
+build_script:
   - virtualenv -p "%PYTHON%\\python.exe" "%VENV%"
   - "%VENV%\\Scripts\\activate"
   - pip install tox
-
-build: false
 
 test_script:
   - tox
