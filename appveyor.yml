@@ -1,4 +1,3 @@
-build: false
 environment:
   VENV: "%APPVEYOR_BUILD_FOLDER%\\venv"
 
@@ -74,6 +73,7 @@ environment:
 
     - TOXENV: py36-tests
       PYTHON: "C:\\Python36-x64"
+
 init:
   - echo "TOXENV- %TOXENV%"
 
@@ -81,6 +81,8 @@ install:
   - virtualenv -p "%PYTHON%\\python.exe" "%VENV%"
   - "%VENV%\\Scripts\\activate"
   - pip install tox
+
+build: false
 
 test_script:
   - tox
