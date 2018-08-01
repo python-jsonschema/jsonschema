@@ -434,6 +434,10 @@ def allOf_draft4(validator, allOf, instance, schema):
 
 def allOf_draft6(validator, allOf, instance, schema):
     for index, subschema in enumerate(allOf):
+        if subschema is True:  # FIXME: Messages
+            subschema = {}
+        elif subschema is False:
+            subschema = {"not": {}}
         for error in validator.descend(instance, subschema, schema_path=index):
             yield error
 
@@ -479,6 +483,10 @@ def anyOf_draft4(validator, anyOf, instance, schema):
 def anyOf_draft6(validator, anyOf, instance, schema):
     all_errors = []
     for index, subschema in enumerate(anyOf):
+        if subschema is True:  # FIXME: Messages
+            subschema = {}
+        elif subschema is False:
+            subschema = {"not": {}}
         errs = list(validator.descend(instance, subschema, schema_path=index))
         if not errs:
             break
@@ -494,6 +502,10 @@ def oneOf_draft6(validator, oneOf, instance, schema):
     subschemas = enumerate(oneOf)
     all_errors = []
     for index, subschema in subschemas:
+        if subschema is True:  # FIXME: Messages
+            subschema = {}
+        elif subschema is False:
+            subschema = {"not": {}}
         errs = list(validator.descend(instance, subschema, schema_path=index))
         if not errs:
             first_valid = subschema
