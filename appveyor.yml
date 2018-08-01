@@ -82,7 +82,5 @@ install:
   - "%VENV%\\Scripts\\activate"
   - pip install tox
 
-build: false
-
 test_script:
   - tox
