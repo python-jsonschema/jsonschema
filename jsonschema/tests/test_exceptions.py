@@ -393,7 +393,14 @@ class TestErrorInitReprStr(TestCase):
 
         """
 
-        instance = mock.MagicMock()
+        class DontEQMeBro(object):
+            def __eq__(this, other):
+                self.fail("Don't!")
+
+            def __ne__(this, other):
+                self.fail("Don't!")
+
+        instance = DontEQMeBro()
         error = exceptions.ValidationError(
             "a message",
             validator="foo",
@@ -401,5 +408,4 @@ class TestErrorInitReprStr(TestCase):
             validator_value="some",
             schema="schema",
         )
-        str(error)
-        self.assertFalse(instance.__eq__.called)
+        self.assertIn(repr(instance), str(error))
