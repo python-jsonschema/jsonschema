@@ -108,22 +108,28 @@ class FormatMixin(object):
         self.assertIsNone(validator.format_checker)
 
     def test_it_validates_formats_if_a_checker_is_provided(self):
-        checker = mock.Mock(spec=FormatChecker)
+        checker = FormatChecker()
+        bad = ValueError("Bad!")
+
+        @checker.checks("foo", raises=ValueError)
+        def check(value):
+            if value == "good":
+                return True
+            elif value == "bad":
+                raise bad
+            else:  # pragma: no cover
+                self.fail("What is {}? [Baby Don't Hurt Me]".format(value))
+
         validator = self.validator_class(
             {"format": "foo"}, format_checker=checker,
         )
 
-        validator.validate("bar")
-
-        checker.check.assert_called_once_with("bar", "foo")
-
-        cause = ValueError()
-        checker.check.side_effect = FormatError("aoeu", cause=cause)
-
+        validator.validate("good")
         with self.assertRaises(ValidationError) as cm:
-            validator.validate("bar")
+            validator.validate("bad")
+
         # Make sure original cause is attached
-        self.assertIs(cm.exception.cause, cause)
+        self.assertIs(cm.exception.cause, bad)
 
     def test_it_validates_formats_of_any_type(self):
         checker = mock.Mock(spec=FormatChecker)
