@@ -214,7 +214,11 @@ class TestByRelevance(TestCase):
 
 class TestErrorTree(TestCase):
     def test_it_knows_how_many_total_errors_it_contains(self):
-        errors = [mock.MagicMock() for _ in range(8)]
+        # FIXME: https://github.com/Julian/jsonschema/issues/442
+        errors = [
+            exceptions.ValidationError("Something", validator=i)
+            for i in range(8)
+        ]
         tree = exceptions.ErrorTree(errors)
         self.assertEqual(tree.total_errors, 8)
 
