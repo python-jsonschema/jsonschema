@@ -1327,11 +1327,10 @@ class TestRefResolver(TestCase):
             "", referrer, handlers={"file": file_handler}
         )
         with resolver.resolving(ref):
-            key, resolved = resolver.resolve(ref)
+            pass
 
-        # Why is it this, really?
-        self.assertEqual('schemas/common.json', key)
-        self.assertEqual(expected, resolved)
+        self.assertTrue(ref in resolver.store)
+        self.assertEqual(resolver.store[ref], expected)
 
 
 class UniqueTupleItemsMixin(object):
