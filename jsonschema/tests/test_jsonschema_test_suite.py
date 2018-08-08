@@ -12,7 +12,7 @@ import sys
 import unittest
 
 from jsonschema import (
-    FormatError, SchemaError, ValidationError, Draft3Validator,
+    SchemaError, ValidationError, Draft3Validator,
     Draft4Validator, Draft6Validator, FormatChecker, draft3_format_checker,
     draft4_format_checker, draft6_format_checker, validate,
 )
