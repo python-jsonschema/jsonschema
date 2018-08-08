@@ -1,5 +1,10 @@
 # vim: filetype=dosini:
 [run]
 branch = True
-include = **/jsonschema/**
+include = */site-packages/jsonschema/*
 omit = jsonschema/_reflect.py
+
+[paths]
+source =
+    jsonschema/
+    .tox/coverage/site-packages/jsonschema/
