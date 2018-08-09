@@ -27,15 +27,12 @@ DRAFT4 = SUITE.collection(name="draft4")
 DRAFT6 = SUITE.collection(name="draft6")
 
 
-def maybe_skip(skip, test_case, test):
-    if skip is not None:
-        reason = skip(test)
-        if reason is not None:
-            test_case = unittest.skip(reason)(test_case)
-    return test_case
+def maybe_skip(skip, test_fn, test):
+    reason = skip(test)
+    return unittest.skipIf(reason is not None, reason)(test_fn)
 
 
-def load_json_cases(tests, skip=None):
+def load_json_cases(tests, skip=lambda test: None):
     def add_test_methods(test_class):
         for test in tests:
             test = test.with_validate_kwargs(
