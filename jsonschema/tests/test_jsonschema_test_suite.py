@@ -50,8 +50,9 @@ def load_json_cases(tests, skip=lambda test: None):
     return add_test_methods
 
 
-def skip_tests_containing_descriptions(descriptions_and_reasons):
+def skip_tests_containing_descriptions(**kwargs):
     def skipper(test):
+        descriptions_and_reasons = kwargs.get(test.subject, {})
         return next(
             (
                 reason
@@ -140,16 +141,13 @@ else:
         return
 
 
-@load_json_cases(
-    tests=(test for test in DRAFT3.tests() if test.subject != "refRemote"),
-    skip=narrow_unicode_build,
-)
+@load_json_cases(tests=DRAFT3.tests(), skip=narrow_unicode_build)
 @load_json_cases(
     tests=DRAFT3.optional_tests_of(name="format"),
     skip=lambda test: (
         missing_format(draft3_format_checker)(test) or
         skip_tests_containing_descriptions(
-            {
+            format={
                 "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
             },
         )(test)
@@ -178,11 +176,15 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 
 
 @load_json_cases(
-    tests=(test for test in DRAFT4.tests() if test.subject != "refRemote"),
+    tests=DRAFT4.tests(),
     skip=lambda test: (
         narrow_unicode_build(test) or skip_tests_containing_descriptions(
-            {
+            ref={
                 "valid tree":  "An actual bug, this needs fixing.",
+            },
+            refRemote={
+                "number is valid": "An actual bug, this needs fixing.",
+                "string is invalid": "An actual bug, this needs fixing.",
             },
         )(test)
     ),
@@ -192,7 +194,7 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     skip=lambda test: (
         missing_format(draft4_format_checker)(test) or
         skip_tests_containing_descriptions(
-            {
+            format={
                 "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
             },
         )(test)
@@ -217,11 +219,15 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 
 
 @load_json_cases(
-    tests=(test for test in DRAFT6.tests() if test.subject != "refRemote"),
+    tests=DRAFT6.tests(),
     skip=lambda test: (
         narrow_unicode_build(test) or skip_tests_containing_descriptions(
-            {
+            ref={
                 "valid tree":  "An actual bug, this needs fixing.",
+            },
+            refRemote={
+                "number is valid": "An actual bug, this needs fixing.",
+                "string is invalid": "An actual bug, this needs fixing.",
             },
         )(test)
     ),
@@ -231,7 +237,7 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     skip=lambda test: (
         missing_format(draft6_format_checker)(test) or
         skip_tests_containing_descriptions(
-            {
+            format={
                 "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
             },
         )(test)
@@ -242,37 +248,6 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     validator_class = Draft6Validator
     validator_kwargs = {"format_checker": draft6_format_checker}
-
-
-@load_json_cases(tests=DRAFT3.tests_of(name="refRemote"))
-class Draft3RemoteResolution(unittest.TestCase):
-    validator_class = Draft3Validator
-
-
-@load_json_cases(
-    tests=DRAFT4.tests_of(name="refRemote"),
-    skip=skip_tests_containing_descriptions(
-        {
-            "number is valid": "An actual bug, this needs fixing.",
-            "string is invalid": "An actual bug, this needs fixing.",
-        },
-    ),
-)
-class Draft4RemoteResolution(unittest.TestCase):
-    validator_class = Draft4Validator
-
-
-@load_json_cases(
-    tests=DRAFT6.tests_of(name="refRemote"),
-    skip=skip_tests_containing_descriptions(
-        {
-            "number is valid": "An actual bug, this needs fixing.",
-            "string is invalid": "An actual bug, this needs fixing.",
-        },
-    ),
-)
-class Draft6RemoteResolution(unittest.TestCase):
-    validator_class = Draft6Validator
 
 
 @load_json_cases(tests=DRAFT3.tests_of(name="type"))
