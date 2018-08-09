@@ -101,21 +101,28 @@ class TestCreateAndExtend(TestCase):
         self.assertIn(meta_schema_key, validators.meta_schemas)
 
     def test_extend(self):
-        original_validators = dict(self.Validator.VALIDATORS)
-        new = mock.Mock()
+        original = dict(self.Validator.VALIDATORS)
+        new = object()
 
         Extended = validators.extend(
             self.Validator,
-            validators={u"a new one": new},
+            validators={u"new": new},
         )
-
-        original_validators.update([(u"a new one", new)])
-        self.assertEqual(Extended.VALIDATORS, original_validators)
-        self.assertNotIn(u"a new one", self.Validator.VALIDATORS)
-
-        self.assertEqual(Extended.META_SCHEMA, self.Validator.META_SCHEMA)
-        self.assertEqual(Extended.DEFAULT_TYPES, self.Validator.DEFAULT_TYPES)
-        self.assertEqual(Extended.TYPE_CHECKER, self.Validator.TYPE_CHECKER)
+        self.assertEqual(
+            (
+                Extended.VALIDATORS,
+                Extended.META_SCHEMA,
+                Extended.DEFAULT_TYPES,
+                Extended.TYPE_CHECKER,
+                self.Validator.VALIDATORS,
+            ), (
+                dict(original, new=new),
+                self.Validator.META_SCHEMA,
+                self.Validator.DEFAULT_TYPES,
+                self.Validator.TYPE_CHECKER,
+                original,
+            ),
+        )
 
 
 class TestLegacyTypeCheckCreation(TestCase):
@@ -939,7 +946,7 @@ class TestDraft3Validator(ValidatorTestMixin, TestCase):
     validator_class = validators.Draft3Validator
 
     def test_is_type_is_true_for_any_type(self):
-        self.assertTrue(self.validator.is_valid(mock.Mock(), {"type": "any"}))
+        self.assertTrue(self.validator.is_valid(object(), {"type": "any"}))
 
     def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
         self.assertTrue(self.validator.is_type(True, "boolean"))

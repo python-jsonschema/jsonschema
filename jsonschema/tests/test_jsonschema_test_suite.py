@@ -17,7 +17,6 @@ from jsonschema import (
     draft4_format_checker, draft6_format_checker, validate,
 )
 from jsonschema.compat import PY3
-from jsonschema.tests.compat import mock
 from jsonschema.tests._suite import Suite
 from jsonschema.validators import create
 
@@ -167,7 +166,7 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 
     def test_any_type_is_valid_for_type_any(self):
         validator = self.validator_class({"type": "any"})
-        validator.validate(mock.Mock())
+        validator.validate(object())
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):

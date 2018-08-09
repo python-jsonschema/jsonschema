@@ -6,14 +6,20 @@ Tests for the parts of jsonschema related to the :validator:`format` property.
 from unittest import TestCase
 
 from jsonschema import FormatError, ValidationError, FormatChecker
-from jsonschema.tests.compat import mock
 from jsonschema.validators import Draft4Validator
 
 
-class TestFormatChecker(TestCase):
-    def setUp(self):
-        self.fn = mock.Mock()
+BOOM = ValueError("Boom!")
+BANG = ZeroDivisionError("Bang!")
 
+
+def boom(thing):
+    if thing == "bang":
+        raise BANG
+    raise BOOM
+
+
+class TestFormatChecker(TestCase):
     def test_it_can_validate_no_formats(self):
         checker = FormatChecker(formats=())
         self.assertFalse(checker.checkers)
@@ -23,42 +29,43 @@ class TestFormatChecker(TestCase):
             FormatChecker(formats=["o noes"])
 
     def test_it_can_register_cls_checkers(self):
-        with mock.patch.dict(FormatChecker.checkers, clear=True):
-            FormatChecker.cls_checks("new")(self.fn)
-            self.assertEqual(FormatChecker.checkers, {"new": (self.fn, ())})
+        original = dict(FormatChecker.checkers)
+        self.addCleanup(FormatChecker.checkers.pop, "boom")
+        FormatChecker.cls_checks("boom")(boom)
+        self.assertEqual(
+            FormatChecker.checkers,
+            dict(original, boom=(boom, ())),
+        )
 
     def test_it_can_register_checkers(self):
         checker = FormatChecker()
-        checker.checks("new")(self.fn)
+        checker.checks("boom")(boom)
         self.assertEqual(
             checker.checkers,
-            dict(FormatChecker.checkers, new=(self.fn, ()))
+            dict(FormatChecker.checkers, boom=(boom, ()))
         )
 
     def test_it_catches_registered_errors(self):
         checker = FormatChecker()
-        cause = self.fn.side_effect = ValueError()
-
-        checker.checks("foo", raises=ValueError)(self.fn)
+        checker.checks("boom", raises=type(BOOM))(boom)
 
         with self.assertRaises(FormatError) as cm:
-            checker.check("bar", "foo")
+            checker.check(instance=12, format="boom")
 
-        self.assertIs(cm.exception.cause, cause)
-        self.assertIs(cm.exception.__cause__, cause)
+        self.assertIs(cm.exception.cause, BOOM)
+        self.assertIs(cm.exception.__cause__, BOOM)
 
         # Unregistered errors should not be caught
-        self.fn.side_effect = AttributeError
-        with self.assertRaises(AttributeError):
-            checker.check("bar", "foo")
+        with self.assertRaises(type(BANG)):
+            checker.check(instance="bang", format="boom")
 
     def test_format_error_causes_become_validation_error_causes(self):
         checker = FormatChecker()
-        checker.checks("foo", raises=ValueError)(self.fn)
-        cause = self.fn.side_effect = ValueError()
-        validator = Draft4Validator({"format": "foo"}, format_checker=checker)
+        checker.checks("boom", raises=ValueError)(boom)
+        validator = Draft4Validator({"format": "boom"}, format_checker=checker)
 
         with self.assertRaises(ValidationError) as cm:
-            validator.validate("bar")
+            validator.validate("BOOM")
 
-        self.assertIs(cm.exception.__cause__, cause)
+        self.assertIs(cm.exception.cause, BOOM)
+        self.assertIs(cm.exception.__cause__, BOOM)
