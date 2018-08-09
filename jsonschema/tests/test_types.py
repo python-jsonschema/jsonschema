@@ -11,35 +11,14 @@ from jsonschema.exceptions import UndefinedTypeCheck
 from jsonschema.validators import Draft4Validator, extend
 
 
-def is_int_or_string_int(checker, instance):
-    if Draft4Validator.TYPE_CHECKER.is_type(instance, "integer"):
-        return True
-
-    if checker.is_type(instance, "string"):
-        try:
-            int(instance)
-            return True
-        except ValueError:
-            pass
-    return False
-
-
 def is_namedtuple(instance):
-    if isinstance(instance, tuple) and getattr(instance, '_fields',
-                                               None):
-        return True
-
-    return False
+    return isinstance(instance, tuple) and getattr(instance, "_fields", None)
 
 
 def is_object_or_named_tuple(checker, instance):
     if Draft4Validator.TYPE_CHECKER.is_type(instance, "object"):
         return True
-
-    if is_namedtuple(instance):
-        return True
-
-    return False
+    return is_namedtuple(instance)
 
 
 def coerce_named_tuple(fn):
@@ -55,7 +34,6 @@ properties = coerce_named_tuple(_validators.properties)
 
 
 class TestTypeChecker(TestCase):
-
     def test_initialised_empty(self):
         tc = _types.TypeChecker()
         self.assertEqual(len(tc._type_checkers), 0)
@@ -145,22 +123,29 @@ class TestTypeChecker(TestCase):
 
 
 class TestCustomTypes(TestCase):
-
     def test_simple_type_can_be_extended(self):
-        schema = {'type': 'integer'}
+        def int_or_str_int(checker, instance):
+            if not isinstance(instance, (int, str)):
+                return False
+            try:
+                int(instance)
+            except ValueError:
+                return False
+            return True
 
-        type_checker = Draft4Validator.TYPE_CHECKER.redefine(
-            "integer", is_int_or_string_int
+        CustomValidator = extend(
+            Draft4Validator,
+            type_checker=Draft4Validator.TYPE_CHECKER.redefine(
+                "integer", int_or_str_int,
+            ),
         )
+        validator = CustomValidator({"type": "integer"})
 
-        CustomValidator = extend(Draft4Validator, type_checker=type_checker)
-        v = CustomValidator(schema)
-
-        v.validate(4)
-        v.validate('4')
+        validator.validate(4)
+        validator.validate("4")
 
         with self.assertRaises(ValidationError):
-            v.validate(4.4)
+            validator.validate(4.4)
 
     def test_object_can_be_extended(self):
         schema = {'type': 'object'}
@@ -168,28 +153,28 @@ class TestCustomTypes(TestCase):
         Point = namedtuple('Point', ['x', 'y'])
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
-            u"object", is_object_or_named_tuple
+            u"object", is_object_or_named_tuple,
         )
 
         CustomValidator = extend(Draft4Validator, type_checker=type_checker)
-        v = CustomValidator(schema)
+        validator = CustomValidator(schema)
 
-        v.validate(Point(x=4, y=5))
+        validator.validate(Point(x=4, y=5))
 
     def test_object_extensions_require_custom_validators(self):
         schema = {"type": "object", "required": ["x"]}
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
-            u"object", is_object_or_named_tuple
+            u"object", is_object_or_named_tuple,
         )
 
         CustomValidator = extend(Draft4Validator, type_checker=type_checker)
-        v = CustomValidator(schema)
+        validator = CustomValidator(schema)
 
         Point = namedtuple("Point", ["x", "y"])
         # Cannot handle required
         with self.assertRaises(ValidationError):
-            v.validate(Point(x=4, y=5))
+            validator.validate(Point(x=4, y=5))
 
     def test_object_extensions_can_handle_custom_validators(self):
         schema = {
@@ -199,7 +184,7 @@ class TestCustomTypes(TestCase):
         }
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
-            u"object", is_object_or_named_tuple
+            u"object", is_object_or_named_tuple,
         )
 
         CustomValidator = extend(
@@ -208,11 +193,11 @@ class TestCustomTypes(TestCase):
             validators={"required": required, "properties": properties},
         )
 
-        v = CustomValidator(schema)
+        validator = CustomValidator(schema)
 
         Point = namedtuple("Point", ["x", "y"])
         # Can now process required and properties
-        v.validate(Point(x=4, y=5))
+        validator.validate(Point(x=4, y=5))
 
         with self.assertRaises(ValidationError):
-            v.validate(Point(x="not an integer", y=5))
+            validator.validate(Point(x="not an integer", y=5))
