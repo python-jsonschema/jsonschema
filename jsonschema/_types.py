@@ -3,7 +3,7 @@ import numbers
 from pyrsistent import pmap
 import attr
 
-from jsonschema.compat import str_types, int_types
+from jsonschema.compat import int_types, str_types
 from jsonschema.exceptions import UndefinedTypeCheck
 
 
@@ -50,10 +50,11 @@ class TypeChecker(object):
     """
     A ``type`` property checker.
 
-    A `TypeChecker` performs type checking for an `IValidator`. Type checks to
-    perform are updated using `TypeChecker.redefine` or
+    A `TypeChecker` performs type checking for an `IValidator`. Type
+    checks to perform are updated using `TypeChecker.redefine` or
     `TypeChecker.redefine_many` and removed via `TypeChecker.remove` or
-    `TypeChecker.remove_many`. Each of these return a new `TypeChecker` object.
+    `TypeChecker.remove_many`. Each of these return a new `TypeChecker`
+    object.
 
     Arguments:
 
@@ -106,10 +107,10 @@ class TypeChecker(object):
 
             fn (callable):
 
-                A function taking exactly two parameters - the type checker
-                calling the function and the instance to check. The function
-                should return true if instance is of this type and false
-                otherwise.
+                A function taking exactly two parameters - the type
+                checker calling the function and the instance to check.
+                The function should return true if instance is of this
+                type and false otherwise.
 
         Returns:
 
@@ -131,7 +132,6 @@ class TypeChecker(object):
         Returns:
 
             A new `TypeChecker` instance.
-
         """
         return attr.evolve(
             self, type_checkers=self._type_checkers.update(definitions),
@@ -155,7 +155,6 @@ class TypeChecker(object):
 
             `jsonschema.exceptions.UndefinedTypeCheck`:
                 if type is unknown to this object
-
         """
         return self.remove_many((type,))
 
