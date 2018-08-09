@@ -143,11 +143,11 @@ class _Test(object):
     _remotes = attr.ib()
     _validate_kwargs = attr.ib(default=pmap())
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "<Test {}>".format(self.fully_qualified_name)
 
     @property
-    def fully_qualified_name(self):
+    def fully_qualified_name(self):  # pragma: no cover
         return " > ".join(
             [
                 self.collection.name,
@@ -164,7 +164,7 @@ class _Test(object):
             re.sub(r"[\W ]+", "_", self.description),
         )
 
-        if not PY3:
+        if not PY3:  # pragma: no cover
             name = name.encode("utf-8")
 
         if self.valid:
