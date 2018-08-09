@@ -305,7 +305,7 @@ class TestErrorInitReprStr(TestCase):
         return exceptions.ValidationError(**defaults)
 
     def assertShows(self, expected, **kwargs):
-        if PY3:
+        if PY3:  # pragma: no cover
             expected = expected.replace("u'", "'")
         expected = textwrap.dedent(expected).rstrip("\n")
 
@@ -394,10 +394,10 @@ class TestErrorInitReprStr(TestCase):
         """
 
         class DontEQMeBro(object):
-            def __eq__(this, other):
+            def __eq__(this, other):  # pragma: no cover
                 self.fail("Don't!")
 
-            def __ne__(this, other):
+            def __ne__(this, other):  # pragma: no cover
                 self.fail("Don't!")
 
         instance = DontEQMeBro()

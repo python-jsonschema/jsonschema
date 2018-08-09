@@ -129,7 +129,8 @@ class FormatMixin(object):
         self.assertIs(cm.exception.cause, bad)
 
 
-if sys.maxunicode == 2 ** 16 - 1:          # This is a narrow build.
+is_narrow_build = sys.maxunicode == 2 ** 16 - 1
+if is_narrow_build:  # pragma: no cover
     narrow_unicode_build = skip_tests_containing_descriptions(
         {
             "supplementary Unicode":
@@ -137,7 +138,7 @@ if sys.maxunicode == 2 ** 16 - 1:          # This is a narrow build.
         }
     )
 else:
-    def narrow_unicode_build(test):  # This isn't, skip nothing.
+    def narrow_unicode_build(test):  # pragma: no cover
         return
 
 

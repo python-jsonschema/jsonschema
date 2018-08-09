@@ -1299,7 +1299,7 @@ class TestRefResolver(TestCase):
         )
         with self.assertRaises(validators.RefResolutionError) as err:
             with resolver.resolving(ref):
-                pass
+                self.fail("Shouldn't get this far!")  # pragma: no cover
         self.assertEqual(str(err.exception), "Oh no! What's this?")
 
     def test_helpful_error_message_on_failed_pop_scope(self):
