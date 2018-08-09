@@ -632,8 +632,9 @@ class RefResolver(object):
     @contextlib.contextmanager
     def resolving(self, ref):
         """
-        Context manager which resolves a JSON ``ref`` and enters the
-        resolution scope of this ref.
+        Resolve the given ``ref`` and enter its resolution scope.
+
+        Exits the scope on exit of this context manager.
 
         Arguments:
 
