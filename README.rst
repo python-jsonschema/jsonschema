@@ -83,11 +83,11 @@ Running the Test Suite
 ----------------------
 
 If you have ``tox`` installed (perhaps via ``pip install tox`` or your
-package manager), running ``tox`` in the directory of your source checkout will
-run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema``
-supports. Note that you'll need to have all of those versions installed in
-order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
-the tests on that version.
+package manager), running ``tox`` in the directory of your source
+checkout will run ``jsonschema``'s test suite on all of the versions
+of Python ``jsonschema`` supports. If you don't have all of the
+versions that ``jsonschema`` is tested under, you'll likely want to run
+using``tox``'s ``--skip-missing-interpreters`` option.
 
 Of course you're also free to just run the tests on a single version with your
 favorite test runner. The tests live in the ``jsonschema.tests`` package.
