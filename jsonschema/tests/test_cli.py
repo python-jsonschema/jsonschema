@@ -1,9 +1,8 @@
-from io import BytesIO
 from unittest import TestCase
 import json
 
 from jsonschema import Draft4Validator, ValidationError, cli
-from jsonschema.compat import StringIO
+from jsonschema.compat import NativeIO
 from jsonschema.exceptions import SchemaError
 
 
@@ -42,7 +41,7 @@ class TestParser(TestCase):
             contents = {}
         else:
             self.fail("What is {!r}".format(path))
-        return BytesIO(json.dumps(contents))
+        return NativeIO(json.dumps(contents))
 
     def test_find_validator_by_fully_qualified_object_name(self):
         arguments = cli.parse_args(
@@ -68,7 +67,7 @@ class TestParser(TestCase):
 
 class TestCLI(TestCase):
     def test_draft3_schema_draft4_validator(self):
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         with self.assertRaises(SchemaError):
             cli.run(
                 {
@@ -88,7 +87,7 @@ class TestCLI(TestCase):
             )
 
     def test_successful_validation(self):
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": fake_validator(),
@@ -105,7 +104,7 @@ class TestCLI(TestCase):
 
     def test_unsuccessful_validation(self):
         error = ValidationError("I am an error!", instance=1)
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": fake_validator([error]),
@@ -126,7 +125,7 @@ class TestCLI(TestCase):
             ValidationError("8", instance=1),
         ]
         second_errors = [ValidationError("7", instance=2)]
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": fake_validator(first_errors, second_errors),
