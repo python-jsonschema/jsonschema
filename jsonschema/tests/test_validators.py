@@ -21,6 +21,12 @@ from jsonschema.tests.compat import mock
 
 class TestCreateAndExtend(TestCase):
     def setUp(self):
+        self.addCleanup(
+            self.assertEqual,
+            validators.meta_schemas,
+            dict(validators.meta_schemas),
+        )
+
         self.meta_schema = {u"properties": {u"smelly": {}}}
         self.smelly = mock.MagicMock()
         self.validators = {u"smelly": self.smelly}
@@ -86,6 +92,7 @@ class TestCreateAndExtend(TestCase):
             version="my version",
             id_of=lambda s: s.get("id", ""),
         )
+        self.addCleanup(validators.meta_schemas.pop, meta_schema_key)
 
         self.assertIn(meta_schema_key, validators.meta_schemas)
 
@@ -97,6 +104,7 @@ class TestCreateAndExtend(TestCase):
             meta_schema=my_meta_schema,
             version="my version",
         )
+        self.addCleanup(validators.meta_schemas.pop, meta_schema_key)
 
         self.assertIn(meta_schema_key, validators.meta_schemas)
 
