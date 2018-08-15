@@ -940,10 +940,6 @@ class ValidatorTestMixin(object):
         self.assertFalse(self.validator.is_type(True, "integer"))
         self.assertFalse(self.validator.is_type(True, "number"))
 
-    def test_is_type_raises_exception_for_unknown_type(self):
-        with self.assertRaises(validators.UnknownType):
-            self.validator.is_type("foo", object())
-
 
 class TestDraft3Validator(ValidatorTestMixin, TestCase):
     validator_class = validators.Draft3Validator
