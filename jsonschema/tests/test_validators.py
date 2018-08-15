@@ -1275,7 +1275,7 @@ class TestRefResolver(TestCase):
         )
         with resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, schema)
-        foo_handler.assert_called_once_with(ref)
+        foo_handler.assert_called_once_with(ref, referrer={})
 
     def test_cache_remote_on(self):
         ref = "foo://bar"
@@ -1287,7 +1287,7 @@ class TestRefResolver(TestCase):
             pass
         with resolver.resolving(ref):
             pass
-        foo_handler.assert_called_once_with(ref)
+        foo_handler.assert_called_once_with(ref, referrer={})
 
     def test_cache_remote_off(self):
         ref = "foo://bar"
@@ -1316,6 +1316,36 @@ class TestRefResolver(TestCase):
         with self.assertRaises(validators.RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
+
+    def test_scheme_default_fallback(self):
+        ref = './paths.json'
+        file_handler = mock.Mock()
+        resolver = validators.RefResolver(
+            "", "", handlers={"file": file_handler}
+        )
+        with resolver.resolving(ref):
+            pass
+        file_handler.assert_called_with(ref, referrer='')
+
+    def test_relative_resolver(self):
+        def file_handler(uri, referrer=None):
+            # Crude, do not use as a reference implementation
+            import os.path
+            no_scheme = referrer[7:]  # file:/// 0-based
+            return 'file://' + os.path.abspath(os.path.join(no_scheme, uri))
+
+        ref = '../../schemas/common.json'
+        base = 'file:///home/julian/spec/'
+        referrer = base + 'components/common.json'
+        expected = base + 'schemas/common.json'
+        resolver = validators.RefResolver(
+            "", referrer, handlers={"file": file_handler}
+        )
+        with resolver.resolving(ref):
+            pass
+
+        self.assertTrue(ref in resolver.store)
+        self.assertEqual(resolver.store[ref], expected)
 
 
 class UniqueTupleItemsMixin(object):

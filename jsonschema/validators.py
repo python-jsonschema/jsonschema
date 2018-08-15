@@ -541,6 +541,8 @@ class RefResolver(object):
             Whether remote refs should be cached after first resolution
 
     """
+    default_scheme = 'file'
+    """ If urlsplit() does not find a scheme, we use this one. """
 
     def __init__(
         self,
@@ -740,9 +742,11 @@ class RefResolver(object):
             requests = None
 
         scheme = urlsplit(uri).scheme
+        if not scheme:
+            scheme = self.default_scheme
 
         if scheme in self.handlers:
-            result = self.handlers[scheme](uri)
+            result = self.handlers[scheme](uri, referrer=self.referrer)
         elif (
             scheme in [u"http", u"https"] and
             requests and
