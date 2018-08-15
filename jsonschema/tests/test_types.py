@@ -34,10 +34,6 @@ properties = coerce_named_tuple(_validators.properties)
 
 
 class TestTypeChecker(TestCase):
-    def test_initialised_empty(self):
-        tc = _types.TypeChecker()
-        self.assertEqual(len(tc._type_checkers), 0)
-
     def test_checks_can_be_added_at_init(self):
         tc = _types.TypeChecker({"integer": _types.is_integer})
         self.assertEqual(len(tc._type_checkers), 1)
