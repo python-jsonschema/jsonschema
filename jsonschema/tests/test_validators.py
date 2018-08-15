@@ -894,8 +894,7 @@ class ValidatorTestMixin(object):
             )
 
     def test_non_existent_properties_are_ignored(self):
-        instance, my_property, my_value = mock.Mock(), mock.Mock(), mock.Mock()
-        validators.validate(instance=instance, schema={my_property: my_value})
+        self.validator_class({object(): object()}).validate(instance=object())
 
     def test_it_creates_a_ref_resolver_if_not_provided(self):
         self.assertIsInstance(self.validator.resolver, validators.RefResolver)
