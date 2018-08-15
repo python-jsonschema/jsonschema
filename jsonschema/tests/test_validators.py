@@ -417,8 +417,7 @@ class TestValidationErrorMessages(TestCase):
 
     def test_invalid_format_default_message(self):
         checker = FormatChecker(formats=())
-        check_fn = mock.Mock(return_value=False)
-        checker.checks(u"thing")(check_fn)
+        checker.checks(u"thing")(lambda value: False)
 
         schema = {u"format": u"thing"}
         message = self.message_for(
