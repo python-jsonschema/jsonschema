@@ -19,6 +19,11 @@ from jsonschema import (
 from jsonschema.tests.compat import mock
 
 
+def startswith(validator, startswith, instance, schema):
+    if not instance.startswith(startswith):
+        yield ValidationError(u"Whoops!")
+
+
 class TestCreateAndExtend(TestCase):
     def setUp(self):
         self.addCleanup(
@@ -27,19 +32,14 @@ class TestCreateAndExtend(TestCase):
             dict(validators.meta_schemas),
         )
 
-        self.meta_schema = {u"properties": {u"smelly": {}}}
-        self.smelly = mock.MagicMock()
-        self.validators = {u"smelly": self.smelly}
+        self.meta_schema = {u"$id": "some://meta/schema"}
+        self.validators = {u"startswith": startswith}
         self.type_checker = TypeChecker()
         self.Validator = validators.create(
             meta_schema=self.meta_schema,
             validators=self.validators,
             type_checker=self.type_checker
         )
-
-        self.validator_value = 12
-        self.schema = {u"smelly": self.validator_value}
-        self.validator = self.Validator(self.schema)
 
     def test_attrs(self):
         self.assertEqual(self.Validator.VALIDATORS, self.validators)
@@ -52,21 +52,24 @@ class TestCreateAndExtend(TestCase):
         self.assertEqual(set(self.Validator.DEFAULT_TYPES), expected_types)
 
     def test_init(self):
-        self.assertEqual(self.validator.schema, self.schema)
+        schema = {u"startswith": u"foo"}
+        self.assertEqual(self.Validator(schema).schema, schema)
 
     def test_iter_errors(self):
-        instance = "hello"
+        schema = {u"startswith": u"hel"}
+        iter_errors = self.Validator(schema).iter_errors
 
-        self.smelly.return_value = []
-        self.assertEqual(list(self.validator.iter_errors(instance)), [])
+        self.assertEqual(list(iter_errors(u"hello")), [])
 
-        error = mock.Mock()
-        self.smelly.return_value = [error]
-        self.assertEqual(list(self.validator.iter_errors(instance)), [error])
-
-        self.smelly.assert_called_with(
-            self.validator, self.validator_value, instance, self.schema,
+        error = ValidationError(
+            u"Whoops!",
+            instance=u"goodbye",
+            schema=schema,
+            validator=u"startswith",
+            validator_value=u"hel",
+            schema_path=deque([u"startswith"]),
         )
+        self.assertEqual(list(iter_errors(u"goodbye")), [error])
 
     def test_if_a_version_is_provided_it_is_registered(self):
         Validator = validators.create(
@@ -132,11 +135,6 @@ class TestCreateAndExtend(TestCase):
 
 
 class TestLegacyTypeCheckCreation(TestCase):
-    def setUp(self):
-        self.meta_schema = {u"properties": {u"smelly": {}}}
-        self.smelly = mock.MagicMock()
-        self.validators = {u"smelly": self.smelly}
-
     @unittest.skip("This logic is actually incorrect.")
     def test_default_types_used_if_no_type_checker_given(self):
         Validator = validators.create(
