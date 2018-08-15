@@ -985,6 +985,10 @@ class TestDraft4Validator(ValidatorTestMixin, TestCase):
         self.assertIn("False is not of type", str(e.exception))
 
 
+class TestDraft6Validator(ValidatorTestMixin, TestCase):
+    validator_class = validators.Draft6Validator
+
+
 class TestBuiltinFormats(TestCase):
     """
     The built-in (specification-defined) formats do not raise type errors.
