@@ -743,17 +743,10 @@ class RefResolver(object):
 
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
-        elif (
-            scheme in [u"http", u"https"] and
-            requests and
-            getattr(requests.Response, "json", None) is not None
-        ):
+        elif scheme in [u"http", u"https"] and requests:
             # Requests has support for detecting the correct encoding of
             # json over http
-            if callable(requests.Response.json):
-                result = requests.get(uri).json()
-            else:
-                result = requests.get(uri).json
+            result = requests.get(uri).json()
         else:
             # Otherwise, pass off to urllib and assume utf-8
             with urlopen(uri) as url:
