@@ -1319,7 +1319,6 @@ class UniqueTupleItemsMixin(object):
     A tuple instance properly formats validation errors for uniqueItems.
 
     See https://github.com/Julian/jsonschema/pull/224
-
     """
 
     def test_it_properly_formats_an_error_message(self):
@@ -1330,6 +1329,10 @@ class UniqueTupleItemsMixin(object):
         with self.assertRaises(ValidationError) as e:
             validator.validate((1, 1))
         self.assertIn("(1, 1) has non-unique elements", str(e.exception))
+
+
+class TestDraft6UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
+    validator_class = validators.Draft6Validator
 
 
 class TestDraft4UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
