@@ -27,24 +27,25 @@ DRAFT4 = SUITE.collection(name="draft4")
 DRAFT6 = SUITE.collection(name="draft6")
 
 
-def maybe_skip(skip, test_fn, test):
+def maybe_skip(test_fn, test, skip=lambda test: None):
     reason = skip(test)
     return unittest.skipIf(reason is not None, reason)(test_fn)
 
 
-def load_json_cases(tests, skip=lambda test: None):
+def load_json_cases(*suites, **kwargs):
     def add_test_methods(test_class):
-        for test in tests:
-            test = test.with_validate_kwargs(
-                **getattr(test_class, "validator_kwargs", {})
-            )
-            method = test.to_unittest_method()
-            assert not hasattr(test_class, method.__name__), test
-            setattr(
-                test_class,
-                method.__name__,
-                maybe_skip(skip, method, test),
-            )
+        for suite in suites:
+            for test in suite:
+                test = test.with_validate_kwargs(
+                    **getattr(test_class, "validator_kwargs", {})
+                )
+                method = test.to_unittest_method()
+                assert not hasattr(test_class, method.__name__), test
+                setattr(
+                    test_class,
+                    method.__name__,
+                    maybe_skip(test_fn=method, test=test, **kwargs),
+                )
 
         return test_class
     return add_test_methods
@@ -87,9 +88,12 @@ class DecimalMixin(object):
 
 def missing_format(checker):
     def missing_format(test):
-        format = test.schema.get("format")
-        if format not in checker.checkers:
-            return "Format checker {0!r} not found.".format(format)
+        schema = test.schema
+        if schema is True or schema is False or "format" not in schema:
+            return
+
+        if schema["format"] not in checker.checkers:
+            return "Format checker {0!r} not found.".format(schema["format"])
     return missing_format
 
 
@@ -142,10 +146,13 @@ else:
         return
 
 
-@load_json_cases(tests=DRAFT3.tests(), skip=narrow_unicode_build)
 @load_json_cases(
-    tests=DRAFT3.optional_tests_of(name="format"),
+    DRAFT3.tests(),
+    DRAFT3.optional_tests_of(name="format"),
+    DRAFT3.optional_tests_of(name="bignum"),
+    DRAFT3.optional_tests_of(name="zeroTerminatedFloats"),
     skip=lambda test: (
+        narrow_unicode_build(test) or
         missing_format(draft3_format_checker)(test) or
         skip_tests_containing_descriptions(
             format={
@@ -154,8 +161,6 @@ else:
         )(test)
     ),
 )
-@load_json_cases(tests=DRAFT3.optional_tests_of(name="bignum"))
-@load_json_cases(tests=DRAFT3.optional_tests_of(name="zeroTerminatedFloats"))
 class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     validator_class = Draft3Validator
     validator_kwargs = {"format_checker": draft3_format_checker}
@@ -177,9 +182,17 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 
 
 @load_json_cases(
-    tests=DRAFT4.tests(),
+    DRAFT4.tests(),
+    DRAFT4.optional_tests_of(name="format"),
+    DRAFT4.optional_tests_of(name="bignum"),
+    DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
     skip=lambda test: (
-        narrow_unicode_build(test) or skip_tests_containing_descriptions(
+        narrow_unicode_build(test) or
+        missing_format(draft4_format_checker)(test) or
+        skip_tests_containing_descriptions(
+            format={
+                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
+            },
             ref={
                 "valid tree":  "An actual bug, this needs fixing.",
             },
@@ -190,19 +203,6 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
         )(test)
     ),
 )
-@load_json_cases(
-    tests=DRAFT4.optional_tests_of(name="format"),
-    skip=lambda test: (
-        missing_format(draft4_format_checker)(test) or
-        skip_tests_containing_descriptions(
-            format={
-                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
-            },
-        )(test)
-    ),
-)
-@load_json_cases(tests=DRAFT4.optional_tests_of(name="bignum"))
-@load_json_cases(tests=DRAFT4.optional_tests_of(name="zeroTerminatedFloats"))
 class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     validator_class = Draft4Validator
     validator_kwargs = {"format_checker": draft4_format_checker}
@@ -220,9 +220,17 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 
 
 @load_json_cases(
-    tests=DRAFT6.tests(),
+    DRAFT6.tests(),
+    DRAFT6.optional_tests_of(name="format"),
+    DRAFT6.optional_tests_of(name="bignum"),
+    DRAFT6.optional_tests_of(name="zeroTerminatedFloats"),
     skip=lambda test: (
-        narrow_unicode_build(test) or skip_tests_containing_descriptions(
+        narrow_unicode_build(test) or
+        missing_format(draft6_format_checker)(test) or
+        skip_tests_containing_descriptions(
+            format={
+                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
+            },
             ref={
                 "valid tree":  "An actual bug, this needs fixing.",
             },
@@ -233,25 +241,12 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
         )(test)
     ),
 )
-@load_json_cases(
-    tests=DRAFT6.optional_tests_of(name="format"),
-    skip=lambda test: (
-        missing_format(draft6_format_checker)(test) or
-        skip_tests_containing_descriptions(
-            format={
-                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
-            },
-        )(test)
-    ),
-)
-@load_json_cases(tests=DRAFT6.optional_tests_of(name="bignum"))
-@load_json_cases(tests=DRAFT6.optional_tests_of(name="zeroTerminatedFloats"))
 class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     validator_class = Draft6Validator
     validator_kwargs = {"format_checker": draft6_format_checker}
 
 
-@load_json_cases(tests=DRAFT3.tests_of(name="type"))
+@load_json_cases(DRAFT3.tests_of(name="type"))
 class TestDraft3LegacyTypeCheck(unittest.TestCase):
     Validator = create(meta_schema=Draft3Validator.META_SCHEMA,
                        validators=Draft3Validator.VALIDATORS,
@@ -259,7 +254,7 @@ class TestDraft3LegacyTypeCheck(unittest.TestCase):
     validator_class = Validator
 
 
-@load_json_cases(tests=DRAFT4.tests_of(name="type"))
+@load_json_cases(DRAFT4.tests_of(name="type"))
 class TestDraft4LegacyTypeCheck(unittest.TestCase):
     Validator = create(meta_schema=Draft4Validator.META_SCHEMA,
                        validators=Draft4Validator.VALIDATORS,
