@@ -6,9 +6,14 @@ functions correctly and can facilitate extensions to type checking
 from collections import namedtuple
 from unittest import TestCase
 
-from jsonschema import _types, ValidationError, _validators
+from jsonschema import ValidationError, _validators
+from jsonschema._types import TypeChecker
 from jsonschema.exceptions import UndefinedTypeCheck
 from jsonschema.validators import Draft4Validator, extend
+
+
+def equals_2(checker, instance):
+    return instance == 2
 
 
 def is_namedtuple(instance):
@@ -34,88 +39,74 @@ properties = coerce_named_tuple(_validators.properties)
 
 
 class TestTypeChecker(TestCase):
+    def test_is_type(self):
+        checker = TypeChecker({"two": equals_2})
+        self.assertEqual(
+            (
+                checker.is_type(instance=2, type="two"),
+                checker.is_type(instance="bar", type="two"),
+            ),
+            (True, False),
+        )
+
+    def test_is_unknown_type(self):
+        with self.assertRaises(UndefinedTypeCheck) as context:
+            TypeChecker().is_type(4, "foobar")
+        self.assertIn("foobar", str(context.exception))
+
     def test_checks_can_be_added_at_init(self):
-        tc = _types.TypeChecker({"integer": _types.is_integer})
-        self.assertEqual(len(tc._type_checkers), 1)
+        checker = TypeChecker({"two": equals_2})
+        self.assertEqual(checker, TypeChecker().redefine("two", equals_2))
 
-    def test_checks_can_be_added(self):
-        tc = _types.TypeChecker()
-        tc = tc.redefine("integer", _types.is_integer)
-        self.assertEqual(len(tc._type_checkers), 1)
-
-    def test_added_checks_are_accessible(self):
-        tc = _types.TypeChecker()
-        tc = tc.redefine("integer", _types.is_integer)
-
-        self.assertTrue(tc.is_type(4, "integer"))
-        self.assertFalse(tc.is_type(4.4, "integer"))
-
-    def test_checks_can_be_redefined(self):
-        tc = _types.TypeChecker()
-        tc = tc.redefine("integer", _types.is_integer)
-        self.assertEqual(tc._type_checkers["integer"], _types.is_integer)
-        tc = tc.redefine("integer", _types.is_string)
-        self.assertEqual(tc._type_checkers["integer"], _types.is_string)
-
-    def test_checks_can_be_removed(self):
-        tc = _types.TypeChecker()
-        tc = tc.redefine("integer", _types.is_integer)
-        tc = tc.remove("integer")
-
-        with self.assertRaises(UndefinedTypeCheck):
-            tc.is_type(4, "integer")
-
-    def test_changes_do_not_affect_original(self):
-        tc = _types.TypeChecker()
-        tc2 = tc.redefine("integer", _types.is_integer)
-        self.assertEqual(len(tc._type_checkers), 0)
-
-        tc2.remove("integer")
-        self.assertEqual(len(tc2._type_checkers), 1)
-
-    def test_many_checks_can_be_added(self):
-        tc = _types.TypeChecker()
-        tc = tc.redefine_many(
-            {"integer": _types.is_integer, "string": _types.is_string},
+    def test_redefine_existing_type(self):
+        self.assertEqual(
+            TypeChecker().redefine("two", object()).redefine("two", equals_2),
+            TypeChecker().redefine("two", equals_2),
         )
 
-        self.assertEqual(len(tc._type_checkers), 2)
-
-    def test_many_checks_can_be_removed(self):
-        tc = _types.TypeChecker()
-        tc = tc.redefine_many(
-            {"integer": _types.is_integer, "string": _types.is_string},
+    def test_remove(self):
+        self.assertEqual(
+            TypeChecker({"two": equals_2}).remove("two"),
+            TypeChecker(),
         )
 
-        tc = tc.remove_many(("integer", "string"))
-
-        self.assertEqual(len(tc._type_checkers), 0)
-
-    def test_unknown_type_raises_exception_on_is_type(self):
-        tc = _types.TypeChecker()
+    def test_remove_unknown_type(self):
         with self.assertRaises(UndefinedTypeCheck) as context:
-            tc.is_type(4, 'foobar')
+            TypeChecker().remove("foobar")
+        self.assertIn("foobar", str(context.exception))
 
-        self.assertIn('foobar', str(context.exception))
+    def test_redefine_many(self):
+        self.assertEqual(
+            TypeChecker().redefine_many({"foo": int, "bar": str}),
+            TypeChecker().redefine("foo", int).redefine("bar", str),
+        )
 
-    def test_unknown_type_raises_exception_on_remove(self):
-        tc = _types.TypeChecker()
-        with self.assertRaises(UndefinedTypeCheck) as context:
-            tc.remove('foobar')
-
-        self.assertIn('foobar', str(context.exception))
+    def test_remove_many(self):
+        self.assertEqual(
+            TypeChecker({"foo": int, "bar": str}).remove("foo", "bar"),
+            TypeChecker(),
+        )
 
     def test_type_check_can_raise_key_error(self):
-        def raises_keyerror(checker, instance):
-            raise KeyError("internal error")
+        """
+        Make sure no one writes:
 
-        tc = _types.TypeChecker({"object": raises_keyerror})
+            try:
+                self._type_checkers[type](...)
+            except KeyError:
+
+        ignoring the fact that the function itself can raise that.
+        """
+
+        error = KeyError("Stuff")
+
+        def raises_keyerror(checker, instance):
+            raise error
 
         with self.assertRaises(KeyError) as context:
-            tc.is_type(4, "object")
+            TypeChecker({"foo": raises_keyerror}).is_type(4, "foo")
 
-        self.assertNotIn("object", str(context.exception))
-        self.assertIn("internal error", str(context.exception))
+        self.assertIs(context.exception, error)
 
 
 class TestCustomTypes(TestCase):

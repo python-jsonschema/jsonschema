@@ -97,7 +97,7 @@ class TypeChecker(object):
 
     def redefine(self, type, fn):
         """
-        Redefine the checker for ``type`` to the function ``fn``.
+        Produce a new checker with the given type redefined.
 
         Arguments:
 
@@ -115,13 +115,12 @@ class TypeChecker(object):
         Returns:
 
             A new `TypeChecker` instance.
-
         """
         return self.redefine_many({type: fn})
 
     def redefine_many(self, definitions=()):
         """
-        Redefine multiple type checkers.
+        Produce a new checker with the given types redefined.
 
         Arguments:
 
@@ -137,36 +136,15 @@ class TypeChecker(object):
             self, type_checkers=self._type_checkers.update(definitions),
         )
 
-    def remove(self, type):
+    def remove(self, *types):
         """
-        Remove the type from the checkers that this object understands.
-
-        Arguments:
-
-            type (str):
-
-                The name of the type to remove.
-
-        Returns:
-
-            A new `TypeChecker` instance
-
-        Raises:
-
-            `jsonschema.exceptions.UndefinedTypeCheck`:
-                if type is unknown to this object
-        """
-        return self.remove_many((type,))
-
-    def remove_many(self, types):
-        """
-        Remove multiple types from the checkers that this object understands.
+        Produce a new checker with the given types forgotten.
 
         Arguments:
 
             types (~collections.Iterable):
 
-                An iterable of types to remove.
+                the names of the types to remove.
 
         Returns:
 
@@ -175,7 +153,8 @@ class TypeChecker(object):
         Raises:
 
             `jsonschema.exceptions.UndefinedTypeCheck`:
-                if any of the types are unknown to this object
+
+                if any given type is unknown to this object
         """
 
         checkers = self._type_checkers
@@ -199,7 +178,6 @@ draft3_type_checker = TypeChecker(
         u"string": is_string,
     },
 )
-
 draft4_type_checker = draft3_type_checker.remove(u"any")
 draft6_type_checker = draft4_type_checker.redefine(
     u"integer",
