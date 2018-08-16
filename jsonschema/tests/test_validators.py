@@ -1294,15 +1294,17 @@ class TestRefResolver(TestCase):
         self.assertEqual(foo_handler.call_count, 1)
 
     def test_if_you_give_it_junk_you_get_a_resolution_error(self):
+        error = ValueError("Oh no! What's this?")
+
+        def handler(url):
+            raise error
+
         ref = "foo://bar"
-        foo_handler = mock.Mock(side_effect=ValueError("Oh no! What's this?"))
-        resolver = validators.RefResolver(
-            "", {}, handlers={"foo": foo_handler},
-        )
+        resolver = validators.RefResolver("", {}, handlers={"foo": handler})
         with self.assertRaises(validators.RefResolutionError) as err:
             with resolver.resolving(ref):
                 self.fail("Shouldn't get this far!")  # pragma: no cover
-        self.assertEqual(str(err.exception), "Oh no! What's this?")
+        self.assertEqual(err.exception, validators.RefResolutionError(error))
 
     def test_helpful_error_message_on_failed_pop_scope(self):
         resolver = validators.RefResolver("", {})
