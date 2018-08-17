@@ -59,7 +59,6 @@ class Suite(object):
         return Collection(
             name=name,
             path=self._root.descendant(["tests", name]),
-            validator=validators[name],
             remotes=self._remotes(),
         )
 
@@ -71,7 +70,6 @@ class Collection(object):
     _remotes = attr.ib()
 
     name = attr.ib()
-    validator = attr.ib()
 
     def benchmark(self, runner):
         for test in self.tests():
@@ -157,7 +155,7 @@ class _Test(object):
             ]
         )
 
-    def to_unittest_method(self):
+    def to_unittest_method(self, **kwargs):
         name = "test_%s_%s_%s" % (
             self.subject,
             re.sub(r"[\W ]+", "_", self.case_description),
@@ -169,30 +167,30 @@ class _Test(object):
 
         if self.valid:
             def fn(this):
-                self.validate()
+                self.validate(**kwargs)
         else:
             def fn(this):
                 with this.assertRaises(jsonschema.ValidationError):
-                    self.validate()
+                    self.validate(**kwargs)
 
         fn.__name__ = name
         return fn
 
-    def validate(self):
+    def validate(self, Validator=None):
         resolver = jsonschema.RefResolver.from_schema(
             schema=self.schema, store=self._remotes,
         )
         jsonschema.validate(
             instance=self.data,
             schema=self.schema,
-            cls=self.collection.validator,
+            cls=Validator,
             resolver=resolver,
             **self._validate_kwargs
         )
 
-    def validate_ignoring_errors(self):
+    def validate_ignoring_errors(self, **kwargs):
         try:
-            self.validate()
+            self.validate(**kwargs)
         except jsonschema.ValidationError:
             pass
 

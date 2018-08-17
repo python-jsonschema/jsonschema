@@ -30,6 +30,16 @@ ErrorTree
 validators = {}
 meta_schemas = _utils.URIDict()
 
+_DEPRECATED_DEFAULT_TYPES = {
+    u"array": list,
+    u"boolean": bool,
+    u"integer": int_types,
+    u"null": type(None),
+    u"number": numbers.Number,
+    u"object": dict,
+    u"string": str_types,
+}
+
 
 def validates(version):
     """
@@ -191,11 +201,7 @@ def create(
             type_checkers=_generate_legacy_type_checks(default_types),
         )
     else:
-        default_types = {
-            u"array": list, u"boolean": bool, u"integer": int_types,
-            u"null": type(None), u"number": numbers.Number, u"object": dict,
-            u"string": str_types,
-        }
+        default_types = _DEPRECATED_DEFAULT_TYPES
         if type_checker is None:
             type_checker = _types.TypeChecker()
 

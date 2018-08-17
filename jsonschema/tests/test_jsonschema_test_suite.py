@@ -18,7 +18,7 @@ from jsonschema import (
 )
 from jsonschema.compat import PY3
 from jsonschema.tests._suite import Suite
-from jsonschema.validators import create
+from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
 
 
 SUITE = Suite()
@@ -39,7 +39,9 @@ def load_json_cases(*suites, **kwargs):
                 test = test.with_validate_kwargs(
                     **getattr(test_class, "validator_kwargs", {})
                 )
-                method = test.to_unittest_method()
+                method = test.to_unittest_method(
+                    Validator=test_class.Validator,
+                )
                 assert not hasattr(test_class, method.__name__), test
                 setattr(
                     test_class,
@@ -68,13 +70,13 @@ def skip_tests_containing_descriptions(**kwargs):
 class TypesMixin(object):
     @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
-        self.validator_class({"type": "string"}).validate(b"foo")
+        self.Validator({"type": "string"}).validate(b"foo")
 
 
 class DecimalMixin(object):
     def test_it_can_validate_with_decimals(self):
         schema = {"type": "number"}
-        validator = self.validator_class(
+        validator = self.Validator(
             schema, types={"number": (int, float, Decimal)}
         )
 
@@ -99,13 +101,13 @@ def missing_format(checker):
 
 class FormatMixin(object):
     def test_it_returns_true_for_formats_it_does_not_know_about(self):
-        validator = self.validator_class(
+        validator = self.Validator(
             {"format": "carrot"}, format_checker=FormatChecker(),
         )
         validator.validate("bugs")
 
     def test_it_does_not_validate_formats_by_default(self):
-        validator = self.validator_class({})
+        validator = self.Validator({})
         self.assertIsNone(validator.format_checker)
 
     def test_it_validates_formats_if_a_checker_is_provided(self):
@@ -121,7 +123,7 @@ class FormatMixin(object):
             else:  # pragma: no cover
                 self.fail("What is {}? [Baby Don't Hurt Me]".format(value))
 
-        validator = self.validator_class(
+        validator = self.Validator(
             {"format": "foo"}, format_checker=checker,
         )
 
@@ -162,23 +164,22 @@ else:
     ),
 )
 class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
-    validator_class = Draft3Validator
+    Validator = Draft3Validator
     validator_kwargs = {"format_checker": draft3_format_checker}
 
     def test_any_type_is_valid_for_type_any(self):
-        validator = self.validator_class({"type": "any"})
+        validator = self.Validator({"type": "any"})
         validator.validate(object())
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
         with self.assertRaises(SchemaError):
-            validate({}, {"properties": {"test": True}},
-                     cls=self.validator_class)
+            validate({}, {"properties": {"test": True}}, cls=self.Validator)
 
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
             # needs to be an integer
-            validate([1], {"minItems": "1"}, cls=self.validator_class)
+            validate([1], {"minItems": "1"}, cls=self.Validator)
 
 
 @load_json_cases(
@@ -204,19 +205,19 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     ),
 )
 class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
-    validator_class = Draft4Validator
+    Validator = Draft4Validator
     validator_kwargs = {"format_checker": draft4_format_checker}
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
         with self.assertRaises(SchemaError):
             validate({}, {"properties": {"test": True}},
-                     cls=self.validator_class)
+                     cls=self.Validator)
 
     def test_minItems_invalid_string(self):
         with self.assertRaises(SchemaError):
             # needs to be an integer
-            validate([1], {"minItems": "1"}, cls=self.validator_class)
+            validate([1], {"minItems": "1"}, cls=self.Validator)
 
 
 @load_json_cases(
@@ -242,21 +243,23 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     ),
 )
 class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
-    validator_class = Draft6Validator
+    Validator = Draft6Validator
     validator_kwargs = {"format_checker": draft6_format_checker}
 
 
 @load_json_cases(DRAFT3.tests_of(name="type"))
 class TestDraft3LegacyTypeCheck(unittest.TestCase):
-    Validator = create(meta_schema=Draft3Validator.META_SCHEMA,
-                       validators=Draft3Validator.VALIDATORS,
-                       type_checker=None)
-    validator_class = Validator
+    Validator = create(
+        meta_schema=Draft3Validator.META_SCHEMA,
+        validators=Draft3Validator.VALIDATORS,
+        default_types=_DEPRECATED_DEFAULT_TYPES,
+    )
 
 
 @load_json_cases(DRAFT4.tests_of(name="type"))
 class TestDraft4LegacyTypeCheck(unittest.TestCase):
-    Validator = create(meta_schema=Draft4Validator.META_SCHEMA,
-                       validators=Draft4Validator.VALIDATORS,
-                       type_checker=None)
-    validator_class = Validator
+    Validator = create(
+        meta_schema=Draft4Validator.META_SCHEMA,
+        validators=Draft4Validator.VALIDATORS,
+        default_types=_DEPRECATED_DEFAULT_TYPES,
+    )
