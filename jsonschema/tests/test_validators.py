@@ -7,6 +7,7 @@ import sys
 import unittest
 
 from twisted.trial.unittest import SynchronousTestCase
+import attr
 
 from jsonschema import (
     FormatChecker,
@@ -1150,16 +1151,6 @@ class TestValidate(TestCase):
         )
 
 
-@contextmanager
-def MockImport(module, mock):
-    original, sys.modules[module] = sys.modules.get(module), mock
-    yield mock
-    if original is None:
-        del sys.modules[module]
-    else:
-        sys.modules[module] = original
-
-
 class TestRefResolver(TestCase):
 
     base_uri = ""
@@ -1212,25 +1203,35 @@ class TestRefResolver(TestCase):
         ref = "http://bar#baz"
         schema = {"baz": 12}
 
-        with MockImport("requests", mock.Mock()) as requests:
-            requests.get.return_value.json.return_value = schema
-            with self.resolver.resolving(ref) as resolved:
-                self.assertEqual(resolved, 12)
-        requests.get.assert_called_once_with("http://bar")
+        if "requests" in sys.modules:
+            self.addCleanup(
+                sys.modules.__setitem__, "requests", sys.modules["requests"],
+            )
+        sys.modules["requests"] = ReallyFakeRequests({"http://bar": schema})
+
+        with self.resolver.resolving(ref) as resolved:
+            self.assertEqual(resolved, 12)
 
     def test_it_retrieves_unstored_refs_via_urlopen(self):
         ref = "http://bar#baz"
         schema = {"baz": 12}
+
+        if "requests" in sys.modules:
+            self.addCleanup(
+                sys.modules.__setitem__, "requests", sys.modules["requests"],
+            )
+        sys.modules["requests"] = None
 
         @contextmanager
         def fake_urlopen(url):
             self.assertEqual(url, "http://bar")
             yield BytesIO(json.dumps(schema).encode("utf8"))
 
-        with MockImport("requests", None):
-            with mock.patch("jsonschema.validators.urlopen", fake_urlopen):
-                with self.resolver.resolving(ref) as resolved:
-                    pass
+        self.addCleanup(setattr, validators, "urlopen", validators.urlopen)
+        validators.urlopen = fake_urlopen
+
+        with self.resolver.resolving(ref) as resolved:
+            pass
         self.assertEqual(resolved, 12)
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
@@ -1350,3 +1351,24 @@ def sorted_errors(errors):
             [str(e) for e in error.schema_path],
         )
     return sorted(errors, key=key)
+
+
+@attr.s
+class ReallyFakeRequests(object):
+
+    _responses = attr.ib()
+
+    def get(self, url):
+        response = self._responses.get(url)
+        if url is None:  # pragma: no cover
+            raise ValueError("Unknown URL: " + repr(url))
+        return _ReallyFakeJSONResponse(json.dumps(response))
+
+
+@attr.s
+class _ReallyFakeJSONResponse(object):
+
+    _response = attr.ib()
+
+    def json(self):
+        return json.loads(self._response)
