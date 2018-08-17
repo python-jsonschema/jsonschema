@@ -34,11 +34,10 @@ def maybe_skip(test_fn, test, skip=lambda test: None):
 
 def load_json_cases(*suites, **kwargs):
     def add_test_methods(test_class):
+        validator_kwargs = kwargs.pop("validator_kwargs", {})
         for suite in suites:
             for test in suite:
-                test = test.with_validate_kwargs(
-                    **getattr(test_class, "validator_kwargs", {})
-                )
+                test = test.with_validate_kwargs(**validator_kwargs)
                 method = test.to_unittest_method(
                     Validator=test_class.Validator,
                 )
@@ -153,6 +152,7 @@ else:
     DRAFT3.optional_tests_of(name="format"),
     DRAFT3.optional_tests_of(name="bignum"),
     DRAFT3.optional_tests_of(name="zeroTerminatedFloats"),
+    validator_kwargs={"format_checker": draft3_format_checker},
     skip=lambda test: (
         narrow_unicode_build(test) or
         missing_format(draft3_format_checker)(test) or
@@ -165,7 +165,6 @@ else:
 )
 class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     Validator = Draft3Validator
-    validator_kwargs = {"format_checker": draft3_format_checker}
 
     def test_any_type_is_valid_for_type_any(self):
         validator = self.Validator({"type": "any"})
@@ -187,6 +186,7 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     DRAFT4.optional_tests_of(name="format"),
     DRAFT4.optional_tests_of(name="bignum"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
+    validator_kwargs={"format_checker": draft4_format_checker},
     skip=lambda test: (
         narrow_unicode_build(test) or
         missing_format(draft4_format_checker)(test) or
@@ -206,7 +206,6 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 )
 class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     Validator = Draft4Validator
-    validator_kwargs = {"format_checker": draft4_format_checker}
 
     # TODO: we're in need of more meta schema tests
     def test_invalid_properties(self):
@@ -225,6 +224,7 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     DRAFT6.optional_tests_of(name="format"),
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="zeroTerminatedFloats"),
+    validator_kwargs={"format_checker": draft6_format_checker},
     skip=lambda test: (
         narrow_unicode_build(test) or
         missing_format(draft6_format_checker)(test) or
@@ -244,7 +244,6 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
 )
 class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
     Validator = Draft6Validator
-    validator_kwargs = {"format_checker": draft6_format_checker}
 
 
 @load_json_cases(DRAFT3.tests_of(name="type"))
