@@ -52,9 +52,8 @@ class TypeChecker(object):
 
     A `TypeChecker` performs type checking for an `IValidator`. Type
     checks to perform are updated using `TypeChecker.redefine` or
-    `TypeChecker.redefine_many` and removed via `TypeChecker.remove` or
-    `TypeChecker.remove_many`. Each of these return a new `TypeChecker`
-    object.
+    `TypeChecker.redefine_many` and removed via `TypeChecker.remove`.
+    Each of these return a new `TypeChecker` object.
 
     Arguments:
 

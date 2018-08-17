@@ -81,7 +81,7 @@ class TestTypeChecker(TestCase):
             TypeChecker().redefine("foo", int).redefine("bar", str),
         )
 
-    def test_remove_many(self):
+    def test_remove_multiple(self):
         self.assertEqual(
             TypeChecker({"foo": int, "bar": str}).remove("foo", "bar"),
             TypeChecker(),
