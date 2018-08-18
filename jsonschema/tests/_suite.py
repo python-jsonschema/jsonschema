@@ -154,7 +154,8 @@ class _Test(object):
             ]
         )
 
-    def to_unittest_method(self, **kwargs):
+    @property
+    def method_name(self):
         name = "test_%s_%s_%s" % (
             self.subject,
             re.sub(r"[\W ]+", "_", self.case_description),
@@ -163,7 +164,9 @@ class _Test(object):
 
         if not PY3:  # pragma: no cover
             name = name.encode("utf-8")
+        return name
 
+    def to_unittest_method(self, **kwargs):
         if self.valid:
             def fn(this):
                 self.validate(**kwargs)
@@ -172,7 +175,7 @@ class _Test(object):
                 with this.assertRaises(jsonschema.ValidationError):
                     self.validate(**kwargs)
 
-        fn.__name__ = name
+        fn.__name__ = self.method_name
         return fn
 
     def validate(self, Validator=None, **kwargs):
