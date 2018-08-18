@@ -37,9 +37,8 @@ def load_json_cases(*suites, **kwargs):
         validator_kwargs = kwargs.pop("validator_kwargs", {})
         for suite in suites:
             for test in suite:
-                test = test.with_validate_kwargs(**validator_kwargs)
                 method = test.to_unittest_method(
-                    Validator=test_class.Validator,
+                    Validator=test_class.Validator, **validator_kwargs
                 )
                 assert not hasattr(test_class, method.__name__), test
                 setattr(

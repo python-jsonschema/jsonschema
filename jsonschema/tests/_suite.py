@@ -139,7 +139,6 @@ class _Test(object):
     valid = attr.ib()
 
     _remotes = attr.ib()
-    _validate_kwargs = attr.ib(default=pmap())
 
     def __repr__(self):  # pragma: no cover
         return "<Test {}>".format(self.fully_qualified_name)
@@ -176,7 +175,7 @@ class _Test(object):
         fn.__name__ = name
         return fn
 
-    def validate(self, Validator=None):
+    def validate(self, Validator=None, **kwargs):
         resolver = jsonschema.RefResolver.from_schema(
             schema=self.schema, store=self._remotes,
         )
@@ -185,7 +184,7 @@ class _Test(object):
             schema=self.schema,
             cls=Validator,
             resolver=resolver,
-            **self._validate_kwargs
+            **kwargs
         )
 
     def validate_ignoring_errors(self, **kwargs):
@@ -193,7 +192,3 @@ class _Test(object):
             self.validate(**kwargs)
         except jsonschema.ValidationError:
             pass
-
-    def with_validate_kwargs(self, **kwargs):
-        validate_kwargs = self._validate_kwargs.update(kwargs)
-        return attr.evolve(self, validate_kwargs=validate_kwargs)
