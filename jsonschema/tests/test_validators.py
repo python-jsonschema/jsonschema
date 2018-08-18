@@ -900,15 +900,12 @@ class ValidatorTestMixin(object):
         self.assertIsInstance(self.validator.resolver, validators.RefResolver)
 
     def test_it_delegates_to_a_ref_resolver(self):
-        resolver = validators.RefResolver("", {})
-        schema = {"$ref": mock.Mock()}
+        ref, schema = "someCoolRef", {"type": "integer"}
+        resolver = validators.RefResolver("", {}, store={ref: schema})
+        validator = self.validator_class({"$ref": ref}, resolver=resolver)
 
-        with mock.patch.object(resolver, "resolve") as resolve:
-            resolve.return_value = "url", {"type": "integer"}
-            with self.assertRaises(ValidationError):
-                self.validator_class(schema, resolver=resolver).validate(None)
-
-        resolve.assert_called_once_with(schema["$ref"])
+        with self.assertRaises(ValidationError):
+            validator.validate(None)
 
     def test_it_delegates_to_a_legacy_ref_resolver(self):
         """
