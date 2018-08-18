@@ -871,7 +871,6 @@ class ValidatorTestMixin(object):
     def setUp(self):
         self.instance = mock.Mock()
         self.schema = {}
-        self.resolver = mock.Mock()
         self.validator = self.validator_class(self.schema)
 
     def test_valid_instances_are_valid(self):
@@ -1005,7 +1004,6 @@ for format in FormatChecker.checkers:
     name = "test_{0}_ignores_non_strings".format(format)
     test.__name__ = name
     setattr(TestBuiltinFormats, name, test)
-    del test  # Ugh py.test. Stop discovering top level tests.
 
 
 class TestValidatorFor(TestCase):
