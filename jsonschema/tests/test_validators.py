@@ -1,5 +1,6 @@
 from collections import deque
 from contextlib import contextmanager
+from decimal import Decimal
 from io import BytesIO
 from unittest import TestCase
 import json
@@ -17,6 +18,7 @@ from jsonschema import (
     _types,
     validators,
 )
+from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock
 
 
@@ -867,11 +869,23 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e2.validator, "minimum")
 
 
-class ValidatorTestMixin(object):
+class MetaSchemaTestsMixin(object):
+    # TODO: These all belong upstream
+    def test_invalid_properties(self):
+        with self.assertRaises(SchemaError):
+            self.Validator.check_schema({"properties": {"test": object()}})
+
+    def test_minItems_invalid_string(self):
+        with self.assertRaises(SchemaError):
+            # needs to be an integer
+            self.Validator.check_schema({"minItems": "1"})
+
+
+class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def setUp(self):
         self.instance = mock.Mock()
         self.schema = {}
-        self.validator = self.validator_class(self.schema)
+        self.validator = self.Validator(self.schema)
 
     def test_valid_instances_are_valid(self):
         errors = iter([])
@@ -894,7 +908,7 @@ class ValidatorTestMixin(object):
             )
 
     def test_non_existent_properties_are_ignored(self):
-        self.validator_class({object(): object()}).validate(instance=object())
+        self.Validator({object(): object()}).validate(instance=object())
 
     def test_it_creates_a_ref_resolver_if_not_provided(self):
         self.assertIsInstance(self.validator.resolver, validators.RefResolver)
@@ -902,7 +916,7 @@ class ValidatorTestMixin(object):
     def test_it_delegates_to_a_ref_resolver(self):
         ref, schema = "someCoolRef", {"type": "integer"}
         resolver = validators.RefResolver("", {}, store={ref: schema})
-        validator = self.validator_class({"$ref": ref}, resolver=resolver)
+        validator = self.Validator({"$ref": ref}, resolver=resolver)
 
         with self.assertRaises(ValidationError):
             validator.validate(None)
@@ -924,7 +938,7 @@ class ValidatorTestMixin(object):
         schema = {"$ref": "the ref"}
 
         with self.assertRaises(ValidationError):
-            self.validator_class(schema, resolver=resolver).validate(None)
+            self.Validator(schema, resolver=resolver).validate(None)
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.validator.is_type("foo", "string"))
@@ -936,9 +950,64 @@ class ValidatorTestMixin(object):
         self.assertFalse(self.validator.is_type(True, "integer"))
         self.assertFalse(self.validator.is_type(True, "number"))
 
+    @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
+    def test_string_a_bytestring_is_a_string(self):
+        self.Validator({"type": "string"}).validate(b"foo")
+
+    def test_it_can_validate_with_decimals(self):
+        schema = {"type": "number"}
+        validator = self.Validator(
+            schema, types={"number": (int, float, Decimal)}
+        )
+
+        for valid in [1, 1.1, Decimal(1) / Decimal(8)]:
+            validator.validate(valid)
+
+        for invalid in ["foo", {}, [], True, None]:
+            with self.assertRaises(ValidationError):
+                validator.validate(invalid)
+
+    def test_it_returns_true_for_formats_it_does_not_know_about(self):
+        validator = self.Validator(
+            {"format": "carrot"}, format_checker=FormatChecker(),
+        )
+        validator.validate("bugs")
+
+    def test_it_does_not_validate_formats_by_default(self):
+        validator = self.Validator({})
+        self.assertIsNone(validator.format_checker)
+
+    def test_it_validates_formats_if_a_checker_is_provided(self):
+        checker = FormatChecker()
+        bad = ValueError("Bad!")
+
+        @checker.checks("foo", raises=ValueError)
+        def check(value):
+            if value == "good":
+                return True
+            elif value == "bad":
+                raise bad
+            else:  # pragma: no cover
+                self.fail("What is {}? [Baby Don't Hurt Me]".format(value))
+
+        validator = self.Validator(
+            {"format": "foo"}, format_checker=checker,
+        )
+
+        validator.validate("good")
+        with self.assertRaises(ValidationError) as cm:
+            validator.validate("bad")
+
+        # Make sure original cause is attached
+        self.assertIs(cm.exception.cause, bad)
+
 
 class TestDraft3Validator(ValidatorTestMixin, TestCase):
-    validator_class = validators.Draft3Validator
+    Validator = validators.Draft3Validator
+
+    def test_any_type_is_valid_for_type_any(self):
+        validator = self.Validator({"type": "any"})
+        validator.validate(object())
 
     def test_is_type_is_true_for_any_type(self):
         self.assertTrue(self.validator.is_valid(object(), {"type": "any"}))
@@ -949,36 +1018,36 @@ class TestDraft3Validator(ValidatorTestMixin, TestCase):
 
     def test_non_string_custom_types(self):
         schema = {'type': [None]}
-        cls = self.validator_class(schema, types={None: type(None)})
+        cls = self.Validator(schema, types={None: type(None)})
         cls.validate(None, schema)
 
     def test_True_is_not_a_schema(self):
         with self.assertRaises(SchemaError) as e:
-            self.validator_class.check_schema(True)
+            self.Validator.check_schema(True)
         self.assertIn("True is not of type", str(e.exception))
 
     def test_False_is_not_a_schema(self):
         with self.assertRaises(SchemaError) as e:
-            self.validator_class.check_schema(False)
+            self.Validator.check_schema(False)
         self.assertIn("False is not of type", str(e.exception))
 
 
 class TestDraft4Validator(ValidatorTestMixin, TestCase):
-    validator_class = validators.Draft4Validator
+    Validator = validators.Draft4Validator
 
     def test_True_is_not_a_schema(self):
         with self.assertRaises(SchemaError) as e:
-            self.validator_class.check_schema(True)
+            self.Validator.check_schema(True)
         self.assertIn("True is not of type", str(e.exception))
 
     def test_False_is_not_a_schema(self):
         with self.assertRaises(SchemaError) as e:
-            self.validator_class.check_schema(False)
+            self.Validator.check_schema(False)
         self.assertIn("False is not of type", str(e.exception))
 
 
 class TestDraft6Validator(ValidatorTestMixin, TestCase):
-    validator_class = validators.Draft6Validator
+    Validator = validators.Draft6Validator
 
 
 class TestBuiltinFormats(TestCase):
@@ -1318,7 +1387,7 @@ class UniqueTupleItemsMixin(object):
     """
 
     def test_it_properly_formats_an_error_message(self):
-        validator = self.validator_class(
+        validator = self.Validator(
             schema={"uniqueItems": True},
             types={"array": (tuple,)},
         )
@@ -1328,15 +1397,15 @@ class UniqueTupleItemsMixin(object):
 
 
 class TestDraft6UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
-    validator_class = validators.Draft6Validator
+    Validator = validators.Draft6Validator
 
 
 class TestDraft4UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
-    validator_class = validators.Draft4Validator
+    Validator = validators.Draft4Validator
 
 
 class TestDraft3UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
-    validator_class = validators.Draft3Validator
+    Validator = validators.Draft3Validator
 
 
 def sorted_errors(errors):

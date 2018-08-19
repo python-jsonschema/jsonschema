@@ -7,16 +7,19 @@ See https://github.com/json-schema/JSON-Schema-Test-Suite for details.
 
 """
 
-from decimal import Decimal
 import sys
 import unittest
 
 from jsonschema import (
-    SchemaError, ValidationError, Draft3Validator,
-    Draft4Validator, Draft6Validator, FormatChecker, draft3_format_checker,
-    draft4_format_checker, draft6_format_checker, validate,
+    SchemaError,
+    Draft3Validator,
+    Draft4Validator,
+    Draft6Validator,
+    draft3_format_checker,
+    draft4_format_checker,
+    draft6_format_checker,
+    validate,
 )
-from jsonschema.compat import PY3
 from jsonschema.tests._suite import Suite
 from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
 
@@ -65,27 +68,6 @@ def skip_tests_containing_descriptions(**kwargs):
     return skipper
 
 
-class TypesMixin(object):
-    @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
-    def test_string_a_bytestring_is_a_string(self):
-        self.Validator({"type": "string"}).validate(b"foo")
-
-
-class DecimalMixin(object):
-    def test_it_can_validate_with_decimals(self):
-        schema = {"type": "number"}
-        validator = self.Validator(
-            schema, types={"number": (int, float, Decimal)}
-        )
-
-        for valid in [1, 1.1, Decimal(1) / Decimal(8)]:
-            validator.validate(valid)
-
-        for invalid in ["foo", {}, [], True, None]:
-            with self.assertRaises(ValidationError):
-                validator.validate(invalid)
-
-
 def missing_format(checker):
     def missing_format(test):
         schema = test.schema
@@ -95,42 +77,6 @@ def missing_format(checker):
         if schema["format"] not in checker.checkers:
             return "Format checker {0!r} not found.".format(schema["format"])
     return missing_format
-
-
-class FormatMixin(object):
-    def test_it_returns_true_for_formats_it_does_not_know_about(self):
-        validator = self.Validator(
-            {"format": "carrot"}, format_checker=FormatChecker(),
-        )
-        validator.validate("bugs")
-
-    def test_it_does_not_validate_formats_by_default(self):
-        validator = self.Validator({})
-        self.assertIsNone(validator.format_checker)
-
-    def test_it_validates_formats_if_a_checker_is_provided(self):
-        checker = FormatChecker()
-        bad = ValueError("Bad!")
-
-        @checker.checks("foo", raises=ValueError)
-        def check(value):
-            if value == "good":
-                return True
-            elif value == "bad":
-                raise bad
-            else:  # pragma: no cover
-                self.fail("What is {}? [Baby Don't Hurt Me]".format(value))
-
-        validator = self.Validator(
-            {"format": "foo"}, format_checker=checker,
-        )
-
-        validator.validate("good")
-        with self.assertRaises(ValidationError) as cm:
-            validator.validate("bad")
-
-        # Make sure original cause is attached
-        self.assertIs(cm.exception.cause, bad)
 
 
 is_narrow_build = sys.maxunicode == 2 ** 16 - 1
@@ -162,22 +108,8 @@ else:
         )(test)
     ),
 )
-class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+class TestDraft3(unittest.TestCase):
     Validator = Draft3Validator
-
-    def test_any_type_is_valid_for_type_any(self):
-        validator = self.Validator({"type": "any"})
-        validator.validate(object())
-
-    # TODO: we're in need of more meta schema tests
-    def test_invalid_properties(self):
-        with self.assertRaises(SchemaError):
-            validate({}, {"properties": {"test": True}}, cls=self.Validator)
-
-    def test_minItems_invalid_string(self):
-        with self.assertRaises(SchemaError):
-            # needs to be an integer
-            validate([1], {"minItems": "1"}, cls=self.Validator)
 
 
 @load_json_cases(
@@ -203,19 +135,8 @@ class TestDraft3(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
         )(test)
     ),
 )
-class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+class TestDraft4(unittest.TestCase):
     Validator = Draft4Validator
-
-    # TODO: we're in need of more meta schema tests
-    def test_invalid_properties(self):
-        with self.assertRaises(SchemaError):
-            validate({}, {"properties": {"test": True}},
-                     cls=self.Validator)
-
-    def test_minItems_invalid_string(self):
-        with self.assertRaises(SchemaError):
-            # needs to be an integer
-            validate([1], {"minItems": "1"}, cls=self.Validator)
 
 
 @load_json_cases(
@@ -241,7 +162,7 @@ class TestDraft4(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
         )(test)
     ),
 )
-class TestDraft6(unittest.TestCase, TypesMixin, DecimalMixin, FormatMixin):
+class TestDraft6(unittest.TestCase):
     Validator = Draft6Validator
 
 
