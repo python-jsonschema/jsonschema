@@ -460,15 +460,14 @@ Draft4Validator = create(
     id_of=lambda schema: schema.get(u"id", ""),
 )
 
-
 Draft6Validator = create(
     meta_schema=_utils.load_schema("draft6"),
     validators={
         u"$ref": _validators.ref,
         u"additionalItems": _validators.additionalItems,
         u"additionalProperties": _validators.additionalProperties,
-        u"allOf": _validators.allOf_draft6,
-        u"anyOf": _validators.anyOf_draft6,
+        u"allOf": _validators.allOf,
+        u"anyOf": _validators.anyOf,
         u"const": _validators.const,
         u"contains": _validators.contains,
         u"dependencies": _validators.dependencies,
@@ -480,14 +479,14 @@ Draft6Validator = create(
         u"maxItems": _validators.maxItems,
         u"maxLength": _validators.maxLength,
         u"maxProperties": _validators.maxProperties,
-        u"maximum": _validators.maximum_draft6,
+        u"maximum": _validators.maximum,
         u"minItems": _validators.minItems,
         u"minLength": _validators.minLength,
         u"minProperties": _validators.minProperties,
-        u"minimum": _validators.minimum_draft6,
+        u"minimum": _validators.minimum,
         u"multipleOf": _validators.multipleOf,
         u"not": _validators.not_,
-        u"oneOf": _validators.oneOf_draft6,
+        u"oneOf": _validators.oneOf,
         u"pattern": _validators.pattern,
         u"patternProperties": _validators.patternProperties,
         u"properties": _validators.properties,
