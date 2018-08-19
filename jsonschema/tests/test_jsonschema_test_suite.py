@@ -30,28 +30,23 @@ DRAFT4 = SUITE.collection(name="draft4")
 DRAFT6 = SUITE.collection(name="draft6")
 
 
-def maybe_skip(test_fn, test, skip=lambda test: None):
+def maybe_skip(test_fn, test, skip):
     reason = skip(test)
     return unittest.skipIf(reason is not None, reason)(test_fn)
 
 
-def load_json_cases(*suites, **kwargs):
-    def add_test_methods(test_class):
-        validator_kwargs = kwargs.pop("validator_kwargs", {})
-        for suite in suites:
-            for test in suite:
-                method = test.to_unittest_method(
-                    Validator=test_class.Validator, **validator_kwargs
-                )
-                assert not hasattr(test_class, method.__name__), test
-                setattr(
-                    test_class,
-                    method.__name__,
-                    maybe_skip(test_fn=method, test=test, **kwargs),
-                )
-
-        return test_class
-    return add_test_methods
+def load_json_cases(name, *suites, **kwargs):
+    skip = kwargs.pop("skip", lambda test: None)
+    methods = {
+        test.method_name: maybe_skip(
+            test_fn=test.to_unittest_method(**kwargs),
+            test=test,
+            skip=skip,
+        )
+        for suite in suites
+        for test in suite
+    }
+    return type(name, (unittest.TestCase,), methods)
 
 
 def skip_tests_containing_descriptions(**kwargs):
@@ -96,12 +91,14 @@ else:
         return
 
 
-@load_json_cases(
+TestDraft3 = load_json_cases(
+    "TestDraft3",
     DRAFT3.tests(),
     DRAFT3.optional_tests_of(name="format"),
     DRAFT3.optional_tests_of(name="bignum"),
     DRAFT3.optional_tests_of(name="zeroTerminatedFloats"),
-    validator_kwargs={"format_checker": draft3_format_checker},
+    Validator=Draft3Validator,
+    format_checker=draft3_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test) or
         missing_format(draft3_format_checker)(test) or
@@ -112,16 +109,16 @@ else:
         )(test)
     ),
 )
-class TestDraft3(unittest.TestCase):
-    Validator = Draft3Validator
 
 
-@load_json_cases(
+TestDraft4 = load_json_cases(
+    "TestDraft4",
     DRAFT4.tests(),
     DRAFT4.optional_tests_of(name="format"),
     DRAFT4.optional_tests_of(name="bignum"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
-    validator_kwargs={"format_checker": draft4_format_checker},
+    Validator=Draft4Validator,
+    format_checker=draft4_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test) or
         missing_format(draft4_format_checker)(test) or
@@ -139,16 +136,16 @@ class TestDraft3(unittest.TestCase):
         )(test)
     ),
 )
-class TestDraft4(unittest.TestCase):
-    Validator = Draft4Validator
 
 
-@load_json_cases(
+TestDraft6 = load_json_cases(
+    "TestDraft6",
     DRAFT6.tests(),
     DRAFT6.optional_tests_of(name="format"),
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="zeroTerminatedFloats"),
-    validator_kwargs={"format_checker": draft6_format_checker},
+    Validator=Draft6Validator,
+    format_checker=draft6_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test) or
         missing_format(draft6_format_checker)(test) or
@@ -166,23 +163,25 @@ class TestDraft4(unittest.TestCase):
         )(test)
     ),
 )
-class TestDraft6(unittest.TestCase):
-    Validator = Draft6Validator
 
 
-@load_json_cases(DRAFT3.tests_of(name="type"))
-class TestDraft3LegacyTypeCheck(unittest.TestCase):
-    Validator = create(
+TestDraft3LegacyTypeCheck = load_json_cases(
+    "TestDraft3LegacyTypeCheck",
+    DRAFT3.tests_of(name="type"),
+    Validator=create(
         meta_schema=Draft3Validator.META_SCHEMA,
         validators=Draft3Validator.VALIDATORS,
         default_types=_DEPRECATED_DEFAULT_TYPES,
-    )
+    ),
+)
 
 
-@load_json_cases(DRAFT4.tests_of(name="type"))
-class TestDraft4LegacyTypeCheck(unittest.TestCase):
-    Validator = create(
+TestDraft4LegacyTypeCheck = load_json_cases(
+    "TestDraft4LegacyTypeCheck",
+    DRAFT4.tests_of(name="type"),
+    Validator=create(
         meta_schema=Draft4Validator.META_SCHEMA,
         validators=Draft4Validator.VALIDATORS,
         default_types=_DEPRECATED_DEFAULT_TYPES,
-    )
+    ),
+)
