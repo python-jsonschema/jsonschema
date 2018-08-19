@@ -82,10 +82,14 @@ def missing_format(checker):
 is_narrow_build = sys.maxunicode == 2 ** 16 - 1
 if is_narrow_build:  # pragma: no cover
     narrow_unicode_build = skip_tests_containing_descriptions(
-        {
+        maxLength={
             "supplementary Unicode":
                 "Not running surrogate Unicode case, this Python is narrow.",
-        }
+        },
+        minLength={
+            "supplementary Unicode":
+                "Not running surrogate Unicode case, this Python is narrow.",
+        },
     )
 else:
     def narrow_unicode_build(test):  # pragma: no cover
