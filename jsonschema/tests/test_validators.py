@@ -150,9 +150,6 @@ class TestLegacyTypeCheckCreation(TestCase):
 
         self.assertEqual(set(Validator.DEFAULT_TYPES), expected_types)
 
-        self.assertEqual(set(Validator.TYPE_CHECKER._type_checkers),
-                         expected_types)
-
     @unittest.skip("This logic is actually incorrect.")
     def test_default_types_update_type_checker(self):
         Validator = validators.create(
