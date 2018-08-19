@@ -1002,7 +1002,23 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         self.assertIs(cm.exception.cause, bad)
 
 
-class TestDraft3Validator(ValidatorTestMixin, TestCase):
+class AntiDraft6LeakMixin(object):
+    """
+    Make sure functionality from draft 6 doesn't leak backwards in time.
+    """
+
+    def test_True_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.Validator.check_schema(True)
+        self.assertIn("True is not of type", str(e.exception))
+
+    def test_False_is_not_a_schema(self):
+        with self.assertRaises(SchemaError) as e:
+            self.Validator.check_schema(False)
+        self.assertIn("False is not of type", str(e.exception))
+
+
+class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     Validator = validators.Draft3Validator
 
     def test_any_type_is_valid_for_type_any(self):
@@ -1021,29 +1037,9 @@ class TestDraft3Validator(ValidatorTestMixin, TestCase):
         cls = self.Validator(schema, types={None: type(None)})
         cls.validate(None, schema)
 
-    def test_True_is_not_a_schema(self):
-        with self.assertRaises(SchemaError) as e:
-            self.Validator.check_schema(True)
-        self.assertIn("True is not of type", str(e.exception))
 
-    def test_False_is_not_a_schema(self):
-        with self.assertRaises(SchemaError) as e:
-            self.Validator.check_schema(False)
-        self.assertIn("False is not of type", str(e.exception))
-
-
-class TestDraft4Validator(ValidatorTestMixin, TestCase):
+class TestDraft4Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     Validator = validators.Draft4Validator
-
-    def test_True_is_not_a_schema(self):
-        with self.assertRaises(SchemaError) as e:
-            self.Validator.check_schema(True)
-        self.assertIn("True is not of type", str(e.exception))
-
-    def test_False_is_not_a_schema(self):
-        with self.assertRaises(SchemaError) as e:
-            self.Validator.check_schema(False)
-        self.assertIn("False is not of type", str(e.exception))
 
 
 class TestDraft6Validator(ValidatorTestMixin, TestCase):
