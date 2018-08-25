@@ -1014,6 +1014,18 @@ class AntiDraft6LeakMixin(object):
             self.Validator.check_schema(False)
         self.assertIn("False is not of type", str(e.exception))
 
+    @unittest.skip("This test fails, but it shouldn't.")
+    def test_True_is_not_a_schema_even_if_you_forget_to_check(self):
+        resolver = validators.RefResolver("", {})
+        with self.assertRaises(TypeError):
+            self.Validator(True, resolver=resolver).validate(12)
+
+    @unittest.skip("This test fails, but it shouldn't.")
+    def test_False_is_not_a_schema_even_if_you_forget_to_check(self):
+        resolver = validators.RefResolver("", {})
+        with self.assertRaises(TypeError):
+            self.Validator(False, resolver=resolver).validate(12)
+
 
 class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     Validator = validators.Draft3Validator
