@@ -1235,10 +1235,11 @@ class TestRefResolver(TestCase):
         ref = validators.Draft3Validator.META_SCHEMA["id"]
         with mock.patch.object(self.resolver, "resolve_remote") as remote:
             with self.resolver.resolving(ref) as resolved:
-                self.assertEqual(
-                    resolved,
-                    validators.Draft3Validator.META_SCHEMA,
-                )
+                pass
+        self.assertEqual(
+            resolved,
+            validators.Draft3Validator.META_SCHEMA,
+        )
         self.assertFalse(remote.called)
 
     def test_it_resolves_local_refs(self):
