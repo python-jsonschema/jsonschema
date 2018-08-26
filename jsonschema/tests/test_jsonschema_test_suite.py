@@ -11,14 +11,12 @@ import sys
 import unittest
 
 from jsonschema import (
-    SchemaError,
     Draft3Validator,
     Draft4Validator,
     Draft6Validator,
     draft3_format_checker,
     draft4_format_checker,
     draft6_format_checker,
-    validate,
 )
 from jsonschema.tests._suite import Suite
 from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
