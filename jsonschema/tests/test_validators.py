@@ -880,7 +880,7 @@ class MetaSchemaTestsMixin(object):
 
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def setUp(self):
-        self.instance = mock.Mock()
+        self.instance = object()
         self.schema = {}
         self.validator = self.Validator(self.schema)
 
@@ -1331,37 +1331,49 @@ class TestRefResolver(TestCase):
             self.assertEqual(resolved, schema)
 
     def test_custom_uri_scheme_handlers(self):
+        def handler(url):
+            self.assertEqual(url, ref)
+            return schema
+
         schema = {"foo": "bar"}
         ref = "foo://bar"
-        foo_handler = mock.Mock(return_value=schema)
-        resolver = validators.RefResolver(
-            "", {}, handlers={"foo": foo_handler},
-        )
+        resolver = validators.RefResolver("", {}, handlers={"foo": handler})
         with resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, schema)
-        foo_handler.assert_called_once_with(ref)
 
     def test_cache_remote_on(self):
+        response = [object()]
+
+        def handler(url):
+            try:
+                return response.pop()
+            except IndexError:  # pragma: no cover
+                self.fail("Response must not have been cached!")
+
         ref = "foo://bar"
-        foo_handler = mock.Mock()
         resolver = validators.RefResolver(
-            "", {}, cache_remote=True, handlers={"foo": foo_handler},
+            "", {}, cache_remote=True, handlers={"foo": handler},
         )
         with resolver.resolving(ref):
             pass
         with resolver.resolving(ref):
             pass
-        foo_handler.assert_called_once_with(ref)
 
     def test_cache_remote_off(self):
+        response = [object()]
+
+        def handler(url):
+            try:
+                return response.pop()
+            except IndexError:  # pragma: no cover
+                self.fail("Handler called twice!")
+
         ref = "foo://bar"
-        foo_handler = mock.Mock()
         resolver = validators.RefResolver(
-            "", {}, cache_remote=False, handlers={"foo": foo_handler},
+            "", {}, cache_remote=False, handlers={"foo": handler},
         )
         with resolver.resolving(ref):
             pass
-        self.assertEqual(foo_handler.call_count, 1)
 
     def test_if_you_give_it_junk_you_get_a_resolution_error(self):
         error = ValueError("Oh no! What's this?")
