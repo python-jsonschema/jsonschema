@@ -1160,48 +1160,46 @@ class TestValidatorFor(TestCase):
 
 
 class TestValidate(TestCase):
+    def assertUses(self, schema, Validator):
+        with mock.patch.object(Validator, "check_schema") as check_schema:
+            validators.validate({}, schema)
+            check_schema.assert_called_once_with(schema)
+
     def test_draft3_validator_is_chosen(self):
-        schema = {"$schema": "http://json-schema.org/draft-03/schema#"}
-        with mock.patch.object(
-            validators.Draft3Validator,
-            "check_schema",
-        ) as chk_schema:
-            validators.validate({}, schema)
-            chk_schema.assert_called_once_with(schema)
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-03/schema#"},
+            Validator=validators.Draft3Validator,
+        )
         # Make sure it works without the empty fragment
-        schema = {"$schema": "http://json-schema.org/draft-03/schema"}
-        with mock.patch.object(
-            validators.Draft3Validator,
-            "check_schema",
-        ) as chk_schema:
-            validators.validate({}, schema)
-            chk_schema.assert_called_once_with(schema)
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-03/schema"},
+            Validator=validators.Draft3Validator,
+        )
 
     def test_draft4_validator_is_chosen(self):
-        schema = {"$schema": "http://json-schema.org/draft-04/schema#"}
-        with mock.patch.object(
-            validators.Draft4Validator,
-            "check_schema",
-        ) as chk_schema:
-            validators.validate({}, schema)
-            chk_schema.assert_called_once_with(schema)
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-04/schema#"},
+            Validator=validators.Draft4Validator,
+        )
+        # Make sure it works without the empty fragment
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-04/schema"},
+            Validator=validators.Draft4Validator,
+        )
 
     def test_draft6_validator_is_chosen(self):
-        schema = {"$schema": "http://json-schema.org/draft-06/schema#"}
-        with mock.patch.object(
-            validators.Draft6Validator,
-            "check_schema",
-        ) as chk_schema:
-            validators.validate({}, schema)
-            chk_schema.assert_called_once_with(schema)
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-06/schema#"},
+            Validator=validators.Draft6Validator,
+        )
+        # Make sure it works without the empty fragment
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-06/schema"},
+            Validator=validators.Draft6Validator,
+        )
 
     def test_draft6_validator_is_the_default(self):
-        with mock.patch.object(
-            validators.Draft6Validator,
-            "check_schema",
-        ) as chk_schema:
-            validators.validate({}, {})
-            chk_schema.assert_called_once_with({})
+        self.assertUses(schema={}, Validator=validators.Draft6Validator)
 
     def test_validation_error_message(self):
         with self.assertRaises(ValidationError) as e:
