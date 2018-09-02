@@ -69,7 +69,7 @@ else:
         return
 
 
-TestDraft3 = DRAFT3.to_testcase(
+TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
     DRAFT3.optional_tests_of(name="format"),
     DRAFT3.optional_tests_of(name="bignum"),
@@ -88,7 +88,7 @@ TestDraft3 = DRAFT3.to_testcase(
 )
 
 
-TestDraft4 = DRAFT4.to_testcase(
+TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.tests(),
     DRAFT4.optional_tests_of(name="format"),
     DRAFT4.optional_tests_of(name="bignum"),
@@ -114,7 +114,7 @@ TestDraft4 = DRAFT4.to_testcase(
 )
 
 
-TestDraft6 = DRAFT6.to_testcase(
+TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.tests(),
     DRAFT6.optional_tests_of(name="format"),
     DRAFT6.optional_tests_of(name="bignum"),
@@ -140,7 +140,7 @@ TestDraft6 = DRAFT6.to_testcase(
 )
 
 
-TestDraft3LegacyTypeCheck = DRAFT3.to_testcase(
+TestDraft3LegacyTypeCheck = DRAFT3.to_unittest_testcase(
     DRAFT3.tests_of(name="type"),
     name="TestDraft3LegacyTypeCheck",
     Validator=create(
@@ -151,7 +151,7 @@ TestDraft3LegacyTypeCheck = DRAFT3.to_testcase(
 )
 
 
-TestDraft4LegacyTypeCheck = DRAFT4.to_testcase(
+TestDraft4LegacyTypeCheck = DRAFT4.to_unittest_testcase(
     DRAFT4.tests_of(name="type"),
     name="TestDraft4LegacyTypeCheck",
     Validator=create(

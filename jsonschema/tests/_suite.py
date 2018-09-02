@@ -111,7 +111,7 @@ class Collection(object):
             path=self._path.descendant(["optional", name + ".json"]),
         )
 
-    def to_testcase(self, *suites, **kwargs):
+    def to_unittest_testcase(self, *suites, **kwargs):
         name = kwargs.pop("name", "Test" + self.name.title())
         skip = kwargs.pop("skip", lambda test: None)
         methods = {
