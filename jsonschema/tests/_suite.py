@@ -113,11 +113,9 @@ class Collection(object):
 
     def to_unittest_testcase(self, *suites, **kwargs):
         name = kwargs.pop("name", "Test" + self.name.title())
-        skip = kwargs.pop("skip", lambda test: None)
+        kwargs.setdefault("skip", lambda test: None)
         methods = {
-            test.method_name: _maybe_skip(skip(test))(
-                test.to_unittest_method(**kwargs),
-            )
+            test.method_name: test.to_unittest_method(**kwargs)
             for suite in suites
             for tests in suite
             for test in tests
@@ -180,7 +178,7 @@ class _Test(object):
             name = name.encode("utf-8")
         return name
 
-    def to_unittest_method(self, **kwargs):
+    def to_unittest_method(self, skip, **kwargs):
         if self.valid:
             def fn(this):
                 self.validate(**kwargs)
@@ -190,7 +188,8 @@ class _Test(object):
                     self.validate(**kwargs)
 
         fn.__name__ = self.method_name
-        return fn
+        reason = skip(self)
+        return unittest.skipIf(reason is not None, reason)(fn)
 
     def validate(self, Validator=None, **kwargs):
         resolver = jsonschema.RefResolver.from_schema(
@@ -209,7 +208,3 @@ class _Test(object):
             self.validate(**kwargs)
         except jsonschema.ValidationError:
             pass
-
-
-def _maybe_skip(reason):
-    return unittest.skipIf(reason is not None, reason)
