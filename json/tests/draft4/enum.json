@@ -39,13 +39,13 @@
     {
         "description": "enums in properties",
         "schema": {
-           "type":"object",
-		     "properties": {
-		        "foo": {"enum":["foo"]},
-		        "bar": {"enum":["bar"]}
-		     },
-		     "required": ["bar"]
-		  },
+            "type":"object",
+            "properties": {
+                "foo": {"enum":["foo"]},
+                "bar": {"enum":["bar"]}
+            },
+            "required": ["bar"]
+        },
         "tests": [
             {
                 "description": "both properties are valid",
