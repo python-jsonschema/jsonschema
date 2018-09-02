@@ -119,21 +119,23 @@ class Collection(object):
                 test.to_unittest_method(**kwargs),
             )
             for suite in suites
-            for test in suite
+            for tests in suite
+            for test in tests
         }
         return type(name, (unittest.TestCase,), methods)
 
     def _tests_in(self, subject, path):
         for each in json.loads(path.getContent().decode("utf-8")):
-            for test in each["tests"]:
-                yield _Test(
+            yield (
+                _Test(
                     collection=self,
                     subject=subject,
                     case_description=each["description"],
                     schema=each["schema"],
                     remotes=self._remotes,
                     **test
-                )
+                ) for test in each["tests"]
+            )
 
 
 @attr.s(hash=True, repr=False)
