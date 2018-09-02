@@ -7,7 +7,6 @@ See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 """
 
 import sys
-import unittest
 
 from jsonschema import (
     Draft3Validator,
