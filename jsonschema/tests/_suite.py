@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+import unittest
 
 from bp.filepath import FilePath
 import attr
@@ -110,6 +111,17 @@ class Collection(object):
             path=self._path.descendant(["optional", name + ".json"]),
         )
 
+    def to_testcase(self, name, *suites, **kwargs):
+        skip = kwargs.pop("skip", lambda test: None)
+        methods = {
+            test.method_name: _maybe_skip(skip(test))(
+                test.to_unittest_method(**kwargs),
+            )
+            for suite in suites
+            for test in suite
+        }
+        return type(name, (unittest.TestCase,), methods)
+
     def _tests_in(self, subject, path):
         for each in json.loads(path.getContent().decode("utf-8")):
             for test in each["tests"]:
@@ -194,3 +206,7 @@ class _Test(object):
             self.validate(**kwargs)
         except jsonschema.ValidationError:
             pass
+
+
+def _maybe_skip(reason):
+    return unittest.skipIf(reason is not None, reason)

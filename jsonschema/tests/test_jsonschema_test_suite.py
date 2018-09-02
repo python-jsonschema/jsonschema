@@ -27,22 +27,6 @@ DRAFT4 = SUITE.collection(name="draft4")
 DRAFT6 = SUITE.collection(name="draft6")
 
 
-def maybe_skip(reason):
-    return unittest.skipIf(reason is not None, reason)
-
-
-def load_json_cases(name, *suites, **kwargs):
-    skip = kwargs.pop("skip", lambda test: None)
-    methods = {
-        test.method_name: maybe_skip(skip(test))(
-            test.to_unittest_method(**kwargs),
-        )
-        for suite in suites
-        for test in suite
-    }
-    return type(name, (unittest.TestCase,), methods)
-
-
 def skip_tests_containing_descriptions(**kwargs):
     def skipper(test):
         descriptions_and_reasons = kwargs.get(test.subject, {})
@@ -85,7 +69,7 @@ else:
         return
 
 
-TestDraft3 = load_json_cases(
+TestDraft3 = DRAFT3.to_testcase(
     "TestDraft3",
     DRAFT3.tests(),
     DRAFT3.optional_tests_of(name="format"),
@@ -105,7 +89,7 @@ TestDraft3 = load_json_cases(
 )
 
 
-TestDraft4 = load_json_cases(
+TestDraft4 = DRAFT4.to_testcase(
     "TestDraft4",
     DRAFT4.tests(),
     DRAFT4.optional_tests_of(name="format"),
@@ -132,7 +116,7 @@ TestDraft4 = load_json_cases(
 )
 
 
-TestDraft6 = load_json_cases(
+TestDraft6 = DRAFT6.to_testcase(
     "TestDraft6",
     DRAFT6.tests(),
     DRAFT6.optional_tests_of(name="format"),
@@ -159,7 +143,7 @@ TestDraft6 = load_json_cases(
 )
 
 
-TestDraft3LegacyTypeCheck = load_json_cases(
+TestDraft3LegacyTypeCheck = DRAFT3.to_testcase(
     "TestDraft3LegacyTypeCheck",
     DRAFT3.tests_of(name="type"),
     Validator=create(
@@ -170,7 +154,7 @@ TestDraft3LegacyTypeCheck = load_json_cases(
 )
 
 
-TestDraft4LegacyTypeCheck = load_json_cases(
+TestDraft4LegacyTypeCheck = DRAFT4.to_testcase(
     "TestDraft4LegacyTypeCheck",
     DRAFT4.tests_of(name="type"),
     Validator=create(
