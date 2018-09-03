@@ -53,10 +53,10 @@ class Suite(object):
 
     def benchmark(self, runner):
         for name in validators:
-            self.collection(name=name).benchmark(runner=runner)
+            self.version(name=name).benchmark(runner=runner)
 
-    def collection(self, name):
-        return Collection(
+    def version(self, name):
+        return Version(
             name=name,
             path=self._root.descendant(["tests", name]),
             remotes=self._remotes(),
@@ -64,7 +64,7 @@ class Suite(object):
 
 
 @attr.s(hash=True)
-class Collection(object):
+class Version(object):
 
     _path = attr.ib()
     _remotes = attr.ib()
@@ -125,7 +125,7 @@ class Collection(object):
         for each in json.loads(path.getContent().decode("utf-8")):
             yield (
                 _Test(
-                    collection=self,
+                    version=self,
                     subject=subject,
                     case_description=each["description"],
                     schema=each["schema"],
@@ -138,7 +138,7 @@ class Collection(object):
 @attr.s(hash=True, repr=False)
 class _Test(object):
 
-    collection = attr.ib()
+    version = attr.ib()
 
     subject = attr.ib()
     case_description = attr.ib()
@@ -158,7 +158,7 @@ class _Test(object):
     def fully_qualified_name(self):  # pragma: no cover
         return " > ".join(
             [
-                self.collection.name,
+                self.version.name,
                 self.subject,
                 self.case_description,
                 self.description,
