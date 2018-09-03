@@ -4,6 +4,7 @@ python:
  - "3.4"
  - "3.5"
  - "3.6"
+ - "3.7"
  - "pypy"
 install:
   - pip install tox-travis
@@ -16,3 +17,11 @@ addons:
     - libenchant-dev
 git:
   depth: false
+deploy:
+  provider: pypi
+  user: Julian
+  password: ...
+  distributions: "sdist bdist_wheel"
+  on:
+    branch: master
+    python: "3.7"
