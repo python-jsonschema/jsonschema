@@ -1,2 +1,7 @@
 from setuptools import setup
-setup(use_scm_version=True)
+
+
+def local_scheme(*args, **kwargs):
+    return ''
+
+setup(use_scm_version={'local_scheme': local_scheme})
