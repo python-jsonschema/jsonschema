@@ -113,7 +113,6 @@ class Collection(object):
 
     def to_unittest_testcase(self, *suites, **kwargs):
         name = kwargs.pop("name", "Test" + self.name.title())
-        kwargs.setdefault("skip", lambda test: None)
         methods = {
             test.method_name: test.to_unittest_method(**kwargs)
             for suite in suites
@@ -178,7 +177,7 @@ class _Test(object):
             name = name.encode("utf-8")
         return name
 
-    def to_unittest_method(self, skip, **kwargs):
+    def to_unittest_method(self, skip=lambda test: None, **kwargs):
         if self.valid:
             def fn(this):
                 self.validate(**kwargs)
