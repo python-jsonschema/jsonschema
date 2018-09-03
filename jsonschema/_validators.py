@@ -322,8 +322,6 @@ def type_draft3(validator, types, instance, schema):
 
     all_errors = []
     for index, type in enumerate(types):
-        if type == "any":
-            return
         if validator.is_type(type, "object"):
             errors = list(validator.descend(instance, type, schema_path=index))
             if not errors:

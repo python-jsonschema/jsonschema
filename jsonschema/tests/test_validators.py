@@ -1034,6 +1034,21 @@ class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
         validator = self.Validator({"type": "any"})
         validator.validate(object())
 
+    def test_any_type_is_redefinable(self):
+        """
+        Sigh, because why not.
+        """
+        Crazy = validators.extend(
+            self.Validator,
+            type_checker=self.Validator.TYPE_CHECKER.redefine(
+                "any", lambda checker, thing: isinstance(thing, int),
+            )
+        )
+        validator = Crazy({"type": "any"})
+        validator.validate(12)
+        with self.assertRaises(ValidationError):
+            validator.validate("foo")
+
     def test_is_type_is_true_for_any_type(self):
         self.assertTrue(self.validator.is_valid(object(), {"type": "any"}))
 
