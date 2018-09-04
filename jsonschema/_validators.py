@@ -5,29 +5,17 @@ from jsonschema.exceptions import FormatError, ValidationError
 from jsonschema.compat import iteritems
 
 
-def validate_regex(pattern):
-    try:
-        re.compile(pattern)
-        return True
-    except re.error:
-        return False
-
-
 def patternProperties(validator, patternProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
     for pattern, subschema in iteritems(patternProperties):
-        if not validate_regex(pattern):
-            yield ValidationError("Pattern error in {}".format(
-                schema))
-        else:
-            for k, v in iteritems(instance):
-                if re.search(pattern, k):
-                    for error in validator.descend(
-                        v, subschema, path=k, schema_path=pattern,
-                    ):
-                        yield error
+        for k, v in iteritems(instance):
+            if re.search(pattern, k):
+                for error in validator.descend(
+                    v, subschema, path=k, schema_path=pattern,
+                ):
+                    yield error
 
 
 def propertyNames(validator, propertyNames, instance, schema):
@@ -199,11 +187,8 @@ def uniqueItems(validator, uI, instance, schema):
 
 
 def pattern(validator, pattern, instance, schema):
-    if not validate_regex(pattern):
-        yield ValidationError("Pattern error in {}".format(
-            schema))
-    elif (validator.is_type(instance, "string") and
-          not re.search(pattern, instance)):
+    if (validator.is_type(instance, "string") and not
+        re.search(pattern, instance)):
         yield ValidationError("{} does not match {}".format(
             instance, pattern))
 
