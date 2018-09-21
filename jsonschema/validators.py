@@ -269,8 +269,9 @@ def create(
             self.schema = schema
 
         @classmethod
-        def check_schema(cls, schema):
-            for error in cls(cls.META_SCHEMA).iter_errors(schema):
+        def check_schema(cls, schema, format_checker=format_checker):
+            validator = cls(cls.META_SCHEMA, format_checker=format_checker)
+            for error in validator.iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
 
         def iter_errors(self, instance, _schema=None):
