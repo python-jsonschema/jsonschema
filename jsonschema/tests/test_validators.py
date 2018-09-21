@@ -1036,6 +1036,10 @@ class MetaSchemaTestsMixin(object):
         with self.assertRaises(exceptions.SchemaError):
             self.Validator.check_schema({"properties": {"test": object()}})
 
+    def test_invalid_pattern(self):
+        with self.assertRaises(SchemaError):
+            self.Validator.check_schema({"pattern": "\q"})
+
     def test_minItems_invalid_string(self):
         with self.assertRaises(exceptions.SchemaError):
             # needs to be an integer
