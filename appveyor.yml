@@ -1,3 +1,4 @@
+build: off
 environment:
   VENV: "%APPVEYOR_BUILD_FOLDER%\\venv"
 
