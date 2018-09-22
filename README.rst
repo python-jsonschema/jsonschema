@@ -39,7 +39,7 @@ for Python (supporting 2.7+ including Python 3).
 
     >>> # If no exception is raised by validate(), the instance is valid.
     >>> validate({"name" : "Eggs", "price" : 34.99}, schema)
-    {"name" : "Eggs", "price" : 34.99}
+    {'name' : 'Eggs', 'price' : 34.99}
 
     >>> validate(
     ...     {"name" : "Eggs", "price" : "Invalid"}, schema
