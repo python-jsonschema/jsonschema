@@ -812,6 +812,9 @@ def validate(instance, schema, cls=None, *args, **kwargs):
         `jsonschema.exceptions.SchemaError` if the schema itself
             is invalid
 
+    Returns:
+        The instance.
+
     .. rubric:: Footnotes
     .. [#] known by a validator registered with
         `jsonschema.validators.validates`
@@ -820,6 +823,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
         cls = validator_for(schema)
     cls.check_schema(schema)
     cls(schema, *args, **kwargs).validate(instance)
+    return instance
 
 
 def validator_for(schema, default=_LATEST_VERSION):
