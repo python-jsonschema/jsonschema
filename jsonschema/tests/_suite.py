@@ -233,4 +233,4 @@ def _someone_save_us_the_module_of_the_caller():
     """
 
     two_up = sys._getframe(2)
-    return sys.modules[two_up.f_globals["__name__"]].__name__
+    return two_up.f_globals["__name__"]
