@@ -119,7 +119,17 @@ class Version(object):
             for tests in suite
             for test in tests
         }
-        return type(name, (unittest.TestCase,), methods)
+        cls = type(name, (unittest.TestCase,), methods)
+
+        try:
+            cls.__module__ = _someone_save_us_the_module_of_the_caller()
+        except Exception:
+            # We're doing crazy things, so if they go wrong, like a function
+            # behaving differently on some other interpreter, just make them
+            # not happen.
+            pass
+
+        return cls
 
     def _tests_in(self, subject, path):
         for each in json.loads(path.getContent().decode("utf-8")):
@@ -207,3 +217,20 @@ class _Test(object):
             self.validate(**kwargs)
         except jsonschema.ValidationError:
             pass
+
+
+def _someone_save_us_the_module_of_the_caller():
+    """
+    The module object of the 2nd stack frame up from here.
+
+    This is intended to allow us to dynamicallly return test case classes that
+    are indistinguishable from being defined in the module that wants them.
+
+    Otherwise, trial will mis-print the FQON, and copy pasting it won't re-run
+    the class that really is running.
+
+    Save us all, this is all so so so so so terrible.
+    """
+
+    two_up = sys._getframe(2)
+    return sys.modules[two_up.f_globals["__name__"]].__name__
