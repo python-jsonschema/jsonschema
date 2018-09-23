@@ -221,7 +221,7 @@ class _Test(object):
 
 def _someone_save_us_the_module_of_the_caller():
     """
-    The module object of the 2nd stack frame up from here.
+    The FQON of the module 2nd stack frames up from here.
 
     This is intended to allow us to dynamicallly return test case classes that
     are indistinguishable from being defined in the module that wants them.
@@ -232,5 +232,4 @@ def _someone_save_us_the_module_of_the_caller():
     Save us all, this is all so so so so so terrible.
     """
 
-    two_up = sys._getframe(2)
-    return two_up.f_globals["__name__"]
+    return sys._getframe(2).f_globals["__name__"]
