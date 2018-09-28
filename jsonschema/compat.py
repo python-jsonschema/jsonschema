@@ -3,9 +3,9 @@ import sys
 
 
 try:
-    from collections import MutableMapping, Sequence  # noqa
-except ImportError:
     from collections.abc import MutableMapping, Sequence  # noqa
+except ImportError:
+    from collections import MutableMapping, Sequence  # noqa
 
 PY3 = sys.version_info[0] >= 3
 
