@@ -464,7 +464,7 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(
             instance="something",
             schema=False,
-            cls=validators.Draft6Validator,
+            cls=validators.Draft7Validator,
         )
         self.assertIn("False schema does not allow 'something'", message)
 
@@ -1132,6 +1132,19 @@ class TestValidatorFor(TestCase):
             validators.Draft6Validator,
         )
 
+    def test_draft_7(self):
+        schema = {"$schema": "http://json-schema.org/draft-07/schema"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft7Validator,
+        )
+
+        schema = {"$schema": "http://json-schema.org/draft-07/schema#"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft7Validator,
+        )
+
     def test_True(self):
         self.assertIs(
             validators.validator_for(True),
@@ -1213,8 +1226,19 @@ class TestValidate(TestCase):
             Validator=validators.Draft6Validator,
         )
 
-    def test_draft6_validator_is_the_default(self):
-        self.assertUses(schema={}, Validator=validators.Draft6Validator)
+    def test_draft7_validator_is_chosen(self):
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-07/schema#"},
+            Validator=validators.Draft7Validator,
+        )
+        # Make sure it works without the empty fragment
+        self.assertUses(
+            schema={"$schema": "http://json-schema.org/draft-07/schema"},
+            Validator=validators.Draft7Validator,
+        )
+
+    def test_draft7_validator_is_the_default(self):
+        self.assertUses(schema={}, Validator=validators.Draft7Validator)
 
     def test_validation_error_message(self):
         with self.assertRaises(ValidationError) as e:

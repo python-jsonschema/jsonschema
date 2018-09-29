@@ -137,7 +137,7 @@ These attributes can be clarified with a short example:
         }
     }
     instance = [{}, 3, "foo"]
-    v = Draft6Validator(schema)
+    v = Draft7Validator(schema)
     errors = sorted(v.iter_errors(instance), key=lambda e: e.path)
 
 The error messages in this situation are not very helpful on their own.
@@ -347,14 +347,14 @@ to guess the most relevant error in a given bunch.
 
 .. doctest::
 
-        >>> from jsonschema import Draft6Validator
+        >>> from jsonschema import Draft7Validator
         >>> from jsonschema.exceptions import best_match
 
         >>> schema = {
         ...     "type": "array",
         ...     "minItems": 3,
         ... }
-        >>> print(best_match(Draft6Validator(schema).iter_errors(11)).message)
+        >>> print(best_match(Draft7Validator(schema).iter_errors(11)).message)
         11 is not of type 'array'
 
 
@@ -423,7 +423,7 @@ to guess the most relevant error in a given bunch.
     ...     },
     ... }
     >>> instance = {"name": 123, "phones": {"home": [123]}}
-    >>> errors = Draft6Validator(schema).iter_errors(instance)
+    >>> errors = Draft7Validator(schema).iter_errors(instance)
     >>> [
     ...     e.path[-1]
     ...     for e in sorted(errors, key=exceptions.relevance)

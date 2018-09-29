@@ -12,9 +12,11 @@ from jsonschema import (
     Draft3Validator,
     Draft4Validator,
     Draft6Validator,
+    Draft7Validator,
     draft3_format_checker,
     draft4_format_checker,
     draft6_format_checker,
+    draft7_format_checker,
 )
 from jsonschema.tests._suite import Suite
 from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
@@ -24,6 +26,7 @@ SUITE = Suite()
 DRAFT3 = SUITE.version(name="draft3")
 DRAFT4 = SUITE.version(name="draft4")
 DRAFT6 = SUITE.version(name="draft6")
+DRAFT7 = SUITE.version(name="draft7")
 
 
 def skip_tests_containing_descriptions(**kwargs):
@@ -134,6 +137,37 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
                 "number is valid": "An actual bug, this needs fixing.",
                 "string is invalid": "An actual bug, this needs fixing.",
             },
+        )(test)
+    ),
+)
+
+
+TestDraft7 = DRAFT7.to_unittest_testcase(
+    DRAFT7.tests(),
+    DRAFT7.format_tests(),
+    DRAFT7.optional_tests_of(name="bignum"),
+    DRAFT7.optional_tests_of(name="zeroTerminatedFloats"),
+    Validator=Draft7Validator,
+    format_checker=draft7_format_checker,
+    skip=lambda test: (
+        narrow_unicode_build(test)
+        or missing_format(draft7_format_checker)(test)
+        or skip_tests_containing_descriptions(
+            ref={
+                "valid tree": "An actual bug, this needs fixing.",
+            },
+            refRemote={
+                "number is valid": "An actual bug, this needs fixing.",
+                "string is invalid": "An actual bug, this needs fixing.",
+            },
+        )(test)
+        or skip_tests_containing_descriptions(
+            **{
+                "date-time": {
+                    "case-insensitive T and Z":
+                        "Upstream bug in strict_rfc3339",
+                },
+            }
         )(test)
     ),
 )

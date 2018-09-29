@@ -235,6 +235,8 @@ the JSON Schema specification. For details on the methods and attributes
 that each validator class provides see the `IValidator` interface,
 which each included validator class implements.
 
+.. autoclass:: Draft7Validator
+
 .. autoclass:: Draft6Validator
 
 .. autoclass:: Draft4Validator

@@ -185,3 +185,4 @@ draft6_type_checker = draft4_type_checker.redefine(
         isinstance(instance, float) and instance.is_integer()
     ),
 )
+draft7_type_checker = draft6_type_checker
