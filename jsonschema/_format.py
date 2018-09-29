@@ -216,7 +216,11 @@ else:
             return True
         return rfc3987.parse(instance, rule="URI")
 
-    @_checks_drafts(draft6="uri-reference", raises=ValueError)
+    @_checks_drafts(
+        draft6="uri-reference",
+        draft7="uri-reference",
+        raises=ValueError,
+    )
     def is_uri_reference(instance):
         if not isinstance(instance, str_types):
             return True
@@ -299,7 +303,9 @@ except ImportError:
     pass
 else:
     @_checks_drafts(
-        draft6="uri-template", raises=uritemplate.exceptions.InvalidTemplate,
+        draft6="uri-template",
+        draft7="uri-template",
+        raises=uritemplate.exceptions.InvalidTemplate,
     )
     def is_uri_template(
         instance,
