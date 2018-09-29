@@ -112,7 +112,7 @@ defaults.
 How do jsonschema version numbers work?
 ---------------------------------------
 
-``jsonschema`` tries to follow the `Semantic Versioning <http://semver.org/>`_
+``jsonschema`` tries to follow the `Semantic Versioning <https://semver.org/>`_
 specification.
 
 This means broadly that no backwards-incompatible changes should be made in

@@ -17,7 +17,7 @@ The simplest way to validate an instance under a given schema is to use the
 .. [#] For information on creating JSON schemas to validate
     your data, there is a good introduction to JSON Schema
     fundamentals underway at `Understanding JSON Schema
-    <http://spacetelescope.github.io/understanding-json-schema/>`_
+    <https://json-schema.org/understanding-json-schema/>`_
 
 
 The Validator Interface
@@ -250,7 +250,7 @@ Draft 6 meta-schema, you could use:
     from jsonschema import Draft6Validator
 
     schema = {
-        "$schema": "http://json-schema.org/schema#",
+        "$schema": "https://json-schema.org/schema#",
 
         "type": "object",
         "properties": {
@@ -347,7 +347,7 @@ color       requires webcolors_
 ==========  ====================
 
 
-.. _rfc3987: http://pypi.python.org/pypi/rfc3987/
-.. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
-.. _webcolors: http://pypi.python.org/pypi/webcolors/
+.. _rfc3987: https://pypi.org/pypi/rfc3987/
+.. _strict-rfc3339: https://pypi.org/pypi/strict-rfc3339/
+.. _webcolors: https://pypi.org/pypi/webcolors/
 .. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1

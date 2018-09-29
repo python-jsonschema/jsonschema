@@ -21,7 +21,7 @@ jsonschema
    :target: https://ci.appveyor.com/project/Julian/jsonschema
 
 
-``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
+``jsonschema`` is an implementation of `JSON Schema <https://json-schema.org>`_
 for Python (supporting 2.7+ including Python 3).
 
 .. code-block:: python
@@ -125,7 +125,7 @@ Contributing
 
 I'm Julian Berman.
 
-``jsonschema`` is on `GitHub <http://github.com/Julian/jsonschema>`_.
+``jsonschema`` is on `GitHub <https://github.com/Julian/jsonschema>`_.
 
 Get in touch, via GitHub or otherwise, if you've got something to contribute,
 it'd be most welcome!

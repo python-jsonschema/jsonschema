@@ -37,7 +37,7 @@ raised or returned, depending on which method or function is used.
     .. attribute:: validator
 
         The name of the failed `validator
-        <http://json-schema.org/draft-04/json-schema-validation.html#rfc.section.5>`_.
+        <https://json-schema.org/draft-04/json-schema-validation.html#rfc.section.5>`_.
 
     .. attribute:: validator_value
 

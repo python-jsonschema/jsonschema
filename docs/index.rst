@@ -6,7 +6,7 @@ jsonschema
 .. module:: jsonschema
 
 
-``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
+``jsonschema`` is an implementation of `JSON Schema <https://json-schema.org>`_
 for Python (supporting 2.7+ including Python 3).
 
 .. code-block:: python

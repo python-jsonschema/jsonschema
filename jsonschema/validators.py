@@ -735,7 +735,7 @@ class RefResolver(object):
 
             The retrieved document
 
-        .. _requests: http://pypi.python.org/pypi/requests/
+        .. _requests: https://pypi.org/project/requests/
 
         """
         try:
