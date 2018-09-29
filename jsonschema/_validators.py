@@ -165,7 +165,7 @@ def maximum_draft3_draft4(validator, maximum, instance, schema):
         )
 
 
-def exclusiveMinimum_draft6(validator, minimum, instance, schema):
+def exclusiveMinimum(validator, minimum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
@@ -177,7 +177,7 @@ def exclusiveMinimum_draft6(validator, minimum, instance, schema):
         )
 
 
-def exclusiveMaximum_draft6(validator, maximum, instance, schema):
+def exclusiveMaximum(validator, maximum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
