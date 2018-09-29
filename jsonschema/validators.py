@@ -413,7 +413,6 @@ Draft3Validator = create(
         u"minItems": _validators.minItems,
         u"minLength": _validators.minLength,
         u"minimum": _validators.minimum_draft3_draft4,
-        u"multipleOf": _validators.multipleOf,
         u"pattern": _validators.pattern,
         u"patternProperties": _validators.patternProperties,
         u"properties": _validators.properties_draft3,
