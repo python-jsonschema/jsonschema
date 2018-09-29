@@ -177,10 +177,11 @@ class _Test(object):
 
     @property
     def method_name(self):
+        delimiters = r"[\W\- ]+"
         name = "test_%s_%s_%s" % (
-            self.subject,
-            re.sub(r"[\W ]+", "_", self.case_description),
-            re.sub(r"[\W ]+", "_", self.description),
+            re.sub(delimiters, "_", self.subject),
+            re.sub(delimiters, "_", self.case_description),
+            re.sub(delimiters, "_", self.description),
         )
 
         if not PY3:  # pragma: no cover
