@@ -125,10 +125,10 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         missing_format(draft6_format_checker)(test) or
         skip_tests_containing_descriptions(
             format={
-                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
+                "case-insensitive T and Z": "Upstream bug in strict_rfc3339",
             },
             ref={
-                "valid tree":  "An actual bug, this needs fixing.",
+                "valid tree": "An actual bug, this needs fixing.",
             },
             refRemote={
                 "number is valid": "An actual bug, this needs fixing.",
