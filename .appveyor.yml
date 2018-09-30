@@ -55,13 +55,13 @@ environment:
       PYTHON: "C:\\Python37"
 
     - TOXENV: py37-build
-      PYTHON: "C:\\Python37-x74"
+      PYTHON: "C:\\Python37-x64"
 
     - TOXENV: py37-tests
       PYTHON: "C:\\Python37"
 
     - TOXENV: py37-tests
-      PYTHON: "C:\\Python37-x74"
+      PYTHON: "C:\\Python37-x64"
 
 init:
   - echo "TOXENV- %TOXENV%"
