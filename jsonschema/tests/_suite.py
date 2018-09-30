@@ -10,7 +10,7 @@ import subprocess
 import sys
 import unittest
 
-from bp.filepath import FilePath
+from twisted.python.filepath import FilePath
 import attr
 
 from jsonschema.compat import PY3

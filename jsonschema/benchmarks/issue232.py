@@ -5,7 +5,7 @@ A performance benchmark using the example from issue #232:
 https://github.com/Julian/jsonschema/pull/232
 
 """
-from bp.filepath import FilePath
+from twisted.python.filepath import FilePath
 from perf import Runner
 from pyrsistent import m
 
