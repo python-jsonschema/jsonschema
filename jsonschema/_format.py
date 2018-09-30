@@ -220,6 +220,8 @@ except ImportError:
 else:
     @_checks_drafts(draft7="iri", raises=ValueError)
     def is_iri(instance):
+        if not isinstance(instance, str_types):
+            return True
         return rfc3987.parse(instance, rule="IRI")
 
     @_checks_drafts(draft7="iri-reference", raises=ValueError)
