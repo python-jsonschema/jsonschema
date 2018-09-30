@@ -58,7 +58,7 @@ class Suite(object):
     def version(self, name):
         return Version(
             name=name,
-            path=self._root.descendant(["tests", name]),
+            path=self._root.descendant([b"tests", name]),
             remotes=self._remotes(),
         )
 

@@ -23,10 +23,10 @@ from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
 
 
 SUITE = Suite()
-DRAFT3 = SUITE.version(name="draft3")
-DRAFT4 = SUITE.version(name="draft4")
-DRAFT6 = SUITE.version(name="draft6")
-DRAFT7 = SUITE.version(name="draft7")
+DRAFT3 = SUITE.version(name=b"draft3")
+DRAFT4 = SUITE.version(name=b"draft4")
+DRAFT6 = SUITE.version(name=b"draft6")
+DRAFT7 = SUITE.version(name=b"draft7")
 
 
 def skip_tests_containing_descriptions(**kwargs):
