@@ -1,6 +1,7 @@
 import datetime
 import re
 import socket
+import struct
 
 from jsonschema.compat import str_types
 from jsonschema.exceptions import FormatError
@@ -185,7 +186,11 @@ def is_ipv4(instance):
 
 
 if hasattr(socket, "inet_pton"):
-    @_checks_drafts(name="ipv6", raises=socket.error)
+    # FIXME: Really this only should raise struct.error, but see the sadness
+    #        that is https://twistedmatrix.com/trac/ticket/9409
+    @_checks_drafts(
+        name="ipv6", raises=(socket.error, struct.error, ValueError),
+    )
     def is_ipv6(instance):
         if not isinstance(instance, str_types):
             return True
