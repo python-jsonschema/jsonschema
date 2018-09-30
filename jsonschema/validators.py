@@ -513,6 +513,7 @@ Draft7Validator = create(
         u"exclusiveMaximum": _validators.exclusiveMaximum,
         u"exclusiveMinimum": _validators.exclusiveMinimum,
         u"format": _validators.format,
+        u"if": _validators.if_,
         u"items": _validators.items,
         u"maxItems": _validators.maxItems,
         u"maxLength": _validators.maxLength,
