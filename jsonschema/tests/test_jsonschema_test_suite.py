@@ -174,13 +174,12 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
 
 
 TestDraft3LegacyTypeCheck = DRAFT3.to_unittest_testcase(
-    DRAFT3.tests_of(name="type"),
-    name="TestDraft3LegacyTypeCheck",
-    skip=skip_tests_containing_descriptions(
-        type={
-            "any": "Interestingly this couldn't really be done w/the old API.",
-        },
+    # Interestingly the any part couldn't really be done w/the old API.
+    (
+        (test for test in each if test.schema != {"type": "any"})
+        for each in DRAFT3.tests_of(name="type")
     ),
+    name="TestDraft3LegacyTypeCheck",
     Validator=create(
         meta_schema=Draft3Validator.META_SCHEMA,
         validators=Draft3Validator.VALIDATORS,
