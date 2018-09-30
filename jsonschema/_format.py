@@ -162,6 +162,7 @@ def _checks_drafts(
     return wrap
 
 
+@_checks_drafts(name="idn-email")
 @_checks_drafts(name="email")
 def is_email(instance):
     if not isinstance(instance, str_types):
@@ -172,7 +173,9 @@ def is_email(instance):
 _ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
 
-@_checks_drafts(draft3="ip-address", draft4="ipv4", draft6="ipv4")
+@_checks_drafts(
+    draft3="ip-address", draft4="ipv4", draft6="ipv4", draft7="ipv4",
+)
 def is_ipv4(instance):
     if not isinstance(instance, str_types):
         return True
@@ -192,7 +195,12 @@ if hasattr(socket, "inet_pton"):
 _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
 
 
-@_checks_drafts(draft3="host-name", draft4="hostname", draft6="hostname")
+@_checks_drafts(
+    draft3="host-name",
+    draft4="hostname",
+    draft6="hostname",
+    draft7="hostname",
+)
 def is_host_name(instance):
     if not isinstance(instance, str_types):
         return True
@@ -210,6 +218,16 @@ try:
 except ImportError:
     pass
 else:
+    @_checks_drafts(draft7="iri", raises=ValueError)
+    def is_iri(instance):
+        return rfc3987.parse(instance, rule="IRI")
+
+    @_checks_drafts(draft7="iri-reference", raises=ValueError)
+    def is_iri_reference(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return rfc3987.parse(instance, rule="IRI_reference")
+
     @_checks_drafts(name="uri", raises=ValueError)
     def is_uri(instance):
         if not isinstance(instance, str_types):
@@ -289,7 +307,9 @@ except ImportError:
     pass
 else:
     @_checks_drafts(
-        draft6="json-pointer", raises=jsonpointer.JsonPointerException,
+        draft6="json-pointer",
+        draft7="json-pointer",
+        raises=jsonpointer.JsonPointerException,
     )
     def is_json_pointer(instance):
         if not isinstance(instance, str_types):
