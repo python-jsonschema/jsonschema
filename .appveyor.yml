@@ -64,7 +64,7 @@ environment:
       PYTHON: "C:\\Python37-x64"
 
 init:
-  - echo "TOXENV- %TOXENV%"
+  - echo "TOXENV - %TOXENV%"
 
 install:
   - ps: Update-AppveyorBuild -Version "v$(python setup.py --version) b$Env:APPVEYOR_BUILD_NUMBER"
