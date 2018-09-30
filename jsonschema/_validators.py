@@ -529,3 +529,16 @@ def not_(validator, not_schema, instance, schema):
         yield ValidationError(
             "%r is not allowed for %r" % (not_schema, instance)
         )
+
+
+def if_(validator, if_schema, instance, schema):
+    # FIXME: paths
+    if validator.is_valid(instance, if_schema):
+        if u"then" in schema:
+            then = schema[u"then"]
+            for error in validator.descend(instance, then):
+                yield error
+    elif u"else" in schema:
+        else_ = schema[u"else"]
+        for error in validator.descend(instance, else_):
+            yield error

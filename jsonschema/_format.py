@@ -129,7 +129,7 @@ class FormatChecker(object):
             return True
 
 
-_draft_checkers = {"draft3": [], "draft4": [], "draft6": []}
+_draft_checkers = {"draft3": [], "draft4": [], "draft6": [], "draft7": []}
 
 
 def _checks_drafts(
@@ -137,11 +137,13 @@ def _checks_drafts(
     draft3=None,
     draft4=None,
     draft6=None,
+    draft7=None,
     raises=(),
 ):
     draft3 = draft3 or name
     draft4 = draft4 or name
     draft6 = draft6 or name
+    draft7 = draft7 or name
 
     def wrap(func):
         if draft3:
@@ -153,6 +155,9 @@ def _checks_drafts(
         if draft6:
             _draft_checkers["draft6"].append(draft6)
             func = FormatChecker.cls_checks(draft6, raises)(func)
+        if draft7:
+            _draft_checkers["draft7"].append(draft7)
+            func = FormatChecker.cls_checks(draft7, raises)(func)
         return func
     return wrap
 
@@ -211,7 +216,11 @@ else:
             return True
         return rfc3987.parse(instance, rule="URI")
 
-    @_checks_drafts(draft6="uri-reference", raises=ValueError)
+    @_checks_drafts(
+        draft6="uri-reference",
+        draft7="uri-reference",
+        raises=ValueError,
+    )
     def is_uri_reference(instance):
         if not isinstance(instance, str_types):
             return True
@@ -237,7 +246,7 @@ def is_regex(instance):
     return re.compile(instance)
 
 
-@_checks_drafts(draft3="date", raises=ValueError)
+@_checks_drafts(draft3="date", draft7="date", raises=ValueError)
 def is_date(instance):
     if not isinstance(instance, str_types):
         return True
@@ -294,7 +303,9 @@ except ImportError:
     pass
 else:
     @_checks_drafts(
-        draft6="uri-template", raises=uritemplate.exceptions.InvalidTemplate,
+        draft6="uri-template",
+        draft7="uri-template",
+        raises=uritemplate.exceptions.InvalidTemplate,
     )
     def is_uri_template(
         instance,
@@ -307,3 +318,4 @@ else:
 draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
 draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
 draft6_format_checker = FormatChecker(_draft_checkers["draft6"])
+draft7_format_checker = FormatChecker(_draft_checkers["draft7"])

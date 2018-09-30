@@ -1,8 +1,8 @@
 v3.0.0
 ------
 
-* Support for Draft 6
-* Draft 6 is now the default
+* Support for Draft 6 and Draft 7
+* Draft 7 is now the default
 * New ``TypeChecker`` object for more complex type definitions (and overrides)
 * Falling back to isodate for the date-time format checker is no longer
   attempted, in accordance with the specification
