@@ -1,4 +1,4 @@
-build: off
+build: false
 environment:
   VENV: "%APPVEYOR_BUILD_FOLDER%\\venv"
 
@@ -66,7 +66,7 @@ environment:
 init:
   - echo "TOXENV- %TOXENV%"
 
-build_script:
+install:
   - virtualenv -p "%PYTHON%\\python.exe" "%VENV%"
   - "%VENV%\\Scripts\\activate"
   - pip install tox
