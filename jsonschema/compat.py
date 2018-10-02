@@ -1,3 +1,4 @@
+import contextlib
 import operator
 import sys
 
@@ -27,7 +28,10 @@ else:
         urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit # noqa
     )
     from urllib import unquote  # noqa
-    from urllib2 import urlopen  # noqa
+    import urllib2  # noqa
+    def urlopen(*args, **kwargs):
+        return contextlib.closing(urllib2.urlopen(*args, **kwargs))
+
     str_types = basestring
     int_types = int, long
     iteritems = operator.methodcaller("iteritems")
