@@ -6,11 +6,11 @@ jsonschema
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
-   :target: https://pypi.python.org/pypi/jsonschema
+   :target: https://pypi.org/project/jsonschema/
 
 .. |Pythons| image:: https://img.shields.io/pypi/pyversions/jsonschema.svg
    :alt: Supported Python versions
-   :target: https://pypi.python.org/pypi/jsonschema
+   :target: https://pypi.org/project/jsonschema/
 
 .. |Travis| image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
    :alt: Travis build status
