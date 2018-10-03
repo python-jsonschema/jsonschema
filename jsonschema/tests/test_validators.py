@@ -4,7 +4,9 @@ from decimal import Decimal
 from io import BytesIO
 from unittest import TestCase
 import json
+import os
 import sys
+import tempfile
 import unittest
 
 from twisted.trial.unittest import SynchronousTestCase
@@ -20,6 +22,12 @@ from jsonschema import (
 )
 from jsonschema.compat import PY3
 from jsonschema.tests.compat import mock
+
+
+if PY3:
+    from urllib.request import pathname2url
+else:
+    from urllib import pathname2url
 
 
 def startswith(validator, startswith, instance, schema):
@@ -1340,6 +1348,15 @@ class TestRefResolver(TestCase):
         with self.resolver.resolving(ref) as resolved:
             pass
         self.assertEqual(resolved, 12)
+
+    def test_it_retrieves_local_refs_via_urlopen(self):
+        with tempfile.NamedTemporaryFile(delete=False, mode='wt') as tempf:
+            self.addCleanup(os.remove, tempf.name)
+            json.dump({'foo': 'bar'}, tempf)
+
+        ref = "file://{}#foo".format(pathname2url(tempf.name))
+        with self.resolver.resolving(ref) as resolved:
+            self.assertEqual(resolved, 'bar')
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
