@@ -535,7 +535,7 @@ class TestValidationErrorMessages(TestCase):
             schema=False,
             cls=validators.Draft7Validator,
         )
-        self.assertIn("False schema does not allow something", message)
+        self.assertIn("False schema does not allow 'something'", message)
 
 
 class TestValidationErrorDetails(TestCase):
