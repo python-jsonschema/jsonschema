@@ -1139,9 +1139,9 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         )
         validator.validate("bugs")
 
-    def test_it_does_not_validate_formats_by_default(self):
+    def test_it_validates_formats_by_default(self):
         validator = self.Validator({})
-        self.assertIsNone(validator.format_checker)
+        self.assertIsInstance(validator.format_checker, FormatChecker())
 
     def test_it_validates_formats_if_a_checker_is_provided(self):
         checker = FormatChecker()
