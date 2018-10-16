@@ -1141,7 +1141,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
 
     def test_it_validates_formats_by_default(self):
         validator = self.Validator({})
-        self.assertIsInstance(validator.format_checker, FormatChecker())
+        self.assertIsInstance(validator.format_checker, FormatChecker)
 
     def test_it_validates_formats_if_a_checker_is_provided(self):
         checker = FormatChecker()
