@@ -186,11 +186,12 @@ def uniqueItems(validator, uI, instance, schema):
         yield ValidationError("%r has non-unique elements" % (instance,))
 
 
-def pattern(validator, pattern, instance, schema):
-    if (validator.is_type(instance, "string") and not
-        re.search(pattern, instance)):
-        yield ValidationError("{} does not match {}".format(
-            instance, pattern))
+def pattern(validator, patrn, instance, schema):
+    if (
+        validator.is_type(instance, "string") and
+        not re.search(patrn, instance)
+    ):
+        yield ValidationError("%r does not match %r" % (instance, patrn))
 
 
 def format(validator, format, instance, schema):
