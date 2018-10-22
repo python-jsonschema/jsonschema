@@ -793,8 +793,13 @@ class RefResolver(object):
             result = requests.get(uri).json()
         else:
             # Otherwise, pass off to urllib and assume utf-8
-            with urlopen(uri) as url:
+            url = None
+            try:
+                url = urlopen(uri)
                 result = json.loads(url.read().decode("utf-8"))
+            finally:
+                if url:
+                    url.close()
 
         if self.cache_remote:
             self.store[uri] = result
