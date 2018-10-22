@@ -1040,8 +1040,6 @@ class MetaSchemaTestsMixin(object):
         with self.assertRaises(SchemaError):
             self.Validator.check_schema({"pattern": "\q"})
 
-    @unittest.skip("This test fails but it shouldn't, see"
-                   "github.com/Julian/jsonschema/pull/425#issuecomment-425667814")
     def test_invalid_patternProperty(self):
         with self.assertRaises(SchemaError):
             self.Validator.check_schema(
