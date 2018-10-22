@@ -21,3 +21,5 @@ addons:
     - libenchant-dev
 git:
   depth: false
+after_success:
+  - tox -e codecov
