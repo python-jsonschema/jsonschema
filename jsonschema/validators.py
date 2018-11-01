@@ -881,7 +881,11 @@ def validator_for(schema, default=_LATEST_VERSION):
 
             If unprovided, the default is to return
             the latest supported draft.
+    Raises:
+        SchemaError if the schema doesn't exist
     """
     if schema is True or schema is False:
         return default
-    return meta_schemas.get(schema.get(u"$schema", u""), default)
+    if schema.get(u"$schema", u"") not in meta_schemas:
+        raise SchemaError(message='This schema was not found: {schema}'.format(schema=schema))
+    return meta_schemas[schema.get(u"$schema", u"")]
