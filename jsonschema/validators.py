@@ -881,8 +881,6 @@ def validator_for(schema, default=_LATEST_VERSION):
 
             If unprovided, the default is to return
             the latest supported draft.
-    Raises:
-        SchemaError if the schema doesn't exist
     """
     if schema is True or schema is False:
         return default
