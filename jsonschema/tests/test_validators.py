@@ -8,7 +8,6 @@ import os
 import sys
 import tempfile
 import unittest
-import warnings
 
 from twisted.trial.unittest import SynchronousTestCase
 import attr
