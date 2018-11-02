@@ -8,6 +8,7 @@ import os
 import sys
 import tempfile
 import unittest
+import warnings
 
 from twisted.trial.unittest import SynchronousTestCase
 import attr
@@ -1100,7 +1101,7 @@ for format in FormatChecker.checkers:
     setattr(TestBuiltinFormats, name, test)
 
 
-class TestValidatorFor(TestCase):
+class TestValidatorFor(SynchronousTestCase):
     def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}
         self.assertIs(
@@ -1191,8 +1192,24 @@ class TestValidatorFor(TestCase):
     def test_validator_for_jsonschema_default(self):
         self.assertIs(validators.validator_for({}), validators._LATEST_VERSION)
 
+
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)
+
+    def test_validator_warns_if_schema_not_found(self):
+        self.assertWarns(
+            category=DeprecationWarning,
+            message=(
+                "This schema was not found but going to validate with latest draft. "
+                "This will raise a SchemaError in future. "
+            ),
+            # https://tm.tl/9363 :'(
+            filename=sys.modules[self.assertWarns.__module__].__file__,
+
+            f=validators.validator_for,
+            schema={},
+            default={}
+        )
 
 
 class TestValidate(TestCase):

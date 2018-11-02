@@ -884,4 +884,13 @@ def validator_for(schema, default=_LATEST_VERSION):
     """
     if schema is True or schema is False:
         return default
+    if schema.get(u"$schema", u"") not in meta_schemas:
+        warn(
+            (
+                "This schema was not found but going to validate with latest draft. "
+                "This will raise a SchemaError in future. "
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
     return meta_schemas.get(schema.get(u"$schema", u""), default)
