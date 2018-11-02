@@ -1191,7 +1191,6 @@ class TestValidatorFor(SynchronousTestCase):
     def test_validator_for_jsonschema_default(self):
         self.assertIs(validators.validator_for({}), validators._LATEST_VERSION)
 
-
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)
 
