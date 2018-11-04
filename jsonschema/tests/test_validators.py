@@ -1206,7 +1206,7 @@ class TestValidatorFor(SynchronousTestCase):
 
             f=validators.validator_for,
             schema={},
-            default={}
+            default={},
         )
 
 
