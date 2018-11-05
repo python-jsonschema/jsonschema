@@ -1040,6 +1040,13 @@ class MetaSchemaTestsMixin(object):
         with self.assertRaises(SchemaError):
             self.Validator.check_schema({"pattern": "\q"})
 
+    def test_minItems_invalid_string(self):
+        with self.assertRaises(SchemaError):
+            # needs to be an integer
+            self.Validator.check_schema({"minItems": "1"})
+
+
+class InvalidRegexMixin(object):
     def test_invalid_patternProperty(self):
         with self.assertRaises(SchemaError):
             self.Validator.check_schema(
@@ -1049,6 +1056,14 @@ class MetaSchemaTestsMixin(object):
         with self.assertRaises(exceptions.SchemaError):
             # needs to be an integer
             self.Validator.check_schema({"minItems": "1"})
+
+
+class TestDraft6InvalidRegex(InvalidRegexMixin, object):
+    Validator = validators.Draft6Validator
+
+
+class TestDraft7InvalidRegex(InvalidRegexMixin, object):
+    Validator = validators.Draft7Validator
 
 
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):
