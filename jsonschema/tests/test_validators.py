@@ -1036,26 +1036,22 @@ class MetaSchemaTestsMixin(object):
         with self.assertRaises(exceptions.SchemaError):
             self.Validator.check_schema({"properties": {"test": object()}})
 
-    def test_invalid_pattern(self):
-        with self.assertRaises(SchemaError):
-            self.Validator.check_schema({"pattern": "\q"})
-
     def test_minItems_invalid_string(self):
-        with self.assertRaises(SchemaError):
+        with self.assertRaises(exceptions.SchemaError):
             # needs to be an integer
             self.Validator.check_schema({"minItems": "1"})
 
 
 class InvalidRegexMixin(object):
     def test_invalid_patternProperty(self):
-        with self.assertRaises(SchemaError):
-            self.Validator.check_schema(
-                {"patternProperties":{"\q": {"type": "number"}}})
-
-    def test_minItems_invalid_string(self):
         with self.assertRaises(exceptions.SchemaError):
-            # needs to be an integer
-            self.Validator.check_schema({"minItems": "1"})
+            self.Validator.check_schema(
+                {"patternProperties":{"\q": {"type": "number"}}},
+            )
+
+    def test_invalid_pattern(self):
+        with self.assertRaises(exceptions.SchemaError):
+            self.Validator.check_schema({"pattern": "\q"})
 
 
 class TestDraft6InvalidRegex(InvalidRegexMixin, TestCase):
