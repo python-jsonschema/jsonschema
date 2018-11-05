@@ -1058,11 +1058,11 @@ class InvalidRegexMixin(object):
             self.Validator.check_schema({"minItems": "1"})
 
 
-class TestDraft6InvalidRegex(InvalidRegexMixin, object):
+class TestDraft6InvalidRegex(InvalidRegexMixin, TestCase):
     Validator = validators.Draft6Validator
 
 
-class TestDraft7InvalidRegex(InvalidRegexMixin, object):
+class TestDraft7InvalidRegex(InvalidRegexMixin, TestCase):
     Validator = validators.Draft7Validator
 
 
