@@ -1194,7 +1194,7 @@ class TestValidatorFor(SynchronousTestCase):
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)
 
-    def test_validator_warns_if_schema_not_found(self):
+    def test_warns_if_schema_specified_not_in_meta_schema(self):
         self.assertWarns(
             category=DeprecationWarning,
             message=(
@@ -1205,9 +1205,18 @@ class TestValidatorFor(SynchronousTestCase):
             filename=sys.modules[self.assertWarns.__module__].__file__,
 
             f=validators.validator_for,
-            schema={},
+            schema={u"$schema": 'unknownSchema'},
             default={},
         )
+
+    def test_doesnt_warns_if_schema_not_specified(self):
+        validators.validator_for(schema={}, default={}),
+        self.assertFalse(self.flushWarnings())
+
+    def test_latest_schema_used_if_schema_not_specified(self):
+        lastestSchema = validators.meta_schemas["http://json-schema.org/draft-07/schema#"]
+        schema = validators.validator_for(schema={}, default=lastestSchema)
+        self.assertEqual(schema, lastestSchema)
 
 
 class TestValidate(TestCase):

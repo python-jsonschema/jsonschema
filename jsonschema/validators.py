@@ -882,9 +882,9 @@ def validator_for(schema, default=_LATEST_VERSION):
             If unprovided, the default is to return
             the latest supported draft.
     """
-    if schema is True or schema is False:
+    if schema is True or schema is False or not u"$schema" in schema:
         return default
-    if schema.get(u"$schema", u"") not in meta_schemas:
+    if schema[u"$schema"] not in meta_schemas:
         warn(
             (
                 "This schema was not found but going to validate with latest draft. "
@@ -893,4 +893,4 @@ def validator_for(schema, default=_LATEST_VERSION):
             DeprecationWarning,
             stacklevel=2,
         )
-    return meta_schemas.get(schema.get(u"$schema", u""), default)
+    return meta_schemas.get(schema[u"$schema"], _LATEST_VERSION)
