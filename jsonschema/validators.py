@@ -887,7 +887,7 @@ def validator_for(schema, default=_LATEST_VERSION):
     if schema[u"$schema"] not in meta_schemas:
         warn(
             (
-                "This metaschema: {metaSchema} was not found but going to validate with latest draft. ".format(metaSchema=schema[u"$schema"])
+                "This metaschema was not found but going to validate with latest draft. "
                 "This will raise an error in future. "
             ),
             DeprecationWarning,
