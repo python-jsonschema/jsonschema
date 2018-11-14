@@ -1194,11 +1194,11 @@ class TestValidatorFor(SynchronousTestCase):
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)
 
-    def test_warns_if_schema_specified_not_in_meta_schema(self):
+    def test_warns_if_meta_schema_specified_was_not_found(self):
         self.assertWarns(
             category=DeprecationWarning,
             message=(
-                "This schema was not found but going to validate with latest draft. "
+                "This schema: unknownSchema was not found but going to validate with latest draft. "
                 "This will raise an error in future. "
             ),
             # https://tm.tl/9363 :'(
@@ -1209,11 +1209,11 @@ class TestValidatorFor(SynchronousTestCase):
             default={},
         )
 
-    def test_doesnt_warns_if_schema_not_specified(self):
+    def test_doesnt_warns_if_meta_schema_not_specified(self):
         validators.validator_for(schema={}, default={}),
         self.assertFalse(self.flushWarnings())
 
-    def test_latest_schema_used_if_schema_not_specified(self):
+    def test_latest_schema_used_if_meta_schema_not_specified(self):
         lastestSchema = validators.meta_schemas["http://json-schema.org/draft-07/schema#"]
         schema = validators.validator_for(schema={}, default=lastestSchema)
         self.assertEqual(schema, lastestSchema)
