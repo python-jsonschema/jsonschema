@@ -1,0 +1,13 @@
+import json
+
+import jsonschema
+
+class JSONWithValidatorDecoder(json.JSONDecoder):
+    def __init__(self, validator, **kwargs):
+        super(JSONWithSchemaDecoder, self).__init__(**kwargs)
+        self.__validator = validator
+
+    def decode(self, s, **kwargs):
+        decoded = super(JSONWithSchemaDecoder, self).decode(s, **kwargs)
+        self.__validator.validate(decoded)
+        return decoded
