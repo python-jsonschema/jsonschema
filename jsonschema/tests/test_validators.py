@@ -1198,8 +1198,8 @@ class TestValidatorFor(SynchronousTestCase):
         self.assertWarns(
             category=DeprecationWarning,
             message=(
-                "This metaschema was not found but going to validate with latest draft. "
-                "This will raise an error in future. "
+                "This metaschema was not found but going to validate with the "
+                "latest draft. This will raise an error in future. "
             ),
             # https://tm.tl/9363 :'(
             filename=sys.modules[self.assertWarns.__module__].__file__,
@@ -1214,7 +1214,9 @@ class TestValidatorFor(SynchronousTestCase):
         self.assertFalse(self.flushWarnings())
 
     def test_latest_schema_used_if_meta_schema_not_specified(self):
-        lastestSchema = validators.meta_schemas["http://json-schema.org/draft-07/schema#"]
+        lastestSchema = validators.meta_schemas[
+            "http://json-schema.org/draft-07/schema#"
+        ]
         schema = validators.validator_for(schema={}, default=lastestSchema)
         self.assertEqual(schema, lastestSchema)
 
