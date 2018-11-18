@@ -1100,7 +1100,7 @@ for format in FormatChecker.checkers:
     setattr(TestBuiltinFormats, name, test)
 
 
-class TestValidatorFor(TestCase):
+class TestValidatorFor(SynchronousTestCase):
     def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}
         self.assertIs(
@@ -1193,6 +1193,32 @@ class TestValidatorFor(TestCase):
 
     def test_validator_for_custom_default(self):
         self.assertIs(validators.validator_for({}, default=None), None)
+
+    def test_warns_if_meta_schema_specified_was_not_found(self):
+        self.assertWarns(
+            category=DeprecationWarning,
+            message=(
+                "This metaschema was not found but going to validate with the "
+                "latest draft. This will raise an error in future. "
+            ),
+            # https://tm.tl/9363 :'(
+            filename=sys.modules[self.assertWarns.__module__].__file__,
+
+            f=validators.validator_for,
+            schema={u"$schema": 'unknownSchema'},
+            default={},
+        )
+
+    def test_doesnt_warns_if_meta_schema_not_specified(self):
+        validators.validator_for(schema={}, default={}),
+        self.assertFalse(self.flushWarnings())
+
+    def test_latest_schema_used_if_meta_schema_not_specified(self):
+        lastestSchema = validators.meta_schemas[
+            "http://json-schema.org/draft-07/schema#"
+        ]
+        schema = validators.validator_for(schema={}, default=lastestSchema)
+        self.assertEqual(schema, lastestSchema)
 
 
 class TestValidate(TestCase):
