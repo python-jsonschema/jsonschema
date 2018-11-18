@@ -882,13 +882,14 @@ def validator_for(schema, default=_LATEST_VERSION):
             If unprovided, the default is to return
             the latest supported draft.
     """
-    if schema is True or schema is False or not u"$schema" in schema:
+    if schema is True or schema is False or u"$schema" not in schema:
         return default
     if schema[u"$schema"] not in meta_schemas:
         warn(
             (
-                "This metaschema was not found but going to validate with the "
-                "latest draft. This will raise an error in future. "
+                "The metaschema specified by $schema was not found. "
+                "Using the latest draft to validate, but this will raise "
+                "an error in the future."
             ),
             DeprecationWarning,
             stacklevel=2,
