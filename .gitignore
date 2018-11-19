@@ -1,3 +1,7 @@
+.eggs/
+.tox/
+build/
+jsonschema.egg-info/
 _cache
 _static
 _templates
