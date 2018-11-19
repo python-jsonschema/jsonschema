@@ -181,11 +181,7 @@ def create(
 
         id_of:
         
-            Function that gets $id from a schema.
-            $id is a reserved keyword. It serves as way to:
-
-                1. Declare an identifier for the schema or subschema
-                2. Declaring a base URL against which $ref URLs are resolved
+            A function that given a schema, returns its ID.
             
     Returns:
 
