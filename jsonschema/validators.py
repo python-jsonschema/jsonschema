@@ -179,6 +179,10 @@ def create(
             will be converted to functions and redefined in this object's
             `jsonschema.TypeChecker`.
 
+        id_of:
+        
+            A function that given a schema, returns its ID.
+            
     Returns:
 
         a new `jsonschema.IValidator` class
