@@ -180,9 +180,9 @@ def create(
             `jsonschema.TypeChecker`.
 
         id_of:
-        
+
             A function that given a schema, returns its ID.
-            
+
     Returns:
 
         a new `jsonschema.IValidator` class
