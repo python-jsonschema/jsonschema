@@ -179,7 +179,7 @@ def create(
             will be converted to functions and redefined in this object's
             `jsonschema.TypeChecker`.
 
-        id_of:
+        id_of (callable):
 
             A function that given a schema, returns its ID.
 
