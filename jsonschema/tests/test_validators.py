@@ -1014,6 +1014,18 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         # Make sure original cause is attached
         self.assertIs(cm.exception.cause, bad)
 
+    def test_non_string_custom_type(self):
+        non_string_type = object()
+        schema = {"type": [non_string_type]}
+        Crazy = validators.extend(
+            self.Validator,
+            type_checker=self.Validator.TYPE_CHECKER.redefine(
+                non_string_type,
+                lambda checker, thing: isinstance(thing, int),
+            )
+        )
+        Crazy(schema).validate(15)
+
 
 class AntiDraft6LeakMixin(object):
     """
@@ -1071,11 +1083,6 @@ class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
         self.assertTrue(self.validator.is_type(True, "boolean"))
         self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
-
-    def test_non_string_custom_types(self):
-        schema = {'type': [None]}
-        cls = self.Validator(schema, types={None: type(None)})
-        cls.validate(None, schema)
 
 
 class TestDraft4Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
