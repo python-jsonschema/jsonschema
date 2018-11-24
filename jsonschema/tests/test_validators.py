@@ -1086,6 +1086,10 @@ class TestDraft6Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft6Validator
 
 
+class TestDraft7Validator(ValidatorTestMixin, TestCase):
+    Validator = validators.Draft7Validator
+
+
 class TestBuiltinFormats(TestCase):
     """
     The built-in (specification-defined) formats do not raise type errors.
@@ -1494,6 +1498,10 @@ class UniqueTupleItemsMixin(object):
         with self.assertRaises(ValidationError) as e:
             validator.validate((1, 1))
         self.assertIn("(1, 1) has non-unique elements", str(e.exception))
+
+
+class TestDraft7UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
+    Validator = validators.Draft7Validator
 
 
 class TestDraft6UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
