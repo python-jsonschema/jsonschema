@@ -960,17 +960,25 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         self.Validator({"type": "string"}).validate(b"foo")
 
     def test_it_can_validate_with_decimals(self):
-        schema = {"type": "number"}
-        validator = self.Validator(
-            schema, types={"number": (int, float, Decimal)}
+        schema = {"items": {"type": "number"}}
+        Validator = validators.extend(
+            self.Validator,
+            type_checker=self.Validator.TYPE_CHECKER.redefine(
+                "number",
+                lambda checker, thing: isinstance(
+                    thing, (int, float, Decimal),
+                ) and not isinstance(thing, bool),
+            )
         )
 
-        for valid in [1, 1.1, Decimal(1) / Decimal(8)]:
-            validator.validate(valid)
+        validator = Validator(schema)
+        validator.validate([1, 1.1, Decimal(1) / Decimal(8)])
 
-        for invalid in ["foo", {}, [], True, None]:
-            with self.assertRaises(ValidationError):
-                validator.validate(invalid)
+        invalid = ["foo", {}, [], True, None]
+        self.assertEqual(
+            [error.instance for error in validator.iter_errors(invalid)],
+            invalid,
+        )
 
     def test_it_returns_true_for_formats_it_does_not_know_about(self):
         validator = self.Validator(
