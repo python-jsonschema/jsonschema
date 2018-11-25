@@ -901,7 +901,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             )
 
     def test_invalid_instances_are_not_valid(self):
-        errors = iter([mock.Mock()])
+        errors = iter([ValidationError("An error!")])
 
         with mock.patch.object(
             self.validator, "iter_errors", return_value=errors,
