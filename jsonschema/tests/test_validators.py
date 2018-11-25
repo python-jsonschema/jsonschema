@@ -35,7 +35,7 @@ def startswith(validator, startswith, instance, schema):
         yield ValidationError(u"Whoops!")
 
 
-class TestCreateAndExtend(TestCase):
+class TestCreateAndExtend(SynchronousTestCase):
     def setUp(self):
         self.addCleanup(
             self.assertEqual,
@@ -132,15 +132,19 @@ class TestCreateAndExtend(TestCase):
             (
                 Extended.VALIDATORS,
                 Extended.META_SCHEMA,
-                Extended.DEFAULT_TYPES,
                 Extended.TYPE_CHECKER,
                 self.Validator.VALIDATORS,
+
+                Extended.DEFAULT_TYPES,
+                self.flushWarnings()[0]["message"],
             ), (
                 dict(original, new=new),
                 self.Validator.META_SCHEMA,
-                self.Validator.DEFAULT_TYPES,
                 self.Validator.TYPE_CHECKER,
                 original,
+
+                self.Validator.DEFAULT_TYPES,
+                self.flushWarnings()[0]["message"],
             ),
         )
 
