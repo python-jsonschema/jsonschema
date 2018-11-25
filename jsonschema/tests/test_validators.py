@@ -20,14 +20,8 @@ from jsonschema import (
     _types,
     validators,
 )
-from jsonschema.compat import PY3
+from jsonschema.compat import PY3, pathname2url
 from jsonschema.tests.compat import mock
-
-
-if PY3:
-    from urllib.request import pathname2url
-else:
-    from urllib import pathname2url
 
 
 def startswith(validator, startswith, instance, schema):
