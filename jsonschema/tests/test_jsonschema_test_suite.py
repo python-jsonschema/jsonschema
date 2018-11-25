@@ -191,7 +191,6 @@ with warnings.catch_warnings():
         ),
     )
 
-
     TestDraft4LegacyTypeCheck = DRAFT4.to_unittest_testcase(
         DRAFT4.tests_of(name="type"),
         name="TestDraft4LegacyTypeCheck",
