@@ -1,3 +1,8 @@
+"""
+Python 2/3 compatibility helpers.
+
+Note: This module is *not* public API.
+"""
 import contextlib
 import operator
 import sys
