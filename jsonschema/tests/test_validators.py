@@ -47,14 +47,23 @@ class TestCreateAndExtend(SynchronousTestCase):
         )
 
     def test_attrs(self):
-        self.assertEqual(self.Validator.VALIDATORS, self.validators)
-        self.assertEqual(self.Validator.META_SCHEMA, self.meta_schema)
-        self.assertEqual(self.Validator.TYPE_CHECKER, self.type_checker)
+        self.assertEqual(
+            (
+                self.Validator.VALIDATORS,
+                self.Validator.META_SCHEMA,
+                self.Validator.TYPE_CHECKER,
+            ), (
+                self.validators,
+                self.meta_schema,
+                self.type_checker,
+            ),
+        )
 
         # Default types should still be set to the old default if not provided
         expected_types = {u"array", u"boolean", u"integer", u"null", u"number",
                           u"object", u"string"}
         self.assertEqual(set(self.Validator.DEFAULT_TYPES), expected_types)
+        self.assertEqual(len(self.flushWarnings()), 1)
 
     def test_init(self):
         schema = {u"startswith": u"foo"}
