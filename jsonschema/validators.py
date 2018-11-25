@@ -9,8 +9,16 @@ from six import add_metaclass
 
 from jsonschema import _utils, _validators, _types
 from jsonschema.compat import (
-    Sequence, urljoin, urlsplit, urldefrag, unquote, urlopen,
-    str_types, int_types, iteritems, lru_cache,
+    Sequence,
+    int_types,
+    iteritems,
+    lru_cache,
+    str_types,
+    unquote,
+    urldefrag,
+    urljoin,
+    urlopen,
+    urlsplit,
 )
 from jsonschema.exceptions import (
     RefResolutionError,

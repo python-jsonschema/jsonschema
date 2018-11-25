@@ -3,7 +3,7 @@ import json
 import pkgutil
 import re
 
-from jsonschema.compat import str_types, MutableMapping, urlsplit
+from jsonschema.compat import MutableMapping, str_types, urlsplit
 
 
 class URIDict(MutableMapping):
