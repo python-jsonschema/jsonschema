@@ -7,6 +7,7 @@ See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 """
 
 import sys
+import warnings
 
 from jsonschema import (
     Draft3Validator,
@@ -173,27 +174,30 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
 )
 
 
-TestDraft3LegacyTypeCheck = DRAFT3.to_unittest_testcase(
-    # Interestingly the any part couldn't really be done w/the old API.
-    (
-        (test for test in each if test.schema != {"type": "any"})
-        for each in DRAFT3.tests_of(name="type")
-    ),
-    name="TestDraft3LegacyTypeCheck",
-    Validator=create(
-        meta_schema=Draft3Validator.META_SCHEMA,
-        validators=Draft3Validator.VALIDATORS,
-        default_types=_DEPRECATED_DEFAULT_TYPES,
-    ),
-)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", DeprecationWarning)
+
+    TestDraft3LegacyTypeCheck = DRAFT3.to_unittest_testcase(
+        # Interestingly the any part couldn't really be done w/the old API.
+        (
+            (test for test in each if test.schema != {"type": "any"})
+            for each in DRAFT3.tests_of(name="type")
+        ),
+        name="TestDraft3LegacyTypeCheck",
+        Validator=create(
+            meta_schema=Draft3Validator.META_SCHEMA,
+            validators=Draft3Validator.VALIDATORS,
+            default_types=_DEPRECATED_DEFAULT_TYPES,
+        ),
+    )
 
 
-TestDraft4LegacyTypeCheck = DRAFT4.to_unittest_testcase(
-    DRAFT4.tests_of(name="type"),
-    name="TestDraft4LegacyTypeCheck",
-    Validator=create(
-        meta_schema=Draft4Validator.META_SCHEMA,
-        validators=Draft4Validator.VALIDATORS,
-        default_types=_DEPRECATED_DEFAULT_TYPES,
-    ),
-)
+    TestDraft4LegacyTypeCheck = DRAFT4.to_unittest_testcase(
+        DRAFT4.tests_of(name="type"),
+        name="TestDraft4LegacyTypeCheck",
+        Validator=create(
+            meta_schema=Draft4Validator.META_SCHEMA,
+            validators=Draft4Validator.VALIDATORS,
+            default_types=_DEPRECATED_DEFAULT_TYPES,
+        ),
+    )
