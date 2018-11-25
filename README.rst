@@ -72,6 +72,16 @@ Features
   of which properties or items failed validation.
 
 
+Installation
+------------
+
+``jsonschema`` is available on `PyPI <https://pypi.org/project/jsonschema/>`_. You can install using `pip <https://pip.pypa.io/en/stable/>`_:
+
+.. code-block:: bash
+
+    $ pip install jsonschema
+
+
 Release Notes
 -------------
 
