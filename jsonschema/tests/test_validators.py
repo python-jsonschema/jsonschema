@@ -1026,6 +1026,23 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         )
         Crazy(schema).validate(15)
 
+    def test_it_properly_formats_tuples_in_errors(self):
+        """
+        A tuple instance properly formats validation errors for uniqueItems.
+
+        See https://github.com/Julian/jsonschema/pull/224
+        """
+        TupleValidator = validators.extend(
+            self.Validator,
+            type_checker=self.Validator.TYPE_CHECKER.redefine(
+                "array",
+                lambda checker, thing: isinstance(thing, tuple),
+            )
+        )
+        with self.assertRaises(ValidationError) as e:
+            TupleValidator({"uniqueItems": True}).validate((1, 1))
+        self.assertIn("(1, 1) has non-unique elements", str(e.exception))
+
 
 class AntiDraft6LeakMixin(object):
     """
@@ -1488,39 +1505,6 @@ class TestRefResolver(TestCase):
         with self.assertRaises(validators.RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
-
-
-class UniqueTupleItemsMixin(object):
-    """
-    A tuple instance properly formats validation errors for uniqueItems.
-
-    See https://github.com/Julian/jsonschema/pull/224
-    """
-
-    def test_it_properly_formats_an_error_message(self):
-        validator = self.Validator(
-            schema={"uniqueItems": True},
-            types={"array": (tuple,)},
-        )
-        with self.assertRaises(ValidationError) as e:
-            validator.validate((1, 1))
-        self.assertIn("(1, 1) has non-unique elements", str(e.exception))
-
-
-class TestDraft7UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
-    Validator = validators.Draft7Validator
-
-
-class TestDraft6UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
-    Validator = validators.Draft6Validator
-
-
-class TestDraft4UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
-    Validator = validators.Draft4Validator
-
-
-class TestDraft3UniqueTupleItems(UniqueTupleItemsMixin, TestCase):
-    Validator = validators.Draft3Validator
 
 
 def sorted_errors(errors):
