@@ -80,6 +80,16 @@ Installation
 .. code-block:: bash
 
     $ pip install jsonschema
+    
+
+Demo
+----
+
+Try ``jsonschema`` interactively in this online demo:
+
+.. image:: https://user-images.githubusercontent.com/1155573/49400125-16e73500-f722-11e8-9275-e1d7eb3bbf99.png
+    :target: https://notebooks.rmotr.com/demo/gh/martinzugnoni/jsonschema
+    :alt: Open Live Demo
 
 
 Release Notes

@@ -1,0 +1,3 @@
+requirements:
+    - jsonschema==2.6.0
+    - pyrsistent==0.14.7
