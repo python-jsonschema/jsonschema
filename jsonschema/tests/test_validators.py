@@ -73,9 +73,10 @@ class TestCreateAndExtend(SynchronousTestCase):
         schema = {u"startswith": u"hel"}
         iter_errors = self.Validator(schema).iter_errors
 
-        self.assertEqual(list(iter_errors(u"hello")), [])
+        errors = list(iter_errors(u"hello"))
+        self.assertEqual(errors, [])
 
-        error = ValidationError(
+        expected_error = ValidationError(
             u"Whoops!",
             instance=u"goodbye",
             schema=schema,
@@ -83,7 +84,10 @@ class TestCreateAndExtend(SynchronousTestCase):
             validator_value=u"hel",
             schema_path=deque([u"startswith"]),
         )
-        self.assertEqual(list(iter_errors(u"goodbye")), [error])
+
+        errors = list(iter_errors(u"goodbye"))
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0]._contents(), expected_error._contents())
 
     def test_if_a_version_is_provided_it_is_registered(self):
         Validator = validators.create(

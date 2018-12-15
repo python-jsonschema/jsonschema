@@ -12,7 +12,8 @@ class TestBestMatch(TestCase):
         reversed_best = exceptions.best_match(reversed(errors))
         msg = "Didn't return a consistent best match!\nGot: {0}\n\nThen: {1}"
         self.assertEqual(
-            best, reversed_best, msg=msg.format(best, reversed_best),
+            best._contents(), reversed_best._contents(),
+            msg=msg.format(best, reversed_best),
         )
         return best
 
@@ -460,3 +461,9 @@ class TestErrorInitReprStr(TestCase):
             schema="schema",
         )
         self.assertIn(repr(instance), str(error))
+
+
+class TestHashable(TestCase):
+    def test_hashable(self):
+        set([exceptions.ValidationError("")])
+        set([exceptions.SchemaError("")])
