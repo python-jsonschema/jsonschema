@@ -39,7 +39,7 @@ class TestParser(TestCase):
             contents = ""
         elif path == self.schema_file:
             contents = {}
-        else:
+        else:  # pragma: no cover
             self.fail("What is {!r}".format(path))
         return NativeIO(json.dumps(contents))
 
