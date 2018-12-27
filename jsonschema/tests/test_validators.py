@@ -898,36 +898,22 @@ class MetaSchemaTestsMixin(object):
 
 
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):
-    def setUp(self):
-        self.instance = object()
-        self.schema = {}
-        self.validator = self.Validator(self.schema)
-
     def test_valid_instances_are_valid(self):
-        errors = iter([])
-
-        with mock.patch.object(
-            self.validator, "iter_errors", return_value=errors,
-        ):
-            self.assertTrue(
-                self.validator.is_valid(self.instance, self.schema)
-            )
+        schema, instance = self.valid
+        self.assertTrue(self.Validator(schema).is_valid(instance))
 
     def test_invalid_instances_are_not_valid(self):
-        errors = iter([ValidationError("An error!")])
-
-        with mock.patch.object(
-            self.validator, "iter_errors", return_value=errors,
-        ):
-            self.assertFalse(
-                self.validator.is_valid(self.instance, self.schema)
-            )
+        schema, instance = self.invalid
+        self.assertFalse(self.Validator(schema).is_valid(instance))
 
     def test_non_existent_properties_are_ignored(self):
         self.Validator({object(): object()}).validate(instance=object())
 
     def test_it_creates_a_ref_resolver_if_not_provided(self):
-        self.assertIsInstance(self.validator.resolver, validators.RefResolver)
+        self.assertIsInstance(
+            self.Validator({}).resolver,
+            validators.RefResolver,
+        )
 
     def test_it_delegates_to_a_ref_resolver(self):
         ref, schema = "someCoolRef", {"type": "integer"}
@@ -957,14 +943,14 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             self.Validator(schema, resolver=resolver).validate(None)
 
     def test_is_type_is_true_for_valid_type(self):
-        self.assertTrue(self.validator.is_type("foo", "string"))
+        self.assertTrue(self.Validator({}).is_type("foo", "string"))
 
     def test_is_type_is_false_for_invalid_type(self):
-        self.assertFalse(self.validator.is_type("foo", "array"))
+        self.assertFalse(self.Validator({}).is_type("foo", "array"))
 
     def test_is_type_evades_bool_inheriting_from_int(self):
-        self.assertFalse(self.validator.is_type(True, "integer"))
-        self.assertFalse(self.validator.is_type(True, "number"))
+        self.assertFalse(self.Validator({}).is_type(True, "integer"))
+        self.assertFalse(self.Validator({}).is_type(True, "number"))
 
     @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
     def test_string_a_bytestring_is_a_string(self):
@@ -1085,6 +1071,8 @@ class AntiDraft6LeakMixin(object):
 
 class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     Validator = validators.Draft3Validator
+    valid = {}, {}
+    invalid = {"type": "integer"}, "foo"
 
     def test_any_type_is_valid_for_type_any(self):
         validator = self.Validator({"type": "any"})
@@ -1106,23 +1094,29 @@ class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
             validator.validate("foo")
 
     def test_is_type_is_true_for_any_type(self):
-        self.assertTrue(self.validator.is_valid(object(), {"type": "any"}))
+        self.assertTrue(self.Validator({}).is_valid(object(), {"type": "any"}))
 
     def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
-        self.assertTrue(self.validator.is_type(True, "boolean"))
-        self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
+        self.assertTrue(self.Validator({}).is_type(True, "boolean"))
+        self.assertTrue(self.Validator({}).is_valid(True, {"type": "any"}))
 
 
 class TestDraft4Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     Validator = validators.Draft4Validator
+    valid = {}, {}
+    invalid = {"type": "integer"}, "foo"
 
 
 class TestDraft6Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft6Validator
+    valid = {}, {}
+    invalid = {"type": "integer"}, "foo"
 
 
 class TestDraft7Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft7Validator
+    valid = {}, {}
+    invalid = {"type": "integer"}, "foo"
 
 
 class TestBuiltinFormats(TestCase):
