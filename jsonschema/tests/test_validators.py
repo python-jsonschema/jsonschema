@@ -21,7 +21,6 @@ from jsonschema import (
     validators,
 )
 from jsonschema.compat import PY3, pathname2url
-from jsonschema.tests.compat import mock
 
 
 def startswith(validator, startswith, instance, schema):
@@ -1256,11 +1255,12 @@ class TestValidatorFor(SynchronousTestCase):
         self.assertFalse(self.flushWarnings())
 
 
-class TestValidate(TestCase):
+class TestValidate(SynchronousTestCase):
     def assertUses(self, schema, Validator):
-        with mock.patch.object(Validator, "check_schema") as check_schema:
-            validators.validate({}, schema)
-            check_schema.assert_called_once_with(schema)
+        result = []
+        self.patch(Validator, "check_schema", result.append)
+        validators.validate({}, schema)
+        self.assertEqual(result, [schema])
 
     def test_draft3_validator_is_chosen(self):
         self.assertUses(
@@ -1326,7 +1326,7 @@ class TestValidate(TestCase):
         )
 
 
-class TestRefResolver(TestCase):
+class TestRefResolver(SynchronousTestCase):
 
     base_uri = ""
     stored_uri = "foo://stored"
@@ -1341,14 +1341,14 @@ class TestRefResolver(TestCase):
 
     def test_it_does_not_retrieve_schema_urls_from_the_network(self):
         ref = validators.Draft3Validator.META_SCHEMA["id"]
-        with mock.patch.object(self.resolver, "resolve_remote") as remote:
-            with self.resolver.resolving(ref) as resolved:
-                pass
-        self.assertEqual(
-            resolved,
-            validators.Draft3Validator.META_SCHEMA,
+        self.patch(
+            self.resolver,
+            "resolve_remote",
+            lambda *args, **kwargs: self.fail("Should not have been called!"),
         )
-        self.assertFalse(remote.called)
+        with self.resolver.resolving(ref) as resolved:
+            pass
+        self.assertEqual(resolved, validators.Draft3Validator.META_SCHEMA)
 
     def test_it_resolves_local_refs(self):
         ref = "#/properties/foo"
