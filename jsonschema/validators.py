@@ -862,8 +862,12 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     """
     if cls is None:
         cls = validator_for(schema)
+
     cls.check_schema(schema)
-    cls(schema, *args, **kwargs).validate(instance)
+    validator = cls(schema, *args, **kwargs)
+    error = exceptions.best_match(validator.iter_errors(instance))
+    if error is not None:
+        raise error
 
 
 def validator_for(schema, default=_LATEST_VERSION):

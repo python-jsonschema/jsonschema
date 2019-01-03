@@ -358,13 +358,12 @@ class TestValidationErrorMessages(TestCase):
     def test_object_without_title_type_failure(self):
         type = {u"type": [{u"minimum": 3}]}
         message = self.message_for(instance=1, schema={u"type": [type]})
-        self.assertEqual(message, "1 is not of type %r" % (type,))
+        self.assertEqual(message, "1 is less than the minimum of 3")
 
-    def test_object_with_name_type_failure(self):
-        name = "Foo"
-        schema = {u"type": [{u"name": name, u"minimum": 3}]}
+    def test_object_with_named_type_failure(self):
+        schema = {u"type": [{u"name": "Foo", u"minimum": 3}]}
         message = self.message_for(instance=1, schema=schema)
-        self.assertEqual(message, "1 is not of type %r" % (name,))
+        self.assertEqual(message, "1 is less than the minimum of 3")
 
     def test_minimum(self):
         message = self.message_for(instance=1, schema={"minimum": 2})
@@ -1323,6 +1322,13 @@ class TestValidate(SynchronousTestCase):
             str(e.exception),
             "(?s)Failed validating u?'.*' in metaschema.*On schema",
         )
+
+    def test_it_uses_best_match(self):
+        # This is a schema that best_match will recurse into
+        schema = {"oneOf": [{"type": "string"}, {"type": "array"}]}
+        with self.assertRaises(exceptions.ValidationError) as e:
+            validators.validate(12, schema)
+        self.assertIn("12 is not of type", str(e.exception))
 
 
 class TestRefResolver(SynchronousTestCase):
