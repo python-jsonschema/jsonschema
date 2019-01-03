@@ -14,10 +14,9 @@ import attr
 
 from jsonschema import (
     FormatChecker,
-    SchemaError,
-    ValidationError,
     TypeChecker,
     _types,
+    exceptions,
     validators,
 )
 from jsonschema.compat import PY3, pathname2url
@@ -25,7 +24,7 @@ from jsonschema.compat import PY3, pathname2url
 
 def startswith(validator, startswith, instance, schema):
     if not instance.startswith(startswith):
-        yield ValidationError(u"Whoops!")
+        yield exceptions.ValidationError(u"Whoops!")
 
 
 class TestCreateAndExtend(SynchronousTestCase):
@@ -75,7 +74,7 @@ class TestCreateAndExtend(SynchronousTestCase):
         errors = list(iter_errors(u"hello"))
         self.assertEqual(errors, [])
 
-        expected_error = ValidationError(
+        expected_error = exceptions.ValidationError(
             u"Whoops!",
             instance=u"goodbye",
             schema=schema,
@@ -339,7 +338,7 @@ class TestIterErrors(TestCase):
 class TestValidationErrorMessages(TestCase):
     def message_for(self, instance, schema, *args, **kwargs):
         kwargs.setdefault("cls", validators.Draft3Validator)
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(exceptions.ValidationError) as e:
             validators.validate(instance, schema, *args, **kwargs)
         return e.exception.message
 
@@ -887,11 +886,11 @@ class TestValidationErrorDetails(TestCase):
 class MetaSchemaTestsMixin(object):
     # TODO: These all belong upstream
     def test_invalid_properties(self):
-        with self.assertRaises(SchemaError):
+        with self.assertRaises(exceptions.SchemaError):
             self.Validator.check_schema({"properties": {"test": object()}})
 
     def test_minItems_invalid_string(self):
-        with self.assertRaises(SchemaError):
+        with self.assertRaises(exceptions.SchemaError):
             # needs to be an integer
             self.Validator.check_schema({"minItems": "1"})
 
@@ -919,7 +918,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         resolver = validators.RefResolver("", {}, store={ref: schema})
         validator = self.Validator({"$ref": ref}, resolver=resolver)
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(exceptions.ValidationError):
             validator.validate(None)
 
     def test_it_delegates_to_a_legacy_ref_resolver(self):
@@ -938,7 +937,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         resolver = LegacyRefResolver()
         schema = {"$ref": "the ref"}
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(exceptions.ValidationError):
             self.Validator(schema, resolver=resolver).validate(None)
 
     def test_is_type_is_true_for_valid_type(self):
@@ -1004,7 +1003,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         )
 
         validator.validate("good")
-        with self.assertRaises(ValidationError) as cm:
+        with self.assertRaises(exceptions.ValidationError) as cm:
             validator.validate("bad")
 
         # Make sure original cause is attached
@@ -1035,7 +1034,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
                 lambda checker, thing: isinstance(thing, tuple),
             )
         )
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(exceptions.ValidationError) as e:
             TupleValidator({"uniqueItems": True}).validate((1, 1))
         self.assertIn("(1, 1) has non-unique elements", str(e.exception))
 
@@ -1046,12 +1045,12 @@ class AntiDraft6LeakMixin(object):
     """
 
     def test_True_is_not_a_schema(self):
-        with self.assertRaises(SchemaError) as e:
+        with self.assertRaises(exceptions.SchemaError) as e:
             self.Validator.check_schema(True)
         self.assertIn("True is not of type", str(e.exception))
 
     def test_False_is_not_a_schema(self):
-        with self.assertRaises(SchemaError) as e:
+        with self.assertRaises(exceptions.SchemaError) as e:
             self.Validator.check_schema(False)
         self.assertIn("False is not of type", str(e.exception))
 
@@ -1089,7 +1088,7 @@ class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
         )
         validator = Crazy({"type": "any"})
         validator.validate(12)
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(exceptions.ValidationError):
             validator.validate("foo")
 
     def test_is_type_is_true_for_any_type(self):
@@ -1310,7 +1309,7 @@ class TestValidate(SynchronousTestCase):
         self.assertUses(schema={}, Validator=validators.Draft7Validator)
 
     def test_validation_error_message(self):
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(exceptions.ValidationError) as e:
             validators.validate(12, {"type": "string"})
         self.assertRegexpMatches(
             str(e.exception),
@@ -1318,7 +1317,7 @@ class TestValidate(SynchronousTestCase):
         )
 
     def test_schema_error_message(self):
-        with self.assertRaises(SchemaError) as e:
+        with self.assertRaises(exceptions.SchemaError) as e:
             validators.validate(12, {"type": 12})
         self.assertRegexpMatches(
             str(e.exception),
@@ -1499,15 +1498,15 @@ class TestRefResolver(SynchronousTestCase):
 
         ref = "foo://bar"
         resolver = validators.RefResolver("", {}, handlers={"foo": handler})
-        with self.assertRaises(validators.RefResolutionError) as err:
+        with self.assertRaises(exceptions.RefResolutionError) as err:
             with resolver.resolving(ref):
                 self.fail("Shouldn't get this far!")  # pragma: no cover
-        self.assertEqual(err.exception, validators.RefResolutionError(error))
+        self.assertEqual(err.exception, exceptions.RefResolutionError(error))
 
     def test_helpful_error_message_on_failed_pop_scope(self):
         resolver = validators.RefResolver("", {})
         resolver.pop_scope()
-        with self.assertRaises(validators.RefResolutionError) as exc:
+        with self.assertRaises(exceptions.RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
 

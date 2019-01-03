@@ -7,7 +7,7 @@ import numbers
 
 from six import add_metaclass
 
-from jsonschema import _utils, _validators, _types
+from jsonschema import _utils, _validators, _types, exceptions
 from jsonschema.compat import (
     Sequence,
     int_types,
@@ -19,13 +19,6 @@ from jsonschema.compat import (
     urljoin,
     urlopen,
     urlsplit,
-)
-from jsonschema.exceptions import (
-    RefResolutionError,
-    SchemaError,
-    UnknownType,
-    UndefinedTypeCheck,
-    ValidationError,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -259,7 +252,7 @@ def create(
         @classmethod
         def check_schema(cls, schema):
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
-                raise SchemaError.create_from(error)
+                raise exceptions.SchemaError.create_from(error)
 
         def iter_errors(self, instance, _schema=None):
             if _schema is None:
@@ -268,7 +261,7 @@ def create(
             if _schema is True:
                 return
             elif _schema is False:
-                yield ValidationError(
+                yield exceptions.ValidationError(
                     "False schema does not allow %r" % (instance,),
                 )
                 return
@@ -319,8 +312,8 @@ def create(
         def is_type(self, instance, type):
             try:
                 return self.TYPE_CHECKER.is_type(instance, type)
-            except UndefinedTypeCheck:
-                raise UnknownType(type, instance, self.schema)
+            except exceptions.UndefinedTypeCheck:
+                raise exceptions.UnknownType(type, instance, self.schema)
 
         def is_valid(self, instance, _schema=None):
             error = next(self.iter_errors(instance, _schema), None)
@@ -662,7 +655,7 @@ class RefResolver(object):
         try:
             self._scopes_stack.pop()
         except IndexError:
-            raise RefResolutionError(
+            raise exceptions.RefResolutionError(
                 "Failed to pop the scope from an empty stack. "
                 "`pop_scope()` should only be called once for every "
                 "`push_scope()`"
@@ -719,7 +712,7 @@ class RefResolver(object):
             try:
                 document = self.resolve_remote(url)
             except Exception as exc:
-                raise RefResolutionError(exc)
+                raise exceptions.RefResolutionError(exc)
 
         return self.resolve_fragment(document, fragment)
 
@@ -754,7 +747,7 @@ class RefResolver(object):
             try:
                 document = document[part]
             except (TypeError, LookupError):
-                raise RefResolutionError(
+                raise exceptions.RefResolutionError(
                     "Unresolvable JSON pointer: %r" % fragment
                 )
 
