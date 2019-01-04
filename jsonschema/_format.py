@@ -219,6 +219,20 @@ def is_host_name(instance):
 
 
 try:
+    # The built-in `idna` codec only implements RFC 3890, so we go elsewhere.
+    import idna
+except ImportError:
+    pass
+else:
+    @_checks_drafts(draft7="idn-hostname", raises=idna.IDNAError)
+    def is_idn_host_name(instance):
+        if not isinstance(instance, str_types):
+            return True
+        idna.encode(instance)
+        return True
+
+
+try:
     import rfc3987
 except ImportError:
     pass
