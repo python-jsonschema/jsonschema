@@ -58,7 +58,6 @@ def validates(version):
     Returns:
 
         callable: a class decorator to decorate the validator with the version
-
     """
 
     def _validates(cls):
@@ -83,7 +82,6 @@ def _generate_legacy_type_checks(types=()):
     Returns:
 
         A dictionary of definitions to pass to `TypeChecker`
-
     """
     types = dict(types)
 
@@ -588,7 +586,6 @@ class RefResolver(object):
         cache_remote (bool):
 
             Whether remote refs should be cached after first resolution
-
     """
 
     def __init__(
@@ -622,13 +619,7 @@ class RefResolver(object):
         self._remote_cache = remote_cache
 
     @classmethod
-    def from_schema(
-        cls,
-        schema,
-        id_of=_id_of,
-        *args,
-        **kwargs
-    ):
+    def from_schema(cls, schema, id_of=_id_of, *args, **kwargs):
         """
         Construct a resolver from a JSON schema object.
 
@@ -641,7 +632,6 @@ class RefResolver(object):
         Returns:
 
             `RefResolver`
-
         """
 
         return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)
@@ -690,7 +680,6 @@ class RefResolver(object):
             ref (str):
 
                 The reference to resolve
-
         """
 
         url, resolved = self.resolve(ref)
@@ -729,7 +718,6 @@ class RefResolver(object):
             fragment (str):
 
                 a URI fragment to resolve within it
-
         """
 
         fragment = fragment.lstrip(u"/")
@@ -781,7 +769,6 @@ class RefResolver(object):
             The retrieved document
 
         .. _requests: https://pypi.org/project/requests/
-
         """
         try:
             import requests
