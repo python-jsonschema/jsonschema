@@ -324,8 +324,17 @@ validation can be enabled by hooking in a format-checking object into an
 There are a number of default checkers that `FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
 `FormatChecker.checkers` attribute. Certain checkers will only be
-available if an appropriate package is available for use. The available
-checkers, along with their requirement (if any,) are listed below.
+available if an appropriate package is available for use. The easiest way to
+ensure you have what is needed is to install ``jsonschema`` using the
+``format`` setuptools extra -- i.e.
+
+.. code-block:: sh
+
+   $ pip install jsonschema[format]
+
+which will install all of the below dependencies for all formats. The
+more specific list of available checkers, along with their requirement
+(if any,) are listed below.
 
 .. note::
 
@@ -333,23 +342,31 @@ checkers, along with their requirement (if any,) are listed below.
     that requires it, validation will succeed without throwing an error,
     as specified by the JSON Schema specification.
 
-==========  ====================
-Checker     Notes
-==========  ====================
-hostname
-ipv4
-ipv6        OS must have `socket.inet_pton` function
-email
-uri         requires rfc3987_
-date-time   requires strict-rfc3339_ [#]_
+=====================  ====================
+Checker                Notes
+=====================  ====================
+color                  requires webcolors_
 date
-time
+date-time              requires strict-rfc3339_
+email
+hostname
+idn-hostname           requires idna_
+ipv4
+ipv6                   OS must have `socket.inet_pton` function
+iri                    requires rfc3987_
+iri-reference          requires rfc3987_
+json-pointer           requires jsonpointer_
 regex
-color       requires webcolors_
-==========  ====================
+relative-json-pointer  requires jsonpointer_
+time                   requires strict-rfc3339_
+uri                    requires rfc3987_
+uri-reference          requires rfc3987_
+=====================  ====================
 
 
+.. _idna: https://pypi.org/pypi/idna/
+.. _jsonpointer: https://pypi.org/pypi/jsonpointer/
 .. _rfc3987: https://pypi.org/pypi/rfc3987/
+.. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
 .. _strict-rfc3339: https://pypi.org/pypi/strict-rfc3339/
 .. _webcolors: https://pypi.org/pypi/webcolors/
-.. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
