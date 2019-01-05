@@ -338,6 +338,33 @@ else:
         return jsonpointer.JsonPointer(instance)
 
 
+    # TODO: I don't want to maintain this, so it
+    #       needs to go either into jsonpointer (pending
+    #       https://github.com/stefankoegl/python-json-pointer/issues/34) or
+    #       into a new external library.
+    @_checks_drafts(
+        draft7="relative-json-pointer",
+        raises=jsonpointer.JsonPointerException,
+    )
+    def is_relative_json_pointer(instance):
+        # Definition taken from:
+        # https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01#section-3
+        if not isinstance(instance, str_types):
+            return True
+        non_negative_integer, rest = [], ""
+        for i, character in enumerate(instance):
+            if character.isdigit():
+                non_negative_integer.append(character)
+                continue
+
+            if not non_negative_integer:
+                return False
+
+            rest = instance[i:]
+            break
+        return (rest == "#") or jsonpointer.JsonPointer(rest)
+
+
 try:
     import uritemplate.exceptions
 except ImportError:
