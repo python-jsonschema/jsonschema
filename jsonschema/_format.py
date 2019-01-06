@@ -293,7 +293,7 @@ def is_date(instance):
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
-def is_time(instance):
+def is_draft3_time(instance):
     if not isinstance(instance, str_types):
         return True
     return datetime.datetime.strptime(instance, "%H:%M:%S")
