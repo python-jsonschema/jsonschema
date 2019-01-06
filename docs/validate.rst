@@ -277,7 +277,9 @@ validation can be enabled by hooking in a format-checking object into an
 
     >>> validate("localhost", {"format" : "hostname"})
     >>> validate(
-    ...     "-12", {"format" : "hostname"}, format_checker=FormatChecker(),
+    ...     instance="-12",
+    ...     schema={"format" : "hostname"},
+    ...     format_checker=FormatChecker(),
     ... )
     Traceback (most recent call last):
         ...
