@@ -26,7 +26,6 @@ def propertyNames(validator, propertyNames, instance, schema):
         for error in validator.descend(
             instance=property,
             schema=propertyNames,
-            path=property,  # FIXME: path?
         ):
             yield error
 

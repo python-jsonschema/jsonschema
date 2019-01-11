@@ -881,6 +881,20 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
 
+    def test_propertyNames(self):
+        instance = {"foo": 12}
+        schema = {"propertyNames": {"not": {"const": "foo"}}}
+
+        validator = validators.Draft7Validator(schema)
+        error, = validator.iter_errors(instance)
+
+        self.assertEqual(error.validator, "not")
+        self.assertEqual(
+            error.message,
+            "%r is not allowed for %r" % ({"const": "foo"}, "foo"),
+        )
+        self.assertEqual(error.path, deque([]))
+
 
 class MetaSchemaTestsMixin(object):
     # TODO: These all belong upstream
