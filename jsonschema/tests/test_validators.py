@@ -894,6 +894,35 @@ class TestValidationErrorDetails(TestCase):
             "%r is not allowed for %r" % ({"const": "foo"}, "foo"),
         )
         self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.schema_path, deque(["propertyNames", "not"]))
+
+    def test_if_then(self):
+        schema = {
+            "if": {"const": 12},
+            "then": {"const": 13},
+        }
+
+        validator = validators.Draft7Validator(schema)
+        error, = validator.iter_errors(12)
+
+        self.assertEqual(error.validator, "const")
+        self.assertEqual(error.message, "13 was expected")
+        self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.schema_path, deque(["if", "then", "const"]))
+
+    def test_if_else(self):
+        schema = {
+            "if": {"const": 12},
+            "else": {"const": 13},
+        }
+
+        validator = validators.Draft7Validator(schema)
+        error, = validator.iter_errors(15)
+
+        self.assertEqual(error.validator, "const")
+        self.assertEqual(error.message, "13 was expected")
+        self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.schema_path, deque(["if", "else", "const"]))
 
 
 class MetaSchemaTestsMixin(object):

@@ -364,13 +364,12 @@ def not_(validator, not_schema, instance, schema):
 
 
 def if_(validator, if_schema, instance, schema):
-    # FIXME: paths
     if validator.is_valid(instance, if_schema):
         if u"then" in schema:
             then = schema[u"then"]
-            for error in validator.descend(instance, then):
+            for error in validator.descend(instance, then, schema_path="then"):
                 yield error
     elif u"else" in schema:
         else_ = schema[u"else"]
-        for error in validator.descend(instance, else_):
+        for error in validator.descend(instance, else_, schema_path="else"):
             yield error
