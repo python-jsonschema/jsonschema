@@ -344,26 +344,26 @@ more specific list of available checkers, along with their requirement
     that requires it, validation will succeed without throwing an error,
     as specified by the JSON Schema specification.
 
-=====================  ====================
-Checker                Notes
-=====================  ====================
-color                  requires webcolors_
-date
-date-time              requires strict-rfc3339_
-email
-hostname
-idn-hostname           requires idna_
-ipv4
-ipv6                   OS must have `socket.inet_pton` function
-iri                    requires rfc3987_
-iri-reference          requires rfc3987_
-json-pointer           requires jsonpointer_
-regex
-relative-json-pointer  requires jsonpointer_
-time                   requires strict-rfc3339_
-uri                    requires rfc3987_
-uri-reference          requires rfc3987_
-=====================  ====================
+=========================  ====================
+Checker                    Notes
+=========================  ====================
+``color``                  requires webcolors_
+``date``
+``date-time``              requires strict-rfc3339_
+``email``
+``hostname``
+``idn-hostname``           requires idna_
+``ipv4``
+``ipv6``                   OS must have `socket.inet_pton` function
+``iri``                    requires rfc3987_
+``iri-reference``          requires rfc3987_
+``json-pointer``           requires jsonpointer_
+``regex``
+``relative-json-pointer``  requires jsonpointer_
+``time``                   requires strict-rfc3339_
+``uri``                    requires rfc3987_
+``uri-reference``          requires rfc3987_
+=========================  ====================
 
 
 .. _idna: https://pypi.org/pypi/idna/
