@@ -337,7 +337,6 @@ else:
             return True
         return jsonpointer.JsonPointer(instance)
 
-
     # TODO: I don't want to maintain this, so it
     #       needs to go either into jsonpointer (pending
     #       https://github.com/stefankoegl/python-json-pointer/issues/34) or
