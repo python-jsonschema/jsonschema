@@ -278,13 +278,6 @@ else:
         return strict_rfc3339.validate_rfc3339(instance)
 
 
-    @_checks_drafts(draft7="time")
-    def is_time(instance):
-        if not isinstance(instance, str_types):
-            return True
-        return is_datetime("1970-01-01T" + instance)
-
-
 @_checks_drafts(name="regex", raises=re.error)
 def is_regex(instance):
     if not isinstance(instance, str_types):
