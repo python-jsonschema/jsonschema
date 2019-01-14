@@ -373,10 +373,34 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance=1, schema={"maximum": 0})
         self.assertEqual(message, "1 is greater than the maximum of 0")
 
-    def test_dependencies_failure_has_single_element_not_list(self):
+    def test_dependencies_single_element(self):
         depend, on = "bar", "foo"
         schema = {u"dependencies": {depend: on}}
-        message = self.message_for(instance={"bar": 2}, schema=schema)
+        message = self.message_for(
+            instance={"bar": 2},
+            schema=schema,
+            cls=validators.Draft3Validator,
+        )
+        self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
+
+    def test_dependencies_list_draft3(self):
+        depend, on = "bar", "foo"
+        schema = {u"dependencies": {depend: [on]}}
+        message = self.message_for(
+            instance={"bar": 2},
+            schema=schema,
+            cls=validators.Draft3Validator,
+        )
+        self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
+
+    def test_dependencies_list_draft7(self):
+        depend, on = "bar", "foo"
+        schema = {u"dependencies": {depend: [on]}}
+        message = self.message_for(
+            instance={"bar": 2},
+            schema=schema,
+            cls=validators.Draft7Validator,
+        )
         self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
 
     def test_additionalItems_single_failure(self):

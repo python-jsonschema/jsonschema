@@ -47,6 +47,31 @@ def oneOf_draft4(validator, oneOf, instance, schema):
         )
 
 
+def dependencies_draft3(validator, dependencies, instance, schema):
+    if not validator.is_type(instance, "object"):
+        return
+
+    for property, dependency in iteritems(dependencies):
+        if property not in instance:
+            continue
+
+        if validator.is_type(dependency, "object"):
+            for error in validator.descend(
+                instance, dependency, schema_path=property,
+            ):
+                yield error
+        elif validator.is_type(dependency, "string"):
+            if dependency not in instance:
+                yield ValidationError(
+                    "%r is a dependency of %r" % (dependency, property)
+                )
+        else:
+            for each in dependency:
+                if each not in instance:
+                    message = "%r is a dependency of %r"
+                    yield ValidationError(message % (each, property))
+
+
 def disallow_draft3(validator, disallow, instance, schema):
     for disallowed in _utils.ensure_list(disallow):
         if validator.is_valid(instance, {"type": [disallowed]}):

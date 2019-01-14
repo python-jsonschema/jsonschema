@@ -220,24 +220,16 @@ def dependencies(validator, dependencies, instance, schema):
         if property not in instance:
             continue
 
-        # FIXME
-        if dependency is True:
-            dependency = {}
-        elif dependency is False:
-            dependency = {"not": {}}
-
-        if validator.is_type(dependency, "object"):
+        if validator.is_type(dependency, "array"):
+            for each in dependency:
+                if each not in instance:
+                    message = "%r is a dependency of %r"
+                    yield ValidationError(message % (each, property))
+        else:
             for error in validator.descend(
                 instance, dependency, schema_path=property,
             ):
                 yield error
-        else:
-            dependencies = _utils.ensure_list(dependency)
-            for dependency in dependencies:
-                if dependency not in instance:
-                    yield ValidationError(
-                        "%r is a dependency of %r" % (dependency, property)
-                    )
 
 
 def enum(validator, enums, instance, schema):

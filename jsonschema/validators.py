@@ -409,7 +409,7 @@ Draft3Validator = create(
         u"$ref": _validators.ref,
         u"additionalItems": _validators.additionalItems,
         u"additionalProperties": _validators.additionalProperties,
-        u"dependencies": _validators.dependencies,
+        u"dependencies": _legacy_validators.dependencies_draft3,
         u"disallow": _legacy_validators.disallow_draft3,
         u"divisibleBy": _validators.multipleOf,
         u"enum": _validators.enum,
