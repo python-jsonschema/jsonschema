@@ -62,21 +62,15 @@ def items(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    # FIXME
-    if items is True:
-        items = {}
-    elif items is False:
-        items = {"not": {}}
-
-    if validator.is_type(items, "object"):
-        for index, item in enumerate(instance):
-            for error in validator.descend(item, items, path=index):
-                yield error
-    else:
+    if validator.is_type(items, "array"):
         for (index, item), subschema in zip(enumerate(instance), items):
             for error in validator.descend(
                 item, subschema, path=index, schema_path=index,
             ):
+                yield error
+    else:
+        for index, item in enumerate(instance):
+            for error in validator.descend(item, items, path=index):
                 yield error
 
 
