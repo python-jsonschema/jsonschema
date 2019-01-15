@@ -20,6 +20,7 @@ from jsonschema import (
     validators,
 )
 from jsonschema.compat import PY3, pathname2url
+import jsonschema
 
 
 def startswith(validator, startswith, instance, schema):
@@ -1188,21 +1189,28 @@ class TestBuiltinFormats(TestCase):
     The built-in (specification-defined) formats do not raise type errors.
 
     If an instance or value is not a string, it should be ignored.
-
     """
 
+    # These tests belong upstream.
+    # See https://github.com/json-schema-org/JSON-Schema-Test-Suite/issues/246
 
-for format in FormatChecker.checkers:
-    def test(self, format=format):
-        v = validators.Draft4Validator(
-            {"format": format},
-            format_checker=FormatChecker(),
+
+for Validator, checker in (
+    (validators.Draft3Validator, jsonschema.draft3_format_checker),
+    (validators.Draft4Validator, jsonschema.draft4_format_checker),
+    (validators.Draft6Validator, jsonschema.draft6_format_checker),
+    (validators.Draft7Validator, jsonschema.draft7_format_checker),
+):
+    for format in checker.checkers:
+        def test(self, checker=checker, format=format):
+            validator = Validator({"format": format}, format_checker=checker)
+            validator.validate(123)
+
+        name = "test_{}_{}_ignores_non_strings".format(
+            Validator.__name__, format,
         )
-        v.validate(123)
-
-    name = "test_{0}_ignores_non_strings".format(format)
-    test.__name__ = name
-    setattr(TestBuiltinFormats, name, test)
+        test.__name__ = name
+        setattr(TestBuiltinFormats, name, test)
 
 
 class TestValidatorFor(SynchronousTestCase):
