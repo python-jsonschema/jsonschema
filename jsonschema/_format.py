@@ -130,7 +130,18 @@ class FormatChecker(object):
             return True
 
 
-_draft_checkers = {"draft3": [], "draft4": [], "draft6": [], "draft7": []}
+draft3_format_checker = FormatChecker()
+draft4_format_checker = FormatChecker()
+draft6_format_checker = FormatChecker()
+draft7_format_checker = FormatChecker()
+
+
+_draft_checkers = dict(
+    draft3=draft3_format_checker,
+    draft4=draft4_format_checker,
+    draft6=draft6_format_checker,
+    draft7=draft7_format_checker,
+)
 
 
 def _checks_drafts(
@@ -148,17 +159,20 @@ def _checks_drafts(
 
     def wrap(func):
         if draft3:
-            _draft_checkers["draft3"].append(draft3)
-            func = FormatChecker.cls_checks(draft3, raises)(func)
+            func = _draft_checkers["draft3"].checks(draft3, raises)(func)
         if draft4:
-            _draft_checkers["draft4"].append(draft4)
-            func = FormatChecker.cls_checks(draft4, raises)(func)
+            func = _draft_checkers["draft4"].checks(draft4, raises)(func)
         if draft6:
-            _draft_checkers["draft6"].append(draft6)
-            func = FormatChecker.cls_checks(draft6, raises)(func)
+            func = _draft_checkers["draft6"].checks(draft6, raises)(func)
         if draft7:
-            _draft_checkers["draft7"].append(draft7)
-            func = FormatChecker.cls_checks(draft7, raises)(func)
+            func = _draft_checkers["draft7"].checks(draft7, raises)(func)
+
+        # Oy. This is bad global state, but relied upon for now, until
+        # deprecation. See https://github.com/Julian/jsonschema/issues/519
+        # and test_format_checkers_come_with_defaults
+        FormatChecker.cls_checks(draft7 or draft6 or draft4 or draft3, raises)(
+            func,
+        )
         return func
     return wrap
 
@@ -380,9 +394,3 @@ else:
     ):
         template = uritemplate.URITemplate(instance)
         return template_validator.validate(template)
-
-
-draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
-draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
-draft6_format_checker = FormatChecker(_draft_checkers["draft6"])
-draft7_format_checker = FormatChecker(_draft_checkers["draft7"])
