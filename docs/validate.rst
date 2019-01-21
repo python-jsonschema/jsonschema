@@ -285,13 +285,6 @@ validation can be enabled by hooking in a format-checking object into an
         ...
     ValidationError: "-12" is not a "hostname"
 
-.. note::
-
-    Since fully validating an email address requires checking that it is
-    formatted correctly, as well as that it belongs to the correct recipient,
-    the email format validator only provides a sanity check, not full rfc5322_
-    validation.
-
 .. autoclass:: FormatChecker
     :members:
     :exclude-members: cls_checks
@@ -372,3 +365,16 @@ Checker                    Notes
 .. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
 .. _strict-rfc3339: https://pypi.org/pypi/strict-rfc3339/
 .. _webcolors: https://pypi.org/pypi/webcolors/
+
+
+.. note::
+
+    Since in most cases "validating" an email address is an attempt
+    instead to confirm that mail sent to it will deliver to a recipient,
+    and that that recipient is the correct one the email is intended
+    for, and since many valid email addresses are in many places
+    incorrectly rejected, and many invalid email addresses are in many
+    places incorrectly accepted, the ``email`` format validator only
+    provides a sanity check, not full rfc5322_ validation.
+
+    The same applies to the ``idn-email`` format.
