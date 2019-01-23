@@ -12,13 +12,7 @@ import unittest
 from twisted.trial.unittest import SynchronousTestCase
 import attr
 
-from jsonschema import (
-    FormatChecker,
-    TypeChecker,
-    _types,
-    exceptions,
-    validators,
-)
+from jsonschema import FormatChecker, TypeChecker, exceptions, validators
 from jsonschema.compat import PY3, pathname2url
 import jsonschema
 
