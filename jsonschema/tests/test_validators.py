@@ -56,7 +56,8 @@ class TestCreateAndExtend(SynchronousTestCase):
         expected_types = {u"array", u"boolean", u"integer", u"null", u"number",
                           u"object", u"string"}
         self.assertEqual(set(self.Validator.DEFAULT_TYPES), expected_types)
-        self.assertEqual(len(self.flushWarnings()), 1)
+        self.assertEqual(set(self.Validator({}).DEFAULT_TYPES), expected_types)
+        self.assertEqual(len(self.flushWarnings()), 2)
 
     def test_init(self):
         schema = {u"startswith": u"foo"}
@@ -136,6 +137,7 @@ class TestCreateAndExtend(SynchronousTestCase):
                 self.Validator.VALIDATORS,
 
                 Extended.DEFAULT_TYPES,
+                Extended({}).DEFAULT_TYPES,
                 self.flushWarnings()[0]["message"],
             ), (
                 dict(original, new=new),
@@ -143,6 +145,7 @@ class TestCreateAndExtend(SynchronousTestCase):
                 self.Validator.TYPE_CHECKER,
                 original,
 
+                self.Validator.DEFAULT_TYPES,
                 self.Validator.DEFAULT_TYPES,
                 self.flushWarnings()[0]["message"],
             ),
@@ -262,6 +265,24 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
 
             getattr,
             Validator,
+            "DEFAULT_TYPES",
+        )
+
+    def test_accessing_default_types_on_the_instance_warns(self):
+        Validator = validators.create(meta_schema={}, validators={})
+        self.assertFalse(self.flushWarnings())
+
+        self.assertWarns(
+            DeprecationWarning,
+            (
+                "The DEFAULT_TYPES attribute is deprecated. "
+                "See the type checker attached to this validator instead."
+            ),
+            # https://tm.tl/9363 :'(
+            sys.modules[self.assertWarns.__module__].__file__,
+
+            getattr,
+            Validator({}),
             "DEFAULT_TYPES",
         )
 

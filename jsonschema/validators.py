@@ -109,18 +109,20 @@ def _generate_legacy_type_checks(types=()):
     return definitions
 
 
+def _DEFAULT_TYPES(self):
+    warn(
+        (
+            "The DEFAULT_TYPES attribute is deprecated. "
+            "See the type checker attached to this validator instead."
+        ),
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return self._DEFAULT_TYPES
+
+
 class _DefaultTypesDeprecatingMetaClass(type):
-    @property
-    def DEFAULT_TYPES(self):
-        warn(
-            (
-                "The DEFAULT_TYPES attribute is deprecated. "
-                "See the type checker attached to this validator instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self._DEFAULT_TYPES
+    DEFAULT_TYPES = property(_DEFAULT_TYPES)
 
 
 def _id_of(schema):
@@ -222,6 +224,7 @@ def create(
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
+        DEFAULT_TYPES = property(_DEFAULT_TYPES)
         _DEFAULT_TYPES = dict(default_types)
 
         def __init__(
