@@ -155,7 +155,7 @@ class TestCreateAndExtend(SynchronousTestCase):
         )
 
 
-class TestLegacyTypeCheckCreation(TestCase):
+class TestLegacyTypeCheckCreation(SynchronousTestCase):
     @unittest.skip("This logic is actually incorrect.")
     def test_default_types_used_if_no_type_checker_given(self):
         Validator = validators.create(
@@ -184,27 +184,16 @@ class TestLegacyTypeCheckCreation(TestCase):
 
         self.assertEqual(set(Extended.DEFAULT_TYPES), {})
 
-    @unittest.skip("This logic is actually incorrect.")
-    def test_types_update_type_checker(self):
-        tc = TypeChecker()
-        tc = tc.redefine(u"integer", _types.is_integer)
-        Validator = validators.create(
-            meta_schema=self.meta_schema,
-            validators=self.validators,
-            type_checker=tc,
-        )
+    def test_types_redefines_the_validators_type_checker(self):
+        schema = {"type": "string"}
+        self.assertFalse(validators.Draft7Validator(schema).is_valid(12))
 
-        v = Validator({})
-        self.assertEqual(
-            v.TYPE_CHECKER,
-            TypeChecker(type_checkers={u"integer": _types.is_integer}),
+        validator = validators.Draft7Validator(
+            schema,
+            types={"string": (str, int)},
         )
-
-        v = Validator({}, types={u"array": list})
-        self.assertEqual(
-            v.TYPE_CHECKER,
-            TypeChecker(type_checkers={u"array": _types.is_array}),
-        )
+        self.assertTrue(validator.is_valid(12))
+        self.flushWarnings()
 
 
 class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
