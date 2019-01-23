@@ -953,6 +953,27 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.path, deque([]))
         self.assertEqual(error.schema_path, deque(["if", "else", "const"]))
 
+    def test_boolean_schema_False(self):
+        validator = validators.Draft7Validator(False)
+        error, = validator.iter_errors(12)
+
+        self.assertEqual(
+            (
+                error.message,
+                error.validator,
+                error.validator_value,
+                error.instance,
+                error.schema,
+            ),
+            (
+                "False schema does not allow 12",
+                None,
+                None,
+                12,
+                False,
+            ),
+        )
+
 
 class MetaSchemaTestsMixin(object):
     # TODO: These all belong upstream
