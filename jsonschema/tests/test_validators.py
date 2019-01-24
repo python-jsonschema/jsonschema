@@ -964,6 +964,7 @@ class TestValidationErrorDetails(TestCase):
                 error.validator_value,
                 error.instance,
                 error.schema,
+                error.schema_path,
             ),
             (
                 "False schema does not allow 12",
@@ -971,6 +972,7 @@ class TestValidationErrorDetails(TestCase):
                 None,
                 12,
                 False,
+                deque([]),
             ),
         )
 
