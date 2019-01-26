@@ -200,6 +200,7 @@ def create(
             raise TypeError(
                 "Do not specify default_types when providing a type checker.",
             )
+        _created_with_default_types = True
         warn(
             (
                 "The default_types argument is deprecated. "
@@ -213,6 +214,7 @@ def create(
         )
     else:
         default_types = _DEPRECATED_DEFAULT_TYPES
+        _created_with_default_types = False
         if type_checker is None:
             type_checker = _types.TypeChecker()
 
@@ -226,6 +228,7 @@ def create(
 
         DEFAULT_TYPES = property(_DEFAULT_TYPES)
         _DEFAULT_TYPES = dict(default_types)
+        _CREATED_WITH_DEFAULT_TYPES = _created_with_default_types
 
         def __init__(
             self,
@@ -393,8 +396,14 @@ def extend(validator, validators=(), version=None, type_checker=None):
     all_validators = dict(validator.VALIDATORS)
     all_validators.update(validators)
 
-    if not type_checker:
+    if type_checker is None:
         type_checker = validator.TYPE_CHECKER
+    elif validator._CREATED_WITH_DEFAULT_TYPES:
+        raise TypeError(
+            "Cannot extend a validator created with default_types "
+            "with a type_checker. Update the validator to use a "
+            "type_checker when created."
+        )
 
     # Set the default_types to None during class creation to avoid
     # overwriting the type checker (and triggering the deprecation warning).

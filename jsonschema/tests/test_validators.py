@@ -165,22 +165,6 @@ class TestLegacyTypeCheckCreation(SynchronousTestCase):
 
         self.assertEqual(set(Validator.DEFAULT_TYPES), expected_types)
 
-    @unittest.skip("This logic is actually incorrect.")
-    def test_default_types_update_type_checker(self):
-        Validator = validators.create(
-            meta_schema=self.meta_schema,
-            validators=self.validators,
-            default_types={u"array": list}
-        )
-
-        self.assertEqual(set(Validator.DEFAULT_TYPES), {u"array"})
-        Extended = validators.extend(
-            Validator,
-            type_checker=Validator.TYPE_CHECKER.remove(u"array")
-        )
-
-        self.assertEqual(set(Extended.DEFAULT_TYPES), {})
-
     def test_types_redefines_the_validators_type_checker(self):
         schema = {"type": "string"}
         self.assertFalse(validators.Draft7Validator(schema).is_valid(12))
@@ -242,6 +226,29 @@ class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
             str(e.exception),
         )
         self.assertFalse(self.flushWarnings())
+
+    def test_extending_a_legacy_validator_with_a_type_checker_errors(self):
+        Validator = validators.create(
+            meta_schema={},
+            validators={},
+            default_types={u"array": list}
+        )
+        with self.assertRaises(TypeError) as e:
+            validators.extend(
+                Validator,
+                validators={},
+                type_checker=TypeChecker(),
+            )
+
+        self.assertIn(
+            (
+                "Cannot extend a validator created with default_types "
+                "with a type_checker. Update the validator to use a "
+                "type_checker when created."
+            ),
+            str(e.exception),
+        )
+        self.flushWarnings()
 
     def test_extending_a_legacy_validator_does_not_rewarn(self):
         Validator = validators.create(meta_schema={}, default_types={})
