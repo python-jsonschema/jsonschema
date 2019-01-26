@@ -152,7 +152,7 @@ class TestCreateAndExtend(SynchronousTestCase):
         )
 
 
-class TestLegacyTypeCheckCreation(SynchronousTestCase):
+class TestLegacyTypeChecking(SynchronousTestCase):
     @unittest.skip("This logic is actually incorrect.")
     def test_default_types_used_if_no_type_checker_given(self):
         Validator = validators.create(
@@ -176,8 +176,6 @@ class TestLegacyTypeCheckCreation(SynchronousTestCase):
         self.assertTrue(validator.is_valid(12))
         self.flushWarnings()
 
-
-class TestLegacyTypeCheckingDeprecation(SynchronousTestCase):
     def test_providing_default_types_warns(self):
         self.assertWarns(
             category=DeprecationWarning,
