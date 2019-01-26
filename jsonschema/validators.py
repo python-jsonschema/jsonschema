@@ -173,8 +173,8 @@ def create(
 
             a type checker, used when applying the :validator:`type` validator.
 
-            If unprovided, an empty `jsonschema.TypeChecker` will created with
-            no known default types.
+            If unprovided, a `jsonschema.TypeChecker` will be created with
+            a set of default types typical of JSON Schema drafts.
 
         default_types (collections.Mapping):
 
@@ -216,7 +216,9 @@ def create(
         default_types = _DEPRECATED_DEFAULT_TYPES
         _created_with_default_types = False
         if type_checker is None:
-            type_checker = _types.TypeChecker()
+            type_checker = _types.TypeChecker(
+                type_checkers=_generate_legacy_type_checks(default_types),
+            )
 
     @add_metaclass(_DefaultTypesDeprecatingMetaClass)
     class Validator(object):

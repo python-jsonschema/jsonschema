@@ -121,6 +121,23 @@ class TestCreateAndExtend(SynchronousTestCase):
 
         self.assertIn(meta_schema_key, validators.meta_schemas)
 
+    def test_create_default_types(self):
+        Validator = validators.create(meta_schema={}, validators=())
+        self.assertTrue(
+            all(
+                Validator({}).is_type(instance=instance, type=type)
+                for type, instance in [
+                    (u"array", []),
+                    (u"boolean", True),
+                    (u"integer", 12),
+                    (u"null", None),
+                    (u"number", 12.0),
+                    (u"object", {}),
+                    (u"string", u"foo"),
+                ]
+            ),
+        )
+
     def test_extend(self):
         original = dict(self.Validator.VALIDATORS)
         new = object()
@@ -153,17 +170,19 @@ class TestCreateAndExtend(SynchronousTestCase):
 
 
 class TestLegacyTypeChecking(SynchronousTestCase):
-    @unittest.skip("This logic is actually incorrect.")
-    def test_default_types_used_if_no_type_checker_given(self):
-        Validator = validators.create(
-            meta_schema=self.meta_schema,
-            validators=self.validators,
+    def test_create_default_types(self):
+        Validator = validators.create(meta_schema={}, validators=())
+        self.assertEqual(
+            set(Validator.DEFAULT_TYPES), {
+                u"array",
+                u"boolean",
+                u"integer",
+                u"null",
+                u"number",
+                u"object", u"string",
+            },
         )
-
-        expected_types = {u"array", u"boolean", u"integer", u"null", u"number",
-                          u"object", u"string"}
-
-        self.assertEqual(set(Validator.DEFAULT_TYPES), expected_types)
+        self.flushWarnings()
 
     def test_types_redefines_the_validators_type_checker(self):
         schema = {"type": "string"}
