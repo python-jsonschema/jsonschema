@@ -404,19 +404,12 @@ def extend(validator, validators=(), version=None, type_checker=None):
             "with a type_checker. Update the validator to use a "
             "type_checker when created."
         )
-
-    # Set the default_types to None during class creation to avoid
-    # overwriting the type checker (and triggering the deprecation warning).
-    # Then set them directly
-    new_validator_cls = create(
+    return create(
         meta_schema=validator.META_SCHEMA,
         validators=all_validators,
         version=version,
-        default_types=None,
-        type_checker=type_checker
+        type_checker=type_checker,
     )
-    new_validator_cls._DEFAULT_TYPES = validator._DEFAULT_TYPES
-    return new_validator_cls
 
 
 Draft3Validator = create(
