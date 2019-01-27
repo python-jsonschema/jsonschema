@@ -23,10 +23,10 @@ for Python (supporting 2.7+ including Python 3).
     ... }
 
     >>> # If no exception is raised by validate(), the instance is valid.
-    >>> validate({"name" : "Eggs", "price" : 34.99}, schema)
+    >>> validate(instance={"name" : "Eggs", "price" : 34.99}, schema=schema)
 
     >>> validate(
-    ...     {"name" : "Eggs", "price" : "Invalid"}, schema
+    ...     instance={"name" : "Eggs", "price" : "Invalid"}, schema=schema,
     ... )                                   # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...
