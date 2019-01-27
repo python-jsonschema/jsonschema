@@ -291,7 +291,6 @@ else:
             return True
         return strict_rfc3339.validate_rfc3339(instance)
 
-
     @_checks_drafts(draft7="time")
     def is_time(instance):
         if not isinstance(instance, str_types):
