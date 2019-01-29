@@ -85,9 +85,13 @@ Installation
 Release Notes
 -------------
 
-Version 2.6.0 drops support for Python 2.6.X (ha ha) and contains a
-number of small improvements in error messages, as well as a bug fix for
-``ErrorTree``.
+Version 3.0 brings support for Draft 7 (and 6). The interface for redefining
+types has also been majorly overhauled to support easier redefinition of the
+types a Validator will accept or allow.
+
+jsonschema is also now tested under Windows via AppVeyor.
+
+Thanks to all who contributed pull requests along the way.
 
 
 Running the Test Suite
