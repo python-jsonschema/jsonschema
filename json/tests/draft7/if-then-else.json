@@ -13,7 +13,7 @@
                 "valid": true
             },
             {
-                "description": "valid when invailid against lone if",
+                "description": "valid when invalid against lone if",
                 "data": "hello",
                 "valid": true
             }
@@ -33,7 +33,7 @@
                 "valid": true
             },
             {
-                "description": "valid when invailid against lone then",
+                "description": "valid when invalid against lone then",
                 "data": "hello",
                 "valid": true
             }
@@ -53,7 +53,7 @@
                 "valid": true
             },
             {
-                "description": "valid when invailid against lone else",
+                "description": "valid when invalid against lone else",
                 "data": "hello",
                 "valid": true
             }

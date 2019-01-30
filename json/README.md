@@ -100,6 +100,7 @@ This suite is being used by:
 * [json-schema-validator](https://github.com/daveclayton/json-schema-validator)
 * [everit-org/json-schema](https://github.com/everit-org/json-schema)
 * [networknt/json-schema-validator](https://github.com/networknt/json-schema-validator)
+* [Justify](https://github.com/leadpony/justify)
 
 ### JavaScript ###
 
@@ -140,6 +141,7 @@ for more information.
 ### Python ###
 
 * [jsonschema](https://github.com/Julian/jsonschema)
+* [fastjsonschema](https://github.com/seznam/python-fastjsonschema)
 
 ### Ruby ###
 

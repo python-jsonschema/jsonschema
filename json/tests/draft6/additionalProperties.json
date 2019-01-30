@@ -41,6 +41,25 @@
         ]
     },
     {
+        "description": "non-ASCII pattern with additionalProperties",
+        "schema": {
+            "patternProperties": {"^á": {}},
+            "additionalProperties": false
+        },
+        "tests": [
+            {
+                "description": "matching the pattern is valid",
+                "data": {"ármányos": 2},
+                "valid": true
+            },
+            {
+                "description": "not matching the pattern is invalid",
+                "data": {"élmény": 2},
+                "valid": false
+            }
+        ]
+    },
+    {
         "description":
             "additionalProperties allows a schema which should validate",
         "schema": {
@@ -92,6 +111,22 @@
                 "description": "additional properties are allowed",
                 "data": {"foo": 1, "bar": 2, "quux": true},
                 "valid": true
+            }
+        ]
+    },
+    {
+        "description": "additionalProperties should not look in applicators",
+        "schema": {
+            "allOf": [
+                {"properties": {"foo": {}}}
+            ],
+            "additionalProperties": {"type": "boolean"}
+        },
+        "tests": [
+            {
+                "description": "properties defined in allOf are not allowed",
+                "data": {"foo": 1, "bar": true},
+                "valid": false
             }
         ]
     }

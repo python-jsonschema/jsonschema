@@ -8,9 +8,9 @@ import os
 import re
 import subprocess
 import sys
+import unittest
 
-from bp.filepath import FilePath
-from pyrsistent import pmap
+from twisted.python.filepath import FilePath
 import attr
 
 from jsonschema.compat import PY3
@@ -24,7 +24,7 @@ def _find_suite():
         return FilePath(root)
 
     root = FilePath(jsonschema.__file__).parent().sibling("json")
-    if not root.isdir():
+    if not root.isdir():  # pragma: no cover
         raise ValueError(
             (
                 "Can't find the JSON-Schema-Test-Suite directory. "
@@ -51,29 +51,27 @@ class Suite(object):
             for name, schema in json.loads(remotes.decode("utf-8")).items()
         }
 
-    def benchmark(self, runner):
+    def benchmark(self, runner):  # pragma: no cover
         for name in validators:
-            self.collection(name=name).benchmark(runner=runner)
+            self.version(name=name).benchmark(runner=runner)
 
-    def collection(self, name):
-        return Collection(
+    def version(self, name):
+        return Version(
             name=name,
             path=self._root.descendant(["tests", name]),
-            validator=validators[name],
             remotes=self._remotes(),
         )
 
 
 @attr.s(hash=True)
-class Collection(object):
+class Version(object):
 
     _path = attr.ib()
     _remotes = attr.ib()
 
     name = attr.ib()
-    validator = attr.ib()
 
-    def benchmark(self, runner):
+    def benchmark(self, runner):  # pragma: no cover
         for test in self.tests():
             runner.bench_func(
                 name=test.fully_qualified_name,
@@ -84,6 +82,17 @@ class Collection(object):
         return (
             test
             for child in self._path.globChildren("*.json")
+            for test in self._tests_in(
+                subject=child.basename()[:-5],
+                path=child,
+            )
+        )
+
+    def format_tests(self):
+        path = self._path.descendant(["optional", "format"])
+        return (
+            test
+            for child in path.globChildren("*.json")
             for test in self._tests_in(
                 subject=child.basename()[:-5],
                 path=child,
@@ -102,23 +111,44 @@ class Collection(object):
             path=self._path.descendant(["optional", name + ".json"]),
         )
 
+    def to_unittest_testcase(self, *suites, **kwargs):
+        name = kwargs.pop("name", "Test" + self.name.title())
+        methods = {
+            test.method_name: test.to_unittest_method(**kwargs)
+            for suite in suites
+            for tests in suite
+            for test in tests
+        }
+        cls = type(name, (unittest.TestCase,), methods)
+
+        try:
+            cls.__module__ = _someone_save_us_the_module_of_the_caller()
+        except Exception:  # pragma: no cover
+            # We're doing crazy things, so if they go wrong, like a function
+            # behaving differently on some other interpreter, just make them
+            # not happen.
+            pass
+
+        return cls
+
     def _tests_in(self, subject, path):
         for each in json.loads(path.getContent().decode("utf-8")):
-            for test in each["tests"]:
-                yield _Test(
-                    collection=self,
+            yield (
+                _Test(
+                    version=self,
                     subject=subject,
                     case_description=each["description"],
                     schema=each["schema"],
                     remotes=self._remotes,
                     **test
-                )
+                ) for test in each["tests"]
+            )
 
 
-@attr.s(hash=True)
+@attr.s(hash=True, repr=False)
 class _Test(object):
 
-    collection = attr.ib()
+    version = attr.ib()
 
     subject = attr.ib()
     case_description = attr.ib()
@@ -130,58 +160,77 @@ class _Test(object):
     valid = attr.ib()
 
     _remotes = attr.ib()
-    _validate_kwargs = attr.ib(default=pmap())
+
+    def __repr__(self):  # pragma: no cover
+        return "<Test {}>".format(self.fully_qualified_name)
 
     @property
-    def fully_qualified_name(self):
+    def fully_qualified_name(self):  # pragma: no cover
         return " > ".join(
             [
-                self.collection.name,
+                self.version.name,
                 self.subject,
                 self.case_description,
                 self.description,
             ]
         )
 
-    def to_unittest_method(self):
+    @property
+    def method_name(self):
+        delimiters = r"[\W\- ]+"
         name = "test_%s_%s_%s" % (
-            self.subject,
-            re.sub(r"[\W ]+", "_", self.case_description),
-            re.sub(r"[\W ]+", "_", self.description),
+            re.sub(delimiters, "_", self.subject),
+            re.sub(delimiters, "_", self.case_description),
+            re.sub(delimiters, "_", self.description),
         )
 
-        if not PY3:
+        if not PY3:  # pragma: no cover
             name = name.encode("utf-8")
+        return name
 
+    def to_unittest_method(self, skip=lambda test: None, **kwargs):
         if self.valid:
             def fn(this):
-                self.validate()
+                self.validate(**kwargs)
         else:
             def fn(this):
                 with this.assertRaises(jsonschema.ValidationError):
-                    self.validate()
+                    self.validate(**kwargs)
 
-        fn.__name__ = name
-        return fn
+        fn.__name__ = self.method_name
+        reason = skip(self)
+        return unittest.skipIf(reason is not None, reason)(fn)
 
-    def validate(self):
+    def validate(self, Validator=None, **kwargs):
         resolver = jsonschema.RefResolver.from_schema(
             schema=self.schema, store=self._remotes,
         )
         jsonschema.validate(
             instance=self.data,
             schema=self.schema,
-            cls=self.collection.validator,
+            cls=Validator,
             resolver=resolver,
-            **self._validate_kwargs
+            **kwargs
         )
 
-    def validate_ignoring_errors(self):
+    def validate_ignoring_errors(self, **kwargs):  # pragma: no cover
         try:
-            self.validate()
+            self.validate(**kwargs)
         except jsonschema.ValidationError:
             pass
 
-    def with_validate_kwargs(self, **kwargs):
-        validate_kwargs = self._validate_kwargs.update(kwargs)
-        return attr.evolve(self, validate_kwargs=validate_kwargs)
+
+def _someone_save_us_the_module_of_the_caller():
+    """
+    The FQON of the module 2nd stack frames up from here.
+
+    This is intended to allow us to dynamicallly return test case classes that
+    are indistinguishable from being defined in the module that wants them.
+
+    Otherwise, trial will mis-print the FQON, and copy pasting it won't re-run
+    the class that really is running.
+
+    Save us all, this is all so so so so so terrible.
+    """
+
+    return sys._getframe(2).f_globals["__name__"]

@@ -17,7 +17,7 @@ The simplest way to validate an instance under a given schema is to use the
 .. [#] For information on creating JSON schemas to validate
     your data, there is a good introduction to JSON Schema
     fundamentals underway at `Understanding JSON Schema
-    <http://spacetelescope.github.io/understanding-json-schema/>`_
+    <https://json-schema.org/understanding-json-schema/>`_
 
 
 The Validator Interface
@@ -39,9 +39,11 @@ classes should adhere to.
         whose `FormatChecker.conforms` method will be called to
         check and see if instances conform to each :validator:`format`
         property present in the schema. If unprovided, no validation
-        will be done for :validator:`format`.
+        will be done for :validator:`format`. Certain formats require
+        additional packages to be installed (ipv5, uri, color, date-time).
+        The required packages can be found at the bottom of this page.
     :argument types:
-        .. deprecated:: 2.7.0
+        .. deprecated:: 3.0.0
 
             Use `TypeChecker.redefine` and
             `jsonschema.validators.extend` instead of this argument.
@@ -77,7 +79,7 @@ classes should adhere to.
 
     .. attribute:: DEFAULT_TYPES
 
-        .. deprecated:: 2.7.0
+        .. deprecated:: 3.0.0
 
             Use of this attribute is deprecated in favor of the new `type
             checkers <TypeChecker>`.
@@ -211,7 +213,7 @@ existing `TypeChecker` or create a new one. You may then create a new
 
     def is_my_int(checker, instance):
         return (
-            checker.is_type(instance, "number") or
+            Draft3Validator.TYPE_CHECKER.is_type(instance, "number") or
             isinstance(instance, MyInteger)
         )
 
@@ -233,20 +235,24 @@ the JSON Schema specification. For details on the methods and attributes
 that each validator class provides see the `IValidator` interface,
 which each included validator class implements.
 
-.. autoclass:: Draft3Validator
+.. autoclass:: Draft7Validator
+
+.. autoclass:: Draft6Validator
 
 .. autoclass:: Draft4Validator
 
+.. autoclass:: Draft3Validator
+
 
 For example, if you wanted to validate a schema you created against the
-Draft 4 meta-schema, you could use:
+Draft 6 meta-schema, you could use:
 
 .. code-block:: python
 
-    from jsonschema import Draft4Validator
+    from jsonschema import Draft6Validator
 
     schema = {
-        "$schema": "http://json-schema.org/schema#",
+        "$schema": "https://json-schema.org/schema#",
 
         "type": "object",
         "properties": {
@@ -255,7 +261,7 @@ Draft 4 meta-schema, you could use:
         },
         "required": ["email"]
     }
-    Draft4Validator.check_schema(schema)
+    Draft6Validator.check_schema(schema)
 
 
 Validating Formats
@@ -271,7 +277,9 @@ validation can be enabled by hooking in a format-checking object into an
 
     >>> validate("localhost", {"format" : "hostname"})
     >>> validate(
-    ...     "-12", {"format" : "hostname"}, format_checker=FormatChecker(),
+    ...     instance="-12",
+    ...     schema={"format" : "hostname"},
+    ...     format_checker=draft7_format_checker,
     ... )
     Traceback (most recent call last):
         ...
@@ -311,32 +319,62 @@ validation can be enabled by hooking in a format-checking object into an
 There are a number of default checkers that `FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
 `FormatChecker.checkers` attribute. Certain checkers will only be
-available if an appropriate package is available for use. The available
-checkers, along with their requirement (if any,) are listed below.
+available if an appropriate package is available for use. The easiest way to
+ensure you have what is needed is to install ``jsonschema`` using the
+``format`` setuptools extra -- i.e.
 
-==========  ====================
-Checker     Notes
-==========  ====================
-hostname
-ipv4
-ipv6        OS must have `socket.inet_pton` function
-email
-uri         requires rfc3987_
-date-time   requires strict-rfc3339_ [#]_
-date
-time
-regex
-color       requires webcolors_
-==========  ====================
+.. code-block:: sh
+
+   $ pip install jsonschema[format]
+
+which will install all of the below dependencies for all formats. The
+more specific list of available checkers, along with their requirement
+(if any,) are listed below.
+
+.. note::
+
+    If the following packages are not installed when using a checker
+    that requires it, validation will succeed without throwing an error,
+    as specified by the JSON Schema specification.
+
+=========================  ====================
+Checker                    Notes
+=========================  ====================
+``color``                  requires webcolors_
+``date``
+``date-time``              requires strict-rfc3339_
+``email``
+``hostname``
+``idn-hostname``           requires idna_
+``ipv4``
+``ipv6``                   OS must have `socket.inet_pton` function
+``iri``                    requires rfc3987_
+``iri-reference``          requires rfc3987_
+``json-pointer``           requires jsonpointer_
+``regex``
+``relative-json-pointer``  requires jsonpointer_
+``time``                   requires strict-rfc3339_
+``uri``                    requires rfc3987_
+``uri-reference``          requires rfc3987_
+=========================  ====================
 
 
-.. [#] For backwards compatibility, isodate_ is also supported, but it will
-      allow any `ISO 8601 <http://en.wikipedia.org/wiki/ISO_8601>`_ date-time,
-      not just `RFC 3339 <http://www.ietf.org/rfc/rfc3339.txt>`_ as mandated by
-      the JSON Schema specification.
+.. _idna: https://pypi.org/pypi/idna/
+.. _jsonpointer: https://pypi.org/pypi/jsonpointer/
+.. _rfc3987: https://pypi.org/pypi/rfc3987/
+.. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
+.. _strict-rfc3339: https://pypi.org/pypi/strict-rfc3339/
+.. _webcolors: https://pypi.org/pypi/webcolors/
 
 
-.. _isodate: http://pypi.python.org/pypi/isodate/
-.. _rfc3987: http://pypi.python.org/pypi/rfc3987/
-.. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
-.. _webcolors: http://pypi.python.org/pypi/webcolors/
+.. note::
+
+    Since in most cases "validating" an email address is an attempt
+    instead to confirm that mail sent to it will deliver to a recipient,
+    and that that recipient is the correct one the email is intended
+    for, and since many valid email addresses are in many places
+    incorrectly rejected, and many invalid email addresses are in many
+    places incorrectly accepted, the ``email`` format validator only
+    provides a sanity check, not full rfc5322_ validation.
+
+    The same applies to the ``idn-email`` format.
