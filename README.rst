@@ -66,8 +66,6 @@ Features
 * `Lazy validation <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.IValidator.iter_errors>`_
   that can iteratively report *all* validation errors.
 
-* Small and extensible
-
 * `Programmatic querying <https://python-jsonschema.readthedocs.io/en/latest/errors/#module-jsonschema>`_
   of which properties or items failed validation.
 
