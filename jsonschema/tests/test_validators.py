@@ -1623,25 +1623,34 @@ class TestRefResolver(SynchronousTestCase):
             pass
 
     def test_custom_cache_decorators(self):
-        response = [object()]
+        response = [object(), object()]
 
         def handler(url):
-            try:
-                return response.pop()
-            except IndexError:  # pragma: no cover
-                self.fail("Handler called twice!")
+            return response.pop()
 
         def mock_cache_dec(f):
             return f
+
+        # We need cache_remote=False here, because there are two layers of
+        # caches: the resolver.store, which is disabled by cache_remote, and
+        # the default lru_cache on resolver.resolve_from_url, which we disable
+        # with mock_cache_dec.
 
         ref = "foo://bar"
         resolver = validators.RefResolver(
             "", {}, remote_cache_dec=mock_cache_dec,
             urljoin_cache_dec=mock_cache_dec,
+            cache_remote=False,
             handlers={"foo": handler},
         )
         with resolver.resolving(ref):
             pass
+        with resolver.resolving(ref):
+            pass
+
+        # Since there should be no caching, the handler must have been called
+        # twice, so the "response" list should be empty now.
+        self.assertEqual(len(response), 0)
 
     def test_if_you_give_it_junk_you_get_a_resolution_error(self):
         error = ValueError("Oh no! What's this?")
