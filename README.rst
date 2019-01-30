@@ -100,7 +100,7 @@ package manager), running ``tox`` in the directory of your source
 checkout will run ``jsonschema``'s test suite on all of the versions
 of Python ``jsonschema`` supports. If you don't have all of the
 versions that ``jsonschema`` is tested under, you'll likely want to run
-using``tox``'s ``--skip-missing-interpreters`` option.
+using ``tox``'s ``--skip-missing-interpreters`` option.
 
 Of course you're also free to just run the tests on a single version with your
 favorite test runner. The tests live in the ``jsonschema.tests`` package.
