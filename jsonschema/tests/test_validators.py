@@ -1623,20 +1623,25 @@ class TestRefResolver(SynchronousTestCase):
             pass
 
     def test_custom_cache_decorators(self):
-        ref = "foo://bar"
-        foo_handler = mock.Mock()
+        response = [object()]
+
+        def handler(url):
+            try:
+                return response.pop()
+            except IndexError:  # pragma: no cover
+                self.fail("Handler called twice!")
 
         def mock_cache_dec(f):
             return f
 
+        ref = "foo://bar"
         resolver = validators.RefResolver(
             "", {}, remote_cache_dec=mock_cache_dec,
             urljoin_cache_dec=mock_cache_dec,
-            handlers={"foo": foo_handler},
+            handlers={"foo": handler},
         )
         with resolver.resolving(ref):
             pass
-        self.assertEqual(foo_handler.call_count, 1)
 
     def test_if_you_give_it_junk_you_get_a_resolution_error(self):
         error = ValueError("Oh no! What's this?")
