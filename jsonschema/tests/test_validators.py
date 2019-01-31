@@ -1000,6 +1000,35 @@ class TestValidationErrorDetails(TestCase):
             ),
         )
 
+    def test_ref(self):
+        ref, schema = "someRef", {"additionalProperties": {"type": "integer"}}
+        validator = validators.Draft7Validator(
+            {"$ref": ref},
+            resolver=validators.RefResolver("", {}, store={ref: schema}),
+        )
+        error, = validator.iter_errors({"foo": "notAnInteger"})
+
+        self.assertEqual(
+            (
+                error.message,
+                error.validator,
+                error.validator_value,
+                error.instance,
+                error.absolute_path,
+                error.schema,
+                error.schema_path,
+            ),
+            (
+                "'notAnInteger' is not of type 'integer'",
+                "type",
+                "integer",
+                "notAnInteger",
+                deque(["foo"]),
+                {"type": "integer"},
+                deque(["additionalProperties", "type"]),
+            ),
+        )
+
 
 class MetaSchemaTestsMixin(object):
     # TODO: These all belong upstream
