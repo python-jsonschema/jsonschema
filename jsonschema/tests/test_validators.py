@@ -36,7 +36,7 @@ class TestCreateAndExtend(SynchronousTestCase):
         self.Validator = validators.create(
             meta_schema=self.meta_schema,
             validators=self.validators,
-            type_checker=self.type_checker
+            type_checker=self.type_checker,
         )
 
     def test_attrs(self):
@@ -51,13 +51,6 @@ class TestCreateAndExtend(SynchronousTestCase):
                 self.type_checker,
             ),
         )
-
-        # Default types should still be set to the old default if not provided
-        expected_types = {u"array", u"boolean", u"integer", u"null", u"number",
-                          u"object", u"string"}
-        self.assertEqual(set(self.Validator.DEFAULT_TYPES), expected_types)
-        self.assertEqual(set(self.Validator({}).DEFAULT_TYPES), expected_types)
-        self.assertEqual(len(self.flushWarnings()), 2)
 
     def test_init(self):
         schema = {u"startswith": u"foo"}
@@ -152,19 +145,11 @@ class TestCreateAndExtend(SynchronousTestCase):
                 Extended.META_SCHEMA,
                 Extended.TYPE_CHECKER,
                 self.Validator.VALIDATORS,
-
-                Extended.DEFAULT_TYPES,
-                Extended({}).DEFAULT_TYPES,
-                self.flushWarnings()[0]["message"],
             ), (
                 dict(original, new=new),
                 self.Validator.META_SCHEMA,
                 self.Validator.TYPE_CHECKER,
                 original,
-
-                self.Validator.DEFAULT_TYPES,
-                self.Validator.DEFAULT_TYPES,
-                self.flushWarnings()[0]["message"],
             ),
         )
 
@@ -183,6 +168,37 @@ class TestLegacyTypeChecking(SynchronousTestCase):
             },
         )
         self.flushWarnings()
+
+    def test_extend(self):
+        Validator = validators.create(meta_schema={}, validators=())
+        original = dict(Validator.VALIDATORS)
+        new = object()
+
+        Extended = validators.extend(
+            Validator,
+            validators={u"new": new},
+        )
+        self.assertEqual(
+            (
+                Extended.VALIDATORS,
+                Extended.META_SCHEMA,
+                Extended.TYPE_CHECKER,
+                Validator.VALIDATORS,
+
+                Extended.DEFAULT_TYPES,
+                Extended({}).DEFAULT_TYPES,
+                self.flushWarnings()[0]["message"],
+            ), (
+                dict(original, new=new),
+                Validator.META_SCHEMA,
+                Validator.TYPE_CHECKER,
+                original,
+
+                Validator.DEFAULT_TYPES,
+                Validator.DEFAULT_TYPES,
+                self.flushWarnings()[0]["message"],
+            ),
+        )
 
     def test_types_redefines_the_validators_type_checker(self):
         schema = {"type": "string"}
@@ -210,6 +226,34 @@ class TestLegacyTypeChecking(SynchronousTestCase):
             validators={},
             default_types={"foo": object},
         )
+
+    def test_cannot_ask_for_default_types_with_non_default_type_checker(self):
+        """
+        We raise an error when you ask a validator with non-default
+        type checker for its DEFAULT_TYPES.
+
+        The type checker argument is new, so no one but this library
+        itself should be trying to use it, and doing so while then
+        asking for DEFAULT_TYPES makes no sense (not to mention is
+        deprecated), since type checkers are not strictly about Python
+        type.
+        """
+        Validator = validators.create(
+            meta_schema={},
+            validators={},
+            type_checker=TypeChecker(),
+        )
+        with self.assertRaises(validators._DontDoThat) as e:
+            Validator.DEFAULT_TYPES
+
+        self.assertIn(
+            "DEFAULT_TYPES cannot be used on Validators using TypeCheckers",
+            str(e.exception),
+        )
+        with self.assertRaises(validators._DontDoThat):
+            Validator({}).DEFAULT_TYPES
+
+        self.assertFalse(self.flushWarnings())
 
     def test_providing_explicit_type_checker_does_not_warn(self):
         Validator = validators.create(

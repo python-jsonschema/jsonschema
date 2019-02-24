@@ -34,45 +34,21 @@ from jsonschema.exceptions import ErrorTree
 ErrorTree
 
 
+class _DontDoThat(Exception):
+    """
+    Raised when a Validators with non-default type checker is misused.
+
+    Asking one for DEFAULT_TYPES doesn't make sense, since type checkers exist
+    for the unrepresentable cases where DEFAULT_TYPES can't represent the type
+    relationship.
+    """
+
+    def __str__(self):
+        return "DEFAULT_TYPES cannot be used on Validators using TypeCheckers"
+
+
 validators = {}
 meta_schemas = _utils.URIDict()
-
-_DEPRECATED_DEFAULT_TYPES = {
-    u"array": list,
-    u"boolean": bool,
-    u"integer": int_types,
-    u"null": type(None),
-    u"number": numbers.Number,
-    u"object": dict,
-    u"string": str_types,
-}
-
-
-def validates(version):
-    """
-    Register the decorated validator for a ``version`` of the specification.
-
-    Registered validators and their meta schemas will be considered when
-    parsing ``$schema`` properties' URIs.
-
-    Arguments:
-
-        version (str):
-
-            An identifier to use as the version's name
-
-    Returns:
-
-        callable: a class decorator to decorate the validator with the version
-    """
-
-    def _validates(cls):
-        validators[version] = cls
-        meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
-        if meta_schema_id:
-            meta_schemas[meta_schema_id] = cls
-        return cls
-    return _validates
 
 
 def _generate_legacy_type_checks(types=()):
@@ -109,7 +85,51 @@ def _generate_legacy_type_checks(types=()):
     return definitions
 
 
+_DEPRECATED_DEFAULT_TYPES = {
+    u"array": list,
+    u"boolean": bool,
+    u"integer": int_types,
+    u"null": type(None),
+    u"number": numbers.Number,
+    u"object": dict,
+    u"string": str_types,
+}
+_TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES = _types.TypeChecker(
+    type_checkers=_generate_legacy_type_checks(_DEPRECATED_DEFAULT_TYPES),
+)
+
+
+def validates(version):
+    """
+    Register the decorated validator for a ``version`` of the specification.
+
+    Registered validators and their meta schemas will be considered when
+    parsing ``$schema`` properties' URIs.
+
+    Arguments:
+
+        version (str):
+
+            An identifier to use as the version's name
+
+    Returns:
+
+        callable: a class decorator to decorate the validator with the version
+    """
+
+    def _validates(cls):
+        validators[version] = cls
+        meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
+        if meta_schema_id:
+            meta_schemas[meta_schema_id] = cls
+        return cls
+    return _validates
+
+
 def _DEFAULT_TYPES(self):
+    if self._CREATED_WITH_DEFAULT_TYPES is None:
+        raise _DontDoThat()
+
     warn(
         (
             "The DEFAULT_TYPES attribute is deprecated. "
@@ -214,11 +234,13 @@ def create(
         )
     else:
         default_types = _DEPRECATED_DEFAULT_TYPES
-        _created_with_default_types = False
         if type_checker is None:
-            type_checker = _types.TypeChecker(
-                type_checkers=_generate_legacy_type_checks(default_types),
-            )
+            _created_with_default_types = False
+            type_checker = _TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES
+        elif type_checker is _TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES:
+            _created_with_default_types = False
+        else:
+            _created_with_default_types = None
 
     @add_metaclass(_DefaultTypesDeprecatingMetaClass)
     class Validator(object):
