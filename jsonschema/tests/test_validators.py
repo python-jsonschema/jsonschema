@@ -1085,6 +1085,22 @@ class MetaSchemaTestsMixin(object):
             # needs to be an integer
             self.Validator.check_schema({"minItems": "1"})
 
+    def test_enum_allows_empty_arrays(self):
+        """
+        Technically, all the spec says is they SHOULD have elements, not MUST.
+
+        See https://github.com/Julian/jsonschema/issues/529.
+        """
+        self.Validator.check_schema({"enum": []})
+
+    def test_enum_allows_non_unique_items(self):
+        """
+        Technically, all the spec says is they SHOULD be unique, not MUST.
+
+        See https://github.com/Julian/jsonschema/issues/529.
+        """
+        self.Validator.check_schema({"enum": [12, 12]})
+
 
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def test_valid_instances_are_valid(self):

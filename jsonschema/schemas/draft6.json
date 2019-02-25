@@ -130,9 +130,7 @@
         "propertyNames": { "$ref": "#" },
         "const": {},
         "enum": {
-            "type": "array",
-            "minItems": 1,
-            "uniqueItems": true
+            "type": "array"
         },
         "type": {
             "anyOf": [
