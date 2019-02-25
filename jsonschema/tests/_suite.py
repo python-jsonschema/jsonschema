@@ -72,11 +72,12 @@ class Version(object):
     name = attr.ib()
 
     def benchmark(self, runner):  # pragma: no cover
-        for test in self.tests():
-            runner.bench_func(
-                name=test.fully_qualified_name,
-                func=test.validate_ignoring_errors,
-            )
+        for suite in self.tests():
+            for test in suite:
+                runner.bench_func(
+                    name=test.fully_qualified_name,
+                    func=test.validate_ignoring_errors,
+                )
 
     def tests(self):
         return (
