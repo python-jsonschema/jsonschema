@@ -843,10 +843,12 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
     :func:`validate` will first verify that the provided schema is itself
     valid, since not doing so can lead to less obvious error messages and fail
-    in less obvious or consistent ways. If you know you have a valid schema
-    already or don't care, you might prefer using the
-    `IValidator.validate` method directly on a specific validator
-    (e.g. ``Draft7Validator.validate``).
+    in less obvious or consistent ways.
+
+    If you know you have a valid schema already, especially if you
+    intend to validate multiple instances with the same schema, you
+    likely would prefer using the `IValidator.validate` method directly
+    on a specific validator (e.g. ``Draft7Validator.validate``).
 
 
     Arguments:
