@@ -22,7 +22,7 @@ if PY3:
     from urllib.parse import (
         unquote, urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit
     )
-    from urllib.request import pathname2url, urlopen
+    from urllib.request import pathname2url, url2pathname, urlopen
     str_types = str,
     int_types = int,
     iteritems = operator.methodcaller("items")
@@ -32,7 +32,7 @@ else:
     from urlparse import (
         urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit # noqa
     )
-    from urllib import pathname2url, unquote  # noqa
+    from urllib import pathname2url, url2pathname, unquote  # noqa
     import urllib2  # noqa
     def urlopen(*args, **kwargs):
         return contextlib.closing(urllib2.urlopen(*args, **kwargs))

@@ -25,6 +25,7 @@ from jsonschema.compat import (
     urljoin,
     urlopen,
     urlsplit,
+    url2pathname,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -818,6 +819,13 @@ class RefResolver(object):
 
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
+        elif scheme in [u"file", u""]:
+            # Resolve local files
+            path = uri
+            if path.startswith('file:'):
+                path = path[len('file:'):]
+            with open(url2pathname(path)) as _file:
+                result = json.load(_file)
         elif scheme in [u"http", u"https"] and requests:
             # Requests has support for detecting the correct encoding of
             # json over http
