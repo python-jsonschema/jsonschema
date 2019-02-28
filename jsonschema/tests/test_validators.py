@@ -153,6 +153,28 @@ class TestCreateAndExtend(SynchronousTestCase):
             ),
         )
 
+    def test_extend_idof(self):
+        """
+        Test that validators.extend correctly copies id_of from orignal validator.
+        """
+        id_ = "the://correct/id/"
+        default_id_of = self.Validator.ID_OF
+        id_of = lambda schema: schema.get(u"__test__") or default_id_of(schema)
+        meta_schema = {
+            u"$id": "the://wrong/id/",
+            u"__test__": id_,
+        }
+        Original = validators.create(
+            meta_schema=meta_schema,
+            validators=self.validators,
+            type_checker=self.type_checker,
+            id_of=id_of,
+        )
+        self.assertEqual(Original.ID_OF(Original.META_SCHEMA), id_)
+
+        Derived = validators.extend(Original)
+        self.assertEqual(Derived.ID_OF(Derived.META_SCHEMA), id_)
+
 
 class TestLegacyTypeChecking(SynchronousTestCase):
     def test_create_default_types(self):
