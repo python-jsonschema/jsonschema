@@ -157,12 +157,12 @@ class TestCreateAndExtend(SynchronousTestCase):
         """
         Extending a validator preserves its notion of schema IDs.
         """
-        id_ = "the://correct/id/"
-        default_id_of = self.Validator.ID_OF
-        id_of = lambda schema: schema.get(u"__test__") or default_id_of(schema)
+        def id_of(schema):
+            return schema.get(u"__test__", self.Validator.ID_OF(schema))
+        correct_id = "the://correct/id/"
         meta_schema = {
             u"$id": "the://wrong/id/",
-            u"__test__": id_,
+            u"__test__": correct_id,
         }
         Original = validators.create(
             meta_schema=meta_schema,
@@ -170,10 +170,10 @@ class TestCreateAndExtend(SynchronousTestCase):
             type_checker=self.type_checker,
             id_of=id_of,
         )
-        self.assertEqual(Original.ID_OF(Original.META_SCHEMA), id_)
+        self.assertEqual(Original.ID_OF(Original.META_SCHEMA), correct_id)
 
         Derived = validators.extend(Original)
-        self.assertEqual(Derived.ID_OF(Derived.META_SCHEMA), id_)
+        self.assertEqual(Derived.ID_OF(Derived.META_SCHEMA), correct_id)
 
 
 class TestLegacyTypeChecking(SynchronousTestCase):
