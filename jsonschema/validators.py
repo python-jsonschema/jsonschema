@@ -433,6 +433,7 @@ def extend(validator, validators=(), version=None, type_checker=None):
         validators=all_validators,
         version=version,
         type_checker=type_checker,
+        id_of=validator.ID_OF,
     )
 
 
