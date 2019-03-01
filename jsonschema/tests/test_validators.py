@@ -155,7 +155,7 @@ class TestCreateAndExtend(SynchronousTestCase):
 
     def test_extend_idof(self):
         """
-        Test that validators.extend correctly copies id_of from orignal validator.
+        Extending a validator preserves its notion of schema IDs.
         """
         id_ = "the://correct/id/"
         default_id_of = self.Validator.ID_OF
