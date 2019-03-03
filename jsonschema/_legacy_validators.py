@@ -3,50 +3,6 @@ from jsonschema.compat import iteritems
 from jsonschema.exceptions import ValidationError
 
 
-def allOf_draft4(validator, allOf, instance, schema):
-    for index, subschema in enumerate(allOf):
-        for error in validator.descend(instance, subschema, schema_path=index):
-            yield error
-
-
-def anyOf_draft4(validator, anyOf, instance, schema):
-    all_errors = []
-    for index, subschema in enumerate(anyOf):
-        errs = list(validator.descend(instance, subschema, schema_path=index))
-        if not errs:
-            break
-        all_errors.extend(errs)
-    else:
-        yield ValidationError(
-            "%r is not valid under any of the given schemas" % (instance,),
-            context=all_errors,
-        )
-
-
-def oneOf_draft4(validator, oneOf, instance, schema):
-    subschemas = enumerate(oneOf)
-    all_errors = []
-    for index, subschema in subschemas:
-        errs = list(validator.descend(instance, subschema, schema_path=index))
-        if not errs:
-            first_valid = subschema
-            break
-        all_errors.extend(errs)
-    else:
-        yield ValidationError(
-            "%r is not valid under any of the given schemas" % (instance,),
-            context=all_errors,
-        )
-
-    more_valid = [s for i, s in subschemas if validator.is_valid(instance, s)]
-    if more_valid:
-        more_valid.append(first_valid)
-        reprs = ", ".join(repr(schema) for schema in more_valid)
-        yield ValidationError(
-            "%r is valid under each of %s" % (instance, reprs)
-        )
-
-
 def dependencies_draft3(validator, dependencies, instance, schema):
     if not validator.is_type(instance, "object"):
         return
