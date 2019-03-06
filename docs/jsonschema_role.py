@@ -8,6 +8,7 @@ try:
 except ImportError:
     import urllib.request as urllib
 
+import certifi
 from lxml import html
 
 
@@ -62,7 +63,7 @@ def fetch_or_load(spec_path):
             raise
 
     request = urllib.Request(VALIDATION_SPEC, headers=headers)
-    response = urllib.urlopen(request)
+    response = urllib.urlopen(request, cafile=certifi.where())
 
     if response.code == 200:
         with open(spec_path, "w+b") as spec:

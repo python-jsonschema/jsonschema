@@ -130,7 +130,18 @@ class FormatChecker(object):
             return True
 
 
-_draft_checkers = {"draft3": [], "draft4": [], "draft6": [], "draft7": []}
+draft3_format_checker = FormatChecker()
+draft4_format_checker = FormatChecker()
+draft6_format_checker = FormatChecker()
+draft7_format_checker = FormatChecker()
+
+
+_draft_checkers = dict(
+    draft3=draft3_format_checker,
+    draft4=draft4_format_checker,
+    draft6=draft6_format_checker,
+    draft7=draft7_format_checker,
+)
 
 
 def _checks_drafts(
@@ -148,17 +159,20 @@ def _checks_drafts(
 
     def wrap(func):
         if draft3:
-            _draft_checkers["draft3"].append(draft3)
-            func = FormatChecker.cls_checks(draft3, raises)(func)
+            func = _draft_checkers["draft3"].checks(draft3, raises)(func)
         if draft4:
-            _draft_checkers["draft4"].append(draft4)
-            func = FormatChecker.cls_checks(draft4, raises)(func)
+            func = _draft_checkers["draft4"].checks(draft4, raises)(func)
         if draft6:
-            _draft_checkers["draft6"].append(draft6)
-            func = FormatChecker.cls_checks(draft6, raises)(func)
+            func = _draft_checkers["draft6"].checks(draft6, raises)(func)
         if draft7:
-            _draft_checkers["draft7"].append(draft7)
-            func = FormatChecker.cls_checks(draft7, raises)(func)
+            func = _draft_checkers["draft7"].checks(draft7, raises)(func)
+
+        # Oy. This is bad global state, but relied upon for now, until
+        # deprecation. See https://github.com/Julian/jsonschema/issues/519
+        # and test_format_checkers_come_with_defaults
+        FormatChecker.cls_checks(draft7 or draft6 or draft4 or draft3, raises)(
+            func,
+        )
         return func
     return wrap
 
@@ -219,6 +233,20 @@ def is_host_name(instance):
 
 
 try:
+    # The built-in `idna` codec only implements RFC 3890, so we go elsewhere.
+    import idna
+except ImportError:
+    pass
+else:
+    @_checks_drafts(draft7="idn-hostname", raises=idna.IDNAError)
+    def is_idn_host_name(instance):
+        if not isinstance(instance, str_types):
+            return True
+        idna.encode(instance)
+        return True
+
+
+try:
     import rfc3987
 except ImportError:
     pass
@@ -263,6 +291,12 @@ else:
             return True
         return strict_rfc3339.validate_rfc3339(instance)
 
+    @_checks_drafts(draft7="time")
+    def is_time(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return is_datetime("1970-01-01T" + instance)
+
 
 @_checks_drafts(name="regex", raises=re.error)
 def is_regex(instance):
@@ -279,7 +313,7 @@ def is_date(instance):
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
-def is_time(instance):
+def is_draft3_time(instance):
     if not isinstance(instance, str_types):
         return True
     return datetime.datetime.strptime(instance, "%H:%M:%S")
@@ -323,6 +357,32 @@ else:
             return True
         return jsonpointer.JsonPointer(instance)
 
+    # TODO: I don't want to maintain this, so it
+    #       needs to go either into jsonpointer (pending
+    #       https://github.com/stefankoegl/python-json-pointer/issues/34) or
+    #       into a new external library.
+    @_checks_drafts(
+        draft7="relative-json-pointer",
+        raises=jsonpointer.JsonPointerException,
+    )
+    def is_relative_json_pointer(instance):
+        # Definition taken from:
+        # https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01#section-3
+        if not isinstance(instance, str_types):
+            return True
+        non_negative_integer, rest = [], ""
+        for i, character in enumerate(instance):
+            if character.isdigit():
+                non_negative_integer.append(character)
+                continue
+
+            if not non_negative_integer:
+                return False
+
+            rest = instance[i:]
+            break
+        return (rest == "#") or jsonpointer.JsonPointer(rest)
+
 
 try:
     import uritemplate.exceptions
@@ -340,9 +400,3 @@ else:
     ):
         template = uritemplate.URITemplate(instance)
         return template_validator.validate(template)
-
-
-draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
-draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
-draft6_format_checker = FormatChecker(_draft_checkers["draft6"])
-draft7_format_checker = FormatChecker(_draft_checkers["draft7"])

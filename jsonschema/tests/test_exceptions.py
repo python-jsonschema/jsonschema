@@ -12,7 +12,8 @@ class TestBestMatch(TestCase):
         reversed_best = exceptions.best_match(reversed(errors))
         msg = "Didn't return a consistent best match!\nGot: {0}\n\nThen: {1}"
         self.assertEqual(
-            best, reversed_best, msg=msg.format(best, reversed_best),
+            best._contents(), reversed_best._contents(),
+            msg=msg.format(best, reversed_best),
         )
         return best
 
@@ -253,7 +254,7 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree([e1, e2])
         self.assertEqual(tree["bar"][0].errors, {"foo": e1, "quux": e2})
 
-    def test_regression_multiple_errors_with_instance(self):
+    def test_multiple_errors_with_instance(self):
         e1, e2 = (
             exceptions.ValidationError(
                 "1",
@@ -266,7 +267,6 @@ class TestErrorTree(TestCase):
                 path=["foobar", 2],
                 instance="i2"),
         )
-        # Will raise an exception if the bug is still there.
         exceptions.ErrorTree([e1, e2])
 
     def test_it_does_not_contain_subtrees_that_are_not_in_the_instance(self):
@@ -460,3 +460,9 @@ class TestErrorInitReprStr(TestCase):
             schema="schema",
         )
         self.assertIn(repr(instance), str(error))
+
+
+class TestHashable(TestCase):
+    def test_hashable(self):
+        set([exceptions.ValidationError("")])
+        set([exceptions.SchemaError("")])

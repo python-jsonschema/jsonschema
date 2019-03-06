@@ -9,12 +9,6 @@ environment:
     - TOXENV: py27-tests
       PYTHON: "C:\\Python27-x64"
 
-    - TOXENV: py34-tests
-      PYTHON: "C:\\Python34"
-
-    - TOXENV: py34-tests
-      PYTHON: "C:\\Python34-x64"
-
     - TOXENV: py35-tests
       PYTHON: "C:\\Python35"
 

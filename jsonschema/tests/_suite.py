@@ -24,7 +24,7 @@ def _find_suite():
         return FilePath(root)
 
     root = FilePath(jsonschema.__file__).parent().sibling("json")
-    if not root.isdir():
+    if not root.isdir():  # pragma: no cover
         raise ValueError(
             (
                 "Can't find the JSON-Schema-Test-Suite directory. "
@@ -51,7 +51,7 @@ class Suite(object):
             for name, schema in json.loads(remotes.decode("utf-8")).items()
         }
 
-    def benchmark(self, runner):
+    def benchmark(self, runner):  # pragma: no cover
         for name in validators:
             self.version(name=name).benchmark(runner=runner)
 
@@ -71,12 +71,13 @@ class Version(object):
 
     name = attr.ib()
 
-    def benchmark(self, runner):
-        for test in self.tests():
-            runner.bench_func(
-                name=test.fully_qualified_name,
-                func=test.validate_ignoring_errors,
-            )
+    def benchmark(self, runner):  # pragma: no cover
+        for suite in self.tests():
+            for test in suite:
+                runner.bench_func(
+                    name=test.fully_qualified_name,
+                    func=test.validate_ignoring_errors,
+                )
 
     def tests(self):
         return (
@@ -123,7 +124,7 @@ class Version(object):
 
         try:
             cls.__module__ = _someone_save_us_the_module_of_the_caller()
-        except Exception:
+        except Exception:  # pragma: no cover
             # We're doing crazy things, so if they go wrong, like a function
             # behaving differently on some other interpreter, just make them
             # not happen.
@@ -213,7 +214,7 @@ class _Test(object):
             **kwargs
         )
 
-    def validate_ignoring_errors(self, **kwargs):
+    def validate_ignoring_errors(self, **kwargs):  # pragma: no cover
         try:
             self.validate(**kwargs)
         except jsonschema.ValidationError:

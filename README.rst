@@ -38,10 +38,10 @@ for Python (supporting 2.7+ including Python 3).
     ... }
 
     >>> # If no exception is raised by validate(), the instance is valid.
-    >>> validate({"name" : "Eggs", "price" : 34.99}, schema)
+    >>> validate(instance={"name" : "Eggs", "price" : 34.99}, schema=schema)
 
     >>> validate(
-    ...     {"name" : "Eggs", "price" : "Invalid"}, schema
+    ...     instance={"name" : "Eggs", "price" : "Invalid"}, schema=schema,
     ... )                                   # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...
@@ -65,8 +65,6 @@ Features
 
 * `Lazy validation <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.IValidator.iter_errors>`_
   that can iteratively report *all* validation errors.
-
-* Small and extensible
 
 * `Programmatic querying <https://python-jsonschema.readthedocs.io/en/latest/errors/#module-jsonschema>`_
   of which properties or items failed validation.
@@ -95,9 +93,13 @@ Try ``jsonschema`` interactively in this online demo:
 Release Notes
 -------------
 
-Version 2.6.0 drops support for Python 2.6.X (ha ha) and contains a
-number of small improvements in error messages, as well as a bug fix for
-``ErrorTree``.
+Version 3.0 brings support for Draft 7 (and 6). The interface for redefining
+types has also been majorly overhauled to support easier redefinition of the
+types a Validator will accept or allow.
+
+jsonschema is also now tested under Windows via AppVeyor.
+
+Thanks to all who contributed pull requests along the way.
 
 
 Running the Test Suite
@@ -108,7 +110,7 @@ package manager), running ``tox`` in the directory of your source
 checkout will run ``jsonschema``'s test suite on all of the versions
 of Python ``jsonschema`` supports. If you don't have all of the
 versions that ``jsonschema`` is tested under, you'll likely want to run
-using``tox``'s ``--skip-missing-interpreters`` option.
+using ``tox``'s ``--skip-missing-interpreters`` option.
 
 Of course you're also free to just run the tests on a single version with your
 favorite test runner. The tests live in the ``jsonschema.tests`` package.
