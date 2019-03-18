@@ -2,7 +2,7 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |Travis| |AppVeyor|
+|PyPI| |Pythons| |Travis| |AppVeyor| |ReadTheDocs|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
@@ -19,6 +19,10 @@ jsonschema
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn?svg=true
    :alt: AppVeyor build status
    :target: https://ci.appveyor.com/project/Julian/jsonschema
+   
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=stable&style=flat
+   :alt: ReadTheDocs status
+   :target: https://python-jsonschema.readthedocs.io/en/stable/
 
 
 ``jsonschema`` is an implementation of `JSON Schema <https://json-schema.org>`_
