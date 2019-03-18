@@ -20,7 +20,7 @@ jsonschema
    :alt: AppVeyor build status
    :target: https://ci.appveyor.com/project/Julian/jsonschema
    
-.. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=latest&style=flat
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=stable&style=flat
    :alt: ReadTheDocs status
    :target: https://python-jsonschema.readthedocs.io/en/stable/
 
