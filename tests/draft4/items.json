@@ -74,5 +74,122 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "items and subitems",
+        "schema": {
+            "definitions": {
+                "item": {
+                    "type": "array",
+                    "additionalItems": false,
+                    "items": [
+                        { "$ref": "#/definitions/sub-item" },
+                        { "$ref": "#/definitions/sub-item" }
+                    ]
+                },
+                "sub-item": {
+                    "type": "object",
+                    "required": ["foo"]
+                }
+            },
+            "type": "array",
+            "additionalItems": false,
+            "items": [
+                { "$ref": "#/definitions/item" },
+                { "$ref": "#/definitions/item" },
+                { "$ref": "#/definitions/item" }
+            ]
+        },
+        "tests": [
+            {
+                "description": "valid items",
+                "data": [
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ]
+                ],
+                "valid": true
+            },
+            {
+                "description": "too many items",
+                "data": [
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ]
+                ],
+                "valid": false
+            },
+            {
+                "description": "too many sub-items",
+                "data": [
+                    [ {"foo": null}, {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ]
+                ],
+                "valid": false
+            },
+            {
+                "description": "wrong item",
+                "data": [
+                    {"foo": null},
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ]
+                ],
+                "valid": false
+            },
+            {
+                "description": "wrong sub-item",
+                "data": [
+                    [ {}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ],
+                    [ {"foo": null}, {"foo": null} ]
+                ],
+                "valid": false
+            },
+            {
+                "description": "fewer items is valid",
+                "data": [
+                    [ {"foo": null} ],
+                    [ {"foo": null} ]
+                ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "nested items",
+        "schema": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "valid nested array",
+                "data": [[[[1]], [[2],[3]]], [[[4], [5], [6]]]],
+                "valid": true
+            },
+            {
+                "description": "nested array with invalid type",
+                "data": [[[["1"]], [[2],[3]]], [[[4], [5], [6]]]],
+                "valid": false
+            },
+            {
+                "description": "not deep enough",
+                "data": [[[1], [2],[3]], [[4], [5], [6]]],
+                "valid": false
+            }
+        ]
     }
 ]
