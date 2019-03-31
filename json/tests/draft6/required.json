@@ -66,5 +66,40 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "required with escaped characters",
+        "schema": {
+            "required": [
+                "foo\nbar",
+                "foo\"bar",
+                "foo\\bar",
+                "foo\rbar",
+                "foo\tbar",
+                "foo\fbar"
+            ]
+        },
+        "tests": [
+            {
+                "description": "object with all properties present is valid",
+                "data": {
+                    "foo\nbar": 1,
+                    "foo\"bar": 1,
+                    "foo\\bar": 1,
+                    "foo\rbar": 1,
+                    "foo\tbar": 1,
+                    "foo\fbar": 1
+                },
+                "valid": true
+            },
+            {
+                "description": "object with some properties missing is invalid",
+                "data": {
+                    "foo\nbar": "1",
+                    "foo\"bar": "1"
+                },
+                "valid": false
+            }
+        ]
     }
 ]

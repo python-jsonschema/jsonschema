@@ -119,5 +119,76 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "dependencies with escaped characters",
+        "schema": {
+            "dependencies": {
+                "foo\nbar": ["foo\rbar"],
+                "foo\tbar": {
+                    "minProperties": 4
+                },
+                "foo'bar": {"required": ["foo\"bar"]},
+                "foo\"bar": ["foo'bar"]
+            }
+        },
+        "tests": [
+            {
+                "description": "valid object 1",
+                "data": {
+                    "foo\nbar": 1,
+                    "foo\rbar": 2
+                },
+                "valid": true
+            },
+            {
+                "description": "valid object 2",
+                "data": {
+                    "foo\tbar": 1,
+                    "a": 2,
+                    "b": 3,
+                    "c": 4
+                },
+                "valid": true
+            },
+            {
+                "description": "valid object 3",
+                "data": {
+                    "foo'bar": 1,
+                    "foo\"bar": 2
+                },
+                "valid": true
+            },
+            {
+                "description": "invalid object 1",
+                "data": {
+                    "foo\nbar": 1,
+                    "foo": 2
+                },
+                "valid": false
+            },
+            {
+                "description": "invalid object 2",
+                "data": {
+                    "foo\tbar": 1,
+                    "a": 2
+                },
+                "valid": false
+            },
+            {
+                "description": "invalid object 3",
+                "data": {
+                    "foo'bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "invalid object 4",
+                "data": {
+                    "foo\"bar": 2
+                },
+                "valid": false
+            }
+        ]
     }
 ]

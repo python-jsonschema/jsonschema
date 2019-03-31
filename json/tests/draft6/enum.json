@@ -68,5 +68,28 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "enum with escaped characters",
+        "schema": {
+            "enum": ["foo\nbar", "foo\rbar"]
+        },
+        "tests": [
+            {
+                "description": "member 1 is valid",
+                "data": "foo\nbar",
+                "valid": true
+            },
+            {
+                "description": "member 2 is valid",
+                "data": "foo\rbar",
+                "valid": true
+            },
+            {
+                "description": "another string is invalid",
+                "data": "abc",
+                "valid": false
+            }
+        ]
     }
 ]
