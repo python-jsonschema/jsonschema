@@ -328,5 +328,32 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "refs with quote",
+        "schema": {
+            "properties": {
+                "foo\"bar": {"$ref": "#/definitions/foo\"bar"}
+            },
+            "definitions": {
+                "foo\"bar": {"type": "number"}
+            }
+        },
+        "tests": [
+            {
+                "description": "object with numbers is valid",
+                "data": {
+                    "foo\"bar": 1
+                },
+                "valid": true
+            },
+            {
+                "description": "object with strings is invalid",
+                "data": {
+                    "foo\"bar": "1"
+                },
+                "valid": false
+            }
+        ]
     }
 ]
