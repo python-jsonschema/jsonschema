@@ -3,6 +3,8 @@ import argparse
 import json
 import sys
 
+from six.moves import urllib, urllib_parse
+
 from jsonschema._reflect import namedAny
 from jsonschema.validators import validator_for
 
@@ -15,7 +17,14 @@ def _namedAnyWithDefault(name):
 
 def _json_file(path):
     with open(path) as file:
-        return json.load(file)
+        doc = json.load(file)
+
+        if type(doc) == dict and '$id' not in doc:
+            # Add an ID so that relative refs to other files can be resolved
+            doc['$id'] = urllib_parse.urljoin(
+                'file:', urllib.request.pathname2url(path))
+
+        return doc
 
 
 parser = argparse.ArgumentParser(
