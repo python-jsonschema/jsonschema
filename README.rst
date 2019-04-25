@@ -85,9 +85,19 @@ Demo
 
 Try ``jsonschema`` interactively in this online demo:
 
-.. image:: https://user-images.githubusercontent.com/1155573/49400125-16e73500-f722-11e8-9275-e1d7eb3bbf99.png
+.. image:: https://user-images.githubusercontent.com/1155573/56745335-8b158a00-6750-11e9-8776-83fa675939c4.png
     :target: https://notebooks.ai/demo/gh/Julian/jsonschema
     :alt: Open Live Demo
+
+
+Online demo Notebook will look similar to this:
+
+
+.. image:: https://im2.ezgif.com/tmp/ezgif-2-04a4f6d5d298.gif
+    :alt: Open Live Demo
+    :width: 50 px
+    :scale: 10 %
+
 
 
 Release Notes
