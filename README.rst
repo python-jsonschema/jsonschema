@@ -93,7 +93,7 @@ Try ``jsonschema`` interactively in this online demo:
 Online demo Notebook will look similar to this:
 
 
-.. image:: https://im2.ezgif.com/tmp/ezgif-2-04a4f6d5d298.gif
+.. image:: https://user-images.githubusercontent.com/1155573/56820861-5c1c1880-6823-11e9-802a-ce01c5ec574f.gif
     :alt: Open Live Demo
     :width: 50 px
     :scale: 10 %
