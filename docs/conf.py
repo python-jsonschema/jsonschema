@@ -80,10 +80,12 @@ pygments_style = "sphinx"
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
 
-doctest_global_setup = dedent("""
+doctest_global_setup = dedent(
+    """
     from __future__ import print_function
     from jsonschema import *
-""")
+"""
+)
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/2.7", None),
@@ -176,13 +178,7 @@ htmlhelp_basename = "jsonschemadoc"
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  (
-      "index",
-      "jsonschema.tex",
-      u"jsonschema Documentation",
-      author,
-      "manual",
-  ),
+    ("index", "jsonschema.tex", u"jsonschema Documentation", author, "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -210,15 +206,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (
-        "index",
-        "jsonschema",
-        u"jsonschema Documentation",
-        [author],
-        1,
-    ),
-]
+man_pages = [("index", "jsonschema", u"jsonschema Documentation", [author], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -230,15 +218,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (
-      "index",
-      "jsonschema",
-      u"jsonschema Documentation",
-      author,
-      "jsonschema",
-      "One line description of project.",
-      "Miscellaneous",
-  ),
+    (
+        "index",
+        "jsonschema",
+        u"jsonschema Documentation",
+        author,
+        "jsonschema",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.
