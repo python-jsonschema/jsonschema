@@ -143,7 +143,7 @@ def docutils_sucks(spec):
                 )
 
             # get the href from link in the header
-            uri = base_url + header[0].find('a').attrib["href"]
+            uri = base_url + header[0].find("a").attrib["href"]
 
         reference = nodes.reference(raw_text, text, refuri=uri)
         return [reference], []

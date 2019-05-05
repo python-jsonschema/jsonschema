@@ -1655,13 +1655,13 @@ class TestRefResolver(SynchronousTestCase):
         self.assertEqual(resolved, 12)
 
     def test_it_retrieves_local_refs_via_urlopen(self):
-        with tempfile.NamedTemporaryFile(delete=False, mode='wt') as tempf:
+        with tempfile.NamedTemporaryFile(delete=False, mode="wt") as tempf:
             self.addCleanup(os.remove, tempf.name)
-            json.dump({'foo': 'bar'}, tempf)
+            json.dump({"foo": "bar"}, tempf)
 
         ref = "file://{}#foo".format(pathname2url(tempf.name))
         with self.resolver.resolving(ref) as resolved:
-            self.assertEqual(resolved, 'bar')
+            self.assertEqual(resolved, "bar")
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}

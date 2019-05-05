@@ -55,10 +55,10 @@ def urlsplit(url):
 def urldefrag(url):
     if "#" in url:
         s, n, p, q, frag = urlsplit(url)
-        defrag = urlunsplit((s, n, p, q, ''))
+        defrag = urlunsplit((s, n, p, q, ""))
     else:
         defrag = url
-        frag = ''
+        frag = ""
     return defrag, frag
 
 

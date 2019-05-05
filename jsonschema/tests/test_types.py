@@ -135,9 +135,9 @@ class TestCustomTypes(TestCase):
             validator.validate(4.4)
 
     def test_object_can_be_extended(self):
-        schema = {'type': 'object'}
+        schema = {"type": "object"}
 
-        Point = namedtuple('Point', ['x', 'y'])
+        Point = namedtuple("Point", ["x", "y"])
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
             u"object", is_object_or_named_tuple,
