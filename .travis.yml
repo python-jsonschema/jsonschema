@@ -5,12 +5,11 @@ language: python
 dist: xenial
 
 python:
-  - 2.7
   - 3.5
   - 3.6
   - 3.7
-  - pypy2.7-6.0
-  - pypy3.5-6.0
+  - pypy
+  - pypy3
 
 install:
   - pip install tox-travis
