@@ -7,6 +7,8 @@ from warnings import warn
 import contextlib
 import json
 import numbers
+import textwrap
+import inspect
 
 from six import add_metaclass
 
@@ -18,6 +20,7 @@ from jsonschema import (
     exceptions,
 )
 from jsonschema.compat import (
+    PY36,
     Sequence,
     int_types,
     iteritems,
@@ -33,7 +36,7 @@ from jsonschema.compat import (
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
 #       https://github.com/pyga/ebb-lint/issues/7
 # Imported for backwards compatibility.
-from jsonschema.exceptions import ErrorTree
+from jsonschema.exceptions import ErrorTree, AsyncValidationBreakpoint
 ErrorTree
 
 
@@ -293,6 +296,16 @@ def create(
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
 
+        if PY36:
+            exec(textwrap.dedent("""
+            async def async_iter_errors(self, instance, _schema=None):
+                for error in self.iter_errors(instance, _schema):
+                    if isinstance(error, AsyncValidationBreakpoint):
+                        await error.async_validate()
+                    else:
+                        yield error
+            """))
+
         def iter_errors(self, instance, _schema=None):
             if _schema is None:
                 _schema = self.schema
@@ -323,8 +336,20 @@ def create(
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
                         continue
+                    if PY36 and inspect.iscoroutinefunction(validator):
+                        bp = AsyncValidationBreakpoint(
+                            coroutine=validator,
+                            value=v,
+                            validator=k,
+                            validator_value=v,
+                            instance=instance,
+                            schema=_schema,
+                        )
+                        yield bp
+                        errors = bp.errors
+                    else:
+                        errors = validator(self, v, instance, _schema) or ()
 
-                    errors = validator(self, v, instance, _schema) or ()
                     for error in errors:
                         # set details if not already set by the called fn
                         error._set(

@@ -9,7 +9,7 @@ import textwrap
 import attr
 
 from jsonschema import _utils
-from jsonschema.compat import PY3, iteritems
+from jsonschema.compat import PY3, PY36, iteritems
 
 
 WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
@@ -147,6 +147,22 @@ class SchemaError(_Error):
 
     _word_for_schema_in_error_message = "metaschema"
     _word_for_instance_in_error_message = "schema"
+
+
+class AsyncValidationBreakpoint(SchemaError):
+    def __init__(self, coroutine, value, *args, message="async validation not supported", **kwargs):
+        super(AsyncValidationBreakpoint, self).__init__(message, *args, **kwargs)
+        self.coroutine = coroutine
+        self.value = value
+        self.errors = []
+
+    if PY36:
+        exec(textwrap.dedent("""
+        async def async_validate(self):
+            # Execute the async validator (coroutine) and bufferize generated errors
+            async for error in self.coroutine(self.validator, self.value, self.instance, self.schema):
+                self.errors.append(error)
+        """))
 
 
 @attr.s(hash=True)

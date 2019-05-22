@@ -10,6 +10,7 @@ from jsonschema._utils import (
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
+from jsonschema.exceptions import FormatError, ValidationError, AsyncValidationBreakpoint
 from jsonschema.compat import iteritems
 
 
@@ -319,7 +320,12 @@ def allOf(validator, allOf, instance, schema):
 def anyOf(validator, anyOf, instance, schema):
     all_errors = []
     for index, subschema in enumerate(anyOf):
-        errs = list(validator.descend(instance, subschema, schema_path=index))
+        errs = []
+        for err in validator.descend(instance, subschema, schema_path=index):
+            if isinstance(err, AsyncValidationBreakpoint):
+                yield err
+            else:
+                errs.append(err)
         if not errs:
             break
         all_errors.extend(errs)
@@ -334,7 +340,12 @@ def oneOf(validator, oneOf, instance, schema):
     subschemas = enumerate(oneOf)
     all_errors = []
     for index, subschema in subschemas:
-        errs = list(validator.descend(instance, subschema, schema_path=index))
+        errs = []
+        for err in validator.descend(instance, subschema, schema_path=index):
+            if isinstance(err, AsyncValidationBreakpoint):
+                yield err
+            else:
+                errs.append(err)
         if not errs:
             first_valid = subschema
             break

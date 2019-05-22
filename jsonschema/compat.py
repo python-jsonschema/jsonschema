@@ -14,6 +14,7 @@ except ImportError:
     from collections import MutableMapping, Sequence  # noqa
 
 PY3 = sys.version_info[0] >= 3
+PY36 = sys.version_info >= (3, 6)
 
 if PY3:
     zip = zip
