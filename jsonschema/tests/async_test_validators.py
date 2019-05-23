@@ -29,4 +29,4 @@ class TestAsyncIterErrors(TestCase):
             got = [e.message async for e in self.validator.async_iter_errors(instance, schema)]
             self.assertEqual(sorted(got), sorted(expected))
 
-        asyncio.run(_test_async_iter_errors())
+        asyncio.get_event_loop().run_until_complete(_test_async_iter_errors())
