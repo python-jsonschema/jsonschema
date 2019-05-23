@@ -336,7 +336,7 @@ def create(
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
                         continue
-                    if PY36 and inspect.iscoroutinefunction(validator):
+                    if PY36 and inspect.isasyncgenfunction(validator):
                         bp = AsyncValidationBreakpoint(
                             coroutine=validator,
                             value=v,
