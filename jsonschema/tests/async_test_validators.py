@@ -30,3 +30,12 @@ class TestAsyncIterErrors(TestCase):
             self.assertEqual(sorted(got), sorted(expected))
 
         asyncio.get_event_loop().run_until_complete(_test_async_iter_errors())
+
+    def test_not_supported_async_iter_errors(self):
+        instance = {}
+        schema = {
+            u"async": True
+        }
+        expected = [u"async validation not supported"]
+        got = [e.message for e in self.validator.iter_errors(instance, schema)]
+        self.assertEqual(sorted(got), sorted(expected))
