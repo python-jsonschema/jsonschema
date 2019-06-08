@@ -24,6 +24,9 @@ jsonschema
    :alt: ReadTheDocs status
    :target: https://python-jsonschema.readthedocs.io/en/stable/
 
+.. image:: https://codecov.io/gh/Julian/jsonschema/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/Julian/jsonschema
+
 
 ``jsonschema`` is an implementation of `JSON Schema <https://json-schema.org>`_
 for Python (supporting 2.7+ including Python 3).
