@@ -19,13 +19,14 @@ jsonschema
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn?svg=true
    :alt: AppVeyor build status
    :target: https://ci.appveyor.com/project/Julian/jsonschema
-   
+
+.. |Codecov| image:: https://codecov.io/gh/Julian/jsonschema/branch/master/graph/badge.svg
+  :alt: Codecov Code coverage
+  :target: https://codecov.io/gh/Julian/jsonschema
+
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=stable&style=flat
    :alt: ReadTheDocs status
    :target: https://python-jsonschema.readthedocs.io/en/stable/
-
-.. image:: https://codecov.io/gh/Julian/jsonschema/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/Julian/jsonschema
 
 
 ``jsonschema`` is an implementation of `JSON Schema <https://json-schema.org>`_
