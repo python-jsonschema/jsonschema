@@ -2,7 +2,7 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |Travis| |AppVeyor| |ReadTheDocs|
+|PyPI| |Pythons| |Travis| |AppVeyor| |Codecov| |ReadTheDocs|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
