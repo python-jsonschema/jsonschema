@@ -21,8 +21,8 @@ jsonschema
    :target: https://ci.appveyor.com/project/Julian/jsonschema
 
 .. |Codecov| image:: https://codecov.io/gh/Julian/jsonschema/branch/master/graph/badge.svg
-  :alt: Codecov Code coverage
-  :target: https://codecov.io/gh/Julian/jsonschema
+   :alt: Codecov Code coverage
+   :target: https://codecov.io/gh/Julian/jsonschema
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=stable&style=flat
    :alt: ReadTheDocs status
