@@ -65,16 +65,18 @@ defaults.
 
 .. note::
 
-    If you're interested in a more interesting solution to a larger class of these
-    types of transformations, keep an eye on `Seep
-    <https://github.com/Julian/Seep>`_, which is an experimental data
-    transformation and extraction library written on top of `jsonschema`.
+    If you're interested in a more interesting solution to a larger
+    class of these types of transformations, keep an eye on `Seep
+    <https://github.com/Julian/Seep>`_, which is an experimental
+    data transformation and extraction library written on top of
+    `jsonschema`.
 
 
 .. hint::
 
-    The above code can provide default values for an entire object and all of its properties,
-    but only if your schema provides a default value for the object itself, like so:
+    The above code can provide default values for an entire object and
+    all of its properties, but only if your schema provides a default
+    value for the object itself, like so:
 
     .. code-block:: python
 
