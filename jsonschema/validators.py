@@ -163,7 +163,7 @@ def create(
     default_types=None,
     type_checker=None,
     id_of=_id_of,
-    format_checker=None
+    format_checker=None,
 ):
     """
     Create a new validator class.
@@ -214,7 +214,14 @@ def create(
 
         id_of (callable):
 
-            A function that given a schema, returns its ID.
+            a function that given a schema, returns its ID.
+
+        format_checker (jsonschema.FormatChecker):
+
+            a format checker, used when applying the :validator:`format`
+            validator.
+
+            If unprovided, none will be associated.
 
     Returns:
 
