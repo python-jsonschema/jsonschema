@@ -8,6 +8,7 @@ import numbers
 from six import add_metaclass
 
 from jsonschema import (
+    _format,
     _legacy_validators,
     _types,
     _utils,
@@ -25,11 +26,6 @@ from jsonschema.compat import (
     urljoin,
     urlopen,
     urlsplit,
-)
-
-from jsonschema._format import (
-    draft6_format_checker,
-    draft7_format_checker,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -479,7 +475,7 @@ Draft3Validator = create(
     type_checker=_types.draft3_type_checker,
     version="draft3",
     id_of=lambda schema: schema.get(u"id", ""),
-    format_checker=None,
+    format_checker=_format.draft3_format_checker,
 )
 
 Draft4Validator = create(
@@ -515,7 +511,7 @@ Draft4Validator = create(
     type_checker=_types.draft4_type_checker,
     version="draft4",
     id_of=lambda schema: schema.get(u"id", ""),
-    format_checker=None,
+    format_checker=_format.draft4_format_checker,
 )
 
 Draft6Validator = create(
@@ -555,7 +551,7 @@ Draft6Validator = create(
     },
     type_checker=_types.draft6_type_checker,
     version="draft6",
-    format_checker=draft6_format_checker,
+    format_checker=_format.draft6_format_checker,
 )
 
 Draft7Validator = create(
@@ -596,7 +592,7 @@ Draft7Validator = create(
     },
     type_checker=_types.draft7_type_checker,
     version="draft7",
-    format_checker=draft7_format_checker,
+    format_checker=_format.draft7_format_checker,
 )
 
 _LATEST_VERSION = Draft7Validator
