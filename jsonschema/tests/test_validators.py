@@ -1124,6 +1124,26 @@ class MetaSchemaTestsMixin(object):
         self.Validator.check_schema({"enum": [12, 12]})
 
 
+class InvalidRegexMixin(object):
+    def test_invalid_patternProperty(self):
+        with self.assertRaises(exceptions.SchemaError):
+            self.Validator.check_schema(
+                {"patternProperties":{"\q": {"type": "number"}}},
+            )
+
+    def test_invalid_pattern(self):
+        with self.assertRaises(exceptions.SchemaError):
+            self.Validator.check_schema({"pattern": "\q"})
+
+
+class TestDraft6InvalidRegex(InvalidRegexMixin, TestCase):
+    Validator = validators.Draft6Validator
+
+
+class TestDraft7InvalidRegex(InvalidRegexMixin, TestCase):
+    Validator = validators.Draft7Validator
+
+
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def test_valid_instances_are_valid(self):
         schema, instance = self.valid
