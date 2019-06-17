@@ -125,7 +125,7 @@ class SanityTests(unittest.TestCase):
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_suites_are_valid(self):
-        validator = jsonschema.Draft3Validator(TESTSUITE_SCHEMA)
+        validator = jsonschema.Draft4Validator(TESTSUITE_SCHEMA)
         for tests in files(self.test_files):
             try:
                 validator.validate(tests)
