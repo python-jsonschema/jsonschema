@@ -72,6 +72,13 @@ else:
         return
 
 
+def bug(issue=None):
+    message = "A known bug."
+    if issue is not None:
+        message += " See issue #{issue}".format(issue=issue)
+    return message
+
+
 TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
     DRAFT3.optional_tests_of(name="format"),
@@ -106,11 +113,11 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
                 "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
             },
             ref={
-                "valid tree":  "An actual bug, this needs fixing.",
+                "valid tree": bug(),
             },
             refRemote={
-                "number is valid": "An actual bug, this needs fixing.",
-                "string is invalid": "An actual bug, this needs fixing.",
+                "number is valid": bug(),
+                "string is invalid": bug(),
             },
         )(test)
     ),
@@ -132,11 +139,11 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
                 "case-insensitive T and Z": "Upstream bug in strict_rfc3339",
             },
             ref={
-                "valid tree": "An actual bug, this needs fixing.",
+                "valid tree": bug(),
             },
             refRemote={
-                "number is valid": "An actual bug, this needs fixing.",
-                "string is invalid": "An actual bug, this needs fixing.",
+                "number is valid": bug(),
+                "string is invalid": bug(),
             },
         )(test)
     ),
@@ -155,11 +162,11 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or missing_format(draft7_format_checker)(test)
         or skip_tests_containing_descriptions(
             ref={
-                "valid tree": "An actual bug, this needs fixing.",
+                "valid tree": bug(),
             },
             refRemote={
-                "number is valid": "An actual bug, this needs fixing.",
-                "string is invalid": "An actual bug, this needs fixing.",
+                "number is valid": bug(),
+                "string is invalid": bug(),
             },
         )(test)
         or skip_tests_containing_descriptions(
