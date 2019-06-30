@@ -62,7 +62,7 @@ else:
 def bug(issue=None):
     message = "A known bug."
     if issue is not None:
-        message += " See issue #{issue}".format(issue=issue)
+        message += " See issue #{issue}.".format(issue=issue)
     return message
 
 
@@ -101,6 +101,21 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             case_description="Recursive references between schemas",
         )(test)
         or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier with absolute URI",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier with base URI change in subschema",
+        )(test)
+        or skip(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder",
@@ -135,6 +150,21 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             case_description="Recursive references between schemas",
         )(test)
         or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier with absolute URI",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier with base URI change in subschema",
+        )(test)
+        or skip(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder",
@@ -167,6 +197,21 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(),
             subject="ref",
             case_description="Recursive references between schemas",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier with absolute URI",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="Location-independent identifier with base URI change in subschema",
         )(test)
         or skip(
             message=bug(),
