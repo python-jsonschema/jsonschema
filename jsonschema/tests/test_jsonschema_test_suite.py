@@ -32,7 +32,7 @@ DRAFT7 = SUITE.version(name="draft7")
 
 def skip(message, **kwargs):
     def skipper(test):
-        if all(value in getattr(test, attr) for attr, value in kwargs.items()):
+        if all(value == getattr(test, attr) for attr, value in kwargs.items()):
             return message
     return skipper
 
@@ -106,6 +106,11 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             case_description="base URI change - change folder",
         )(test)
         or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="base URI change - change folder in subschema",
+        )(test)
+        or skip(
             message="Upstream bug in strict_rfc3339",
             subject="format",
             description="case-insensitive T and Z",
@@ -135,6 +140,11 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             case_description="base URI change - change folder",
         )(test)
         or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="base URI change - change folder in subschema",
+        )(test)
+        or skip(
             message="Upstream bug in strict_rfc3339",
             subject="format",
             description="case-insensitive T and Z",
@@ -162,6 +172,11 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder",
+        )(test)
+        or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="base URI change - change folder in subschema",
         )(test)
         or skip(
             message="Upstream bug in strict_rfc3339",
