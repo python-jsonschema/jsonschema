@@ -30,17 +30,10 @@ DRAFT6 = SUITE.version(name="draft6")
 DRAFT7 = SUITE.version(name="draft7")
 
 
-def skip_tests_containing_descriptions(**kwargs):
+def skip(message, **kwargs):
     def skipper(test):
-        descriptions_and_reasons = kwargs.get(test.subject, {})
-        return next(
-            (
-                reason
-                for description, reason in descriptions_and_reasons.items()
-                if description in test.description
-            ),
-            None,
-        )
+        if all(value in getattr(test, attr) for attr, value in kwargs.items()):
+            return message
     return skipper
 
 
@@ -57,15 +50,9 @@ def missing_format(checker):
 
 is_narrow_build = sys.maxunicode == 2 ** 16 - 1
 if is_narrow_build:  # pragma: no cover
-    narrow_unicode_build = skip_tests_containing_descriptions(
-        maxLength={
-            "supplementary Unicode":
-                "Not running surrogate Unicode case, this Python is narrow.",
-        },
-        minLength={
-            "supplementary Unicode":
-                "Not running surrogate Unicode case, this Python is narrow.",
-        },
+    narrow_unicode_build = skip(
+        message="Not running surrogate Unicode case, this Python is narrow.",
+        description="supplementary Unicode",
     )
 else:
     def narrow_unicode_build(test):  # pragma: no cover
@@ -87,12 +74,12 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     Validator=Draft3Validator,
     format_checker=draft3_format_checker,
     skip=lambda test: (
-        narrow_unicode_build(test) or
-        missing_format(draft3_format_checker)(test) or
-        skip_tests_containing_descriptions(
-            format={
-                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
-            },
+        narrow_unicode_build(test)
+        or missing_format(draft3_format_checker)(test)
+        or skip(
+            message="Upstream bug in strict_rfc3339",
+            subject="format",
+            description="case-insensitive T and Z",
         )(test)
     ),
 )
@@ -106,19 +93,22 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     Validator=Draft4Validator,
     format_checker=draft4_format_checker,
     skip=lambda test: (
-        narrow_unicode_build(test) or
-        missing_format(draft4_format_checker)(test) or
-        skip_tests_containing_descriptions(
-            format={
-                "case-insensitive T and Z":  "Upstream bug in strict_rfc3339",
-            },
-            ref={
-                "valid tree": bug(),
-            },
-            refRemote={
-                "number is valid": bug(),
-                "string is invalid": bug(),
-            },
+        narrow_unicode_build(test)
+        or missing_format(draft4_format_checker)(test)
+        or skip(
+            message=bug(),
+            subject="ref",
+            case_description="Recursive references between schemas",
+        )(test)
+        or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="base URI change - change folder",
+        )(test)
+        or skip(
+            message="Upstream bug in strict_rfc3339",
+            subject="format",
+            description="case-insensitive T and Z",
         )(test)
     ),
 )
@@ -132,19 +122,22 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
     skip=lambda test: (
-        narrow_unicode_build(test) or
-        missing_format(draft6_format_checker)(test) or
-        skip_tests_containing_descriptions(
-            format={
-                "case-insensitive T and Z": "Upstream bug in strict_rfc3339",
-            },
-            ref={
-                "valid tree": bug(),
-            },
-            refRemote={
-                "number is valid": bug(),
-                "string is invalid": bug(),
-            },
+        narrow_unicode_build(test)
+        or missing_format(draft6_format_checker)(test)
+        or skip(
+            message=bug(),
+            subject="ref",
+            case_description="Recursive references between schemas",
+        )(test)
+        or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="base URI change - change folder",
+        )(test)
+        or skip(
+            message="Upstream bug in strict_rfc3339",
+            subject="format",
+            description="case-insensitive T and Z",
         )(test)
     ),
 )
@@ -160,22 +153,20 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_format(draft7_format_checker)(test)
-        or skip_tests_containing_descriptions(
-            ref={
-                "valid tree": bug(),
-            },
-            refRemote={
-                "number is valid": bug(),
-                "string is invalid": bug(),
-            },
+        or skip(
+            message=bug(),
+            subject="ref",
+            case_description="Recursive references between schemas",
         )(test)
-        or skip_tests_containing_descriptions(
-            **{
-                "date-time": {
-                    "case-insensitive T and Z":
-                        "Upstream bug in strict_rfc3339",
-                },
-            }
+        or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="base URI change - change folder",
+        )(test)
+        or skip(
+            message="Upstream bug in strict_rfc3339",
+            subject="date-time",
+            description="case-insensitive T and Z",
         )(test)
     ),
 )
