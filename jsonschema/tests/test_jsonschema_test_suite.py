@@ -51,6 +51,7 @@ def missing_format(checker):
 is_narrow_build = sys.maxunicode == 2 ** 16 - 1
 if is_narrow_build:  # pragma: no cover
     message = "Not running surrogate Unicode case, this Python is narrow."
+
     def narrow_unicode_build(test):  # pragma: no cover
         return skip(
             message=message,
@@ -113,12 +114,16 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier with absolute URI",
+            case_description=(
+                "Location-independent identifier with absolute URI"
+            ),
         )(test)
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier with base URI change in subschema",
+            case_description=(
+                "Location-independent identifier with base URI change in subschema"
+            ),
         )(test)
         or skip(
             message=bug(),
@@ -162,12 +167,16 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier with absolute URI",
+            case_description=(
+                "Location-independent identifier with absolute URI"
+            ),
         )(test)
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier with base URI change in subschema",
+            case_description=(
+                "Location-independent identifier with base URI change in subschema"
+            ),
         )(test)
         or skip(
             message=bug(),
@@ -211,12 +220,16 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier with absolute URI",
+            case_description=(
+                "Location-independent identifier with absolute URI"
+            ),
         )(test)
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier with base URI change in subschema",
+            case_description=(
+                "Location-independent identifier with base URI change in subschema"
+            ),
         )(test)
         or skip(
             message=bug(),
