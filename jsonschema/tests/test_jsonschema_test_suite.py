@@ -50,10 +50,15 @@ def missing_format(checker):
 
 is_narrow_build = sys.maxunicode == 2 ** 16 - 1
 if is_narrow_build:  # pragma: no cover
-    narrow_unicode_build = skip(
-        message="Not running surrogate Unicode case, this Python is narrow.",
-        description="supplementary Unicode",
-    )
+    message = "Not running surrogate Unicode case, this Python is narrow."
+    def narrow_unicode_build(test):  # pragma: no cover
+        return skip(
+            message=message,
+            description="one supplementary Unicode code point is not long enough",
+        )(test) or skip(
+            message=message,
+            description="two supplementary Unicode code points is long enough",
+        )(test)
 else:
     def narrow_unicode_build(test):  # pragma: no cover
         return
