@@ -174,5 +174,10 @@ it'd be most welcome!
 You can also generally find me on Freenode (nick: ``tos9``) in various
 channels, including ``#python``.
 
-If you feel overwhelmingly grateful, you can woo me with beer money via
-Google Pay with the email in my GitHub profile.
+If you feel overwhelmingly grateful, you can also woo me with beer money
+via Google Pay with the email in my GitHub profile.
+
+And for companies who appreciate ``jsonschema`` and its continued support
+and growth, ``jsonschema`` is also now supportable via `TideLift
+<https://tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-j
+sonschema&utm_medium=referral&utm_campaign=readme>`_.
