@@ -1,7 +1,6 @@
 from unittest import TestCase
 import json
 import subprocess
-import sys
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.compat import NativeIO
@@ -143,7 +142,8 @@ class TestCLI(TestCase):
         self.assertEqual(exit_code, 1)
 
     def test_version(self):
-        ver = subprocess.check_output(
-            [sys.executable, "jsonschema", "--version"],
+        version = subprocess.check_output(
+            ["jsonschema", "--version"],
         )
-        self.assertEqual(ver, __version__)
+        version = version.decode("utf-8").strip()
+        self.assertEqual(version, __version__)
