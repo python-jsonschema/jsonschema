@@ -3,6 +3,7 @@ import argparse
 import json
 import sys
 
+from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.validators import validator_for
 
@@ -48,6 +49,11 @@ parser.add_argument(
         "validators that are registered with jsonschema, simply the name "
         "of the class."
     ),
+)
+parser.add_argument(
+    "--version",
+    action='version',
+    version=__version__,
 )
 parser.add_argument(
     "schema",
