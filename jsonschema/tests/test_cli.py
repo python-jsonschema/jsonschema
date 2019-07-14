@@ -145,6 +145,7 @@ class TestCLI(TestCase):
     def test_version(self):
         version = subprocess.check_output(
             [sys.executable, "-m", "jsonschema", "--version"],
+            stderr=subprocess.STDOUT,
         )
         version = version.decode("utf-8").strip()
         self.assertEqual(version, __version__)
