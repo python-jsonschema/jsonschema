@@ -3,7 +3,6 @@ import textwrap
 
 from jsonschema import Draft4Validator, exceptions
 from jsonschema.compat import PY3
-from jsonschema.tests.compat import mock
 
 
 class TestBestMatch(TestCase):
@@ -13,7 +12,8 @@ class TestBestMatch(TestCase):
         reversed_best = exceptions.best_match(reversed(errors))
         msg = "Didn't return a consistent best match!\nGot: {0}\n\nThen: {1}"
         self.assertEqual(
-            best, reversed_best, msg=msg.format(best, reversed_best),
+            best._contents(), reversed_best._contents(),
+            msg=msg.format(best, reversed_best),
         )
         return best
 
@@ -214,7 +214,11 @@ class TestByRelevance(TestCase):
 
 class TestErrorTree(TestCase):
     def test_it_knows_how_many_total_errors_it_contains(self):
-        errors = [mock.MagicMock() for _ in range(8)]
+        # FIXME: https://github.com/Julian/jsonschema/issues/442
+        errors = [
+            exceptions.ValidationError("Something", validator=i)
+            for i in range(8)
+        ]
         tree = exceptions.ErrorTree(errors)
         self.assertEqual(tree.total_errors, 8)
 
@@ -250,7 +254,7 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree([e1, e2])
         self.assertEqual(tree["bar"][0].errors, {"foo": e1, "quux": e2})
 
-    def test_regression_multiple_errors_with_instance(self):
+    def test_multiple_errors_with_instance(self):
         e1, e2 = (
             exceptions.ValidationError(
                 "1",
@@ -263,7 +267,6 @@ class TestErrorTree(TestCase):
                 path=["foobar", 2],
                 instance="i2"),
         )
-        # Will raise an exception if the bug is still there.
         exceptions.ErrorTree([e1, e2])
 
     def test_it_does_not_contain_subtrees_that_are_not_in_the_instance(self):
@@ -301,7 +304,7 @@ class TestErrorInitReprStr(TestCase):
         return exceptions.ValidationError(**defaults)
 
     def assertShows(self, expected, **kwargs):
-        if PY3:
+        if PY3:  # pragma: no cover
             expected = expected.replace("u'", "'")
         expected = textwrap.dedent(expected).rstrip("\n")
 
@@ -377,9 +380,61 @@ class TestErrorInitReprStr(TestCase):
         )
 
     def test_uses_pprint(self):
-        with mock.patch("pprint.pformat") as pformat:
-            str(self.make_error())
-            self.assertEqual(pformat.call_count, 2)  # schema + instance
+        self.assertShows(
+            """
+            Failed validating u'maxLength' in schema:
+                {0: 0,
+                 1: 1,
+                 2: 2,
+                 3: 3,
+                 4: 4,
+                 5: 5,
+                 6: 6,
+                 7: 7,
+                 8: 8,
+                 9: 9,
+                 10: 10,
+                 11: 11,
+                 12: 12,
+                 13: 13,
+                 14: 14,
+                 15: 15,
+                 16: 16,
+                 17: 17,
+                 18: 18,
+                 19: 19}
+
+            On instance:
+                [0,
+                 1,
+                 2,
+                 3,
+                 4,
+                 5,
+                 6,
+                 7,
+                 8,
+                 9,
+                 10,
+                 11,
+                 12,
+                 13,
+                 14,
+                 15,
+                 16,
+                 17,
+                 18,
+                 19,
+                 20,
+                 21,
+                 22,
+                 23,
+                 24]
+            """,
+            instance=list(range(25)),
+            schema=dict(zip(range(20), range(20))),
+            validator=u"maxLength",
+        )
 
     def test_str_works_with_instances_having_overriden_eq_operator(self):
         """
@@ -389,7 +444,14 @@ class TestErrorInitReprStr(TestCase):
 
         """
 
-        instance = mock.MagicMock()
+        class DontEQMeBro(object):
+            def __eq__(this, other):  # pragma: no cover
+                self.fail("Don't!")
+
+            def __ne__(this, other):  # pragma: no cover
+                self.fail("Don't!")
+
+        instance = DontEQMeBro()
         error = exceptions.ValidationError(
             "a message",
             validator="foo",
@@ -397,5 +459,10 @@ class TestErrorInitReprStr(TestCase):
             validator_value="some",
             schema="schema",
         )
-        str(error)
-        self.assertFalse(instance.__eq__.called)
+        self.assertIn(repr(instance), str(error))
+
+
+class TestHashable(TestCase):
+    def test_hashable(self):
+        set([exceptions.ValidationError("")])
+        set([exceptions.SchemaError("")])

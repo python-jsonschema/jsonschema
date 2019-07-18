@@ -5,7 +5,7 @@ A performance benchmark using the example from issue #232:
 https://github.com/Julian/jsonschema/pull/232
 
 """
-from bp.filepath import FilePath
+from twisted.python.filepath import FilePath
 from perf import Runner
 from pyrsistent import m
 
@@ -17,7 +17,7 @@ collection = Collection(
     path=FilePath(__file__).sibling("issue232"),
     remotes=m(),
     name="issue232",
-    validator=jsonschema.Draft6Validator,
+    validator=jsonschema.Draft7Validator,
 )
 
 

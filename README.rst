@@ -2,26 +2,34 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |Travis| |AppVeyor|
+|PyPI| |Pythons| |Travis| |AppVeyor| |Codecov| |ReadTheDocs|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
-   :target: https://pypi.python.org/pypi/jsonschema
+   :target: https://pypi.org/project/jsonschema/
 
 .. |Pythons| image:: https://img.shields.io/pypi/pyversions/jsonschema.svg
    :alt: Supported Python versions
-   :target: https://pypi.python.org/pypi/jsonschema
+   :target: https://pypi.org/project/jsonschema/
 
 .. |Travis| image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
    :alt: Travis build status
    :target: https://travis-ci.org/Julian/jsonschema
 
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn?svg=true
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn/branch/master?svg=true
    :alt: AppVeyor build status
    :target: https://ci.appveyor.com/project/Julian/jsonschema
 
+.. |Codecov| image:: https://codecov.io/gh/Julian/jsonschema/branch/master/graph/badge.svg
+   :alt: Codecov Code coverage
+   :target: https://codecov.io/gh/Julian/jsonschema
 
-``jsonschema`` is an implementation of `JSON Schema <http://json-schema.org>`_
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=stable&style=flat
+   :alt: ReadTheDocs status
+   :target: https://python-jsonschema.readthedocs.io/en/stable/
+
+
+``jsonschema`` is an implementation of `JSON Schema <https://json-schema.org>`_
 for Python (supporting 2.7+ including Python 3).
 
 .. code-block:: python
@@ -38,10 +46,10 @@ for Python (supporting 2.7+ including Python 3).
     ... }
 
     >>> # If no exception is raised by validate(), the instance is valid.
-    >>> validate({"name" : "Eggs", "price" : 34.99}, schema)
+    >>> validate(instance={"name" : "Eggs", "price" : 34.99}, schema=schema)
 
     >>> validate(
-    ...     {"name" : "Eggs", "price" : "Invalid"}, schema
+    ...     instance={"name" : "Eggs", "price" : "Invalid"}, schema=schema,
     ... )                                   # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
         ...
@@ -57,6 +65,7 @@ Features
 --------
 
 * Full support for
+  `Draft 7 <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.Draft7Validator>`_,
   `Draft 6 <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.Draft6Validator>`_,
   `Draft 4 <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.Draft4Validator>`_
   and
@@ -65,29 +74,61 @@ Features
 * `Lazy validation <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.IValidator.iter_errors>`_
   that can iteratively report *all* validation errors.
 
-* Small and extensible
-
 * `Programmatic querying <https://python-jsonschema.readthedocs.io/en/latest/errors/#module-jsonschema>`_
   of which properties or items failed validation.
+
+
+Installation
+------------
+
+``jsonschema`` is available on `PyPI <https://pypi.org/project/jsonschema/>`_. You can install using `pip <https://pip.pypa.io/en/stable/>`_:
+
+.. code-block:: bash
+
+    $ pip install jsonschema
+
+
+Demo
+----
+
+Try ``jsonschema`` interactively in this online demo:
+
+.. image:: https://user-images.githubusercontent.com/1155573/56745335-8b158a00-6750-11e9-8776-83fa675939c4.png
+    :target: https://notebooks.ai/demo/gh/Julian/jsonschema
+    :alt: Open Live Demo
+
+
+Online demo Notebook will look similar to this:
+
+
+.. image:: https://user-images.githubusercontent.com/1155573/56820861-5c1c1880-6823-11e9-802a-ce01c5ec574f.gif
+    :alt: Open Live Demo
+    :width: 50 px
+    :scale: 10 %
+
 
 
 Release Notes
 -------------
 
-Version 2.6.0 drops support for Python 2.6.X (ha ha) and contains a
-number of small improvements in error messages, as well as a bug fix for
-``ErrorTree``.
+Version 3.0 brings support for Draft 7 (and 6). The interface for redefining
+types has also been majorly overhauled to support easier redefinition of the
+types a Validator will accept or allow.
+
+jsonschema is also now tested under Windows via AppVeyor.
+
+Thanks to all who contributed pull requests along the way.
 
 
 Running the Test Suite
 ----------------------
 
 If you have ``tox`` installed (perhaps via ``pip install tox`` or your
-package manager), running ``tox`` in the directory of your source checkout will
-run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema``
-supports. Note that you'll need to have all of those versions installed in
-order to run the tests on each of them, otherwise ``tox`` will skip (and fail)
-the tests on that version.
+package manager), running ``tox`` in the directory of your source
+checkout will run ``jsonschema``'s test suite on all of the versions
+of Python ``jsonschema`` supports. If you don't have all of the
+versions that ``jsonschema`` is tested under, you'll likely want to run
+using ``tox``'s ``--skip-missing-interpreters`` option.
 
 Of course you're also free to just run the tests on a single version with your
 favorite test runner. The tests live in the ``jsonschema.tests`` package.
@@ -125,7 +166,7 @@ Contributing
 
 I'm Julian Berman.
 
-``jsonschema`` is on `GitHub <http://github.com/Julian/jsonschema>`_.
+``jsonschema`` is on `GitHub <https://github.com/Julian/jsonschema>`_.
 
 Get in touch, via GitHub or otherwise, if you've got something to contribute,
 it'd be most welcome!
@@ -133,5 +174,10 @@ it'd be most welcome!
 You can also generally find me on Freenode (nick: ``tos9``) in various
 channels, including ``#python``.
 
-If you feel overwhelmingly grateful, you can woo me with beer money via
-Google Pay with the email in my GitHub profile.
+If you feel overwhelmingly grateful, you can also woo me with beer money
+via Google Pay with the email in my GitHub profile.
+
+And for companies who appreciate ``jsonschema`` and its continued support
+and growth, ``jsonschema`` is also now supportable via `TideLift
+<https://tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-j
+sonschema&utm_medium=referral&utm_campaign=readme>`_.

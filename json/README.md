@@ -65,6 +65,11 @@ Who Uses the Test Suite
 
 This suite is being used by:
 
+### Clojure ###
+
+* [json-schema](https://github.com/tatut/json-schema)
+* [JSON Schema for Clojure(Script) (JUXT)](https://github.com/juxt/json-schema)
+
 ### Coffeescript ###
 
 * [jsck](https://github.com/pandastrike/jsck)
@@ -100,6 +105,7 @@ This suite is being used by:
 * [json-schema-validator](https://github.com/daveclayton/json-schema-validator)
 * [everit-org/json-schema](https://github.com/everit-org/json-schema)
 * [networknt/json-schema-validator](https://github.com/networknt/json-schema-validator)
+* [Justify](https://github.com/leadpony/justify)
 
 ### JavaScript ###
 
@@ -137,9 +143,15 @@ for more information.
 * [json-schema](https://github.com/justinrainbow/json-schema)
 * [json-guard](https://github.com/thephpleague/json-guard)
 
+### PostgreSQL ###
+
+* [postgres-json-schema](https://github.com/gavinwahl/postgres-json-schema)
+* [is_jsonb_valid](https://github.com/furstenheim/is_jsonb_valid)
+
 ### Python ###
 
 * [jsonschema](https://github.com/Julian/jsonschema)
+* [fastjsonschema](https://github.com/seznam/python-fastjsonschema)
 
 ### Ruby ###
 
@@ -152,15 +164,6 @@ for more information.
 ### Swift ###
 
 * [JSONSchema](https://github.com/kylef/JSONSchema.swift)
-
-### Clojure ###
-
-* [json-schema](https://github.com/tatut/json-schema)
-
-### PostgreSQL ###
-
-* [postgres-json-schema](https://github.com/gavinwahl/postgres-json-schema)
-* [is_jsonb_valid](https://github.com/furstenheim/is_jsonb_valid)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).

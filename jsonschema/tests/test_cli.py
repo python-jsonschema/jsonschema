@@ -1,9 +1,11 @@
 from unittest import TestCase
+import json
+import subprocess
+import sys
 
-from jsonschema import Draft4Validator, ValidationError, cli
-from jsonschema.compat import StringIO
+from jsonschema import Draft4Validator, ValidationError, cli, __version__
+from jsonschema.compat import NativeIO
 from jsonschema.exceptions import SchemaError
-from jsonschema.tests.compat import mock
 
 
 def fake_validator(*errors):
@@ -25,27 +27,31 @@ def fake_validator(*errors):
 
 
 class TestParser(TestCase):
+
     FakeValidator = fake_validator()
+    instance_file = "foo.json"
+    schema_file = "schema.json"
 
     def setUp(self):
-        mock_open = mock.mock_open()
-        patch_open = mock.patch.object(cli, "open", mock_open, create=True)
-        patch_open.start()
-        self.addCleanup(patch_open.stop)
+        cli.open = self.fake_open
+        self.addCleanup(delattr, cli, "open")
 
-        mock_json_load = mock.Mock()
-        mock_json_load.return_value = {}
-        patch_json_load = mock.patch("json.load")
-        patch_json_load.start()
-        self.addCleanup(patch_json_load.stop)
+    def fake_open(self, path):
+        if path == self.instance_file:
+            contents = ""
+        elif path == self.schema_file:
+            contents = {}
+        else:  # pragma: no cover
+            self.fail("What is {!r}".format(path))
+        return NativeIO(json.dumps(contents))
 
     def test_find_validator_by_fully_qualified_object_name(self):
         arguments = cli.parse_args(
             [
                 "--validator",
                 "jsonschema.tests.test_cli.TestParser.FakeValidator",
-                "--instance", "foo.json",
-                "schema.json",
+                "--instance", self.instance_file,
+                self.schema_file,
             ]
         )
         self.assertIs(arguments["validator"], self.FakeValidator)
@@ -54,8 +60,8 @@ class TestParser(TestCase):
         arguments = cli.parse_args(
             [
                 "--validator", "Draft4Validator",
-                "--instance", "foo.json",
-                "schema.json",
+                "--instance", self.instance_file,
+                self.schema_file,
             ]
         )
         self.assertIs(arguments["validator"], Draft4Validator)
@@ -63,7 +69,7 @@ class TestParser(TestCase):
 
 class TestCLI(TestCase):
     def test_draft3_schema_draft4_validator(self):
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         with self.assertRaises(SchemaError):
             cli.run(
                 {
@@ -83,7 +89,7 @@ class TestCLI(TestCase):
             )
 
     def test_successful_validation(self):
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": fake_validator(),
@@ -100,7 +106,7 @@ class TestCLI(TestCase):
 
     def test_unsuccessful_validation(self):
         error = ValidationError("I am an error!", instance=1)
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": fake_validator([error]),
@@ -121,7 +127,7 @@ class TestCLI(TestCase):
             ValidationError("8", instance=1),
         ]
         second_errors = [ValidationError("7", instance=2)]
-        stdout, stderr = StringIO(), StringIO()
+        stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": fake_validator(first_errors, second_errors),
@@ -135,3 +141,11 @@ class TestCLI(TestCase):
         self.assertFalse(stdout.getvalue())
         self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
         self.assertEqual(exit_code, 1)
+
+    def test_version(self):
+        version = subprocess.check_output(
+            [sys.executable, "-m", "jsonschema", "--version"],
+            stderr=subprocess.STDOUT,
+        )
+        version = version.decode("utf-8").strip()
+        self.assertEqual(version, __version__)

@@ -1,27 +1,14 @@
 #! /usr/bin/env python
 from __future__ import print_function
-import sys
-import textwrap
-
-try:
-    import argparse
-except ImportError:
-    print(textwrap.dedent("""
-        The argparse library could not be imported. jsonschema_suite requires
-        either Python 2.7 or for you to install argparse. You can do so by
-        running `pip install argparse`, `easy_install argparse` or by
-        downloading argparse and running `python2.6 setup.py install`.
-
-        See https://pypi.python.org/pypi/argparse for details.
-    """.strip("\n")))
-    sys.exit(1)
-
+import argparse
 import errno
 import fnmatch
 import json
 import os
 import random
 import shutil
+import sys
+import textwrap
 import unittest
 import warnings
 
@@ -138,7 +125,7 @@ class SanityTests(unittest.TestCase):
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_suites_are_valid(self):
-        validator = jsonschema.Draft3Validator(TESTSUITE_SCHEMA)
+        validator = jsonschema.Draft4Validator(TESTSUITE_SCHEMA)
         for tests in files(self.test_files):
             try:
                 validator.validate(tests)

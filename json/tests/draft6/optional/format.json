@@ -34,6 +34,11 @@
                 "valid": false
             },
             {
+                "description": "an invalid closing Z after time-zone offset",
+                "data": "1963-06-19T08:30:06.28123+01:00Z",
+                "valid": false
+            },            
+            {
                 "description": "an invalid date-time string",
                 "data": "06/19/1963 08:30:06 PST",
                 "valid": false

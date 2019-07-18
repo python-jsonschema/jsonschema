@@ -8,10 +8,11 @@ try:
 except ImportError:
     import urllib.request as urllib
 
+import certifi
 from lxml import html
 
 
-VALIDATION_SPEC = "http://json-schema.org/draft-04/json-schema-validation.html"
+VALIDATION_SPEC = "https://json-schema.org/draft-04/json-schema-validation.html"
 
 
 def setup(app):
@@ -62,7 +63,7 @@ def fetch_or_load(spec_path):
             raise
 
     request = urllib.Request(VALIDATION_SPEC, headers=headers)
-    response = urllib.urlopen(request)
+    response = urllib.urlopen(request, cafile=certifi.where())
 
     if response.code == 200:
         with open(spec_path, "w+b") as spec:
@@ -84,10 +85,8 @@ def docutils_sucks(spec):
     """
 
     base_url = VALIDATION_SPEC
-    ref_url = "http://json-schema.org/draft-04/json-schema-core.html#rfc.section.4.1"
-    schema_url = (
-        "http://json-schema.org/draft-04/json-schema-core.html#rfc.section.6"
-    )
+    ref_url = "https://json-schema.org/draft-04/json-schema-core.html#rfc.section.4.1"
+    schema_url = "https://json-schema.org/draft-04/json-schema-core.html#rfc.section.6"
 
     def validator(name, raw_text, text, lineno, inliner):
         """
@@ -144,7 +143,7 @@ def docutils_sucks(spec):
                 )
 
             # get the href from link in the header
-            uri = base_url + header[0].find('a').attrib["href"]
+            uri = base_url + header[0].find("a").attrib["href"]
 
         reference = nodes.reference(raw_text, text, refuri=uri)
         return [reference], []

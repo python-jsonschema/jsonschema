@@ -39,13 +39,13 @@
     {
         "description": "enums in properties",
         "schema": {
-           "type":"object",
-		     "properties": {
-		        "foo": {"enum":["foo"]},
-		        "bar": {"enum":["bar"]}
-		     },
-		     "required": ["bar"]
-		  },
+            "type":"object",
+            "properties": {
+                "foo": {"enum":["foo"]},
+                "bar": {"enum":["bar"]}
+            },
+            "required": ["bar"]
+        },
         "tests": [
             {
                 "description": "both properties are valid",
@@ -65,6 +65,29 @@
             {
                 "description": "missing all properties is invalid",
                 "data": {},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "enum with escaped characters",
+        "schema": {
+            "enum": ["foo\nbar", "foo\rbar"]
+        },
+        "tests": [
+            {
+                "description": "member 1 is valid",
+                "data": "foo\nbar",
+                "valid": true
+            },
+            {
+                "description": "member 2 is valid",
+                "data": "foo\rbar",
+                "valid": true
+            },
+            {
+                "description": "another string is invalid",
+                "data": "abc",
                 "valid": false
             }
         ]

@@ -1,6 +1,7 @@
 import datetime
 import re
 import socket
+import struct
 
 from jsonschema.compat import str_types
 from jsonschema.exceptions import FormatError
@@ -129,7 +130,18 @@ class FormatChecker(object):
             return True
 
 
-_draft_checkers = {"draft3": [], "draft4": [], "draft6": []}
+draft3_format_checker = FormatChecker()
+draft4_format_checker = FormatChecker()
+draft6_format_checker = FormatChecker()
+draft7_format_checker = FormatChecker()
+
+
+_draft_checkers = dict(
+    draft3=draft3_format_checker,
+    draft4=draft4_format_checker,
+    draft6=draft6_format_checker,
+    draft7=draft7_format_checker,
+)
 
 
 def _checks_drafts(
@@ -137,26 +149,35 @@ def _checks_drafts(
     draft3=None,
     draft4=None,
     draft6=None,
+    draft7=None,
     raises=(),
 ):
     draft3 = draft3 or name
     draft4 = draft4 or name
     draft6 = draft6 or name
+    draft7 = draft7 or name
 
     def wrap(func):
         if draft3:
-            _draft_checkers["draft3"].append(draft3)
-            func = FormatChecker.cls_checks(draft3, raises)(func)
+            func = _draft_checkers["draft3"].checks(draft3, raises)(func)
         if draft4:
-            _draft_checkers["draft4"].append(draft4)
-            func = FormatChecker.cls_checks(draft4, raises)(func)
+            func = _draft_checkers["draft4"].checks(draft4, raises)(func)
         if draft6:
-            _draft_checkers["draft6"].append(draft6)
-            func = FormatChecker.cls_checks(draft6, raises)(func)
+            func = _draft_checkers["draft6"].checks(draft6, raises)(func)
+        if draft7:
+            func = _draft_checkers["draft7"].checks(draft7, raises)(func)
+
+        # Oy. This is bad global state, but relied upon for now, until
+        # deprecation. See https://github.com/Julian/jsonschema/issues/519
+        # and test_format_checkers_come_with_defaults
+        FormatChecker.cls_checks(draft7 or draft6 or draft4 or draft3, raises)(
+            func,
+        )
         return func
     return wrap
 
 
+@_checks_drafts(name="idn-email")
 @_checks_drafts(name="email")
 def is_email(instance):
     if not isinstance(instance, str_types):
@@ -167,7 +188,9 @@ def is_email(instance):
 _ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
 
-@_checks_drafts(draft3="ip-address", draft4="ipv4", draft6="ipv4")
+@_checks_drafts(
+    draft3="ip-address", draft4="ipv4", draft6="ipv4", draft7="ipv4",
+)
 def is_ipv4(instance):
     if not isinstance(instance, str_types):
         return True
@@ -177,7 +200,11 @@ def is_ipv4(instance):
 
 
 if hasattr(socket, "inet_pton"):
-    @_checks_drafts(name="ipv6", raises=socket.error)
+    # FIXME: Really this only should raise struct.error, but see the sadness
+    #        that is https://twistedmatrix.com/trac/ticket/9409
+    @_checks_drafts(
+        name="ipv6", raises=(socket.error, struct.error, ValueError),
+    )
     def is_ipv6(instance):
         if not isinstance(instance, str_types):
             return True
@@ -187,7 +214,12 @@ if hasattr(socket, "inet_pton"):
 _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
 
 
-@_checks_drafts(draft3="host-name", draft4="hostname", draft6="hostname")
+@_checks_drafts(
+    draft3="host-name",
+    draft4="hostname",
+    draft6="hostname",
+    draft7="hostname",
+)
 def is_host_name(instance):
     if not isinstance(instance, str_types):
         return True
@@ -201,17 +233,47 @@ def is_host_name(instance):
 
 
 try:
+    # The built-in `idna` codec only implements RFC 3890, so we go elsewhere.
+    import idna
+except ImportError:
+    pass
+else:
+    @_checks_drafts(draft7="idn-hostname", raises=idna.IDNAError)
+    def is_idn_host_name(instance):
+        if not isinstance(instance, str_types):
+            return True
+        idna.encode(instance)
+        return True
+
+
+try:
     import rfc3987
 except ImportError:
     pass
 else:
+    @_checks_drafts(draft7="iri", raises=ValueError)
+    def is_iri(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return rfc3987.parse(instance, rule="IRI")
+
+    @_checks_drafts(draft7="iri-reference", raises=ValueError)
+    def is_iri_reference(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return rfc3987.parse(instance, rule="IRI_reference")
+
     @_checks_drafts(name="uri", raises=ValueError)
     def is_uri(instance):
         if not isinstance(instance, str_types):
             return True
         return rfc3987.parse(instance, rule="URI")
 
-    @_checks_drafts(draft6="uri-reference", raises=ValueError)
+    @_checks_drafts(
+        draft6="uri-reference",
+        draft7="uri-reference",
+        raises=ValueError,
+    )
     def is_uri_reference(instance):
         if not isinstance(instance, str_types):
             return True
@@ -229,6 +291,12 @@ else:
             return True
         return strict_rfc3339.validate_rfc3339(instance)
 
+    @_checks_drafts(draft7="time")
+    def is_time(instance):
+        if not isinstance(instance, str_types):
+            return True
+        return is_datetime("1970-01-01T" + instance)
+
 
 @_checks_drafts(name="regex", raises=re.error)
 def is_regex(instance):
@@ -237,7 +305,7 @@ def is_regex(instance):
     return re.compile(instance)
 
 
-@_checks_drafts(draft3="date", raises=ValueError)
+@_checks_drafts(draft3="date", draft7="date", raises=ValueError)
 def is_date(instance):
     if not isinstance(instance, str_types):
         return True
@@ -245,7 +313,7 @@ def is_date(instance):
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
-def is_time(instance):
+def is_draft3_time(instance):
     if not isinstance(instance, str_types):
         return True
     return datetime.datetime.strptime(instance, "%H:%M:%S")
@@ -280,12 +348,40 @@ except ImportError:
     pass
 else:
     @_checks_drafts(
-        draft6="json-pointer", raises=jsonpointer.JsonPointerException,
+        draft6="json-pointer",
+        draft7="json-pointer",
+        raises=jsonpointer.JsonPointerException,
     )
     def is_json_pointer(instance):
         if not isinstance(instance, str_types):
             return True
         return jsonpointer.JsonPointer(instance)
+
+    # TODO: I don't want to maintain this, so it
+    #       needs to go either into jsonpointer (pending
+    #       https://github.com/stefankoegl/python-json-pointer/issues/34) or
+    #       into a new external library.
+    @_checks_drafts(
+        draft7="relative-json-pointer",
+        raises=jsonpointer.JsonPointerException,
+    )
+    def is_relative_json_pointer(instance):
+        # Definition taken from:
+        # https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01#section-3
+        if not isinstance(instance, str_types):
+            return True
+        non_negative_integer, rest = [], ""
+        for i, character in enumerate(instance):
+            if character.isdigit():
+                non_negative_integer.append(character)
+                continue
+
+            if not non_negative_integer:
+                return False
+
+            rest = instance[i:]
+            break
+        return (rest == "#") or jsonpointer.JsonPointer(rest)
 
 
 try:
@@ -294,7 +390,9 @@ except ImportError:
     pass
 else:
     @_checks_drafts(
-        draft6="uri-template", raises=uritemplate.exceptions.InvalidTemplate,
+        draft6="uri-template",
+        draft7="uri-template",
+        raises=uritemplate.exceptions.InvalidTemplate,
     )
     def is_uri_template(
         instance,
@@ -302,8 +400,3 @@ else:
     ):
         template = uritemplate.URITemplate(instance)
         return template_validator.validate(template)
-
-
-draft3_format_checker = FormatChecker(_draft_checkers["draft3"])
-draft4_format_checker = FormatChecker(_draft_checkers["draft4"])
-draft6_format_checker = FormatChecker(_draft_checkers["draft6"])

@@ -149,5 +149,58 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "oneOf with empty schema",
+        "schema": {
+            "oneOf": [
+                { "type": "number" },
+                {}
+            ]
+        },
+        "tests": [
+            {
+                "description": "one valid - valid",
+                "data": "foo",
+                "valid": true
+            },
+            {
+                "description": "both valid - invalid",
+                "data": 123,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "oneOf with required",
+        "schema": {
+            "type": "object",
+            "oneOf": [
+                { "required": ["foo", "bar"] },
+                { "required": ["foo", "baz"] }
+            ]
+        },
+        "tests": [
+            {
+                "description": "both invalid - invalid",
+                "data": {"bar": 2},
+                "valid": false
+            },
+            {
+                "description": "first valid - valid",
+                "data": {"foo": 1, "bar": 2},
+                "valid": true
+            },
+            {
+                "description": "second valid - valid",
+                "data": {"foo": 1, "baz": 3},
+                "valid": true
+            },
+            {
+                "description": "both valid - invalid",
+                "data": {"foo": 1, "bar": 2, "baz" : 3},
+                "valid": false
+            }
+        ]
     }
 ]

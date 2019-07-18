@@ -17,7 +17,7 @@ The simplest way to validate an instance under a given schema is to use the
 .. [#] For information on creating JSON schemas to validate
     your data, there is a good introduction to JSON Schema
     fundamentals underway at `Understanding JSON Schema
-    <http://spacetelescope.github.io/understanding-json-schema/>`_
+    <https://json-schema.org/understanding-json-schema/>`_
 
 
 The Validator Interface
@@ -213,7 +213,7 @@ existing `TypeChecker` or create a new one. You may then create a new
 
     def is_my_int(checker, instance):
         return (
-            checker.is_type(instance, "number") or
+            Draft3Validator.TYPE_CHECKER.is_type(instance, "number") or
             isinstance(instance, MyInteger)
         )
 
@@ -235,6 +235,8 @@ the JSON Schema specification. For details on the methods and attributes
 that each validator class provides see the `IValidator` interface,
 which each included validator class implements.
 
+.. autoclass:: Draft7Validator
+
 .. autoclass:: Draft6Validator
 
 .. autoclass:: Draft4Validator
@@ -250,7 +252,7 @@ Draft 6 meta-schema, you could use:
     from jsonschema import Draft6Validator
 
     schema = {
-        "$schema": "http://json-schema.org/schema#",
+        "$schema": "https://json-schema.org/schema#",
 
         "type": "object",
         "properties": {
@@ -275,18 +277,13 @@ validation can be enabled by hooking in a format-checking object into an
 
     >>> validate("localhost", {"format" : "hostname"})
     >>> validate(
-    ...     "-12", {"format" : "hostname"}, format_checker=FormatChecker(),
+    ...     instance="-12",
+    ...     schema={"format" : "hostname"},
+    ...     format_checker=draft7_format_checker,
     ... )
     Traceback (most recent call last):
         ...
     ValidationError: "-12" is not a "hostname"
-
-.. note::
-
-    Since fully validating an email address requires checking that it is
-    formatted correctly, as well as that it belongs to the correct recipient,
-    the email format validator only provides a sanity check, not full rfc5322_
-    validation.
 
 .. autoclass:: FormatChecker
     :members:
@@ -322,8 +319,17 @@ validation can be enabled by hooking in a format-checking object into an
 There are a number of default checkers that `FormatChecker`\s know how
 to validate. Their names can be viewed by inspecting the
 `FormatChecker.checkers` attribute. Certain checkers will only be
-available if an appropriate package is available for use. The available
-checkers, along with their requirement (if any,) are listed below.
+available if an appropriate package is available for use. The easiest way to
+ensure you have what is needed is to install ``jsonschema`` using the
+``format`` setuptools extra -- i.e.
+
+.. code-block:: sh
+
+   $ pip install jsonschema[format]
+
+which will install all of the below dependencies for all formats. The
+more specific list of available checkers, along with their requirement
+(if any,) are listed below.
 
 .. note::
 
@@ -331,23 +337,44 @@ checkers, along with their requirement (if any,) are listed below.
     that requires it, validation will succeed without throwing an error,
     as specified by the JSON Schema specification.
 
-==========  ====================
-Checker     Notes
-==========  ====================
-hostname
-ipv4
-ipv6        OS must have `socket.inet_pton` function
-email
-uri         requires rfc3987_
-date-time   requires strict-rfc3339_ [#]_
-date
-time
-regex
-color       requires webcolors_
-==========  ====================
+=========================  ====================
+Checker                    Notes
+=========================  ====================
+``color``                  requires webcolors_
+``date``
+``date-time``              requires strict-rfc3339_
+``email``
+``hostname``
+``idn-hostname``           requires idna_
+``ipv4``
+``ipv6``                   OS must have `socket.inet_pton` function
+``iri``                    requires rfc3987_
+``iri-reference``          requires rfc3987_
+``json-pointer``           requires jsonpointer_
+``regex``
+``relative-json-pointer``  requires jsonpointer_
+``time``                   requires strict-rfc3339_
+``uri``                    requires rfc3987_
+``uri-reference``          requires rfc3987_
+=========================  ====================
 
 
-.. _rfc3987: http://pypi.python.org/pypi/rfc3987/
-.. _strict-rfc3339: http://pypi.python.org/pypi/strict-rfc3339/
-.. _webcolors: http://pypi.python.org/pypi/webcolors/
+.. _idna: https://pypi.org/pypi/idna/
+.. _jsonpointer: https://pypi.org/pypi/jsonpointer/
+.. _rfc3987: https://pypi.org/pypi/rfc3987/
 .. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
+.. _strict-rfc3339: https://pypi.org/pypi/strict-rfc3339/
+.. _webcolors: https://pypi.org/pypi/webcolors/
+
+
+.. note::
+
+    Since in most cases "validating" an email address is an attempt
+    instead to confirm that mail sent to it will deliver to a recipient,
+    and that that recipient is the correct one the email is intended
+    for, and since many valid email addresses are in many places
+    incorrectly rejected, and many invalid email addresses are in many
+    places incorrectly accepted, the ``email`` format validator only
+    provides a sanity check, not full rfc5322_ validation.
+
+    The same applies to the ``idn-email`` format.
