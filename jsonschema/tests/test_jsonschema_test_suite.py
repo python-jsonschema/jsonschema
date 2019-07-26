@@ -102,6 +102,26 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         narrow_unicode_build(test)
         or missing_format(draft4_format_checker)(test)
         or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with true does not match 1",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with false does not match 0",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with 1 does not match true",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with 0 does not match false",
+        )(test)
+        or skip(
             message=bug(),
             subject="ref",
             case_description="Recursive references between schemas",
@@ -155,6 +175,46 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         narrow_unicode_build(test)
         or missing_format(draft6_format_checker)(test)
         or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with true does not match 1",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with false does not match 0",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with 1 does not match true",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with 0 does not match false",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with true does not match 1",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with false does not match 0",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with 1 does not match true",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with 0 does not match false",
+        )(test)
+        or skip(
             message=bug(),
             subject="ref",
             case_description="Recursive references between schemas",
@@ -207,6 +267,46 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_format(draft7_format_checker)(test)
+        or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with true does not match 1",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with false does not match 0",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with 1 does not match true",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="const",
+            case_description="const with 0 does not match false",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with true does not match 1",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with false does not match 0",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with 1 does not match true",
+        )(test)
+        or skip(
+            message=bug(575),
+            subject="enum",
+            case_description="enum with 0 does not match false",
+        )(test)
         or skip(
             message=bug(),
             subject="ref",
