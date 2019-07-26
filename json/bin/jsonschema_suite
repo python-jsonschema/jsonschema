@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from __future__ import print_function
+from pprint import pformat
 import argparse
 import errno
 import fnmatch
@@ -35,6 +36,12 @@ REMOTES = {
     "name.json": {
         u"type": "string",
         u"definitions": {
+            u"orNull": {u"anyOf": [{u"type": u"null"}, {u"$ref": u"#"}]},
+        },
+    },
+    "name-defs.json": {
+        u"type": "string",
+        u"$defs": {
             u"orNull": {u"anyOf": [{u"type": u"null"}, {u"$ref": u"#"}]},
         },
     },
@@ -140,11 +147,38 @@ class SanityTests(unittest.TestCase):
                 with open(absolute_path) as schema_file:
                     files[absolute_path] = json.load(schema_file)
 
+        expected = {
+            os.path.join(REMOTES_DIR, path): contents
+            for path, contents in REMOTES.iteritems()
+        }
+
+        missing = set(files).symmetric_difference(expected)
+        changed = {
+            path
+            for path, contents in expected.items()
+            if path in files
+            and contents != files[path]
+        }
+
         self.assertEqual(
-            files, {
-                os.path.join(REMOTES_DIR, path): contents
-                for path, contents in REMOTES.iteritems()
-            },
+            files,
+            expected,
+            msg=textwrap.dedent(
+                """
+                Remotes in the remotes/ directory do not match those in the
+                ``jsonschema_suite`` Python script.
+
+                Unfortunately for the minute, each remote file is duplicated in
+                two places.""" + ("""
+
+                Only present in one location:
+
+                {}""".format("\n".join(missing)) if missing else "") + ("""
+
+                Conflicting between the two:
+
+                {}""".format("\n".join(changed)) if changed else "")
+            )
         )
 
 

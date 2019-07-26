@@ -19,6 +19,16 @@
                 "valid": false
             },
             {
+                "description": "false is not equal to zero",
+                "data": [0, false],
+                "valid": true
+            },
+            {
+                "description": "true is not equal to one",
+                "data": [1, true],
+                "valid": true
+            },
+            {
                 "description": "unique array of objects is valid",
                 "data": [{"foo": "bar"}, {"foo": "baz"}],
                 "valid": true
