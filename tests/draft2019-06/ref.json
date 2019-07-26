@@ -120,12 +120,12 @@
     {
         "description": "nested refs",
         "schema": {
-            "definitions": {
+            "$defs": {
                 "a": {"type": "integer"},
-                "b": {"$ref": "#/definitions/a"},
-                "c": {"$ref": "#/definitions/b"}
+                "b": {"$ref": "#/$defs/a"},
+                "c": {"$ref": "#/$defs/b"}
             },
-            "$ref": "#/definitions/c"
+            "$ref": "#/$defs/c"
         },
         "tests": [
             {
@@ -143,14 +143,14 @@
     {
         "description": "ref overrides any sibling keywords",
         "schema": {
-            "definitions": {
+            "$defs": {
                 "reffed": {
                     "type": "array"
                 }
             },
             "properties": {
                 "foo": {
-                    "$ref": "#/definitions/reffed",
+                    "$ref": "#/$defs/reffed",
                     "maxItems": 2
                 }
             }
@@ -175,7 +175,7 @@
     },
     {
         "description": "remote ref, containing refs itself",
-        "schema": {"$ref": "http://json-schema.org/draft-07/schema#"},
+        "schema": {"$ref": "http://json-schema.org/draft/2019-06/schema#"},
         "tests": [
             {
                 "description": "remote ref valid",
@@ -212,8 +212,8 @@
     {
         "description": "$ref to boolean schema true",
         "schema": {
-            "$ref": "#/definitions/bool",
-            "definitions": {
+            "$ref": "#/$defs/bool",
+            "$defs": {
                 "bool": true
             }
         },
@@ -228,8 +228,8 @@
     {
         "description": "$ref to boolean schema false",
         "schema": {
-            "$ref": "#/definitions/bool",
-            "definitions": {
+            "$ref": "#/$defs/bool",
+            "$defs": {
                 "bool": false
             }
         },
@@ -255,7 +255,7 @@
                 }
             },
             "required": ["meta", "nodes"],
-            "definitions": {
+            "$defs": {
                 "node": {
                     "$id": "http://localhost:1234/node",
                     "description": "node",
@@ -333,9 +333,9 @@
         "description": "refs with quote",
         "schema": {
             "properties": {
-                "foo\"bar": {"$ref": "#/definitions/foo%22bar"}
+                "foo\"bar": {"$ref": "#/$defs/foo%22bar"}
             },
-            "definitions": {
+            "$defs": {
                 "foo\"bar": {"type": "number"}
             }
         },

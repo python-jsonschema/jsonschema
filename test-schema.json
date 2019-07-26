@@ -1,5 +1,27 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+        "outputItem": {
+            "type": "object",
+            "properties": {
+                "valid": {"type": "boolean"},
+                "keywordLocation": {"type": "string"},
+                "absoluteKeywordLocation": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "instanceLocation": {"type": "string"},
+                "annotations": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/outputItem"}
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/outputItem"}
+                }
+            }
+        }
+    },
     "type": "array",
     "items": {
         "type": "object",
@@ -15,7 +37,16 @@
                     "properties": {
                         "description": {"type": "string"},
                         "data": {},
-                        "valid": {"type": "boolean"}
+                        "valid": {"type": "boolean"},
+                        "output": {
+                            "type": "object",
+                            "properties": {
+                                "basic": {"$ref": "#/definitions/outputItem"},
+                                "detailed": {"$ref": "#/definitions/outputItem"},
+                                "verbose": {"$ref": "#/definitions/outputItem"}
+                            },
+                            "required": ["basic", "detailed", "verbose"]
+                        }
                     },
                     "additionalProperties": false
                 },

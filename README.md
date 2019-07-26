@@ -152,10 +152,12 @@ for more information.
 
 * [jsonschema](https://github.com/Julian/jsonschema)
 * [fastjsonschema](https://github.com/seznam/python-fastjsonschema)
+* [hypothesis-jsonschema](https://github.com/Zac-HD/hypothesis-jsonschema)
 
 ### Ruby ###
 
 * [json-schema](https://github.com/hoxworth/json-schema)
+* [json_schemer](https://github.com/davishmcclurg/json_schemer)
 
 ### Rust ###
 

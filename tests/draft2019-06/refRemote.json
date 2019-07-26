@@ -76,10 +76,8 @@
         "schema": {
             "$id": "http://localhost:1234/scope_change_defs1.json",
             "type" : "object",
-            "properties": {
-                "list": {"$ref": "#/definitions/baz"}
-            },
-            "definitions": {
+            "properties": {"list": {"$ref": "#/$defs/baz"}},
+            "$defs": {
                 "baz": {
                     "$id": "folder/",
                     "type": "array",
@@ -105,13 +103,11 @@
         "schema": {
             "$id": "http://localhost:1234/scope_change_defs2.json",
             "type" : "object",
-            "properties": {
-                "list": {"$ref": "#/definitions/baz/definitions/bar"}
-            },
-            "definitions": {
+            "properties": {"list": {"$ref": "#/$defs/baz/$defs/bar"}},
+            "$defs": {
                 "baz": {
                     "$id": "folder/",
-                    "definitions": {
+                    "$defs": {
                         "bar": {
                             "type": "array",
                             "items": {"$ref": "folderInteger.json"}
@@ -139,7 +135,7 @@
             "$id": "http://localhost:1234/object",
             "type": "object",
             "properties": {
-                "name": {"$ref": "name.json#/definitions/orNull"}
+                "name": {"$ref": "name-defs.json#/$defs/orNull"}
             }
         },
         "tests": [
