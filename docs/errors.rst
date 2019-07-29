@@ -16,7 +16,9 @@ raised or returned, depending on which method or function is used.
     ===============  =================  ========================
     `message`        `context`          `instance`
 
-                     `cause`             `path`
+                     `cause`            `json_path`
+
+                                        `path`
 
                                         `schema`
 
@@ -78,6 +80,11 @@ raised or returned, depending on which method or function is used.
         validated (i.e. the one passed into a validation method, *not*
         `instance`\). The deque can be empty if the error happened
         at the root of the instance.
+
+    .. attribute:: json_path
+
+        A `JSON path <https://goessner.net/articles/JsonPath/index.html>`
+        to the offending element within the instance.
 
     .. attribute:: path
 

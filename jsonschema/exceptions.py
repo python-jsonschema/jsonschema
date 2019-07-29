@@ -118,6 +118,16 @@ class _Error(Exception):
         path.extendleft(reversed(parent.absolute_schema_path))
         return path
 
+    @property
+    def json_path(self):
+        path = '$'
+        for elem in self.absolute_path:
+            if isinstance(elem, int):
+                path += '[' + str(elem) + ']'
+            else:
+                path += '.' + elem
+        return path
+
     def _set(self, **kwargs):
         for k, v in iteritems(kwargs):
             if getattr(self, k) is _unset:
