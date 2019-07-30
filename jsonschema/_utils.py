@@ -47,7 +47,6 @@ class Unset(object):
     def __repr__(self):
         return "<unset>"
 
-    
     def __nonzero__(self):
         return False
 
