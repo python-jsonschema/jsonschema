@@ -1,6 +1,13 @@
 import re
 
-from jsonschema import _utils
+from jsonschema._utils import (
+    ensure_list,
+    equal,
+    extras_msg,
+    find_additional_properties,
+    types_msg,
+    uniq,
+)
 from jsonschema.exceptions import FormatError, ValidationError
 from jsonschema.compat import iteritems
 
@@ -34,7 +41,7 @@ def additionalProperties(validator, aP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    extras = set(_utils.find_additional_properties(instance, schema))
+    extras = set(find_additional_properties(instance, schema))
 
     if validator.is_type(aP, "object"):
         for extra in extras:
@@ -55,7 +62,7 @@ def additionalProperties(validator, aP, instance, schema):
             yield ValidationError(error)
         else:
             error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % _utils.extras_msg(extras))
+            yield ValidationError(error % extras_msg(extras))
 
 
 def items(validator, items, instance, schema):
@@ -90,12 +97,12 @@ def additionalItems(validator, aI, instance, schema):
         error = "Additional items are not allowed (%s %s unexpected)"
         yield ValidationError(
             error %
-            _utils.extras_msg(instance[len(schema.get("items", [])):])
+            extras_msg(instance[len(schema.get("items", [])):])
         )
 
 
 def const(validator, const, instance, schema):
-    if instance != const:
+    if not equal(instance, const):
         yield ValidationError("%r was expected" % (const,))
 
 
@@ -181,7 +188,7 @@ def uniqueItems(validator, uI, instance, schema):
     if (
         uI and
         validator.is_type(instance, "array") and
-        not _utils.uniq(instance)
+        not uniq(instance)
     ):
         yield ValidationError("%r has non-unique elements" % (instance,))
 
@@ -255,10 +262,10 @@ def ref(validator, ref, instance, schema):
 
 
 def type(validator, types, instance, schema):
-    types = _utils.ensure_list(types)
+    types = ensure_list(types)
 
     if not any(validator.is_type(instance, type) for type in types):
-        yield ValidationError(_utils.types_msg(instance, types))
+        yield ValidationError(types_msg(instance, types))
 
 
 def properties(validator, properties, instance, schema):

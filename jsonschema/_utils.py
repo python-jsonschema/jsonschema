@@ -175,10 +175,16 @@ def ensure_list(thing):
     return thing
 
 
+def equal(one, two):
+    """
+    Check if two things are equal, but evade booleans and ints being equal.
+    """
+    return unbool(one) == unbool(two)
+
+
 def unbool(element, true=object(), false=object()):
     """
     A hack to make True and 1 and False and 0 unique for ``uniq``.
-
     """
 
     if element is True:
@@ -195,7 +201,6 @@ def uniq(container):
     Successively tries first to rely that the elements are hashable, then
     falls back on them being sortable, and finally falls back on brute
     force.
-
     """
 
     try:
