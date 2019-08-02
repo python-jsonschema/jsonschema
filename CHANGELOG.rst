@@ -1,3 +1,15 @@
+v3.0.2
+------
+
+* Fix a bug where ``0`` and ``False`` were considered equal by ``const`` and
+  ``enum``.
+
+v3.0.1
+------
+
+* Fix a bug where extending validators did not preserve their notion of which
+  validator property contains ``$id`` information.
+
 v3.0.0
 ------
 
