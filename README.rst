@@ -137,19 +137,20 @@ favorite test runner. The tests live in the ``jsonschema.tests`` package.
 Benchmarks
 ----------
 
-``jsonschema``'s benchmarks make use of `perf <https://perf.readthedocs.io>`_.
+``jsonschema``'s benchmarks make use of `pyperf
+<https://pyperf.readthedocs.io>`_.
 
-Running them can be done via ``tox -e perf``, or by invoking the ``perf``
+Running them can be done via ``tox -e perf``, or by invoking the ``pyperf``
 commands externally (after ensuring that both it and ``jsonschema`` itself are
 installed)::
 
-    $ python -m perf jsonschema/benchmarks/test_suite.py --hist --output results.json
+    $ python -m pyperf jsonschema/benchmarks/test_suite.py --hist --output results.json
 
 To compare to a previous run, use::
 
-    $ python -m perf compare_to --table reference.json results.json
+    $ python -m pyperf compare_to --table reference.json results.json
 
-See the ``perf`` documentation for more details.
+See the ``pyperf`` documentation for more details.
 
 
 Community

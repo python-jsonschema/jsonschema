@@ -6,7 +6,7 @@ https://github.com/Julian/jsonschema/pull/232
 
 """
 from twisted.python.filepath import FilePath
-from perf import Runner
+from pyperf import Runner
 from pyrsistent import m
 
 from jsonschema.tests._suite import Collection
