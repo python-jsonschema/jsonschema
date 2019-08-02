@@ -6,6 +6,7 @@ from jsonschema._utils import (
     extras_msg,
     find_additional_properties,
     types_msg,
+    unbool,
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
@@ -240,7 +241,11 @@ def dependencies(validator, dependencies, instance, schema):
 
 
 def enum(validator, enums, instance, schema):
-    if instance not in enums:
+    if instance == 0 or instance == 1:
+        unbooled = unbool(instance)
+        if all(unbooled != unbool(each) for each in enums):
+            yield ValidationError("%r is not one of %r" % (instance, enums))
+    elif instance not in enums:
         yield ValidationError("%r is not one of %r" % (instance, enums))
 
 
