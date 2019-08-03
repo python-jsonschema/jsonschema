@@ -128,11 +128,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         or skip(
             message=bug(),
             subject="refRemote",
-            case_description="base URI change - change folder",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
             case_description="base URI change - change folder in subschema",
         )(test)
         or skip(
@@ -181,11 +176,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or skip(
             message=bug(),
             subject="refRemote",
-            case_description="base URI change - change folder",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
             case_description="base URI change - change folder in subschema",
         )(test)
         or skip(
@@ -230,11 +220,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             case_description=(
                 "Location-independent identifier with base URI change in subschema"
             ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="base URI change - change folder",
         )(test)
         or skip(
             message=bug(),

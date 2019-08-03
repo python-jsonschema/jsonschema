@@ -202,9 +202,11 @@ class _Test(object):
         reason = skip(self)
         return unittest.skipIf(reason is not None, reason)(fn)
 
-    def validate(self, Validator=None, **kwargs):
+    def validate(self, Validator, **kwargs):
         resolver = jsonschema.RefResolver.from_schema(
-            schema=self.schema, store=self._remotes,
+            schema=self.schema,
+            store=self._remotes,
+            id_of=Validator.ID_OF,
         )
         jsonschema.validate(
             instance=self.data,
