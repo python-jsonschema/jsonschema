@@ -186,6 +186,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.format_tests(),
     DRAFT7.optional_tests_of(name="bignum"),
     DRAFT7.optional_tests_of(name="zeroTerminatedFloats"),
+    DRAFT7.optional_tests_of(name="content"),
     Validator=Draft7Validator,
     format_checker=draft7_format_checker,
     skip=lambda test: (
@@ -224,6 +225,25 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message="Upstream bug in strict_rfc3339",
             subject="date-time",
             description="case-insensitive T and Z",
+        )(test)
+        or skip(
+            message=bug(593),
+            subject="content",
+            case_description=(
+                "validation of string-encoded content based on media type"
+            ),
+        )(test)
+        or skip(
+            message=bug(593),
+            subject="content",
+            case_description="validation of binary string-encoding",
+        )(test)
+        or skip(
+            message=bug(593),
+            subject="content",
+            case_description=(
+                "validation of binary-encoded media type documents"
+            ),
         )(test)
     ),
 )
