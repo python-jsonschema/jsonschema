@@ -174,7 +174,7 @@
         },
         "tests": [
             {
-                "description": "valid, but woud have been invalid through then",
+                "description": "valid, but would have been invalid through then",
                 "data": -100,
                 "valid": true
             },
