@@ -127,11 +127,12 @@ This suite is being used by:
 
 ### Node.js ###
 
-The JSON Schema Test Suite is also available as an
-[npm](https://www.npmjs.com/package/json-schema-test-suite) package.
-Node-specific support is maintained on the [node branch](https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/node).
-See [NODE-README.md](https://github.com/json-schema-org/JSON-Schema-Test-Suite/blob/node/NODE-README.md)
-for more information.
+For node.js developers, the suite is also available as an
+[npm](https://www.npmjs.com/package/@json-schema-org/tests) package.
+
+Node-specific support is maintained in a [separate
+repository](https://github.com/json-schema-org/json-schema-test-suite-npm)
+which also welcomes your contributions!
 
 ### .NET ###
 
