@@ -9,17 +9,19 @@ from twisted.python.filepath import FilePath
 from pyperf import Runner
 from pyrsistent import m
 
-from jsonschema.tests._suite import Collection
+from jsonschema.tests._suite import Version
 import jsonschema
 
 
-collection = Collection(
+issue232 = Version(
     path=FilePath(__file__).sibling("issue232"),
     remotes=m(),
     name="issue232",
-    validator=jsonschema.Draft7Validator,
 )
 
 
 if __name__ == "__main__":
-    collection.benchmark(runner=Runner())
+    issue232.benchmark(
+        runner=Runner(),
+        Validator=jsonschema.Draft4Validator,
+    )

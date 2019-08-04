@@ -1,8 +1,8 @@
 """
 Python representations of the JSON Schema Test Suite tests.
-
 """
 
+from functools import partial
 import json
 import os
 import re
@@ -71,12 +71,12 @@ class Version(object):
 
     name = attr.ib()
 
-    def benchmark(self, runner):  # pragma: no cover
+    def benchmark(self, runner, **kwargs):  # pragma: no cover
         for suite in self.tests():
             for test in suite:
                 runner.bench_func(
-                    name=test.fully_qualified_name,
-                    func=test.validate_ignoring_errors,
+                    test.fully_qualified_name,
+                    partial(test.validate_ignoring_errors, **kwargs),
                 )
 
     def tests(self):
@@ -216,9 +216,9 @@ class _Test(object):
             **kwargs
         )
 
-    def validate_ignoring_errors(self, **kwargs):  # pragma: no cover
+    def validate_ignoring_errors(self, Validator):  # pragma: no cover
         try:
-            self.validate(**kwargs)
+            self.validate(Validator=Validator)
         except jsonschema.ValidationError:
             pass
 
