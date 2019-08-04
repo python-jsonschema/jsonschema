@@ -19,6 +19,7 @@ from jsonschema import (
     draft6_format_checker,
     draft7_format_checker,
 )
+from jsonschema.tests import bug
 from jsonschema.tests._suite import Suite
 from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
 
@@ -63,13 +64,6 @@ if is_narrow_build:  # pragma: no cover
 else:
     def narrow_unicode_build(test):  # pragma: no cover
         return
-
-
-def bug(issue=None):
-    message = "A known bug."
-    if issue is not None:
-        message += " See issue #{issue}.".format(issue=issue)
-    return message
 
 
 TestDraft3 = DRAFT3.to_unittest_testcase(
