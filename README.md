@@ -80,7 +80,7 @@ This suite is being used by:
 
 ### Dart ###
 
-* [json_schema](https://github.com/patefacio/json_schema) 
+* [json_schema](https://github.com/patefacio/json_schema)
 
 ### Elixir ###
 
@@ -92,7 +92,7 @@ This suite is being used by:
 
 ### Go ###
 
-* [gojsonschema](https://github.com/sigu-399/gojsonschema) 
+* [gojsonschema](https://github.com/sigu-399/gojsonschema)
 * [validate-json](https://github.com/cesanta/validate-json)
 
 ### Haskell ###
