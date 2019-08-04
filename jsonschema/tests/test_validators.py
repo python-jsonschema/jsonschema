@@ -14,7 +14,7 @@ import attr
 
 from jsonschema import FormatChecker, TypeChecker, exceptions, validators
 from jsonschema.compat import PY3, pathname2url
-from jsonschema.tests import bug
+from jsonschema.tests.helpers import bug
 import jsonschema
 
 

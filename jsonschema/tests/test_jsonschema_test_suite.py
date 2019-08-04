@@ -19,8 +19,8 @@ from jsonschema import (
     draft6_format_checker,
     draft7_format_checker,
 )
-from jsonschema.tests import bug
 from jsonschema.tests._suite import Suite
+from jsonschema.tests.helpers import bug
 from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
 
 
