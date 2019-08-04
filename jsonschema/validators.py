@@ -114,7 +114,9 @@ def validates(version):
 
     Returns:
 
-        callable: a class decorator to decorate the validator with the version
+        collections.Callable:
+
+            a class decorator to decorate the validator with the version
     """
 
     def _validates(cls):
@@ -206,7 +208,7 @@ def create(
             will be converted to functions and redefined in this object's
             `jsonschema.TypeChecker`.
 
-        id_of (callable):
+        id_of (collections.Callable):
 
             A function that given a schema, returns its ID.
 
@@ -611,12 +613,12 @@ class RefResolver(object):
             A mapping from URI schemes to functions that should be used
             to retrieve them
 
-        urljoin_cache (functools.lru_cache):
+        urljoin_cache (:func:`functools.lru_cache`):
 
             A cache that will be used for caching the results of joining
             the resolution scope to subscopes.
 
-        remote_cache (functools.lru_cache):
+        remote_cache (:func:`functools.lru_cache`):
 
             A cache that will be used for caching the results of
             resolved remote URLs.

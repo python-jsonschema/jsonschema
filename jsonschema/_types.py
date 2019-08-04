@@ -104,7 +104,7 @@ class TypeChecker(object):
 
                 The name of the type to check.
 
-            fn (callable):
+            fn (collections.Callable):
 
                 A function taking exactly two parameters - the type
                 checker calling the function and the instance to check.

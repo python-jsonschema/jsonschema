@@ -375,7 +375,7 @@ to guess the most relevant error in a given bunch.
         provide a mixture of errors from different validation attempts
         (i.e. from different instances or schemas), since it won't
         produce sensical output.
-    :argument callable key: the key to use when sorting errors. See
+    :argument collections.Callable key: the key to use when sorting errors. See
         `relevance` and transitively `by_relevance` for more
         details (the default is to sort with the defaults of that function).
         Changing the default is only useful if you want to change the function
