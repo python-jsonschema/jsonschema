@@ -2,4 +2,9 @@ _cache
 _static
 _templates
 
+.eggs
+.tox
+
+*.py[cod]
+
 TODO

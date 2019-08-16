@@ -1669,7 +1669,7 @@ class TestRefResolver(SynchronousTestCase):
             self.addCleanup(os.remove, tempf.name)
             json.dump({"foo": "bar"}, tempf)
 
-        ref = "{}#foo".format(pathname2url(tempf.name))
+        ref = "{}#foo".format(os.path.relpath(tempf.name))
         with self.resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, "bar")
 
