@@ -4,6 +4,7 @@ from warnings import warn
 import contextlib
 import json
 import numbers
+import os
 
 from six import add_metaclass
 
@@ -826,9 +827,14 @@ class RefResolver(object):
             # json over http
             result = requests.get(uri).json()
         else:
-            # Otherwise, pass off to urllib and assume utf-8
-            with urlopen(uri) as url:
-                result = json.loads(url.read().decode("utf-8"))
+            try:
+                # Otherwise, pass off to urllib and assume utf-8
+                with urlopen(uri) as url:
+                    result = json.loads(url.read().decode("utf-8"))
+            except Exception:
+                # try relative path on local fs
+                with open(os.path.join(self.base_uri, uri)) as fin:
+                    result = json.load(fin)
 
         if self.cache_remote:
             self.store[uri] = result
