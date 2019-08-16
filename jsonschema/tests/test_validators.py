@@ -1695,7 +1695,7 @@ class TestRefResolver(SynchronousTestCase):
 
         with resolver.resolving(ref) as resolved:
             pass
-        self.assertEqual(resolved, 12)           
+        self.assertEqual(resolved, 12)
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
