@@ -38,9 +38,9 @@ class _DontDoThat(Exception):
     """
     Raised when a Validators with non-default type checker is misused.
 
-    Asking one for DEFAULT_TYPES doesn't make sense, since type checkers exist
-    for the unrepresentable cases where DEFAULT_TYPES can't represent the type
-    relationship.
+    Asking one for DEFAULT_TYPES doesn't make sense, since type checkers
+    exist for the unrepresentable cases where DEFAULT_TYPES can't
+    represent the type relationship.
     """
 
     def __str__(self):
@@ -186,17 +186,17 @@ def create(
         version (str):
 
             an identifier for the version that this validator class will
-            validate. If provided, the returned validator class will have its
-            ``__name__`` set to include the version, and also will have
-            `jsonschema.validators.validates` automatically called for the
-            given version.
+            validate. If provided, the returned validator class will
+            have its ``__name__`` set to include the version, and also
+            will have `jsonschema.validators.validates` automatically
+            called for the given version.
 
         type_checker (jsonschema.TypeChecker):
 
             a type checker, used when applying the :validator:`type` validator.
 
-            If unprovided, a `jsonschema.TypeChecker` will be created with
-            a set of default types typical of JSON Schema drafts.
+            If unprovided, a `jsonschema.TypeChecker` will be created
+            with a set of default types typical of JSON Schema drafts.
 
         default_types (collections.Mapping):
 
@@ -204,9 +204,9 @@ def create(
 
                 Please use the type_checker argument instead.
 
-            If set, it provides mappings of JSON types to Python types that
-            will be converted to functions and redefined in this object's
-            `jsonschema.TypeChecker`.
+            If set, it provides mappings of JSON types to Python types
+            that will be converted to functions and redefined in this
+            object's `jsonschema.TypeChecker`.
 
         id_of (collections.Callable):
 
@@ -383,14 +383,14 @@ def extend(validator, validators=(), version=None, type_checker=None):
 
             .. note::
 
-                Any validator callables with the same name as an existing one
-                will (silently) replace the old validator callable entirely,
-                effectively overriding any validation done in the "parent"
-                validator class.
+                Any validator callables with the same name as an
+                existing one will (silently) replace the old validator
+                callable entirely, effectively overriding any validation
+                done in the "parent" validator class.
 
                 If you wish to instead extend the behavior of a parent's
-                validator callable, delegate and call it directly in the new
-                validator function by retrieving it using
+                validator callable, delegate and call it directly in
+                the new validator function by retrieving it using
                 ``OldValidator.VALIDATORS["validator_name"]``.
 
         version (str):
@@ -844,9 +844,9 @@ def validate(instance, schema, cls=None, *args, **kwargs):
             ...
         ValidationError: [2, 3, 4] is too long
 
-    :func:`validate` will first verify that the provided schema is itself
-    valid, since not doing so can lead to less obvious error messages and fail
-    in less obvious or consistent ways.
+    :func:`validate` will first verify that the provided schema is
+    itself valid, since not doing so can lead to less obvious error
+    messages and fail in less obvious or consistent ways.
 
     If you know you have a valid schema already, especially if you
     intend to validate multiple instances with the same schema, you
@@ -868,16 +868,16 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
             The class that will be used to validate the instance.
 
-    If the ``cls`` argument is not provided, two things will happen in
-    accordance with the specification. First, if the schema has a
-    :validator:`$schema` property containing a known meta-schema [#]_ then the
-    proper validator will be used.  The specification recommends that all
-    schemas contain :validator:`$schema` properties for this reason. If no
-    :validator:`$schema` property is found, the default validator class is
-    the latest released draft.
+    If the ``cls`` argument is not provided, two things will happen
+    in accordance with the specification. First, if the schema has a
+    :validator:`$schema` property containing a known meta-schema [#]_
+    then the proper validator will be used. The specification recommends
+    that all schemas contain :validator:`$schema` properties for this
+    reason. If no :validator:`$schema` property is found, the default
+    validator class is the latest released draft.
 
-    Any other provided positional and keyword arguments will be passed on when
-    instantiating the ``cls``.
+    Any other provided positional and keyword arguments will be passed
+    on when instantiating the ``cls``.
 
     Raises:
 
@@ -905,8 +905,8 @@ def validator_for(schema, default=_LATEST_VERSION):
     """
     Retrieve the validator class appropriate for validating the given schema.
 
-    Uses the :validator:`$schema` property that should be present in the given
-    schema to look up the appropriate validator class.
+    Uses the :validator:`$schema` property that should be present in the
+    given schema to look up the appropriate validator class.
 
     Arguments:
 
@@ -916,11 +916,11 @@ def validator_for(schema, default=_LATEST_VERSION):
 
         default:
 
-            the default to return if the appropriate validator class cannot be
-            determined.
+            the default to return if the appropriate validator class
+            cannot be determined.
 
-            If unprovided, the default is to return
-            the latest supported draft.
+            If unprovided, the default is to return the latest supported
+            draft.
     """
     if schema is True or schema is False or u"$schema" not in schema:
         return default
