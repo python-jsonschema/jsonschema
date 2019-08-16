@@ -1664,7 +1664,7 @@ class TestRefResolver(SynchronousTestCase):
         with self.resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, "bar")
 
-    def test_it_retrieves_local_relative_refs_via_urlopen(self):
+    def test_it_retrieves_local_relative_refs_via_open(self):
         with tempfile.NamedTemporaryFile(delete=False, mode="wt") as tempf:
             self.addCleanup(os.remove, tempf.name)
             json.dump({"foo": "bar"}, tempf)
@@ -1672,6 +1672,30 @@ class TestRefResolver(SynchronousTestCase):
         ref = "{}#foo".format(pathname2url(tempf.name))
         with self.resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, "bar")
+
+    def test_it_retrieves_relative_refs_via_urlopen(self):
+        ref = "fuzz.json#baz"
+        schema = {"baz": 12}
+        resolver = validators.RefResolver(
+            "http://foo.com/bar.json", self.referrer, self.store,
+        )
+        if "requests" in sys.modules:
+            self.addCleanup(
+                sys.modules.__setitem__, "requests", sys.modules["requests"],
+            )
+        sys.modules["requests"] = None
+
+        @contextmanager
+        def fake_urlopen(url):
+            self.assertEqual(url, "http://foo.com/fuzz.json")
+            yield BytesIO(json.dumps(schema).encode("utf8"))
+
+        self.addCleanup(setattr, validators, "urlopen", validators.urlopen)
+        validators.urlopen = fake_urlopen
+
+        with resolver.resolving(ref) as resolved:
+            pass
+        self.assertEqual(resolved, 12)           
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}

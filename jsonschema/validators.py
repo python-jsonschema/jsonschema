@@ -26,6 +26,7 @@ from jsonschema.compat import (
     urljoin,
     urlopen,
     urlsplit,
+    urlunsplit,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -832,9 +833,17 @@ class RefResolver(object):
                 with urlopen(uri) as url:
                     result = json.loads(url.read().decode("utf-8"))
             except Exception:
-                # try relative path on local fs
-                with open(os.path.join(self.base_uri, uri)) as fin:
-                    result = json.load(fin)
+                try:
+                    # try relative path on local fs
+                    with open(os.path.join(self.base_uri, uri)) as fin:
+                        result = json.load(fin)
+                except IOError:
+                    scheme, network, path, qs, frag = urlsplit(self.base_uri)
+                    path = "/".join(path.split("/")[0:-1])  # base path
+                    base_url = urlunsplit((scheme, network, path, qs, frag))
+                    # point to relative url
+                    with urlopen(urljoin(base_url, uri)) as url:
+                        result = json.loads(url.read().decode("utf-8"))
 
         if self.cache_remote:
             self.store[uri] = result
