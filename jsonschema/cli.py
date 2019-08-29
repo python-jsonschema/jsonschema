@@ -1,3 +1,6 @@
+"""
+The ``jsonschema`` command line.
+"""
 from __future__ import absolute_import
 import argparse
 import json

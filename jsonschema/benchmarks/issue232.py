@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """
-A performance benchmark using the example from issue #232:
+A performance benchmark using the example from issue #232.
 
-https://github.com/Julian/jsonschema/pull/232
-
+See https://github.com/Julian/jsonschema/pull/232.
 """
 from twisted.python.filepath import FilePath
 from pyperf import Runner

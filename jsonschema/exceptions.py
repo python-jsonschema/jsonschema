@@ -1,3 +1,6 @@
+"""
+Validation errors, and some surrounding helpers.
+"""
 from collections import defaultdict, deque
 import itertools
 import pprint
@@ -129,17 +132,28 @@ class _Error(Exception):
 
 
 class ValidationError(_Error):
+    """
+    An instance was invalid under a provided schema.
+    """
+
     _word_for_schema_in_error_message = "schema"
     _word_for_instance_in_error_message = "instance"
 
 
 class SchemaError(_Error):
+    """
+    A schema was invalid under its corresponding metaschema.
+    """
+
     _word_for_schema_in_error_message = "metaschema"
     _word_for_instance_in_error_message = "schema"
 
 
 @attr.s(hash=True)
 class RefResolutionError(Exception):
+    """
+    A ref could not be resolved.
+    """
 
     _cause = attr.ib()
 
@@ -148,6 +162,10 @@ class RefResolutionError(Exception):
 
 
 class UndefinedTypeCheck(Exception):
+    """
+    A type checker was asked to check a type it did not have registered.
+    """
+
     def __init__(self, type):
         self.type = type
 
@@ -162,6 +180,10 @@ class UndefinedTypeCheck(Exception):
 
 
 class UnknownType(Exception):
+    """
+    A validator was asked to validate an instance against an unknown type.
+    """
+
     def __init__(self, type, instance, schema):
         self.type = type
         self.instance = instance
@@ -187,6 +209,10 @@ class UnknownType(Exception):
 
 
 class FormatError(Exception):
+    """
+    Validating a format failed.
+    """
+
     def __init__(self, message, cause=None):
         super(FormatError, self).__init__(message, cause)
         self.message = message
@@ -205,7 +231,6 @@ class FormatError(Exception):
 class ErrorTree(object):
     """
     ErrorTrees make it easier to check which validations failed.
-
     """
 
     _instance = _unset
@@ -246,22 +271,22 @@ class ErrorTree(object):
         return self._contents[index]
 
     def __setitem__(self, index, value):
+        """
+        Add an error to the tree at the given ``index``.
+        """
         self._contents[index] = value
 
     def __iter__(self):
         """
         Iterate (non-recursively) over the indices in the instance with errors.
-
         """
 
         return iter(self._contents)
 
     def __len__(self):
         """
-        Same as `total_errors`.
-
+        Return the `total_errors`.
         """
-
         return self.total_errors
 
     def __repr__(self):
@@ -271,7 +296,6 @@ class ErrorTree(object):
     def total_errors(self):
         """
         The total number of errors in the entire tree, including children.
-
         """
 
         child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
@@ -279,6 +303,22 @@ class ErrorTree(object):
 
 
 def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
+    """
+    Create a key function that can be used to sort errors by relevance.
+
+    Arguments:
+        weak (set):
+            a collection of validator names to consider to be "weak".
+            If there are two errors at the same level of the instance
+            and one is in the set of weak validator names, the other
+            error will take priority. By default, :validator:`anyOf` and
+            :validator:`oneOf` are considered weak validators and will
+            be superseded by other same-level validation errors.
+
+        strong (set):
+            a collection of validator names to consider to be "strong"
+
+    """
     def relevance(error):
         validator = error.validator
         return -len(error.path), validator not in weak, validator in strong
@@ -289,6 +329,44 @@ relevance = by_relevance()
 
 
 def best_match(errors, key=relevance):
+    """
+    Try to find an error that appears to be the best match among given errors.
+
+    In general, errors that are higher up in the instance (i.e. for which
+    `ValidationError.path` is shorter) are considered better matches,
+    since they indicate "more" is wrong with the instance.
+
+    If the resulting match is either :validator:`oneOf` or :validator:`anyOf`,
+    the *opposite* assumption is made -- i.e. the deepest error is picked,
+    since these validators only need to match once, and any other errors may
+    not be relevant.
+
+    Arguments:
+        errors (collections.Iterable):
+
+            the errors to select from. Do not provide a mixture of
+            errors from different validation attempts (i.e. from
+            different instances or schemas), since it won't produce
+            sensical output.
+
+        key (collections.Callable):
+
+            the key to use when sorting errors. See `relevance` and
+            transitively `by_relevance` for more details (the default is
+            to sort with the defaults of that function). Changing the
+            default is only useful if you want to change the function
+            that rates errors but still want the error context descent
+            done by this function.
+
+    Returns:
+        the best matching error, or ``None`` if the iterable was empty
+
+    .. note::
+
+        This function is a heuristic. Its return value may change for a given
+        set of inputs from version to version if better heuristics are added.
+
+    """
     errors = iter(errors)
     best = next(errors, None)
     if best is None:

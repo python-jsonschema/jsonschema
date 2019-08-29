@@ -1,3 +1,6 @@
+"""
+Creation and extension of validators, with implementations for existing drafts.
+"""
 from __future__ import division
 
 from warnings import warn
@@ -679,11 +682,26 @@ class RefResolver(object):
         return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)
 
     def push_scope(self, scope):
+        """
+        Enter a given sub-scope.
+
+        Treats further dereferences as being performed underneath the
+        given scope.
+        """
         self._scopes_stack.append(
             self._urljoin_cache(self.resolution_scope, scope),
         )
 
     def pop_scope(self):
+        """
+        Exit the most recent entered scope.
+
+        Treats further dereferences as being performed underneath the
+        original scope.
+
+        Don't call this method more times than `push_scope` has been
+        called.
+        """
         try:
             self._scopes_stack.pop()
         except IndexError:
@@ -695,15 +713,24 @@ class RefResolver(object):
 
     @property
     def resolution_scope(self):
+        """
+        Retrieve the current resolution scope.
+        """
         return self._scopes_stack[-1]
 
     @property
     def base_uri(self):
+        """
+        Retrieve the current base URI, not including any fragment.
+        """
         uri, _ = urldefrag(self.resolution_scope)
         return uri
 
     @contextlib.contextmanager
     def in_scope(self, scope):
+        """
+        Temporarily enter the given scope for the duration of the context.
+        """
         self.push_scope(scope)
         try:
             yield
@@ -732,10 +759,16 @@ class RefResolver(object):
             self.pop_scope()
 
     def resolve(self, ref):
+        """
+        Resolve the given reference.
+        """
         url = self._urljoin_cache(self.resolution_scope, ref)
         return url, self._remote_cache(url)
 
     def resolve_from_url(self, url):
+        """
+        Resolve the given remote URL.
+        """
         url, fragment = urldefrag(url)
         try:
             document = self.store[url]
