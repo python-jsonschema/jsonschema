@@ -8,6 +8,7 @@ ValidationError
 th
 callables
 deque
+dereferences
 hostname
 implementers
 indices
@@ -15,6 +16,7 @@ indices
 ipv
 iterable
 jsonschema
+metaschema
 pre
 programmatically
 recurses
