@@ -103,9 +103,7 @@ Online demo Notebook will look similar to this:
 
 .. image:: https://user-images.githubusercontent.com/1155573/56820861-5c1c1880-6823-11e9-802a-ce01c5ec574f.gif
     :alt: Open Live Demo
-    :width: 50 px
-    :scale: 10 %
-
+    :width: 480 px
 
 
 Release Notes
