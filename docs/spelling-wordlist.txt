@@ -15,6 +15,7 @@ indices
 # ipv4/6, sigh...
 ipv
 iterable
+iteratively
 jsonschema
 metaschema
 pre
@@ -30,3 +31,6 @@ validator
 validators
 versioned
 schemas
+
+Berman
+Freenode
