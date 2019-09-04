@@ -67,8 +67,8 @@ This suite is being used by:
 
 ### Clojure ###
 
+* [jinx](https://github.com/juxt/jinx)
 * [json-schema](https://github.com/tatut/json-schema)
-* [JSON Schema for Clojure(Script) (JUXT)](https://github.com/juxt/json-schema)
 
 ### Coffeescript ###
 
