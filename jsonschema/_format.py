@@ -39,6 +39,9 @@ class FormatChecker(object):
         else:
             self.checkers = dict((k, self.checkers[k]) for k in formats)
 
+    def __repr__(self):
+        return "<FormatChecker checkers={}>".format(sorted(self.checkers))
+
     def checks(self, format, raises=()):
         """
         Register a decorated function as validating a new format.
