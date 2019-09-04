@@ -1,6 +1,5 @@
 """
 Tests for the parts of jsonschema related to the :validator:`format` property.
-
 """
 
 from unittest import TestCase
