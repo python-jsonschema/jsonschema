@@ -148,7 +148,10 @@ notice:
 
     * the contents of the ``jsonschema.tests`` package
 
-    * the ``compat.py`` module, which is for internal compatibility use
+    * the contents of the ``jsonschema.benchmarks`` package
+
+    * the ``jsonschema.compat`` module, which is for internal
+      compatibility use
 
     * anything marked private
 
