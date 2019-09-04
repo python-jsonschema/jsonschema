@@ -89,6 +89,11 @@
                 "description": "empty array is invalid",
                 "data": [],
                 "valid": false
+            },
+            {
+                "description": "non-arrays are valid",
+                "data": "contains does not apply to strings",
+                "valid": true
             }
         ]
     }
