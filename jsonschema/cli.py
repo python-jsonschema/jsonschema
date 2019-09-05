@@ -55,7 +55,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--version",
-    action='version',
+    action="version",
     version=__version__,
 )
 parser.add_argument(
