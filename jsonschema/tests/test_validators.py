@@ -1155,7 +1155,6 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         """
         Legacy RefResolvers support only the context manager form of
         resolution.
-
         """
 
         class LegacyRefResolver(object):

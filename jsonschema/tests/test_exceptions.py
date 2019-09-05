@@ -35,7 +35,6 @@ class TestBestMatch(TestCase):
         """
         A property you *must* match is probably better than one you have to
         match a part of.
-
         """
 
         validator = Draft4Validator(
@@ -56,7 +55,6 @@ class TestBestMatch(TestCase):
 
         I.e. since only one of the schemas must match, we look for the most
         relevant one.
-
         """
 
         validator = Draft4Validator(
@@ -82,7 +80,6 @@ class TestBestMatch(TestCase):
 
         I.e. since only one of the schemas must match, we look for the most
         relevant one.
-
         """
 
         validator = Draft4Validator(
@@ -104,7 +101,6 @@ class TestBestMatch(TestCase):
         """
         Now, if the error is allOf, we traverse but select the *most* relevant
         error from the context, because all schemas here must match anyways.
-
         """
 
         validator = Draft4Validator(
@@ -281,7 +277,6 @@ class TestErrorTree(TestCase):
         If a validator is dumb (like :validator:`required` in draft 3) and
         refers to a path that isn't in the instance, the tree still properly
         returns a subtree for that path.
-
         """
 
         error = exceptions.ValidationError(
@@ -441,7 +436,6 @@ class TestErrorInitReprStr(TestCase):
         Check for https://github.com/Julian/jsonschema/issues/164 which
         rendered exceptions unusable when a `ValidationError` involved
         instances with an `__eq__` method that returned truthy values.
-
         """
 
         class DontEQMeBro(object):

@@ -24,7 +24,6 @@ def setup(app):
         app (sphinx.application.Sphinx):
 
             the Sphinx application context
-
     """
 
     app.add_config_value("cache_path", "_cache", "")
@@ -49,7 +48,6 @@ def fetch_or_load(spec_path):
         cache_path:
 
             the path to a cached specification
-
     """
 
     headers = {}
@@ -81,7 +79,6 @@ def docutils_sucks(spec):
 
     It doesn't allow using a class because it does stupid stuff like try to set
     attributes on the callable object rather than just keeping a dict.
-
     """
 
     base_url = VALIDATION_SPEC
@@ -120,7 +117,6 @@ def docutils_sucks(spec):
 
                 a 2-tuple of nodes to insert into the document and an
                 iterable of system messages, both possibly empty
-
         """
 
         if text == "$ref":

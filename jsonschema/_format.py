@@ -28,7 +28,6 @@ class FormatChecker(object):
 
             The known formats to validate. This argument can be used to
             limit which formats will be used during validation.
-
     """
 
     checkers = {}
@@ -60,7 +59,6 @@ class FormatChecker(object):
                 The exception object will be accessible as the
                 `jsonschema.exceptions.ValidationError.cause` attribute of the
                 resulting validation error.
-
         """
 
         def _checks(func):
@@ -88,7 +86,6 @@ class FormatChecker(object):
         Raises:
 
             FormatError: if the instance does not conform to ``format``
-
         """
 
         if format not in self.checkers:
@@ -122,7 +119,6 @@ class FormatChecker(object):
         Returns:
 
             bool: whether it conformed
-
         """
 
         try:

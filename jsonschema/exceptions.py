@@ -250,7 +250,6 @@ class ErrorTree(object):
     def __contains__(self, index):
         """
         Check whether ``instance[index]`` has any errors.
-
         """
 
         return index in self._contents
@@ -263,7 +262,6 @@ class ErrorTree(object):
         is not known by this tree, whatever error would be raised by
         ``instance.__getitem__`` will be propagated (usually this is some
         subclass of `exceptions.LookupError`.
-
         """
 
         if self._instance is not _unset and index not in self:
@@ -317,7 +315,6 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
 
         strong (set):
             a collection of validator names to consider to be "strong"
-
     """
     def relevance(error):
         validator = error.validator
@@ -365,7 +362,6 @@ def best_match(errors, key=relevance):
 
         This function is a heuristic. Its return value may change for a given
         set of inputs from version to version if better heuristics are added.
-
     """
     errors = iter(errors)
     best = next(errors, None)

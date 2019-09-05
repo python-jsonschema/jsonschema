@@ -6,7 +6,6 @@ supported JSON Schema versions.
 
 Most commonly, `validate` is the quickest way to simply validate a given
 instance under a schema, and will create a validator for you.
-
 """
 
 from jsonschema.exceptions import (
