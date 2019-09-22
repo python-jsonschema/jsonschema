@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 from __future__ import print_function
 from pprint import pformat
 import argparse
@@ -149,7 +149,7 @@ class SanityTests(unittest.TestCase):
 
         expected = {
             os.path.join(REMOTES_DIR, path): contents
-            for path, contents in REMOTES.iteritems()
+            for path, contents in REMOTES.items()
         }
 
         missing = set(files).symmetric_difference(expected)
