@@ -28,5 +28,5 @@ from jsonschema.validators import (
     validate,
 )
 
-from pkg_resources import get_distribution
-__version__ = get_distribution(__name__).version
+import importlib_metadata
+__version__ = importlib_metadata.version("jsonschema")
