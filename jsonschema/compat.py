@@ -20,7 +20,7 @@ if PY3:
     from functools import lru_cache
     from io import StringIO as NativeIO
     from urllib.parse import (
-        unquote, urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit
+        unquote, urljoin, urlunsplit, SplitResult, urlsplit
     )
     from urllib.request import pathname2url, urlopen
     str_types = str,
@@ -29,9 +29,7 @@ if PY3:
 else:
     from itertools import izip as zip  # noqa
     from io import BytesIO as NativeIO
-    from urlparse import (
-        urljoin, urlunsplit, SplitResult, urlsplit as _urlsplit # noqa
-    )
+    from urlparse import urljoin, urlunsplit, SplitResult, urlsplit
     from urllib import pathname2url, unquote  # noqa
     import urllib2  # noqa
     def urlopen(*args, **kwargs):
@@ -42,14 +40,6 @@ else:
     iteritems = operator.methodcaller("iteritems")
 
     from functools32 import lru_cache
-
-
-# On python < 3.3 fragments are not handled properly with unknown schemes
-def urlsplit(url):
-    scheme, netloc, path, query, fragment = _urlsplit(url)
-    if "#" in path:
-        path, fragment = path.split("#", 1)
-    return SplitResult(scheme, netloc, path, query, fragment)
 
 
 def urldefrag(url):
