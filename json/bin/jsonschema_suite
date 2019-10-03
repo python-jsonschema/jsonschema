@@ -99,11 +99,13 @@ class SanityTests(unittest.TestCase):
 
     def test_all_descriptions_have_reasonable_length(self):
         for case in cases(self.test_files):
-            descript = case["description"]
+            description = case["description"]
             self.assertLess(
-                len(descript),
-                60,
-                "%r is too long! (keep it to less than 60 chars)" % (descript,)
+                len(description),
+                70,
+                "%r is too long! (keep it to less than 70 chars)" % (
+                    description,
+                ),
             )
 
     def test_all_descriptions_are_unique(self):
@@ -217,8 +219,9 @@ def main(arguments):
                 if e.errno != errno.EEXIST:
                     raise
 
-            with open(filepath, "wb") as out_file:
+            with open(filepath, "w") as out_file:
                 json.dump(schema, out_file, indent=4, sort_keys=True)
+                out_file.write("\n")
     elif arguments.command == "serve":
         try:
             from flask import Flask, jsonify

@@ -2,8 +2,12 @@
     "$defs": {
         "orNull": {
             "anyOf": [
-                {"type": "null"},
-                {"$ref": "#"}
+                {
+                    "type": "null"
+                },
+                {
+                    "$ref": "#"
+                }
             ]
         }
     },
