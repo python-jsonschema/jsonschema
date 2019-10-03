@@ -2,8 +2,12 @@
     "definitions": {
         "orNull": {
             "anyOf": [
-                {"type": "null"},
-                {"$ref": "#"}
+                {
+                    "type": "null"
+                },
+                {
+                    "$ref": "#"
+                }
             ]
         }
     },
