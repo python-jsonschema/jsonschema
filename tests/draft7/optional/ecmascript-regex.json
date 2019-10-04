@@ -11,6 +11,25 @@
         ]
     },
     {
+        "description": "ECMA 262 regex $ does not match trailing newline",
+        "schema": {
+            "type": "string",
+            "pattern": "^abc$"
+        },
+        "tests": [
+            {
+                "description": "matches in Python, but should not in jsonschema",
+                "data": "abc\n",
+                "valid": false
+            },
+            {
+                "description": "should match",
+                "data": "abc",
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "ECMA 262 regex converts \\a to ascii BEL",
         "schema": {
             "type": "string",
