@@ -105,7 +105,7 @@
             },
             {
                 "description": "NKO DIGIT ZERO (as \\u escape) does not match",
-                "data": "\\u07c0",
+                "data": "\u07c0",
                 "valid": false
             }
         ]
@@ -129,7 +129,7 @@
             },
             {
                 "description": "NKO DIGIT ZERO (as \\u escape) matches",
-                "data": "\\u07c0",
+                "data": "\u07c0",
                 "valid": true
             }
         ]
@@ -186,7 +186,7 @@
             },
             {
                 "description": "latin-1 non-breaking-space does not match (unlike e.g. Python)",
-                "data": "\\u00a0",
+                "data": "\u00a0",
                 "valid": false
             }
         ]
@@ -205,7 +205,7 @@
             },
             {
                 "description": "latin-1 non-breaking-space matches (unlike e.g. Python)",
-                "data": "\\u00a0",
+                "data": "\u00a0",
                 "valid": true
             }
         ]
