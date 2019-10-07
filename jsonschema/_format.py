@@ -3,6 +3,8 @@ import re
 import socket
 import struct
 
+import js_regex
+
 from jsonschema.compat import str_types
 from jsonschema.exceptions import FormatError
 
@@ -297,11 +299,11 @@ else:
         return is_datetime("1970-01-01T" + instance)
 
 
-@_checks_drafts(name="regex", raises=re.error)
+@_checks_drafts(name="regex", raises=(re.error, js_regex.NotJavascriptRegex))
 def is_regex(instance):
     if not isinstance(instance, str_types):
         return True
-    return re.compile(instance)
+    return js_regex.compile(instance)
 
 
 @_checks_drafts(draft3="date", draft7="date", raises=ValueError)

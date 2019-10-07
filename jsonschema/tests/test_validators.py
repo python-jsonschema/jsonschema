@@ -849,7 +849,7 @@ class TestValidationErrorDetails(TestCase):
                             "children": {
                                 "type": "object",
                                 "patternProperties": {
-                                    "^.*$": {
+                                    u"^.*$": {
                                         "$ref": "#/definitions/node",
                                     },
                                 },
@@ -951,8 +951,8 @@ class TestValidationErrorDetails(TestCase):
         instance = {"bar": 1, "foo": 2}
         schema = {
             "patternProperties": {
-                "bar": {"type": "string"},
-                "foo": {"minimum": 5},
+                u"bar": {"type": "string"},
+                u"foo": {"minimum": 5},
             },
         }
 
