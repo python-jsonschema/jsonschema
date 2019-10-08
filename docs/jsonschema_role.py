@@ -13,7 +13,7 @@ from lxml import html
 
 
 __version__ = "1.0.0"
-VALIDATION_SPEC = "https://json-schema.org/draft-04/json-schema-validation.html"
+VALIDATION_SPEC = "https://json-schema.org/draft-07/json-schema-validation.html"
 
 
 def setup(app):
@@ -85,8 +85,8 @@ def docutils_sucks(spec):
     """
 
     base_url = VALIDATION_SPEC
-    ref_url = "https://json-schema.org/draft-04/json-schema-core.html#rfc.section.4.1"
-    schema_url = "https://json-schema.org/draft-04/json-schema-core.html#rfc.section.6"
+    ref_url = "https://json-schema.org/draft-07/json-schema-core.html#rfc.section.8.3"
+    schema_url = "https://json-schema.org/draft-07/json-schema-core.html#rfc.section.7"
 
     def validator(name, raw_text, text, lineno, inliner):
         """
