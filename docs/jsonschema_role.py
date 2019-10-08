@@ -12,6 +12,7 @@ import certifi
 from lxml import html
 
 
+__version__ = "1.0.0"
 VALIDATION_SPEC = "https://json-schema.org/draft-04/json-schema-validation.html"
 
 
@@ -37,6 +38,8 @@ def setup(app):
     path = os.path.join(app.config.cache_path, "spec.html")
     spec = fetch_or_load(path)
     app.add_role("validator", docutils_sucks(spec))
+
+    return dict(version=__version__, parallel_read_safe=True)
 
 
 def fetch_or_load(spec_path):
