@@ -34,5 +34,8 @@ validators
 versioned
 schemas
 
+Zac
+HD
+
 Berman
 Freenode

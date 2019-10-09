@@ -114,11 +114,6 @@ throughout schemas, as recommended by the specification. Big
 thanks to @Zac-HD for authoring support in a new `js-regex
 <https://pypi.org/project/js-regex/>`_ library.
 
-.. spelling::
-
-    Zac
-    HD
-
 
 Running the Test Suite
 ----------------------
