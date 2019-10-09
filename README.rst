@@ -109,10 +109,15 @@ Online demo Notebook will look similar to this:
 Release Notes
 -------------
 
-v3.1 brings support for ECMA 262 dialect regexes throughout schemas, as
-recommended by the specification. Big thanks to @Zac-HD for authoring
-support in a new `js-regex <https://pypi.org/project/js-regex/>`_
-library.
+v3.1 brings support for ECMA 262 dialect regular expressions
+throughout schemas, as recommended by the specification. Big
+thanks to @Zac-HD for authoring support in a new `js-regex
+<https://pypi.org/project/js-regex/>`_ library.
+
+.. spelling::
+
+    Zac
+    HD
 
 
 Running the Test Suite
