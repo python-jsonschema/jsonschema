@@ -1,8 +1,7 @@
 import itertools
 import json
 import pkgutil
-
-import js_regex
+import re
 
 from jsonschema.compat import MutableMapping, str_types, urlsplit
 
@@ -93,10 +92,10 @@ def find_additional_properties(instance, schema):
     """
 
     properties = schema.get("properties", {})
-    patterns = "|".join(sorted(schema.get("patternProperties", {})))
+    patterns = "|".join(schema.get("patternProperties", {}))
     for property in instance:
         if property not in properties:
-            if patterns and js_regex.compile(patterns).search(property):
+            if patterns and re.search(patterns, property):
                 continue
             yield property
 

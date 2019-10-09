@@ -1,4 +1,4 @@
-import js_regex
+import re
 
 from jsonschema._utils import (
     ensure_list,
@@ -19,7 +19,7 @@ def patternProperties(validator, patternProperties, instance, schema):
 
     for pattern, subschema in iteritems(patternProperties):
         for k, v in iteritems(instance):
-            if js_regex.compile(pattern).search(k):
+            if re.search(pattern, k):
                 for error in validator.descend(
                     v, subschema, path=k, schema_path=pattern,
                 ):
@@ -197,7 +197,7 @@ def uniqueItems(validator, uI, instance, schema):
 def pattern(validator, patrn, instance, schema):
     if (
         validator.is_type(instance, "string") and
-        not js_regex.compile(patrn).search(instance)
+        not re.search(patrn, instance)
     ):
         yield ValidationError("%r does not match %r" % (instance, patrn))
 
