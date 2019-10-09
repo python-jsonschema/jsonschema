@@ -109,13 +109,10 @@ Online demo Notebook will look similar to this:
 Release Notes
 -------------
 
-Version 3.0 brings support for Draft 7 (and 6). The interface for redefining
-types has also been majorly overhauled to support easier redefinition of the
-types a Validator will accept or allow.
-
-jsonschema is also now tested under Windows via AppVeyor.
-
-Thanks to all who contributed pull requests along the way.
+v3.1 brings support for ECMA 262 dialect regexes throughout schemas, as
+recommended by the specification. Big thanks to @Zac-HD for authoring
+support in a new `js-regex <https://pypi.org/project/js-regex/>`_
+library.
 
 
 Running the Test Suite

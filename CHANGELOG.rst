@@ -1,3 +1,9 @@
+v3.1.0
+------
+
+* Regular expressions throughout schemas now respect the ECMA 262 dialect, as
+  recommended by the specification (#609).
+
 v3.0.2
 ------
 
