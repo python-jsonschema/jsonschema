@@ -167,7 +167,7 @@ def multipleOf(validator, dB, instance, schema):
 
     if isinstance(dB, float):
         quotient = instance / dB
-        failed = int(quotient) != quotient
+        failed = int(quotient) != int(quotient)
     else:
         failed = instance % dB
 
