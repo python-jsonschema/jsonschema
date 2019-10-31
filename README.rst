@@ -12,9 +12,9 @@ jsonschema
    :alt: Supported Python versions
    :target: https://pypi.org/project/jsonschema/
 
-.. |Travis| image:: https://travis-ci.org/Julian/jsonschema.svg?branch=master
+.. |Travis| image:: https://travis-ci.com/Julian/jsonschema.svg?branch=master
    :alt: Travis build status
-   :target: https://travis-ci.org/Julian/jsonschema
+   :target: https://travis-ci.com/Julian/jsonschema
 
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn/branch/master?svg=true
    :alt: AppVeyor build status

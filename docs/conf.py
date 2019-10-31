@@ -4,6 +4,7 @@
 
 from textwrap import dedent
 import os
+import re
 import sys
 
 import jsonschema
@@ -237,6 +238,15 @@ texinfo_documents = [
 
 # How to display URL addresses: "footnote", "no", or "inline".
 # texinfo_show_urls = "footnote"
+
+# -- Options for the linkcheck builder ------------------------------------
+
+
+def entire_domain(host):
+    return r"http.?://" + re.escape(host) + r"($|/.*)"
+
+
+linkcheck_ignore = [entire_domain("codecov.io")]
 
 # -- Options for sphinxcontrib-spelling -----------------------------------
 
