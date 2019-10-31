@@ -321,14 +321,26 @@ to validate. Their names can be viewed by inspecting the
 `FormatChecker.checkers` attribute. Certain checkers will only be
 available if an appropriate package is available for use. The easiest way to
 ensure you have what is needed is to install ``jsonschema`` using the
-``format`` setuptools extra -- i.e.
+``format`` or ``format_nongpl`` setuptools extra -- i.e.
 
 .. code-block:: sh
 
    $ pip install jsonschema[format]
 
-which will install all of the below dependencies for all formats. The
-more specific list of available checkers, along with their requirement
+which will install all of the below dependencies for all formats.
+
+Or if you want to install MIT-license compatible dependencies only:
+
+.. code-block:: sh
+
+   $ pip install jsonschema[format_nongpl]
+
+The non-GPL extra is intended to not install any direct dependencies
+that are GPL (but that of course end-users should do their own verification).
+At the moment, it supports all the available checkers except for ``iri`` and
+``iri-reference``.
+
+The more specific list of available checkers, along with their requirement
 (if any,) are listed below.
 
 .. note::
@@ -342,7 +354,7 @@ Checker                    Notes
 =========================  ====================
 ``color``                  requires webcolors_
 ``date``
-``date-time``              requires strict-rfc3339_
+``date-time``              requires strict-rfc3339_ or rfc3339-validator_
 ``email``
 ``hostname``
 ``idn-hostname``           requires idna_
@@ -353,9 +365,9 @@ Checker                    Notes
 ``json-pointer``           requires jsonpointer_
 ``regex``
 ``relative-json-pointer``  requires jsonpointer_
-``time``                   requires strict-rfc3339_
-``uri``                    requires rfc3987_
-``uri-reference``          requires rfc3987_
+``time``                   requires strict-rfc3339_ or rfc3339-validator_
+``uri``                    requires rfc3987_ or rfc3986-validator_
+``uri-reference``          requires rfc3987_ or rfc3986-validator_
 =========================  ====================
 
 
@@ -365,7 +377,8 @@ Checker                    Notes
 .. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
 .. _strict-rfc3339: https://pypi.org/pypi/strict-rfc3339/
 .. _webcolors: https://pypi.org/pypi/webcolors/
-
+.. _rfc3339-validator: https://pypi.org/project/rfc3339-validator/
+.. _rfc3986-validator: https://pypi.org/project/rfc3986-validator/
 
 .. note::
 

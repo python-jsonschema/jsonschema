@@ -248,13 +248,12 @@ else:
 try:
     import rfc3987
 except ImportError:
-
     try:
         from rfc3986_validator import validate_rfc3986
     except ImportError:
         pass
     else:
-        @_checks_drafts(name="uri",)
+        @_checks_drafts(name="uri")
         def is_uri(instance):
             if not isinstance(instance, str_types):
                 return True

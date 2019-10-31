@@ -39,3 +39,4 @@ HD
 
 Berman
 Freenode
+GPL
