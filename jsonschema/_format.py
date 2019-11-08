@@ -248,7 +248,27 @@ else:
 try:
     import rfc3987
 except ImportError:
-    pass
+    try:
+        from rfc3986_validator import validate_rfc3986
+    except ImportError:
+        pass
+    else:
+        @_checks_drafts(name="uri")
+        def is_uri(instance):
+            if not isinstance(instance, str_types):
+                return True
+            return validate_rfc3986(instance, rule="URI")
+
+        @_checks_drafts(
+            draft6="uri-reference",
+            draft7="uri-reference",
+            raises=ValueError,
+        )
+        def is_uri_reference(instance):
+            if not isinstance(instance, str_types):
+                return True
+            return validate_rfc3986(instance, rule="URI_reference")
+
 else:
     @_checks_drafts(draft7="iri", raises=ValueError)
     def is_iri(instance):
@@ -280,15 +300,19 @@ else:
 
 
 try:
-    import strict_rfc3339
+    from strict_rfc3339 import validate_rfc3339
 except ImportError:
-    pass
-else:
+    try:
+        from rfc3339_validator import validate_rfc3339
+    except ImportError:
+        validate_rfc3339 = None
+
+if validate_rfc3339:
     @_checks_drafts(name="date-time")
     def is_datetime(instance):
         if not isinstance(instance, str_types):
             return True
-        return strict_rfc3339.validate_rfc3339(instance)
+        return validate_rfc3339(instance)
 
     @_checks_drafts(draft7="time")
     def is_time(instance):
