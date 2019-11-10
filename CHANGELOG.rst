@@ -1,3 +1,9 @@
+v3.1.1
+------
+
+* Temporarily revert the switch to ``js-regex`` until #611 and #612 are
+  resolved.
+
 v3.1.0
 ------
 
