@@ -1,3 +1,9 @@
+v3.2.0
+------
+
+* Added a ``format_nongpl`` setuptools extra, which installs only ``format``
+  dependencies that are non-GPL (#619).
+
 v3.1.1
 ------
 
