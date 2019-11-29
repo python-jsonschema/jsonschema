@@ -30,20 +30,20 @@
         ]
     },
     {
-        "description": "ECMA 262 regex converts \\a to ascii BEL",
+        "description": "ECMA 262 regex converts \\t to horizontal tab",
         "schema": {
             "type": "string",
-            "pattern": "^\\a$"
+            "pattern": "^\\t$"
         },
         "tests": [
             {
                 "description": "does not match",
-                "data": "\\a",
+                "data": "\\t",
                 "valid": false
             },
             {
                 "description": "matches",
-                "data": "\u0007",
+                "data": "\u0009",
                 "valid": true
             }
         ]

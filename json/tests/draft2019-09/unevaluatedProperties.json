@@ -1,0 +1,34 @@
+[
+    {
+        "description": "can peer inside allOf, results in no-op",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedProperties": false,
+            "allOf": [
+              {
+                "properties": {
+                  "foo": { "type": ["string", "null"] },
+                  "bar": { "type": ["string", "null"] }
+                }
+              },
+              {
+                "additionalProperties": {
+                  "not": { "enum": [ null ] }
+                }
+              }
+            ]
+        },
+        "tests": [
+            {
+                "description": "string props valid",
+                "data": { "bar": "foo", "bob": "who?" },
+                "valid": true
+            },
+            {
+                "description": "null prop is invalid",
+                "data": { "bar": "foo", "bob": null },
+                "valid": false
+            }
+        ]
+    }
+]
