@@ -344,7 +344,7 @@ def best_match(errors, key=relevance):
             the errors to select from. Do not provide a mixture of
             errors from different validation attempts (i.e. from
             different instances or schemas), since it won't produce
-            sensical output.
+            sensible output.
 
         key (collections.Callable):
 
