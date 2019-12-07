@@ -15,7 +15,7 @@
 
         "properties": {
             "type": "object",
-            "additionalProperties": {"type": "object", "$ref": "#"},
+			"additionalProperties" : {"$ref" : "#"},
             "default": {}
         },
 
@@ -47,7 +47,7 @@
         },
 
         "dependencies": {
-            "type": ["string", "array", "object"],
+			"type" : "object",
             "additionalProperties": {
                 "type": ["string", "array", {"$ref": "#"}],
                 "items": {
@@ -157,11 +157,6 @@
             "format": "uri"
         },
 
-        "maxDecimal": {
-            "minimum": 0,
-            "type": "number"
-        },
-
         "$schema": {
             "type": "string",
             "format": "uri"
@@ -171,6 +166,7 @@
     "dependencies": {
         "exclusiveMinimum": "minimum",
         "exclusiveMaximum": "maximum"
-    }
+	},
 
+	"default" : {}
 }
