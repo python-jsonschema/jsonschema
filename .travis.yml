@@ -18,9 +18,6 @@ install:
 script:
   - tox
 
-after_success:
-  - tox -e codecov
-
 addons:
   apt:
     packages:
