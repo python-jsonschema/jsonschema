@@ -2,7 +2,7 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |Travis| |AppVeyor| |Codecov| |ReadTheDocs|
+|PyPI| |Pythons| |CI| |AppVeyor| |Codecov| |ReadTheDocs|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
@@ -12,9 +12,9 @@ jsonschema
    :alt: Supported Python versions
    :target: https://pypi.org/project/jsonschema/
 
-.. |Travis| image:: https://travis-ci.com/Julian/jsonschema.svg?branch=master
-   :alt: Travis build status
-   :target: https://travis-ci.com/Julian/jsonschema
+.. |CI| image:: https://github.com/Julian/jsonschema/workflows/CI/badge.svg
+  :alt: Build status
+  :target: https://github.com/Julian/jsonschema/actions?query=workflow%3ACI
 
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/adtt0aiaihy6muyn/branch/master?svg=true
    :alt: AppVeyor build status

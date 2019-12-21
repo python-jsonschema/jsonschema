@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+  release:
+    types: [published]
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        python-version:
+          - name: pypy2
+            toxenv: pypy2-build
+          - name: pypy2
+            toxenv: pypy2-tests
+          - name: pypy2
+            toxenv: pypy2-tests_nongpl
+          - name: pypy2
+            toxenv: safety
+          - name: pypy3
+            toxenv: pypy3-build
+          - name: pypy3
+            toxenv: pypy3-tests
+          - name: pypy3
+            toxenv: pypy3-tests_nongpl
+          - name: pypy3
+            toxenv: demo
+          - name: pypy3
+            toxenv: readme
+          - name: pypy3
+            toxenv: safety
+          - name: pypy3
+            toxenv: secrets
+          - name: pypy3
+            toxenv: style
+          - name: pypy3
+            toxenv: docs-html
+          - name: pypy3
+            toxenv: docs-doctest
+          - name: pypy3
+            toxenv: docs-linkcheck
+          - name: pypy3
+            toxenv: docs-spelling
+          - name: pypy3
+            toxenv: docs-style
+          - name: 3.5
+            toxenv: py35-build
+          - name: 3.5
+            toxenv: py35-tests
+          - name: 3.5
+            toxenv: py35-tests_nongpl
+          - name: 3.6
+            toxenv: py36-build
+          - name: 3.6
+            toxenv: py36-tests
+          - name: 3.6
+            toxenv: py36-tests_nongpl
+          - name: 3.7
+            toxenv: py37-build
+          - name: 3.7
+            toxenv: py37-tests
+          - name: 3.7
+            toxenv: py37-tests_nongpl
+          - name: 3.8
+            toxenv: py38-build
+          - name: 3.8
+            toxenv: py38-tests
+          - name: 3.8
+            toxenv: py38-tests_nongpl
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version.name }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version.name }}
+    - name: Ensure we have new enough versions to respect python_version
+      run: python -m pip install -U pip setuptools
+    - name: Install dependencies
+      run: sudo apt-get install -y libenchant-dev libxml2-dev libxslt-dev
+      if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.python-version.toxenv, 'docs-')
+    - name: Install dependencies
+      run: brew install enchant
+      if: startsWith(matrix.os, 'mac') && startsWith(matrix.python-version.toxenv, 'docs-')
+    - name: Install tox
+      run: python -m pip install tox
+    - name: Run tox
+      run: python -m tox -e "${{ matrix.python-version.toxenv }}"
