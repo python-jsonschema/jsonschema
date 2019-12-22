@@ -72,6 +72,55 @@ jobs:
             toxenv: py38-tests
           - name: 3.8
             toxenv: py38-tests_nongpl
+        exclude:
+          - os: windows-latest
+            python-version:
+              name: pypy2
+              toxenv: pypy2-build
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: pypy3-build
+          - os: windows-latest
+            python-version:
+              name: 3.5
+              toxenv: py35-build
+          - os: windows-latest
+            python-version:
+              name: 3.6
+              toxenv: py36-build
+          - os: windows-latest
+            python-version:
+              name: 3.7
+              toxenv: py37-build
+          - os: windows-latest
+            python-version:
+              name: 3.8
+              toxenv: py38-build
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: demo
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: docs-html
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: docs-doctest
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: docs-linkcheck
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: docs-spelling
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: docs-style
 
     steps:
     - uses: actions/checkout@v1
