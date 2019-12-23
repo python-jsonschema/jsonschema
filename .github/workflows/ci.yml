@@ -135,10 +135,10 @@ jobs:
       run: python -m pip install -U pip setuptools
     - name: Install dependencies
       run: sudo apt-get install -y libenchant-dev libxml2-dev libxslt-dev
-      if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.python-version.toxenv, 'docs-')
+      if: runner.os == 'Linux' && startsWith(matrix.python-version.toxenv, 'docs-')
     - name: Install dependencies
       run: brew install enchant
-      if: startsWith(matrix.os, 'mac') && startsWith(matrix.python-version.toxenv, 'docs-')
+      if: runner.os == 'macOS' && startsWith(matrix.python-version.toxenv, 'docs-')
     - name: Install tox
       run: python -m pip install tox tox-venv
     - name: Run tox
