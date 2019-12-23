@@ -5,6 +5,9 @@ on:
   pull_request:
   release:
     types: [published]
+  schedule:
+    # Daily at 3:21
+    - cron: '21 3 * * *'
 
 jobs:
   ci:
