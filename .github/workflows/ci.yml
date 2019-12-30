@@ -76,18 +76,52 @@ jobs:
           - name: 3.8
             toxenv: py38-tests_nongpl
         exclude:
+          # Building on Windows isn't supported, and 3.5/PyPy on Windows
+          # seem to fail with silent obscure errors.
           - os: windows-latest
             python-version:
               name: pypy2
               toxenv: pypy2-build
           - os: windows-latest
             python-version:
+              name: pypy2
+              toxenv: safety
+          - os: windows-latest
+            python-version:
               name: pypy3
               toxenv: pypy3-build
           - os: windows-latest
             python-version:
+              name: pypy3
+              toxenv: pypy3-tests
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: pypy3-tests_nongpl
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: safety
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: secrets
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: style
+          - os: windows-latest
+            python-version:
               name: 3.5
               toxenv: py35-build
+          - os: windows-latest
+            python-version:
+              name: 3.5
+              toxenv: py35-tests
+          - os: windows-latest
+            python-version:
+              name: 3.5
+              toxenv: py35-tests_nongpl
           - os: windows-latest
             python-version:
               name: 3.6
