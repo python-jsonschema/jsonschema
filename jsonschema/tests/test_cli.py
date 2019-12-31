@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 import json
 import subprocess
 import sys
@@ -149,3 +149,22 @@ class TestCLI(TestCase):
         )
         version = version.decode("utf-8").strip()
         self.assertEqual(version, __version__)
+
+    @mock.patch("sys.stdin")
+    def test_piping(self, mock_stdin):
+        mock_stdin.read.return_value = "{}"
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": fake_validator(),
+                "schema": {},
+                "instances": [],
+                "error_format": "{error.message}",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        mock_stdin.read.assert_called_once_with()
+        self.assertFalse(stdout.getvalue())
+        self.assertFalse(stderr.getvalue())
+        self.assertEqual(exit_code, 0)
