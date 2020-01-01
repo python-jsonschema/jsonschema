@@ -1,4 +1,10 @@
-from unittest import TestCase, mock
+from unittest import TestCase
+
+try:
+    from unittest import mock
+except ImportError:
+    from mock import mock
+
 import json
 import subprocess
 import sys
