@@ -1,0 +1,25 @@
+name: Test Suite Sanity Checking
+
+on:
+  push:
+  pull_request:
+  release:
+    types: [published]
+  schedule:
+    # Daily at 6:42
+    - cron: '42 6 * * *'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install tox
+      run: python -m pip install tox
+    - name: Run the sanity checks
+      run: python -m tox
