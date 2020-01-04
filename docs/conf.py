@@ -246,7 +246,10 @@ def entire_domain(host):
     return r"http.?://" + re.escape(host) + r"($|/.*)"
 
 
-linkcheck_ignore = [entire_domain("codecov.io")]
+linkcheck_ignore = [
+    entire_domain("codecov.io"),
+    "https://github.com/Julian/jsonschema/actions",
+]
 
 # -- Options for sphinxcontrib-spelling -----------------------------------
 

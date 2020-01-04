@@ -1,4 +1,4 @@
-JSON Schema Test Suite [![Build Status](https://travis-ci.org/json-schema-org/JSON-Schema-Test-Suite.svg?branch=master)](https://travis-ci.org/json-schema-org/JSON-Schema-Test-Suite)
+JSON Schema Test Suite [![Build Status](https://github.com/json-schema-org/JSON-Schema-Test-Suite/workflows/Test%20Suite%20Sanity%20Checking/badge.svg)](https://github.com/json-schema-org/JSON-Schema-Test-Suite/actions?query=workflow%3A%22Test+Suite+Sanity+Checking%22)
 ======================
 
 This repository contains a set of JSON objects that implementors of JSON Schema
@@ -181,6 +181,7 @@ Contributing
 
 If you see something missing or incorrect, a pull request is most welcome!
 
-There are some sanity checks in place for testing the test suite. You can run
-them with `bin/jsonschema_suite check && npm test` or `tox && npm test`. They will be run automatically by
-[Travis CI](https://travis-ci.org/) as well.
+There are some sanity checks in place for testing the test suite. You
+can run them with `bin/jsonschema_suite check` or `tox`. They will be
+run automatically by [GitHub Actions](https://github.com/json-schema-org/JSON-Schema-Test-Suite/actions?query=workflow%3A%22Test+Suite+Sanity+Checking%22)
+as well.
