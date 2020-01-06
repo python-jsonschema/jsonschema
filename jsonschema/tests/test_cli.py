@@ -1,13 +1,12 @@
 from unittest import TestCase
-
-try:
-    from unittest import mock
-except ImportError:
-    from mock import mock
-
 import json
 import subprocess
 import sys
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.compat import NativeIO
@@ -156,9 +155,8 @@ class TestCLI(TestCase):
         version = version.decode("utf-8").strip()
         self.assertEqual(version, __version__)
 
-    @mock.patch("sys.stdin")
-    def test_piping(self, mock_stdin):
-        mock_stdin.read.return_value = "{}"
+    def test_piping(self):
+        sys.stdin = StringIO("{}")
         stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
@@ -170,7 +168,6 @@ class TestCLI(TestCase):
             stdout=stdout,
             stderr=stderr,
         )
-        mock_stdin.read.assert_called_once_with()
         self.assertFalse(stdout.getvalue())
         self.assertFalse(stderr.getvalue())
         self.assertEqual(exit_code, 0)
