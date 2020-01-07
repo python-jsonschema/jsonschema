@@ -1,6 +1,5 @@
 import numbers
 
-from pyrsistent import pmap
 import attr
 
 from jsonschema.compat import int_types, str_types
@@ -61,7 +60,7 @@ class TypeChecker(object):
 
             The initial mapping of types to their checking functions.
     """
-    _type_checkers = attr.ib(default=pmap(), converter=pmap)
+    _type_checkers = attr.ib(default=dict(), converter=dict)
 
     def is_type(self, instance, type):
         """
@@ -131,8 +130,10 @@ class TypeChecker(object):
 
             A new `TypeChecker` instance.
         """
+        new_checkers = dict(self._type_checkers)
+        new_checkers.update(definitions)
         return attr.evolve(
-            self, type_checkers=self._type_checkers.update(definitions),
+            self, type_checkers=new_checkers,
         )
 
     def remove(self, *types):
@@ -159,7 +160,8 @@ class TypeChecker(object):
         checkers = self._type_checkers
         for each in types:
             try:
-                checkers = checkers.remove(each)
+                checkers = dict(checkers)
+                checkers.pop(each)
             except KeyError:
                 raise UndefinedTypeCheck(each)
         return attr.evolve(self, type_checkers=checkers)
