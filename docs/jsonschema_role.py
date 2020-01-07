@@ -9,10 +9,11 @@ except ImportError:
     import urllib.request as urllib
 
 import certifi
+import jsonschema
 from lxml import html
 
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 VALIDATION_SPEC = "https://json-schema.org/draft-07/json-schema-validation.html"
 
 
@@ -53,7 +54,11 @@ def fetch_or_load(spec_path):
             the path to a cached specification
     """
 
-    headers = {}
+    headers = {
+        "User-Agent": "python-jsonschema v{} - documentation build v{}".format(
+            jsonschema.__version__, __version__,
+        ),
+    }
 
     try:
         modified = datetime.utcfromtimestamp(os.path.getmtime(spec_path))
