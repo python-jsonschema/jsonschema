@@ -3,11 +3,6 @@ import json
 import subprocess
 import sys
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.compat import NativeIO
 from jsonschema.exceptions import SchemaError
@@ -156,8 +151,7 @@ class TestCLI(TestCase):
         self.assertEqual(version, __version__)
 
     def test_piping(self):
-        sys.stdin = StringIO("{}")
-        stdout, stderr = NativeIO(), NativeIO()
+        stdout, stderr, stdin = NativeIO(), NativeIO(), NativeIO("{}")
         exit_code = cli.run(
             {
                 "validator": fake_validator(),
@@ -167,6 +161,7 @@ class TestCLI(TestCase):
             },
             stdout=stdout,
             stderr=stderr,
+            stdin=stdin,
         )
         self.assertFalse(stdout.getvalue())
         self.assertFalse(stderr.getvalue())
