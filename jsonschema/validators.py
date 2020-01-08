@@ -353,12 +353,15 @@ def create(
                 yield error
 
         def validate(self, *args, **kwargs):
-            # for error in self.iter_errors(*args, **kwargs):
-            #     raise error
             errors = self.iter_errors(*args, **kwargs)
-            best = exceptions.best_match(errors)
-            if best:
-                return best
+            matched_errors = exceptions.best_match(errors)
+            error_dict = {}
+            error_message = None
+            if matched_errors:
+                error_dict['key'] = list(matched_errors.path)[-1]
+                error_dict['message'] = matched_errors.message
+                error_message = "Schema Error! " + str(error_dict)
+            return error_message
 
         def is_type(self, instance, type):
             try:
