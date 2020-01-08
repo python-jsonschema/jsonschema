@@ -22,6 +22,10 @@ def _json_file(path):
         return json.load(file)
 
 
+def _read_from_stdin(stdin):
+    return json.loads(stdin.read())
+
+
 parser = argparse.ArgumentParser(
     description="JSON Schema Validation CLI",
 )
@@ -76,15 +80,16 @@ def main(args=sys.argv[1:]):
     sys.exit(run(arguments=parse_args(args=args)))
 
 
-def run(arguments, stdout=sys.stdout, stderr=sys.stderr):
+def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     error_format = arguments["error_format"]
     validator = arguments["validator"](schema=arguments["schema"])
 
     validator.check_schema(arguments["schema"])
 
     errored = False
-    for instance in arguments["instances"] or ():
+    for instance in arguments["instances"] or (_read_from_stdin(stdin),):
         for error in validator.iter_errors(instance):
             stderr.write(error_format.format(error=error))
             errored = True
+
     return errored
