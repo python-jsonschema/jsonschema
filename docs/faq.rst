@@ -138,11 +138,12 @@ number:
 The following are *not* considered public API and may change without
 notice:
 
-    * the exact wording and contents of error messages; typical
-      reasons to do this seem to involve unit tests. API users are
-      encouraged to use the extensive introspection provided in
-      `jsonschema.exceptions.ValidationError`\s instead to make meaningful
-      assertions about what failed.
+    * the exact wording and contents of error messages; typical reasons
+      to rely on this seem to involve downstream tests in packages using
+      `jsonschema`. These use cases are encouraged to use the extensive
+      introspection provided in `jsonschema.exceptions.ValidationError`\s
+      instead to make meaningful assertions about what failed rather than
+      relying on *how* what failed is explained to a human.
 
     * the order in which validation errors are returned or raised
 
