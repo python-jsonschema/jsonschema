@@ -294,7 +294,6 @@ def create(
                 raise exceptions.SchemaError.create_from(error)
 
         def iter_errors(self, instance, _schema=None):
-            error_list = []
             if _schema is None:
                 _schema = self.schema
 
@@ -327,10 +326,6 @@ def create(
 
                     errors = validator(self, v, instance, _schema) or ()
                     for error in errors:
-                        if error:
-                            error_list.append(error)
-                            print(error)
-                        # set details if not already set by the called fn
                         error._set(
                             validator=k,
                             validator_value=v,
@@ -339,7 +334,7 @@ def create(
                         )
                         if k != u"$ref":
                             error.schema_path.appendleft(k)
-                        yield error_list
+                        yield error
             finally:
                 if scope:
                     self.resolver.pop_scope()
