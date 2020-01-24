@@ -141,6 +141,10 @@ jobs:
           - os: windows-latest
             python-version:
               name: pypy3
+              toxenv: readme
+          - os: windows-latest
+            python-version:
+              name: pypy3
               toxenv: docs-html
           - os: windows-latest
             python-version:
