@@ -75,6 +75,8 @@ jobs:
             toxenv: py38-tests
           - name: 3.8
             toxenv: py38-tests_nongpl
+          - name: 3.8
+            toxenv: check-package-license-file
         exclude:
           # Building on Windows isn't supported, and 3.5/PyPy on Windows
           # seem to fail with silent obscure errors.
