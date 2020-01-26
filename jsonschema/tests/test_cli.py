@@ -142,6 +142,13 @@ class TestCLI(TestCase):
         self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
         self.assertEqual(exit_code, 1)
 
+    def test_license(self):
+        output = subprocess.check_output(
+            [sys.executable, "-m", "pip", "show", "jsonschema"],
+            stderr=subprocess.STDOUT,
+        )
+        self.assertIn("License: MIT\n", output)
+
     def test_version(self):
         version = subprocess.check_output(
             [sys.executable, "-m", "jsonschema", "--version"],
