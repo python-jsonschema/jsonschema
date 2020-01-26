@@ -147,7 +147,7 @@ class TestCLI(TestCase):
             [sys.executable, "-m", "pip", "show", "jsonschema"],
             stderr=subprocess.STDOUT,
         )
-        self.assertIn(b"License: MIT\n", output)
+        self.assertIn(b"License: MIT", output)
 
     def test_version(self):
         version = subprocess.check_output(
