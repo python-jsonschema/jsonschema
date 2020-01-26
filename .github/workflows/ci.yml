@@ -125,6 +125,14 @@ jobs:
           - os: windows-latest
             python-version:
               name: 3.6
+              toxenv: py36-tests
+          - os: windows-latest
+            python-version:
+              name: 3.6
+              toxenv: py36-tests_nongpl
+          - os: windows-latest
+            python-version:
+              name: 3.6
               toxenv: py36-build
           - os: windows-latest
             python-version:
