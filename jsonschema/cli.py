@@ -5,6 +5,7 @@ from __future__ import absolute_import
 import argparse
 import json
 import sys
+import os
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
@@ -37,7 +38,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "-F", "--error-format",
-    default="{error.instance}: {error.message}\n",
+    default="{error}\n",
     help=(
         "the format to use for each error output message, specified in "
         "a form suitable for passing to str.format, which will be called "
@@ -77,7 +78,16 @@ def main(args=sys.argv[1:]):
 
 
 def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
+    # Create a full width delimiter to display the errors
+    rows, columns = os.popen('stty size', 'r').read().split()
+    error_delimiter_head = "———|ERROR|"
+    error_delimiter = (
+        error_delimiter_head
+        + (int(columns) - len(error_delimiter_head)) * "—"
+        + "\n"
+    )
     error_format = arguments["error_format"]
+
     validator = arguments["validator"](schema=arguments["schema"])
 
     validator.check_schema(arguments["schema"])
@@ -85,6 +95,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     errored = False
     for instance in arguments["instances"] or [json.load(stdin)]:
         for error in validator.iter_errors(instance):
+            stderr.write(error_delimiter)
             stderr.write(error_format.format(error=error))
             errored = True
 
