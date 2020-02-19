@@ -77,7 +77,7 @@ def main(args=sys.argv[1:]):
 
 
 def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
-    error_delimiter = "———|ERROR|—————————————————————————\n"
+    error_delimiter = "===[ERROR]====================================\n"
     error_format = arguments["error_format"]
 
     validator = arguments["validator"](schema=arguments["schema"])
