@@ -5,7 +5,6 @@ from __future__ import absolute_import
 import argparse
 import json
 import sys
-import os
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
@@ -78,14 +77,7 @@ def main(args=sys.argv[1:]):
 
 
 def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
-    # Create a full width delimiter to display the errors
-    rows, columns = os.popen('stty size', 'r').read().split()
-    error_delimiter_head = "———|ERROR|"
-    error_delimiter = (
-        error_delimiter_head
-        + (int(columns) - len(error_delimiter_head)) * "—"
-        + "\n"
-    )
+    error_delimiter = "———|ERROR|—————————————————————————\n"
     error_format = arguments["error_format"]
 
     validator = arguments["validator"](schema=arguments["schema"])
