@@ -126,7 +126,7 @@
         ]
     },
     {
-        "description": "const with 0 does not match false",
+        "description": "const with 0 does not match other zero-like types",
         "schema": {"const": 0},
         "tests": [
             {
@@ -143,6 +143,21 @@
                 "description": "float zero is valid",
                 "data": 0.0,
                 "valid": true
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "empty string is invalid",
+                "data": "",
+                "valid": false
             }
         ]
     },
