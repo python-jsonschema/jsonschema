@@ -13,14 +13,86 @@ import sys
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.validators import validator_for
-from jsonschema.exceptions import SchemaError
+from jsonschema.exceptions import SchemaError, ValidationError
 
 
 #------------------------------------------------------------------------------
-# CONSTANTS
+# CLASSES
 #------------------------------------------------------------------------------
-HUMAN_ERROR_MSG = "===[ERROR]===({instance_name})===\n{error}\n"
-HUMAN_SUCCESS_MSG = "===[SUCCESS]===({instance_name})===\n"
+class CliOutputWriter():
+    PARSING_ERROR_MSG = (
+        "Failed to parse {file_name}. "
+        "Got the following error: {exception}\n"
+    )
+    PLAIN_ERROR_MSG = "{error.instance}: {error.message}\n"
+    PRETTY_ERROR_MSG = "===[ERROR]===({object_name})===\n{error}\n"
+    PRETTY_SUCCESS_MSG = "===[SUCCESS]===({object_name})===\n"
+
+    def __init__(
+        self,
+        output_format,
+        oneline_format,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+    ):
+        self.output_format = output_format
+        self.oneline_format = oneline_format
+        self.stdout = stdout
+        self.stderr = stderr
+
+    def write_parsing_error(self, file_name, exception):
+        if self.output_format == "pretty":
+            msg = self.PRETTY_ERROR_MSG.format(
+                object_name=file_name,
+                error=self.PARSING_ERROR_MSG.format(
+                    file_name=file_name,
+                    exception=exception,
+                ),
+            )
+        elif self.output_format == "plain":
+            msg = self.PARSING_ERROR_MSG.format(
+                file_name=file_name,
+                exception=exception,
+            )
+        else:
+            raise ValueError(
+                "Output mode '{}' is unknown by this function"
+                .format(self.output_format)
+            )
+        self.stderr.write(msg)
+
+    def write_valid_error(self, object_name, error_obj):
+        if self.output_format == "pretty":
+            msg = self.PRETTY_ERROR_MSG.format(
+                object_name=object_name,
+                error=error_obj,
+            )
+        elif self.output_format == "plain":
+            msg = self.PLAIN_ERROR_MSG.format(
+                object_name=object_name,
+                error=error_obj,
+            )
+        else:
+            raise ValueError(
+                "Output mode '{}' is unknown by this function"
+                .format(self.output_format)
+            )
+        self.stderr.write(msg)
+
+    def write_valid_success(self, object_name):
+        if self.output_format == "pretty":
+            msg = self.PRETTY_SUCCESS_MSG.format(
+                object_name=object_name
+            )
+        elif self.output_format == "plain":
+            # Nothing to print in plain mode, only errors are wanted.
+            msg = ""
+        else:
+            raise ValueError(
+                "Output mode '{}' is unknown by this function"
+                .format(self.output_format)
+            )
+        self.stdout.write(msg)
 
 
 #------------------------------------------------------------------------------
@@ -52,18 +124,20 @@ parser.add_argument(
     "-F", "--error-format",
     default="{error.instance}: {error.message}\n",
     help=(
-        "the format to use for each error output message, specified in "
+        "The format to use for each error output message, specified in "
         "a form suitable for passing to str.format, which will be called "
-        "with 'error' for each error"
+        "with 'error' for each error. This is only used when --output=plain "
+        "(default)."
     ),
 )
 parser.add_argument(
-    "-H", "--human",
-    action="store_true",
+    "-o", "--output",
+    choices=["plain", "pretty"],
+    default="plain",
     help=(
-        "Format the output in a human readable way. For each instance, it "
-        "prints a success message when all validation passed, and prints "
-        "a detailed error report if at least one validation failed."
+        "Select the output format. "
+        "'plain': one line per error, minimum text. "
+        "'pretty': human-readable output with multiline details. "
     ),
 )
 parser.add_argument(
@@ -102,86 +176,68 @@ def parse_args(args):
     return arguments
 
 
+def make_validator(schema_path, validator_class):
+    schema_obj = _load_json_file(schema_path)
+    validator = validator_class(schema=schema_obj)
+    validator.check_schema(schema_obj)
+    return validator
+
+
+def validate_instance(instance, validator, output_writer):
+    # Load the instance
+    if isinstance(instance, str):
+        instance_name = instance
+        try:
+            instance_obj = _load_json_file(instance)
+        except json.JSONDecodeError as exc:
+            output_writer.write_parsing_error(instance_name, exc)
+            raise exc
+    elif isinstance(instance, dict):
+        instance_name = "stdin"
+        instance_obj = instance
+    else:
+        raise ValueError(
+            "Invalid type for instance: {}".format(type(instance))
+        )
+
+    # Validate the instance
+    instance_errored = False
+    for error in validator.iter_errors(instance_obj):
+        instance_errored = True
+        output_writer.write_valid_error(instance_name, error)
+
+    if not instance_errored:
+        output_writer.write_valid_success(instance_name)
+    else:
+        raise ValidationError("Some errors appeared in this instance.")
+
+
 def main(args=sys.argv[1:]):
     sys.exit(run(arguments=parse_args(args=args)))
 
 
 def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
-    # Build the validator
+    output_writer = CliOutputWriter(
+        arguments["output"],
+        arguments["error_format"],
+        stdout,
+        stderr,
+    )
+
     try:
-        schema_obj = _load_json_file(arguments["schema"])
+        validator = make_validator(arguments["schema"], arguments["validator"])
     except json.JSONDecodeError as exc:
-        stderr.write(
-            "Failed to parse schema {}. Got the following error: {}\n"
-            .format(arguments["schema"], exc)
-        )
+        output_writer.write_parsing_error(arguments["schema"], exc)
         return False
-    validator = arguments["validator"](schema=schema_obj)
-
-    # Check the schema before validating any instance
-    try:
-        validator.check_schema(schema_obj)
     except SchemaError as exc:
-        if arguments["human"]:
-            error_content = exc
-        else:
-            error_content = (
-                "{error.instance}: {error.message}".format(error=exc)
-            )
-        stderr.write(
-            "Failed to check schema {}. Got the following error: {}\n"
-            .format(arguments["schema"], error_content)
-        )
+        output_writer.write_valid_error(arguments["schema"], exc)
         return False
 
-    # This variable indicates if at least one instance failed
     errored = False
-
-    # Loop on instances (files and/or stdin)
     for instance in arguments["instances"] or [json.load(stdin)]:
-        # Load the instance and set the instance name
-        if isinstance(instance, str):
-            instance_name = instance
-            try:
-                instance_obj = _load_json_file(instance)
-            except json.JSONDecodeError as exc:
-                error_msg = (
-                    "Failed to parse {}. Got the following error: {}\n"
-                    .format(instance_name, exc)
-                )
-                if arguments["human"]:
-                    stderr.write(HUMAN_ERROR_MSG.format(
-                        instance_name=instance_name,
-                        error=error_msg
-                    ))
-                else:
-                    stderr.write(error_msg)
-                # Skip this instance
-                errored = True
-                continue
-        else:
-            instance_name = "stdin"
-            instance_obj = instance
-
-        # Validate this instance
-        instance_errored = False
-        for error in validator.iter_errors(instance_obj):
-            instance_errored = True
+        try:
+            validate_instance(instance, validator, output_writer)
+        except (json.JSONDecodeError, ValidationError):
             errored = True
-            # Print the appropriate error message
-            if arguments["human"]:
-                stderr.write(HUMAN_ERROR_MSG.format(
-                    error=error,
-                    instance_name=instance_name
-                ))
-            else:
-                stderr.write(arguments["error_format"].format(
-                    error=error,
-                    instance_name=instance_name
-                ))
-        if not instance_errored and arguments["human"]:
-            stdout.write(HUMAN_SUCCESS_MSG.format(
-                instance_name=instance_name
-            ))
 
     return errored
