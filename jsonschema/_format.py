@@ -354,7 +354,7 @@ else:
     def is_css21_color(instance):
         if (
             not isinstance(instance, str_types) or
-            instance.lower() in webcolors.css21_names_to_hex
+            instance.lower() in webcolors.CSS21_NAMES_TO_HEX
         ):
             return True
         return is_css_color_code(instance)
