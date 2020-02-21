@@ -342,10 +342,15 @@ def is_draft3_time(instance):
     return datetime.datetime.strptime(instance, "%H:%M:%S")
 
 
-try:
+try:  # webcolors>=1.11
+    from webcolors import CSS21_NAMES_TO_HEX
     import webcolors
 except ImportError:
-    pass
+    try:  # webcolors<1.11
+        from webcolors import css21_names_to_hex as CSS21_NAMES_TO_HEX
+        import webcolors
+    except ImportError:
+        pass
 else:
     def is_css_color_code(instance):
         return webcolors.normalize_hex(instance)
@@ -354,7 +359,7 @@ else:
     def is_css21_color(instance):
         if (
             not isinstance(instance, str_types) or
-            instance.lower() in webcolors.CSS21_NAMES_TO_HEX
+            instance.lower() in CSS21_NAMES_TO_HEX
         ):
             return True
         return is_css_color_code(instance)
