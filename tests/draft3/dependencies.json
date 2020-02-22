@@ -99,6 +99,11 @@
                 "valid": true
             },
             {
+                "description": "no dependency",
+                "data": {"foo": "quux"},
+                "valid": true
+            },
+            {
                 "description": "wrong type",
                 "data": {"foo": "quux", "bar": 2},
                 "valid": false

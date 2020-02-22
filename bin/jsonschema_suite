@@ -17,13 +17,9 @@ if getattr(unittest, "skipIf", None) is None:
     unittest.skipIf = lambda cond, msg : lambda fn : fn
 
 try:
-    import jsonschema
+    import jsonschema.validators
 except ImportError:
     jsonschema = None
-else:
-    validators = getattr(
-        jsonschema.validators, "validators", jsonschema.validators
-    )
 
 
 ROOT_DIR = os.path.abspath(
@@ -120,7 +116,7 @@ class SanityTests(unittest.TestCase):
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_all_schemas_are_valid(self):
         for schema in os.listdir(SUITE_ROOT_DIR):
-            schema_validator = validators.get(schema)
+            schema_validator = jsonschema.validators.validators.get(schema)
             if schema_validator is not None:
                 test_files = collect(os.path.join(SUITE_ROOT_DIR, schema))
                 for case in cases(test_files):
@@ -134,7 +130,8 @@ class SanityTests(unittest.TestCase):
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_suites_are_valid(self):
-        validator = jsonschema.Draft4Validator(TESTSUITE_SCHEMA)
+        Validator = jsonschema.validators.validator_for(TESTSUITE_SCHEMA)
+        validator = Validator(TESTSUITE_SCHEMA)
         for tests in files(self.test_files):
             try:
                 validator.validate(tests)
