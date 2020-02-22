@@ -1,0 +1,15 @@
+version: 2
+
+sphinx:
+  builder: dirhtml
+  configuration: docs/conf.py
+  fail_on_warning: true
+
+formats: all
+
+python:
+  version: 3
+  install:
+    - requirements: docs/requirements.txt
+    - method: pip
+      path: .
