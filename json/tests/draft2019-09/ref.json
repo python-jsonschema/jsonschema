@@ -141,7 +141,7 @@
         ]
     },
     {
-        "description": "ref overrides any sibling keywords",
+        "description": "ref applies alongside sibling keywords",
         "schema": {
             "$defs": {
                 "reffed": {
@@ -157,14 +157,14 @@
         },
         "tests": [
             {
-                "description": "ref valid",
+                "description": "ref valid, maxItems valid",
                 "data": { "foo": [] },
                 "valid": true
             },
             {
-                "description": "ref valid, maxItems ignored",
-                "data": { "foo": [ 1, 2, 3] },
-                "valid": true
+                "description": "ref valid, maxItems invalid",
+                "data": { "foo": [1, 2, 3] },
+                "valid": false
             },
             {
                 "description": "ref invalid",

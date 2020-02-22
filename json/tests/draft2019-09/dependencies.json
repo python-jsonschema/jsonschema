@@ -1,8 +1,8 @@
 [
     {
-        "description": "dependencies",
+        "description": "dependentRequired",
         "schema": {
-            "dependencies": {"bar": ["foo"]}
+            "dependentRequired": {"bar": ["foo"]}
         },
         "tests": [
             {
@@ -43,9 +43,9 @@
         ]
     },
     {
-        "description": "dependencies with empty array",
+        "description": "dependentRequired with empty array",
         "schema": {
-            "dependencies": {"bar": []}
+            "dependentRequired": {"bar": []}
         },
         "tests": [
             {
@@ -57,13 +57,18 @@
                 "description": "object with one property",
                 "data": {"bar": 2},
                 "valid": true
+            },
+            {
+                "description": "non-object is valid",
+                "data": 1,
+                "valid": true
             }
         ]
     },
     {
-        "description": "multiple dependencies",
+        "description": "multiple dependents required",
         "schema": {
-            "dependencies": {"quux": ["foo", "bar"]}
+            "dependentRequired": {"quux": ["foo", "bar"]}
         },
         "tests": [
             {
@@ -99,9 +104,9 @@
         ]
     },
     {
-        "description": "multiple dependencies subschema",
+        "description": "multiple dependentSchemas subschema",
         "schema": {
-            "dependencies": {
+            "dependentSchemas": {
                 "bar": {
                     "properties": {
                         "foo": {"type": "integer"},
@@ -139,9 +144,9 @@
         ]
     },
     {
-        "description": "dependencies with boolean subschemas",
+        "description": "dependentSchemas with boolean subschemas",
         "schema": {
-            "dependencies": {
+            "dependentSchemas": {
                 "foo": true,
                 "bar": false
             }
@@ -170,40 +175,17 @@
         ]
     },
     {
-        "description": "empty array of dependencies",
-        "schema": {
-            "dependencies": {
-                "foo": []
-            }
-        },
-        "tests": [
-            {
-                "description": "object with property is valid",
-                "data": { "foo": 1 },
-                "valid": true
-            },
-            {
-                "description": "empty object is valid",
-                "data": {},
-                "valid": true
-            },
-            {
-                "description": "non-object is valid",
-                "data": 1,
-                "valid": true
-            }
-        ]
-    },
-    {
         "description": "dependencies with escaped characters",
         "schema": {
-            "dependencies": {
+            "dependentRequired": {
                 "foo\nbar": ["foo\rbar"],
+                "foo\"bar": ["foo'bar"]
+            },
+            "dependentSchemas": {
                 "foo\tbar": {
                     "minProperties": 4
                 },
-                "foo'bar": {"required": ["foo\"bar"]},
-                "foo\"bar": ["foo'bar"]
+                "foo'bar": {"required": ["foo\"bar"]}
             }
         },
         "tests": [
