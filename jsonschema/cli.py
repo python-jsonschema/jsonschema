@@ -116,7 +116,7 @@ parser.add_argument(
     dest="instances",
     type=str,
     help=(
-        "a path to a JSON instance (i.e. filename.json) "
+        "A path to a JSON instance (i.e. filename.json) "
         "to validate (may be specified multiple times)"
     ),
 )
@@ -156,7 +156,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "schema",
-    help="the JSON Schema to validate with (i.e. schema.json)",
+    help="Path to the JSON Schema to validate with (i.e. schema.json)",
     type=str,
 )
 
@@ -173,34 +173,47 @@ def parse_args(args):
     arguments = vars(parser.parse_args(args=args or ["--help"]))
     if arguments["validator"] is None:
         arguments["validator"] = validator_for(arguments["schema"])
+    if arguments["instances"] is None:
+        arguments["instances"] = []
     return arguments
 
 
-def make_validator(schema_path, validator_class):
-    schema_obj = _load_json_file(schema_path)
-    validator = validator_class(schema=schema_obj)
-    validator.check_schema(schema_obj)
+def make_validator(schema_path, validator_class, output_writer):
+    try:
+        schema_obj = _load_json_file(schema_path)
+    except (json.JSONDecodeError, FileNotFoundError) as exc:
+        output_writer.write_parsing_error(schema_path, exc)
+        raise exc
+
+    try:
+        validator = validator_class(schema=schema_obj)
+        validator.check_schema(schema_obj)
+    except SchemaError as exc:
+        output_writer.write_valid_error(schema_path, exc)
+        raise exc
+
     return validator
 
 
-def validate_instance(instance, validator, output_writer):
-    # Load the instance
-    if isinstance(instance, str):
-        instance_name = instance
-        try:
-            instance_obj = _load_json_file(instance)
-        except json.JSONDecodeError as exc:
-            output_writer.write_parsing_error(instance_name, exc)
-            raise exc
-    elif isinstance(instance, dict):
-        instance_name = "stdin"
-        instance_obj = instance
-    else:
-        raise ValueError(
-            "Invalid type for instance: {}".format(type(instance))
-        )
+def load_stdin(stdin, output_writer):
+    try:
+        instance_obj = json.load(stdin)
+    except json.JSONDecodeError as exc:
+        output_writer.write_parsing_error("stdin", exc)
+        raise exc
+    return instance_obj
 
-    # Validate the instance
+
+def load_instance_file(instance_path, output_writer):
+    try:
+        instance_obj = _load_json_file(instance_path)
+    except (json.JSONDecodeError, FileNotFoundError) as exc:
+        output_writer.write_parsing_error(instance_path, exc)
+        raise exc
+    return instance_obj
+
+
+def validate_instance(instance_name, instance_obj, validator, output_writer):
     instance_errored = False
     for error in validator.iter_errors(instance_obj):
         instance_errored = True
@@ -225,18 +238,33 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     )
 
     try:
-        validator = make_validator(arguments["schema"], arguments["validator"])
-    except json.JSONDecodeError as exc:
-        output_writer.write_parsing_error(arguments["schema"], exc)
-        return False
-    except SchemaError as exc:
-        output_writer.write_valid_error(arguments["schema"], exc)
+        validator = make_validator(
+            arguments["schema"],
+            arguments["validator"],
+            output_writer,
+        )
+    except (FileNotFoundError, json.JSONDecodeError, SchemaError):
         return False
 
     errored = False
-    for instance in arguments["instances"] or [json.load(stdin)]:
+    for instance_path in arguments["instances"]:
         try:
-            validate_instance(instance, validator, output_writer)
+            validate_instance(
+                instance_path,
+                load_instance_file(instance_path, output_writer),
+                validator,
+                output_writer,
+            )
+        except (json.JSONDecodeError, FileNotFoundError, ValidationError):
+            errored = True
+    if stdin is sys.stdin and not sys.stdin.isatty():
+        try:
+            validate_instance(
+                "stdin",
+                load_stdin(stdin, output_writer),
+                validator,
+                output_writer,
+            )
         except (json.JSONDecodeError, ValidationError):
             errored = True
 
