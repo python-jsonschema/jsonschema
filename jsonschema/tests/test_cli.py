@@ -8,7 +8,6 @@ from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.compat import NativeIO
 from jsonschema.exceptions import SchemaError
 
-JSON_DIR_PATH = os.path.join(os.path.dirname(__file__), "json_files")
 
 def fake_validator(*errors):
     errors = list(reversed(errors))
@@ -70,15 +69,40 @@ class TestParser(TestCase):
 
 
 class TestCLI(TestCase):
+    instance_file_1 = "foo1.json"
+    instance_file_2 = "foo2.json"
+    schema_file = "schema.json"
+
+    def setUp(self):
+        cli.open = self.fake_open
+        self.addCleanup(delattr, cli, "open")
+
+    def fake_open(self, path):
+        if path == self.instance_file_1:
+            contents = "1"
+        elif path == self.instance_file_2:
+            contents = "25"
+        elif path == self.schema_file:
+            contents = """
+                {
+                    "anyOf": [
+                        {"minimum": 20},
+                        {"type": "string"},
+                        {"required": true}
+                    ]
+                }
+            """
+        else:  # pragma: no cover
+            self.fail("What is {!r}".format(path))
+        return NativeIO(contents)
+
     def test_draft3_schema_draft4_validator(self):
         stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": Draft4Validator,
-                "schema": os.path.join(JSON_DIR_PATH, "schema1.json"),
-                "instances": [
-                    os.path.join(JSON_DIR_PATH, "instance1.json"),
-                ],
+                "schema": "schema.json",
+                "instances": ["foo1.json"],
                 "error_format": "{error.message}",
                 "output": "plain",
             },
@@ -94,10 +118,8 @@ class TestCLI(TestCase):
         exit_code = cli.run(
             {
                 "validator": fake_validator(),
-                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
-                "instances": [
-                    os.path.join(JSON_DIR_PATH, "instance2.json"),
-                ],
+                "schema": "schema.json",
+                "instances": ["foo2.json"],
                 "error_format": "{error.message}",
                 "output": "plain",
             },
@@ -114,10 +136,8 @@ class TestCLI(TestCase):
         exit_code = cli.run(
             {
                 "validator": fake_validator([error]),
-                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
-                "instances": [
-                    os.path.join(JSON_DIR_PATH, "instance1.json"),
-                ],
+                "schema": "schema.json",
+                "instances": ["foo1.json"],
                 "error_format": "{error.instance} - {error.message}",
                 "output": "plain",
             },
@@ -138,11 +158,8 @@ class TestCLI(TestCase):
         exit_code = cli.run(
             {
                 "validator": fake_validator(first_errors, second_errors),
-                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
-                "instances": [
-                    os.path.join(JSON_DIR_PATH, "instance1.json"),
-                    os.path.join(JSON_DIR_PATH, "instance2.json"),
-                ],
+                "schema": "schema.json",
+                "instances": ["foo1.json", "foo2.json"],
                 "error_format": "{error.instance} - {error.message}",
                 "output": "plain",
             },
@@ -173,7 +190,7 @@ class TestCLI(TestCase):
         exit_code = cli.run(
             {
                 "validator": fake_validator(),
-                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
+                "schema": "schema.json",
                 "instances": [],
                 "error_format": "{error.message}",
                 "output": "plain",
