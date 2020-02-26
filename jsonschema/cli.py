@@ -118,7 +118,9 @@ parser.add_argument(
     type=str,
     help=(
         "A path to a JSON instance (i.e. filename.json) "
-        "to validate (may be specified multiple times)"
+        "to validate (may be specified multiple times). "
+        "If this option is not used, an instance can be given through stdin. "
+        "If none is given, only the schema is checked."
     ),
 )
 parser.add_argument(
@@ -248,17 +250,21 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         return False
 
     errored = False
-    for instance_path in arguments["instances"]:
-        try:
-            validate_instance(
-                instance_path,
-                load_instance_file(instance_path, output_writer),
-                validator,
-                output_writer,
-            )
-        except (json.JSONDecodeError, FileNotFoundError, ValidationError):
-            errored = True
-    if stdin is sys.stdin and not sys.stdin.isatty():
+    if arguments["instances"]:
+        for instance_path in arguments["instances"]:
+            try:
+                validate_instance(
+                    instance_path,
+                    load_instance_file(instance_path, output_writer),
+                    validator,
+                    output_writer,
+                )
+            except (json.JSONDecodeError, FileNotFoundError, ValidationError):
+                errored = True
+    elif (
+        stdin is sys.stdin and not sys.stdin.isatty()
+        or stdin is not sys.stdin and stdin is not None
+    ):
         try:
             validate_instance(
                 "stdin",
