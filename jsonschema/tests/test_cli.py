@@ -2,11 +2,13 @@ from unittest import TestCase
 import json
 import subprocess
 import sys
+import os
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.compat import NativeIO
 from jsonschema.exceptions import SchemaError
 
+JSON_DIR_PATH = os.path.join(os.path.dirname(__file__), "json_files")
 
 def fake_validator(*errors):
     errors = list(reversed(errors))
@@ -70,32 +72,34 @@ class TestParser(TestCase):
 class TestCLI(TestCase):
     def test_draft3_schema_draft4_validator(self):
         stdout, stderr = NativeIO(), NativeIO()
-        with self.assertRaises(SchemaError):
-            cli.run(
-                {
-                    "validator": Draft4Validator,
-                    "schema": {
-                        "anyOf": [
-                            {"minimum": 20},
-                            {"type": "string"},
-                            {"required": True},
-                        ],
-                    },
-                    "instances": [1],
-                    "error_format": "{error.message}",
-                },
-                stdout=stdout,
-                stderr=stderr,
-            )
+        exit_code = cli.run(
+            {
+                "validator": Draft4Validator,
+                "schema": os.path.join(JSON_DIR_PATH, "schema1.json"),
+                "instances": [
+                    os.path.join(JSON_DIR_PATH, "instance1.json"),
+                ],
+                "error_format": "{error.message}",
+                "output": "plain",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertTrue(stderr.getvalue())
+        self.assertEqual(exit_code, 0)
 
     def test_successful_validation(self):
         stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
             {
                 "validator": fake_validator(),
-                "schema": {},
-                "instances": [1],
+                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
+                "instances": [
+                    os.path.join(JSON_DIR_PATH, "instance2.json"),
+                ],
                 "error_format": "{error.message}",
+                "output": "plain",
             },
             stdout=stdout,
             stderr=stderr,
@@ -110,15 +114,18 @@ class TestCLI(TestCase):
         exit_code = cli.run(
             {
                 "validator": fake_validator([error]),
-                "schema": {},
-                "instances": [1],
+                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
+                "instances": [
+                    os.path.join(JSON_DIR_PATH, "instance1.json"),
+                ],
                 "error_format": "{error.instance} - {error.message}",
+                "output": "plain",
             },
             stdout=stdout,
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertEqual(stderr.getvalue(), "1 - I am an error!")
+        self.assertEqual(stderr.getvalue(), "1 - I am an error!\n")
         self.assertEqual(exit_code, 1)
 
     def test_unsuccessful_validation_multiple_instances(self):
@@ -131,15 +138,19 @@ class TestCLI(TestCase):
         exit_code = cli.run(
             {
                 "validator": fake_validator(first_errors, second_errors),
-                "schema": {},
-                "instances": [1, 2],
-                "error_format": "{error.instance} - {error.message}\t",
+                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
+                "instances": [
+                    os.path.join(JSON_DIR_PATH, "instance1.json"),
+                    os.path.join(JSON_DIR_PATH, "instance2.json"),
+                ],
+                "error_format": "{error.instance} - {error.message}",
+                "output": "plain",
             },
             stdout=stdout,
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
+        self.assertEqual(stderr.getvalue(), "1 - 9\n1 - 8\n2 - 7\n")
         self.assertEqual(exit_code, 1)
 
     def test_license(self):
@@ -162,9 +173,10 @@ class TestCLI(TestCase):
         exit_code = cli.run(
             {
                 "validator": fake_validator(),
-                "schema": {},
+                "schema": os.path.join(JSON_DIR_PATH, "schema2.json"),
                 "instances": [],
                 "error_format": "{error.message}",
+                "output": "plain",
             },
             stdout=stdout,
             stderr=stderr,

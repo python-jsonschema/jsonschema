@@ -1,0 +1,7 @@
+{
+	"anyOf": [
+		{"minimum": 20},
+		{"type": "string"},
+		{"required": true}
+	]
+}
