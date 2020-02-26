@@ -24,7 +24,6 @@ class CliOutputWriter():
         "Failed to parse {file_name}. "
         "Got the following error: {exception}\n"
     )
-    PLAIN_ERROR_MSG = "{error.instance}: {error.message}\n"
     PRETTY_ERROR_MSG = "===[ERROR]===({object_name})===\n{error}\n"
     PRETTY_SUCCESS_MSG = "===[SUCCESS]===({object_name})===\n"
 
@@ -37,6 +36,8 @@ class CliOutputWriter():
     ):
         self.output_format = output_format
         self.oneline_format = oneline_format
+        if not self.oneline_format.endswith("\n"):
+            self.oneline_format += "\n"
         self.stdout = stdout
         self.stderr = stderr
 
@@ -68,7 +69,7 @@ class CliOutputWriter():
                 error=error_obj,
             )
         elif self.output_format == "plain":
-            msg = self.PLAIN_ERROR_MSG.format(
+            msg = self.oneline_format.format(
                 object_name=object_name,
                 error=error_obj,
             )
