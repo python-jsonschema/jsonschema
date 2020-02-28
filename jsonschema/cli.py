@@ -184,7 +184,7 @@ def parse_args(args):
 def make_validator(schema_path, validator_class, output_writer):
     try:
         schema_obj = _load_json_file(schema_path)
-    except (json.JSONDecodeError, FileNotFoundError) as exc:
+    except (ValueError, FileNotFoundError) as exc:
         output_writer.write_parsing_error(schema_path, exc)
         raise exc
 
@@ -201,7 +201,7 @@ def make_validator(schema_path, validator_class, output_writer):
 def load_stdin(stdin, output_writer):
     try:
         instance_obj = json.load(stdin)
-    except json.JSONDecodeError as exc:
+    except ValueError as exc:
         output_writer.write_parsing_error("stdin", exc)
         raise exc
     return instance_obj
@@ -210,7 +210,7 @@ def load_stdin(stdin, output_writer):
 def load_instance_file(instance_path, output_writer):
     try:
         instance_obj = _load_json_file(instance_path)
-    except (json.JSONDecodeError, FileNotFoundError) as exc:
+    except (ValueError, FileNotFoundError) as exc:
         output_writer.write_parsing_error(instance_path, exc)
         raise exc
     return instance_obj
@@ -246,7 +246,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
             arguments["validator"],
             output_writer,
         )
-    except (FileNotFoundError, json.JSONDecodeError, SchemaError):
+    except (FileNotFoundError, ValueError, SchemaError):
         return False
 
     errored = False
@@ -259,7 +259,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                     validator,
                     output_writer,
                 )
-            except (json.JSONDecodeError, FileNotFoundError, ValidationError):
+            except (ValueError, FileNotFoundError, ValidationError):
                 errored = True
     elif (
         stdin is sys.stdin and not sys.stdin.isatty()
@@ -272,7 +272,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 validator,
                 output_writer,
             )
-        except (json.JSONDecodeError, ValidationError):
+        except (ValueError, ValidationError):
             errored = True
 
     return errored
