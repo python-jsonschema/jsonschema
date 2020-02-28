@@ -6,7 +6,6 @@ import os
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.compat import NativeIO
-from jsonschema.exceptions import SchemaError
 
 
 def fake_validator(*errors):
