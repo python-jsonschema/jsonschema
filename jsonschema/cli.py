@@ -184,7 +184,7 @@ def parse_args(args):
 def make_validator(schema_path, validator_class, output_writer):
     try:
         schema_obj = _load_json_file(schema_path)
-    except (ValueError, FileNotFoundError) as exc:
+    except (ValueError, IOError) as exc:
         output_writer.write_parsing_error(schema_path, exc)
         raise exc
 
@@ -210,7 +210,7 @@ def load_stdin(stdin, output_writer):
 def load_instance_file(instance_path, output_writer):
     try:
         instance_obj = _load_json_file(instance_path)
-    except (ValueError, FileNotFoundError) as exc:
+    except (ValueError, IOError) as exc:
         output_writer.write_parsing_error(instance_path, exc)
         raise exc
     return instance_obj
@@ -246,7 +246,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
             arguments["validator"],
             output_writer,
         )
-    except (FileNotFoundError, ValueError, SchemaError):
+    except (IOError, ValueError, SchemaError):
         return False
 
     errored = False
@@ -259,7 +259,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                     validator,
                     output_writer,
                 )
-            except (ValueError, FileNotFoundError, ValidationError):
+            except (ValueError, IOError, ValidationError):
                 errored = True
     elif (
         stdin is sys.stdin and not sys.stdin.isatty()
