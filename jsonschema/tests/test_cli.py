@@ -2,7 +2,6 @@ from unittest import TestCase
 import json
 import subprocess
 import sys
-import os
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.compat import NativeIO
