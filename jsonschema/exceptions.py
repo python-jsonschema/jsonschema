@@ -150,8 +150,19 @@ class SchemaError(_Error):
 
 
 class AsyncValidationBreakpoint(SchemaError):
-    def __init__(self, coroutine, value, message="async validation not supported", *args, **kwargs):
-        super(AsyncValidationBreakpoint, self).__init__(message, *args, **kwargs)
+    def __init__(
+        self,
+        coroutine,
+        value,
+        message="async validation not supported",
+        *args,
+        **kwargs
+    ):
+        super(AsyncValidationBreakpoint, self).__init__(
+            message,
+            *args,
+            **kwargs
+        )
         self.coroutine = coroutine
         self.value = value
         self.errors = []

@@ -5,10 +5,12 @@ from unittest import TestCase
 from jsonschema import exceptions, validators
 from jsonschema.compat import PY36
 
+
 async def async_validator(validator, value, instance, schema):
     await asyncio.sleep(0)
     if not value:
         yield exceptions.ValidationError(u"Async whoops!")
+
 
 @unittest.skipIf(not PY36, "Asynchronous validation is not supported before Python 3.6")
 class TestAsyncIterErrors(TestCase):
@@ -24,10 +26,12 @@ class TestAsyncIterErrors(TestCase):
         async def _test_async_iter_errors():
             instance = {}
             schema = {
-                u"async_valid": False
+                u"async_valid": False,
             }
             expected = [u"Async whoops!"]
-            got = [e.message async for e in self.validator.async_iter_errors(instance, schema)]
+            got = []
+            async for e in self.validator.async_iter_errors(instance, schema):
+                got.append(e.message)
             self.assertEqual(got, expected)
 
         asyncio.get_event_loop().run_until_complete(_test_async_iter_errors())
@@ -35,7 +39,7 @@ class TestAsyncIterErrors(TestCase):
     def test_not_supported_async_iter_errors(self):
         instance = {}
         schema = {
-            u"async_valid": False
+            u"async_valid": False,
         }
         expected = [u"async validation not supported"]
         got = [e.message for e in self.validator.iter_errors(instance, schema)]
@@ -46,12 +50,18 @@ class TestAsyncIterErrors(TestCase):
             instance = {}
             schema = {
                 u"anyOf": [
-                    { u"async_valid": True },
-                    { u"type": u"string" },
-                ]
+                    {
+                        u"async_valid": True,
+                    }, {
+                        u"type": u"string",
+                    },
+                ],
             }
-            errors = [e async for e in self.validator.async_iter_errors(instance, schema)]
+            errors = []
+            async for e in self.validator.async_iter_errors(instance, schema):
+                errors.append(e)
             self.assertEqual(len(errors), 0)
 
-        asyncio.get_event_loop().run_until_complete(_test_async_breakpoint_with_anyof())
-
+        asyncio.get_event_loop().run_until_complete(
+            _test_async_breakpoint_with_anyof()
+        )
