@@ -70,6 +70,10 @@ class TestCLI(TestCase):
     instance_file_1 = "foo1.json"
     instance_file_2 = "foo2.json"
     schema_file = "schema.json"
+    bad_json_file_1 = "bad1.json"
+    bad_json_file_2 = "bad2.json"
+    pretty_error_tag = "===[ERROR]==="
+    pretty_success_tag = "===[SUCCESS]==="
 
     def setUp(self):
         cli.open = self.fake_open
@@ -90,6 +94,10 @@ class TestCLI(TestCase):
                     ]
                 }
             """
+        elif path == self.bad_json_file_1:
+            contents = "{bad_key: val}"
+        elif path == self.bad_json_file_2:
+            contents = "{1 []}"
         else:  # pragma: no cover
             self.fail("What is {!r}".format(path))
         return NativeIO(contents)
@@ -200,3 +208,111 @@ class TestCLI(TestCase):
         self.assertFalse(stdout.getvalue())
         self.assertFalse(stderr.getvalue())
         self.assertEqual(exit_code, 0)
+
+    def test_schema_parsing_error(self):
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": fake_validator(),
+                "schema": "bad1.json",
+                "instances": ["foo1.json"],
+                "error_format": "{error.message}",
+                "output": "plain",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertTrue("Failed to parse bad1.json" in stderr.getvalue())
+        self.assertEqual(exit_code, 1)
+
+    def test_instance_parsing_error(self):
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": fake_validator(),
+                "schema": "schema.json",
+                "instances": ["bad1.json", "bad2.json"],
+                "error_format": "{error.message}",
+                "output": "plain",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        output_err = stderr.getvalue()
+        self.assertFalse(stdout.getvalue())
+        self.assertTrue(
+            "Failed to parse bad1.json" in output_err
+            and "Failed to parse bad2.json" in output_err
+        )
+        self.assertEqual(exit_code, 1)
+
+    def test_stdin_parsing_error(self):
+        stdout, stderr, stdin = NativeIO(), NativeIO(), NativeIO("{foo}")
+        exit_code = cli.run(
+            {
+                "validator": fake_validator(),
+                "schema": "schema.json",
+                "instances": [],
+                "error_format": "{error.message}",
+                "output": "plain",
+            },
+            stdout=stdout,
+            stderr=stderr,
+            stdin=stdin,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertTrue("Failed to parse stdin" in stderr.getvalue())
+        self.assertEqual(exit_code, 1)
+
+    def test_pretty_parsing_error(self):
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": fake_validator(),
+                "schema": "bad1.json",
+                "instances": ["foo1.json"],
+                "error_format": "",
+                "output": "pretty",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertTrue(self.pretty_error_tag in stderr.getvalue())
+        self.assertEqual(exit_code, 1)
+
+    def test_pretty_successful_validation(self):
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": fake_validator(),
+                "schema": "schema.json",
+                "instances": ["foo2.json"],
+                "error_format": "",
+                "output": "pretty",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertTrue(self.pretty_success_tag in stdout.getvalue())
+        self.assertFalse(stderr.getvalue())
+        self.assertEqual(exit_code, 0)
+
+    def test_pretty_unsuccessful_validation(self):
+        error = ValidationError("I am an error!", instance=1)
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": fake_validator([error]),
+                "schema": "schema.json",
+                "instances": ["foo1.json"],
+                "error_format": "",
+                "output": "pretty",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertTrue(self.pretty_error_tag in stderr.getvalue())
+        self.assertEqual(exit_code, 1)
