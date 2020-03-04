@@ -109,7 +109,7 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout.getvalue())
         self.assertTrue(stderr.getvalue())
-        self.assertEqual(exit_code, 0)
+        self.assertEqual(exit_code, 1)
 
     def test_successful_validation(self):
         stdout, stderr = NativeIO(), NativeIO()
