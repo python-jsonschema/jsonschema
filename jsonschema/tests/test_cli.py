@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
+from jsonschema.validators import _LATEST_VERSION as LatestValidator
 from jsonschema.compat import NativeIO
 
 
@@ -64,6 +65,26 @@ class TestParser(TestCase):
             ]
         )
         self.assertIs(arguments["validator"], Draft4Validator)
+
+    def test_none_validator(self):
+        arguments = cli.parse_args(
+            [
+                "--instance", self.instance_file,
+                self.schema_file,
+            ]
+        )
+        self.assertIs(arguments["validator"], LatestValidator)
+
+    def test_none_instance(self):
+        arguments = cli.parse_args(
+            [
+                self.schema_file
+            ]
+        )
+        self.assertTrue(
+            isinstance(arguments["instances"], list)
+            and not arguments["instances"]
+        )
 
 
 class TestCLI(TestCase):
