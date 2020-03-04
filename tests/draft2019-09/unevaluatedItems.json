@@ -1,0 +1,87 @@
+[
+    {
+        "description": "anyOf with false unevaluatedItems",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedItems": false,
+            "anyOf": [
+                {"items": {"type": "string"}},
+                {"items": [true, true]}
+            ]
+        },
+        "tests": [
+            {
+                "description": "all strings is valid",
+                "data": ["foo", "bar", "baz"],
+                "valid": true
+            },
+            {
+                "description": "one item is valid",
+                "data": [1],
+                "valid": true
+            },
+            {
+                "description": "two items are valid",
+                "data": [1, "two"],
+                "valid": true
+            },
+            {
+                "description": "three items are invalid",
+                "data": [1, "two", "three"],
+                "valid": false
+            },
+            {
+                "description": "four strings are valid",
+                "data": ["one", "two", "three", "four"],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "complex unevaluated schema",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedItems": {
+                "allOf": [{"minLength": 3}, {"type": "string"}]
+            },
+            "if": {"items": [{"type": "integer"}, {"type":  "array"}]}
+        },
+        "tests": [
+            {
+                "description": "empty array",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "if passes with one item",
+                "data": [1],
+                "valid": true
+            },
+            {
+                "description": "if passes with two items",
+                "data": [1, [2, 3]],
+                "valid": true
+            },
+            {
+                "description": "if passes with third valid unevaluated item",
+                "data": [1, [2, 3], "long-string"],
+                "valid": true
+            },
+            {
+                "description": "if passes with third invalid unevaluated item",
+                "data": [1, [2, 3], "zz"],
+                "valid": false
+            },
+            {
+                "description": "if fails with all valid unevaluated items",
+                "data": ["all", "long", "strings"],
+                "valid": true
+            },
+            {
+                "description": "if and unevaluated items fail",
+                "data": ["a", "b", "c"],
+                "valid": false
+            }
+        ]
+    }
+]

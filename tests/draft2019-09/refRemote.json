@@ -17,7 +17,7 @@
     },
     {
         "description": "fragment within remote ref",
-        "schema": {"$ref": "http://localhost:1234/subSchemas.json#/integer"},
+        "schema": {"$ref": "http://localhost:1234/subSchemas-defs.json#/$defs/integer"},
         "tests": [
             {
                 "description": "remote fragment valid",
@@ -34,7 +34,7 @@
     {
         "description": "ref within remote ref",
         "schema": {
-            "$ref": "http://localhost:1234/subSchemas.json#/refToInteger"
+            "$ref": "http://localhost:1234/subSchemas-defs.json#/$defs/refToInteger"
         },
         "tests": [
             {
@@ -76,7 +76,7 @@
         "schema": {
             "$id": "http://localhost:1234/scope_change_defs1.json",
             "type" : "object",
-            "properties": {"list": {"$ref": "#/$defs/baz"}},
+            "properties": {"list": {"$ref": "folder/"}},
             "$defs": {
                 "baz": {
                     "$id": "folder/",
@@ -103,7 +103,7 @@
         "schema": {
             "$id": "http://localhost:1234/scope_change_defs2.json",
             "type" : "object",
-            "properties": {"list": {"$ref": "#/$defs/baz/$defs/bar"}},
+            "properties": {"list": {"$ref": "folder/#/$defs/bar"}},
             "$defs": {
                 "baz": {
                     "$id": "folder/",
