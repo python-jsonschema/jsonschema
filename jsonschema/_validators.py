@@ -9,8 +9,11 @@ from jsonschema._utils import (
     unbool,
     uniq,
 )
-from jsonschema.exceptions import FormatError, ValidationError
-from jsonschema.exceptions import FormatError, ValidationError, AsyncValidationBreakpoint
+from jsonschema.exceptions import (
+    FormatError,
+    ValidationError,
+    AsyncValidationBreakpoint,
+)
 from jsonschema.compat import iteritems
 
 
