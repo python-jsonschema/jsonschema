@@ -55,7 +55,7 @@ class CliOutputWriter():
                 file_name=file_name,
                 exception=exception,
             )
-        else: # pragma: no cover
+        else:  # pragma: no cover
             raise ValueError(
                 "Output mode '{}' is unknown by this function"
                 .format(self.output_format)
@@ -73,7 +73,7 @@ class CliOutputWriter():
                 object_name=object_name,
                 error=error_obj,
             )
-        else: # pragma: no cover
+        else:  # pragma: no cover
             raise ValueError(
                 "Output mode '{}' is unknown by this function"
                 .format(self.output_format)
@@ -88,7 +88,7 @@ class CliOutputWriter():
         elif self.output_format == "plain":
             # Nothing to print in plain mode, only errors are wanted.
             msg = ""
-        else: # pragma: no cover
+        else:  # pragma: no cover
             raise ValueError(
                 "Output mode '{}' is unknown by this function"
                 .format(self.output_format)

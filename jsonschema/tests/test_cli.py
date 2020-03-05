@@ -78,7 +78,7 @@ class TestParser(TestCase):
     def test_none_instance(self):
         arguments = cli.parse_args(
             [
-                self.schema_file
+                self.schema_file,
             ]
         )
         self.assertTrue(
