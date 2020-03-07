@@ -187,14 +187,14 @@ class TestCLI(TestCase):
                 "validator": fake_validator(first_errors, second_errors),
                 "schema": "schema.json",
                 "instances": ["foo1.json", "foo2.json"],
-                "error_format": "{error.instance} - {error.message}",
+                "error_format": "{error.instance} - {error.message}\t",
                 "output": "plain",
             },
             stdout=stdout,
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertEqual(stderr.getvalue(), "1 - 9\n1 - 8\n2 - 7\n")
+        self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
         self.assertEqual(exit_code, 1)
 
     def test_license(self):
