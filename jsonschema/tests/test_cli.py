@@ -81,10 +81,7 @@ class TestParser(TestCase):
                 self.schema_file,
             ]
         )
-        self.assertTrue(
-            isinstance(arguments["instances"], list)
-            and not arguments["instances"]
-        )
+        self.assertEqual(arguments["instances"], [])
 
 
 class TestCLI(TestCase):
