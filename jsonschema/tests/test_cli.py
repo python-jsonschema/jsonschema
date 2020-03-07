@@ -172,7 +172,7 @@ class TestCLI(TestCase):
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertEqual(stderr.getvalue(), "1 - I am an error!\n")
+        self.assertEqual(stderr.getvalue(), "1 - I am an error!")
         self.assertEqual(exit_code, 1)
 
     def test_unsuccessful_validation_multiple_instances(self):
