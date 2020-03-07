@@ -2,9 +2,6 @@
 The ``jsonschema`` command line.
 """
 
-# ------------------------------------------------------------------------------
-# IMPORTS
-# ------------------------------------------------------------------------------
 from __future__ import absolute_import
 import argparse
 import json
@@ -16,9 +13,6 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import SchemaError, ValidationError
 
 
-# ------------------------------------------------------------------------------
-# CLASSES
-# ------------------------------------------------------------------------------
 class CliOutputWriter():
     PARSING_ERROR_MSG = (
         "Failed to parse {file_name}. "
@@ -96,18 +90,12 @@ class CliOutputWriter():
         self.stdout.write(msg)
 
 
-# ------------------------------------------------------------------------------
-# FUNCTIONS USED BY ARGPARSE
-# ------------------------------------------------------------------------------
 def _namedAnyWithDefault(name):
     if "." not in name:
         name = "jsonschema." + name
     return namedAny(name)
 
 
-# ------------------------------------------------------------------------------
-# ARGUMENT PARSING
-# ------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(
     description="JSON Schema Validation CLI",
 )
@@ -164,9 +152,6 @@ parser.add_argument(
 )
 
 
-# ------------------------------------------------------------------------------
-# FUNCTIONS USED BY THE CLI
-# ------------------------------------------------------------------------------
 def _load_json_file(path):
     with open(path) as file:
         return json.load(file)
