@@ -3,7 +3,7 @@ The ``jsonschema`` command line.
 """
 
 from __future__ import absolute_import
-from abc import ABC
+from abc import ABCMeta
 import argparse
 import json
 import sys
@@ -14,7 +14,9 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import SchemaError, ValidationError
 
 
-class _CliOutputWriter(ABC):
+class _CliOutputWriter():
+
+    __metaclass__ = ABCMeta
 
     PARSING_ERROR_MSG = (
         "Failed to parse {file_name}. "
@@ -83,7 +85,7 @@ class _PlainOutputWriter(_CliOutputWriter):
         stderr=sys.stderr,
     ):
         self.plain_format = plain_format
-        super().__init__(stdout, stderr)
+        super(_PlainOutputWriter, self).__init__(stdout, stderr)
 
     def write_parsing_error(self, file_name, exception):
         self.stderr.write(
