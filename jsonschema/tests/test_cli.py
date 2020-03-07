@@ -244,7 +244,7 @@ class TestCLI(TestCase):
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertTrue("Failed to parse bad1.json" in stderr.getvalue())
+        self.assertIn("Failed to parse bad1.json", stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_instance_parsing_error(self):
