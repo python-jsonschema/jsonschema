@@ -108,7 +108,7 @@ parser.add_argument(
         "A path to a JSON instance (i.e. filename.json) "
         "to validate (may be specified multiple times). "
         "If this option is not used, an instance can be given through stdin. "
-        "If none is given, only the schema is checked."
+        "If neither -i nor stdin is given, only the schema is checked."
     ),
 )
 parser.add_argument(
