@@ -56,7 +56,7 @@ class CliOutputWriter():
             )
         self.stderr.write(msg)
 
-    def write_valid_error(self, object_name, error_obj):
+    def write_validation_error(self, object_name, error_obj):
         if self.output_format == "pretty":
             msg = self.PRETTY_ERROR_MSG.format(
                 object_name=object_name,
@@ -74,7 +74,7 @@ class CliOutputWriter():
             )
         self.stderr.write(msg)
 
-    def write_valid_success(self, object_name):
+    def write_validation_success(self, object_name):
         if self.output_format == "pretty":
             msg = self.PRETTY_SUCCESS_MSG.format(
                 object_name=object_name
@@ -177,7 +177,7 @@ def make_validator(schema_path, validator_class, output_writer):
         validator = validator_class(schema=schema_obj)
         validator.check_schema(schema_obj)
     except SchemaError as exc:
-        output_writer.write_valid_error(schema_path, exc)
+        output_writer.write_validation_error(schema_path, exc)
         raise exc
 
     return validator
@@ -205,10 +205,10 @@ def validate_instance(instance_name, instance_obj, validator, output_writer):
     instance_errored = False
     for error in validator.iter_errors(instance_obj):
         instance_errored = True
-        output_writer.write_valid_error(instance_name, error)
+        output_writer.write_validation_error(instance_name, error)
 
     if not instance_errored:
-        output_writer.write_valid_success(instance_name)
+        output_writer.write_validation_success(instance_name)
     else:
         raise ValidationError("Some errors appeared in this instance.")
 
