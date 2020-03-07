@@ -24,14 +24,12 @@ class CliOutputWriter():
     def __init__(
         self,
         output_format,
-        oneline_format,
+        plain_format,
         stdout=sys.stdout,
         stderr=sys.stderr,
     ):
         self.output_format = output_format
-        self.oneline_format = oneline_format
-        if not self.oneline_format.endswith("\n"):
-            self.oneline_format += "\n"
+        self.plain_format = plain_format
         self.stdout = stdout
         self.stderr = stderr
 
@@ -63,7 +61,7 @@ class CliOutputWriter():
                 error=error_obj,
             )
         elif self.output_format == "plain":
-            msg = self.oneline_format.format(
+            msg = self.plain_format.format(
                 object_name=object_name,
                 error=error_obj,
             )
