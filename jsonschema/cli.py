@@ -185,7 +185,7 @@ def parse_args(args):
     return arguments
 
 
-def make_validator(schema_path, validator_class, output_writer):
+def _make_validator(schema_path, validator_class, output_writer):
     try:
         schema_obj = _load_json_file(schema_path)
     except (ValueError, IOError) as exc:
@@ -202,7 +202,7 @@ def make_validator(schema_path, validator_class, output_writer):
     return validator
 
 
-def load_stdin(stdin, output_writer):
+def _load_stdin(stdin, output_writer):
     try:
         instance_obj = json.load(stdin)
     except ValueError as exc:
@@ -211,7 +211,7 @@ def load_stdin(stdin, output_writer):
     return instance_obj
 
 
-def load_instance_file(instance_path, output_writer):
+def _load_instance_file(instance_path, output_writer):
     try:
         instance_obj = _load_json_file(instance_path)
     except (ValueError, IOError) as exc:
@@ -220,7 +220,7 @@ def load_instance_file(instance_path, output_writer):
     return instance_obj
 
 
-def validate_instance(instance_name, instance_obj, validator, output_writer):
+def _validate_instance(instance_name, instance_obj, validator, output_writer):
     instance_errored = False
     for error in validator.iter_errors(instance_obj):
         instance_errored = True
@@ -250,7 +250,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         )
 
     try:
-        validator = make_validator(
+        validator = _make_validator(
             arguments["schema"],
             arguments["validator"],
             output_writer,
@@ -262,9 +262,9 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     if arguments["instances"]:
         for instance_path in arguments["instances"]:
             try:
-                validate_instance(
+                _validate_instance(
                     instance_path,
-                    load_instance_file(instance_path, output_writer),
+                    _load_instance_file(instance_path, output_writer),
                     validator,
                     output_writer,
                 )
@@ -275,9 +275,9 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         or stdin is not sys.stdin and stdin is not None
     ):
         try:
-            validate_instance(
+            _validate_instance(
                 "stdin",
-                load_stdin(stdin, output_writer),
+                _load_stdin(stdin, output_writer),
                 validator,
                 output_writer,
             )
