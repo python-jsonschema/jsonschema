@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 import json
 import subprocess
 import sys
@@ -82,6 +83,18 @@ class TestParser(TestCase):
             ]
         )
         self.assertEqual(arguments["instances"], [])
+
+    def test_unknown_output(self):
+        # Avoid the help message on stdout
+        argparse_mock = MagicMock()
+        with patch('argparse.ArgumentParser._print_message', argparse_mock):
+            with self.assertRaises(SystemExit):
+                arguments = cli.parse_args(
+                    [
+                        "--output", "foo",
+                        self.schema_file
+                    ]
+                )
 
 
 class TestCLI(TestCase):
