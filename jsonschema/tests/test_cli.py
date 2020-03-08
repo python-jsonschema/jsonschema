@@ -114,6 +114,7 @@ class TestCLI(TestCase):
     instance_file_1 = "foo1.json"
     instance_file_2 = "foo2.json"
     schema_file = "schema.json"
+    schema_error_file = "schema_error.json"
     bad_json_file_1 = "bad1.json"
     bad_json_file_2 = "bad2.json"
     pretty_error_tag = "===[ERROR]==="
@@ -136,6 +137,12 @@ class TestCLI(TestCase):
                         {"type": "string"},
                         {"required": true}
                     ]
+                }
+            """
+        elif path == self.schema_error_file:
+            contents = """
+                {
+                    "title": 1
                 }
             """
         elif path == self.bad_json_file_1:
@@ -359,4 +366,21 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout.getvalue())
         self.assertTrue(self.pretty_error_tag in stderr.getvalue())
+        self.assertEqual(exit_code, 1)
+
+    def test_schema_validation(self):
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": LatestValidator,
+                "schema": "schema_error.json",
+                "instances": [],
+                "error_format": "{error.message}",
+                "output": "plain",
+            },
+            stdout=stdout,
+            stderr=stderr
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertTrue(stderr.getvalue())
         self.assertEqual(exit_code, 1)
