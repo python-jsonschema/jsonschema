@@ -127,7 +127,6 @@ parser.add_argument(
 )
 parser.add_argument(
     "-F", "--error-format",
-    default="{error.instance}: {error.message}\n",
     help=(
         "The format to use for each error output message, specified in "
         "a form suitable for passing to str.format, which will be called "
@@ -177,6 +176,12 @@ def parse_args(args):
         arguments["validator"] = validator_for(arguments["schema"])
     if arguments["instances"] is None:
         arguments["instances"] = []
+    if arguments["output"] != "plain" and arguments["error_format"]:
+        raise parser.error(
+            "--error-format can only be used with --output plain"
+        )
+    elif arguments["output"] == "plain" and arguments["error_format"] is None:
+        arguments["error_format"] = "{error.instance}: {error.message}\n",
     return arguments
 
 

@@ -96,6 +96,19 @@ class TestParser(TestCase):
                     ]
                 )
 
+    def test_useless_error_format(self):
+        # Avoid the help message on stdout
+        argparse_mock = MagicMock()
+        with patch('argparse.ArgumentParser._print_message', argparse_mock):
+            with self.assertRaises(SystemExit):
+                arguments = cli.parse_args(
+                    [
+                        "--output", "pretty",
+                        "--error-format", "foo",
+                        self.schema_file
+                    ]
+                )
+
 
 class TestCLI(TestCase):
     instance_file_1 = "foo1.json"
