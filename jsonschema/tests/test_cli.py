@@ -297,10 +297,8 @@ class TestCLI(TestCase):
         )
         output_err = stderr.getvalue()
         self.assertFalse(stdout.getvalue())
-        self.assertTrue(
-            "Failed to parse bad1.json" in output_err
-            and "Failed to parse bad2.json" in output_err
-        )
+        self.assertIn("Failed to parse bad1.json", output_err)
+        self.assertIn("Failed to parse bad2.json", output_err)
         self.assertEqual(exit_code, 1)
 
     def test_stdin_parsing_error(self):
@@ -318,7 +316,7 @@ class TestCLI(TestCase):
             stdin=stdin,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertTrue("Failed to parse stdin" in stderr.getvalue())
+        self.assertIn("Failed to parse stdin", stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_pretty_parsing_error(self):
@@ -335,7 +333,7 @@ class TestCLI(TestCase):
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertTrue(self.pretty_error_tag in stderr.getvalue())
+        self.assertIn(self.pretty_error_tag, stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_pretty_successful_validation(self):
@@ -351,7 +349,7 @@ class TestCLI(TestCase):
             stdout=stdout,
             stderr=stderr,
         )
-        self.assertTrue(self.pretty_success_tag in stdout.getvalue())
+        self.assertIn(self.pretty_success_tag, stdout.getvalue())
         self.assertFalse(stderr.getvalue())
         self.assertEqual(exit_code, 0)
 
@@ -370,7 +368,7 @@ class TestCLI(TestCase):
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertTrue(self.pretty_error_tag in stderr.getvalue())
+        self.assertIn(self.pretty_error_tag, stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_schema_validation(self):
