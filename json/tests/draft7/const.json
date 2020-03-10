@@ -126,7 +126,7 @@
         ]
     },
     {
-        "description": "const with 0 does not match false",
+        "description": "const with 0 does not match other zero-like types",
         "schema": {"const": 0},
         "tests": [
             {
@@ -143,6 +143,21 @@
                 "description": "float zero is valid",
                 "data": 0.0,
                 "valid": true
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "empty string is invalid",
+                "data": "",
+                "valid": false
             }
         ]
     },
@@ -164,6 +179,63 @@
                 "description": "float one is valid",
                 "data": 1.0,
                 "valid": true
+            }
+        ]
+    },
+    {
+        "description": "const with -2.0 matches integer and float types",
+        "schema": {"const": -2.0},
+        "tests": [
+            {
+                "description": "integer -2 is valid",
+                "data": -2,
+                "valid": true
+            },
+            {
+                "description": "integer 2 is invalid",
+                "data": 2,
+                "valid": false
+            },
+            {
+                "description": "float -2.0 is valid",
+                "data": -2.0,
+                "valid": true
+            },
+            {
+                "description": "float 2.0 is invalid",
+                "data": 2.0,
+                "valid": false
+            },
+            {
+                "description": "float -2.00001 is invalid",
+                "data": -2.00001,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "float and integers are equal up to 64-bit representation limits",
+        "schema": {"const": 9007199254740992},
+        "tests": [
+            {
+                "description": "integer is valid",
+                "data": 9007199254740992,
+                "valid": true
+            },
+            {
+                "description": "integer minus one is invalid",
+                "data": 9007199254740991,
+                "valid": false
+            },
+            {
+                "description": "float is valid",
+                "data": 9007199254740992.0,
+                "valid": true
+            },
+            {
+                "description": "float minus one is invalid",
+                "data": 9007199254740991.0,
+                "valid": false
             }
         ]
     }

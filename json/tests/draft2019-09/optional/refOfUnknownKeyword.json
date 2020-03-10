@@ -1,0 +1,44 @@
+[
+    {
+        "description": "reference of a root arbitrary keyword ",
+        "schema": {
+            "unknown-keyword": {"type": "integer"},
+            "properties": {
+                "bar": {"$ref": "#/unknown-keyword"}
+            }
+        },
+        "tests": [
+            {
+                "description": "match",
+                "data": {"bar": 3},
+                "valid": true
+            },
+            {
+                "description": "mismatch",
+                "data": {"bar": true},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "reference of an arbitrary keyword of a sub-schema",
+        "schema": {
+            "properties": {
+                "foo": {"unknown-keyword": {"type": "integer"}},
+                "bar": {"$ref": "#/properties/foo/unknown-keyword"}
+            }
+        },
+        "tests": [
+            {
+                "description": "match",
+                "data": {"bar": 3},
+                "valid": true
+            },
+            {
+                "description": "mismatch",
+                "data": {"bar": true},
+                "valid": false
+            }
+        ]
+    }
+]

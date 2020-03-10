@@ -26,6 +26,32 @@
         ]
     },
     {
+        "description": "maximum validation with unsigned integer",
+        "schema": {"maximum": 300},
+        "tests":  [
+            {
+                "description": "below the maximum is invalid",
+                "data": 299.97,
+                "valid": true
+            },
+            {
+                "description": "boundary point integer is valid",
+                "data": 300,
+                "valid": true
+            },
+            {
+                "description": "boundary point float is valid",
+                "data": 300.00,
+                "valid": true
+            },
+            {
+                "description": "above the maximum is invalid",
+                "data": 300.5,
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "maximum validation (explicit false exclusivity)",
         "schema": {"maximum": 3.0, "exclusiveMaximum": false},
         "tests": [

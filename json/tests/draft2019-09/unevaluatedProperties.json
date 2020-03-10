@@ -1,21 +1,21 @@
 [
     {
-        "description": "can peer inside allOf, results in no-op",
+        "description": "allOf with false unevaluatedProperties",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
             "unevaluatedProperties": false,
             "allOf": [
-              {
-                "properties": {
-                  "foo": { "type": ["string", "null"] },
-                  "bar": { "type": ["string", "null"] }
+                {
+                    "properties": {
+                        "foo": { "type": ["string", "null"] },
+                        "bar": { "type": ["string", "null"] }
+                    }
+                },
+                {
+                    "additionalProperties": {
+                        "not": { "enum": [ null ] }
+                    }
                 }
-              },
-              {
-                "additionalProperties": {
-                  "not": { "enum": [ null ] }
-                }
-              }
             ]
         },
         "tests": [
@@ -27,6 +27,64 @@
             {
                 "description": "null prop is invalid",
                 "data": { "bar": "foo", "bob": null },
+                "valid": false
+            },
+            {
+              "description": "named property with wrong type is invalid",
+              "data": { "bar": "foo", "bob": "who?" },
+              "valid": true
+            }
+        ]
+    },
+    {
+        "description": "complex unevaluated schema",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedProperties": {
+                "allOf": [{"minLength": 3}, {"type":  "string"}]
+            },
+            "if": {
+                "properties":  {
+                    "foo": {"type": "integer"},
+                    "arr": {"type": "array"}
+                },
+                "required": ["foo"]
+            }
+        },
+        "tests": [
+            {
+                "description": "empty object",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "if passes",
+                "data": {"foo": 3, "arr": [1,2]},
+                "valid": true
+            },
+            {
+                "description": "if passes with valid uneval",
+                "data": {"foo": 3, "arr": [1,2], "uneval": "long-string"},
+                "valid": true
+            },
+            {
+                "description": "if passes with invalid short uneval",
+                "data": {"foo": 3, "arr": [1,2], "uneval": "zz"},
+                "valid": false
+            },
+            {
+                "description": "if fails, and uneval fails because of array",
+                "data": {"foo": "not-an-int", "arr": [1,2], "uneval": "long-string"},
+                "valid": false
+            },
+            {
+                "description": "if fails with valid uneval",
+                "data": {"foo": "not-an-int", "uneval": "long-string"},
+                "valid": true
+            },
+            {
+                "description": "if fails with invalid uneval",
+                "data": {"foo": "zz", "uneval": "long-string"},
                 "valid": false
             }
         ]

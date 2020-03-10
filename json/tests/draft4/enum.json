@@ -53,6 +53,16 @@
                 "valid": true
             },
             {
+                "description": "wrong foo value",
+                "data": {"foo":"foot", "bar":"bar"},
+                "valid": false
+            },
+            {
+                "description": "wrong bar value",
+                "data": {"foo":"foo", "bar":"bart"},
+                "valid": false
+            },
+            {
                 "description": "missing optional property is valid",
                 "data": {"bar":"bar"},
                 "valid": true

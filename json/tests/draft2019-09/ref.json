@@ -75,13 +75,15 @@
     {
         "description": "escaped pointer ref",
         "schema": {
-            "tilda~field": {"type": "integer"},
-            "slash/field": {"type": "integer"},
-            "percent%field": {"type": "integer"},
+            "$defs": {
+                "tilda~field": {"type": "integer"},
+                "slash/field": {"type": "integer"},
+                "percent%field": {"type": "integer"}
+            },
             "properties": {
-                "tilda": {"$ref": "#/tilda~0field"},
-                "slash": {"$ref": "#/slash~1field"},
-                "percent": {"$ref": "#/percent%25field"}
+                "tilda": {"$ref": "#/$defs/tilda~0field"},
+                "slash": {"$ref": "#/$defs/slash~1field"},
+                "percent": {"$ref": "#/$defs/percent%25field"}
             }
         },
         "tests": [
@@ -141,7 +143,7 @@
         ]
     },
     {
-        "description": "ref overrides any sibling keywords",
+        "description": "ref applies alongside sibling keywords",
         "schema": {
             "$defs": {
                 "reffed": {
@@ -157,14 +159,14 @@
         },
         "tests": [
             {
-                "description": "ref valid",
+                "description": "ref valid, maxItems valid",
                 "data": { "foo": [] },
                 "valid": true
             },
             {
-                "description": "ref valid, maxItems ignored",
-                "data": { "foo": [ 1, 2, 3] },
-                "valid": true
+                "description": "ref valid, maxItems invalid",
+                "data": { "foo": [1, 2, 3] },
+                "valid": false
             },
             {
                 "description": "ref invalid",
