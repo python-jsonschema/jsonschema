@@ -7,6 +7,8 @@ import argparse
 import json
 import sys
 
+import attr
+
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.exceptions import SchemaError, ValidationError
@@ -18,20 +20,17 @@ _PARSING_ERROR_MSG = (
 )
 
 
+@attr.s
 class _PrettyOutputWriter(object):
+
     PRETTY_ERROR_MSG = "===[ERROR]===({object_name})===\n{error}\n"
     PRETTY_SUCCESS_MSG = "===[SUCCESS]===({object_name})===\n"
 
-    def __init__(
-        self,
-        stdout=sys.stdout,
-        stderr=sys.stderr,
-    ):
-        self.stdout = stdout
-        self.stderr = stderr
+    _stdout = attr.ib(default=sys.stdout)
+    _stderr = attr.ib(default=sys.stderr)
 
     def write_parsing_error(self, file_name, exception):
-        self.stderr.write(
+        self._stderr.write(
             self.PRETTY_ERROR_MSG.format(
                 object_name=file_name,
                 error=_PARSING_ERROR_MSG.format(
@@ -42,7 +41,7 @@ class _PrettyOutputWriter(object):
         )
 
     def write_validation_error(self, object_name, error_obj):
-        self.stderr.write(
+        self._stderr.write(
             self.PRETTY_ERROR_MSG.format(
                 object_name=object_name,
                 error=error_obj,
@@ -50,26 +49,22 @@ class _PrettyOutputWriter(object):
         )
 
     def write_validation_success(self, object_name):
-        self.stdout.write(
+        self._stdout.write(
             self.PRETTY_SUCCESS_MSG.format(
                 object_name=object_name
             )
         )
 
 
+@attr.s
 class _PlainOutputWriter(object):
-    def __init__(
-        self,
-        plain_format,
-        stdout=sys.stdout,
-        stderr=sys.stderr,
-    ):
-        self.plain_format = plain_format
-        self.stdout = stdout
-        self.stderr = stderr
+
+    _error_format = attr.ib()
+    _stdout = attr.ib(default=sys.stdout)
+    _stderr = attr.ib(default=sys.stderr)
 
     def write_parsing_error(self, file_name, exception):
-        self.stderr.write(
+        self._stderr.write(
             _PARSING_ERROR_MSG.format(
                 file_name=file_name,
                 exception=exception,
@@ -77,8 +72,8 @@ class _PlainOutputWriter(object):
         )
 
     def write_validation_error(self, object_name, error_obj):
-        self.stderr.write(
-            self.plain_format.format(
+        self._stderr.write(
+            self._error_format.format(
                 object_name=object_name,
                 error=error_obj,
             )
