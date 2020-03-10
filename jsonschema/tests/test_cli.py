@@ -88,10 +88,10 @@ class TestParser(TestCase):
         # Avoid the help message on stdout
         with captured_output() as (stdout, stderr):
             with self.assertRaises(SystemExit):
-                arguments = cli.parse_args(
+                cli.parse_args(
                     [
                         "--output", "foo",
-                        self.schema_file
+                        self.schema_file,
                     ]
                 )
 
@@ -99,11 +99,11 @@ class TestParser(TestCase):
         # Avoid the help message on stdout
         with captured_output() as (stdout, stderr):
             with self.assertRaises(SystemExit):
-                arguments = cli.parse_args(
+                cli.parse_args(
                     [
                         "--output", "pretty",
                         "--error-format", "foo",
-                        self.schema_file
+                        self.schema_file,
                     ]
                 )
 
