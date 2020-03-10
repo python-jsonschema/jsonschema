@@ -1,11 +1,11 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
 import json
 import subprocess
 import sys
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.validators import _LATEST_VERSION as LatestValidator
+from jsonschema.tests._helpers import captured_output
 from jsonschema.compat import NativeIO
 
 
@@ -86,8 +86,7 @@ class TestParser(TestCase):
 
     def test_unknown_output(self):
         # Avoid the help message on stdout
-        argparse_mock = MagicMock()
-        with patch('argparse.ArgumentParser._print_message', argparse_mock):
+        with captured_output() as (stdout, stderr):
             with self.assertRaises(SystemExit):
                 arguments = cli.parse_args(
                     [
@@ -98,8 +97,7 @@ class TestParser(TestCase):
 
     def test_useless_error_format(self):
         # Avoid the help message on stdout
-        argparse_mock = MagicMock()
-        with patch('argparse.ArgumentParser._print_message', argparse_mock):
+        with captured_output() as (stdout, stderr):
             with self.assertRaises(SystemExit):
                 arguments = cli.parse_args(
                     [
