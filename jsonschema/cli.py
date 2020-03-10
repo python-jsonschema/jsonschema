@@ -9,8 +9,8 @@ import sys
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
-from jsonschema.validators import validator_for
 from jsonschema.exceptions import SchemaError, ValidationError
+from jsonschema.validators import validator_for
 
 
 _PARSING_ERROR_MSG = (
