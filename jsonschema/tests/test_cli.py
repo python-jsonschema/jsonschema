@@ -94,6 +94,8 @@ class TestParser(TestCase):
                         self.schema_file,
                     ]
                 )
+            self.assertIn("invalid choice: 'foo'", stderr.getvalue())
+            self.assertFalse(stdout.getvalue())
 
     def test_useless_error_format(self):
         # Avoid the help message on stdout
@@ -106,6 +108,11 @@ class TestParser(TestCase):
                         self.schema_file,
                     ]
                 )
+            self.assertIn(
+                "--error-format can only be used with --output plain",
+                stderr.getvalue(),
+            )
+            self.assertFalse(stdout.getvalue())
 
 
 class TestCLI(TestCase):
