@@ -13,12 +13,12 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import SchemaError, ValidationError
 
 
-class _PrettyOutputWriter(object):
+_PARSING_ERROR_MSG = (
+    "Failed to parse {file_name}. Got the following error: {exception}\n"
+)
 
-    PARSING_ERROR_MSG = (
-        "Failed to parse {file_name}. "
-        "Got the following error: {exception}\n"
-    )
+
+class _PrettyOutputWriter(object):
     PRETTY_ERROR_MSG = "===[ERROR]===({object_name})===\n{error}\n"
     PRETTY_SUCCESS_MSG = "===[SUCCESS]===({object_name})===\n"
 
@@ -34,7 +34,7 @@ class _PrettyOutputWriter(object):
         self.stderr.write(
             self.PRETTY_ERROR_MSG.format(
                 object_name=file_name,
-                error=self.PARSING_ERROR_MSG.format(
+                error=_PARSING_ERROR_MSG.format(
                     file_name=file_name,
                     exception=exception,
                 ),
@@ -58,12 +58,6 @@ class _PrettyOutputWriter(object):
 
 
 class _PlainOutputWriter(object):
-
-    PARSING_ERROR_MSG = (
-        "Failed to parse {file_name}. "
-        "Got the following error: {exception}\n"
-    )
-
     def __init__(
         self,
         plain_format,
@@ -76,7 +70,7 @@ class _PlainOutputWriter(object):
 
     def write_parsing_error(self, file_name, exception):
         self.stderr.write(
-            self.PARSING_ERROR_MSG.format(
+            _PARSING_ERROR_MSG.format(
                 file_name=file_name,
                 exception=exception,
             )
