@@ -3,7 +3,6 @@ The ``jsonschema`` command line.
 """
 
 from __future__ import absolute_import
-from abc import ABCMeta
 import argparse
 import json
 import sys
@@ -14,14 +13,14 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import SchemaError, ValidationError
 
 
-class _CliOutputWriter():
-
-    __metaclass__ = ABCMeta
+class _PrettyOutputWriter():
 
     PARSING_ERROR_MSG = (
         "Failed to parse {file_name}. "
         "Got the following error: {exception}\n"
     )
+    PRETTY_ERROR_MSG = "===[ERROR]===({object_name})===\n{error}\n"
+    PRETTY_SUCCESS_MSG = "===[SUCCESS]===({object_name})===\n"
 
     def __init__(
         self,
@@ -30,24 +29,6 @@ class _CliOutputWriter():
     ):
         self.stdout = stdout
         self.stderr = stderr
-
-    def write_parsing_error(self, file_name, exception):
-        # If not overriden, default behaviour is to write nothing.
-        pass
-
-    def write_validation_error(self, object_name, error_obj):
-        # If not overriden, default behaviour is to write nothing.
-        pass
-
-    def write_validation_success(self, object_name):
-        # If not overriden, default behaviour is to write nothing.
-        pass
-
-
-class _PrettyOutputWriter(_CliOutputWriter):
-
-    PRETTY_ERROR_MSG = "===[ERROR]===({object_name})===\n{error}\n"
-    PRETTY_SUCCESS_MSG = "===[SUCCESS]===({object_name})===\n"
 
     def write_parsing_error(self, file_name, exception):
         self.stderr.write(
@@ -76,7 +57,12 @@ class _PrettyOutputWriter(_CliOutputWriter):
         )
 
 
-class _PlainOutputWriter(_CliOutputWriter):
+class _PlainOutputWriter():
+
+    PARSING_ERROR_MSG = (
+        "Failed to parse {file_name}. "
+        "Got the following error: {exception}\n"
+    )
 
     def __init__(
         self,
@@ -85,7 +71,8 @@ class _PlainOutputWriter(_CliOutputWriter):
         stderr=sys.stderr,
     ):
         self.plain_format = plain_format
-        super(_PlainOutputWriter, self).__init__(stdout, stderr)
+        self.stdout = stdout
+        self.stderr = stderr
 
     def write_parsing_error(self, file_name, exception):
         self.stderr.write(
@@ -102,6 +89,10 @@ class _PlainOutputWriter(_CliOutputWriter):
                 error=error_obj,
             )
         )
+
+    def write_validation_success(self, object_name):
+        # Nothing to write in plain mode
+        pass
 
 
 def _namedAnyWithDefault(name):
