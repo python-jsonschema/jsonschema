@@ -13,7 +13,7 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import SchemaError, ValidationError
 
 
-class _PrettyOutputWriter():
+class _PrettyOutputWriter(object):
 
     PARSING_ERROR_MSG = (
         "Failed to parse {file_name}. "
@@ -57,7 +57,7 @@ class _PrettyOutputWriter():
         )
 
 
-class _PlainOutputWriter():
+class _PlainOutputWriter(object):
 
     PARSING_ERROR_MSG = (
         "Failed to parse {file_name}. "
