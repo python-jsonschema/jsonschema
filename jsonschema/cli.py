@@ -3,6 +3,7 @@ The ``jsonschema`` command line.
 """
 
 from __future__ import absolute_import
+from textwrap import dedent
 import argparse
 import json
 import sys
@@ -23,16 +24,21 @@ _PARSING_ERROR_MSG = (
 @attr.s
 class _PrettyOutputWriter(object):
 
-    PRETTY_ERROR_MSG = "===[ERROR]===({object_name})===\n{error}\n"
-    PRETTY_SUCCESS_MSG = "===[SUCCESS]===({object_name})===\n"
+    _ERROR_MSG = dedent("""\
+        ===[ERROR]===({file_name})===
+        {error}
+        -----------------------------
+        """,
+    )
+    _SUCCESS_MSG = "===[SUCCESS]===({file_name})===\n"
 
     _stdout = attr.ib(default=sys.stdout)
     _stderr = attr.ib(default=sys.stderr)
 
     def write_parsing_error(self, file_name, exception):
         self._stderr.write(
-            self.PRETTY_ERROR_MSG.format(
-                object_name=file_name,
+            self._ERROR_MSG.format(
+                file_name=file_name,
                 error=_PARSING_ERROR_MSG.format(
                     file_name=file_name,
                     exception=exception,
@@ -40,20 +46,13 @@ class _PrettyOutputWriter(object):
             )
         )
 
-    def write_validation_error(self, object_name, error_obj):
+    def write_validation_error(self, file_name, error_obj):
         self._stderr.write(
-            self.PRETTY_ERROR_MSG.format(
-                object_name=object_name,
-                error=error_obj,
-            )
+            self._ERROR_MSG.format(file_name=file_name, error=error_obj),
         )
 
-    def write_validation_success(self, object_name):
-        self._stdout.write(
-            self.PRETTY_SUCCESS_MSG.format(
-                object_name=object_name
-            )
-        )
+    def write_validation_success(self, file_name):
+        self._stdout.write(self._SUCCESS_MSG.format(file_name=file_name))
 
 
 @attr.s
@@ -71,15 +70,15 @@ class _PlainOutputWriter(object):
             )
         )
 
-    def write_validation_error(self, object_name, error_obj):
+    def write_validation_error(self, file_name, error_obj):
         self._stderr.write(
             self._error_format.format(
-                object_name=object_name,
+                file_name=file_name,
                 error=error_obj,
             )
         )
 
-    def write_validation_success(self, object_name):
+    def write_validation_success(self, file_name):
         # Nothing to write in plain mode
         pass
 
