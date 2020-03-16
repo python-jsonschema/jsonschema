@@ -3,6 +3,13 @@ import json
 import subprocess
 import sys
 
+try:
+    from json import JSONDecodeError
+except ImportError:  # Py2
+    JSONDecodeError = ValueError
+finally:
+    JSON_DECODE_ERROR = JSONDecodeError.__name__
+
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
 from jsonschema.validators import _LATEST_VERSION as LatestValidator
 from jsonschema.tests._helpers import captured_output
@@ -122,7 +129,7 @@ class TestCLI(TestCase):
     schema_error_file = "schema_error.json"
     bad_json_file_1 = "bad1.json"
     bad_json_file_2 = "bad2.json"
-    pretty_parsing_error_tag = "===[ValueError]==="
+    pretty_parsing_error_tag = "===[" + JSON_DECODE_ERROR + "]==="
     pretty_validation_error_tag = "===[ValidationError]==="
     pretty_success_tag = "===[SUCCESS]==="
 
