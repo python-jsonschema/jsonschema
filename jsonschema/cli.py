@@ -24,8 +24,9 @@ _PARSING_ERROR_MSG = (
 @attr.s
 class _PrettyOutputWriter(object):
 
-    _ERROR_MSG = dedent("""\
-        ===[ERROR]===({file_name})===
+    _ERROR_MSG = dedent(
+        """\
+        ===[{error.__class__.__name__}]===({file_name})===
         {error}
         -----------------------------
         """,
@@ -39,10 +40,7 @@ class _PrettyOutputWriter(object):
         self._stderr.write(
             self._ERROR_MSG.format(
                 file_name=file_name,
-                error=_PARSING_ERROR_MSG.format(
-                    file_name=file_name,
-                    exception=exception,
-                ),
+                error=exception,
             )
         )
 

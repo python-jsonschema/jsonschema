@@ -122,7 +122,8 @@ class TestCLI(TestCase):
     schema_error_file = "schema_error.json"
     bad_json_file_1 = "bad1.json"
     bad_json_file_2 = "bad2.json"
-    pretty_error_tag = "===[ERROR]==="
+    pretty_parsing_error_tag = "===[ValueError]==="
+    pretty_validation_error_tag = "===[ValidationError]==="
     pretty_success_tag = "===[SUCCESS]==="
 
     def setUp(self):
@@ -333,7 +334,7 @@ class TestCLI(TestCase):
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertIn(self.pretty_error_tag, stderr.getvalue())
+        self.assertIn(self.pretty_parsing_error_tag, stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_pretty_successful_validation(self):
@@ -368,7 +369,7 @@ class TestCLI(TestCase):
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertIn(self.pretty_error_tag, stderr.getvalue())
+        self.assertIn(self.pretty_validation_error_tag, stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_schema_validation(self):
