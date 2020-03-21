@@ -60,6 +60,11 @@ implemented here, across any other implementation they encounter.
 
 .. seealso::
 
+    `Draft 2019-09's release notes on format <https://json-schema.org/draft/2019-09/release-notes.html#format-vocabulary>`_
+
+        for upstream details on the behavior of format and how it has changed
+        in ``draft2019-09``
+
     `validating formats`
 
         for details on how to enable format validation
