@@ -22,7 +22,7 @@ _PARSING_ERROR_MSG = (
 
 
 @attr.s
-class _PrettyOutputWriter(object):
+class _PrettyOutputFormatter(object):
 
     _ERROR_MSG = dedent(
         """\
@@ -33,52 +33,32 @@ class _PrettyOutputWriter(object):
     )
     _SUCCESS_MSG = "===[SUCCESS]===({file_name})===\n"
 
-    _stdout = attr.ib(default=sys.stdout)
-    _stderr = attr.ib(default=sys.stderr)
+    def parsing_error(self, file_name, exception):
+        return self._ERROR_MSG.format(file_name=file_name, error=exception)
 
-    def write_parsing_error(self, file_name, exception):
-        self._stderr.write(
-            self._ERROR_MSG.format(
-                file_name=file_name,
-                error=exception,
-            )
-        )
+    def validation_error(self, file_name, error_obj):
+        return self._ERROR_MSG.format(file_name=file_name, error=error_obj)
 
-    def write_validation_error(self, file_name, error_obj):
-        self._stderr.write(
-            self._ERROR_MSG.format(file_name=file_name, error=error_obj),
-        )
-
-    def write_validation_success(self, file_name):
-        self._stdout.write(self._SUCCESS_MSG.format(file_name=file_name))
+    def validation_success(self, file_name):
+        return self._SUCCESS_MSG.format(file_name=file_name)
 
 
 @attr.s
-class _PlainOutputWriter(object):
+class _PlainOutputFormatter(object):
 
     _error_format = attr.ib()
-    _stdout = attr.ib(default=sys.stdout)
-    _stderr = attr.ib(default=sys.stderr)
 
-    def write_parsing_error(self, file_name, exception):
-        self._stderr.write(
-            _PARSING_ERROR_MSG.format(
-                file_name=file_name,
-                exception=exception,
-            )
+    def parsing_error(self, file_name, exception):
+        return _PARSING_ERROR_MSG.format(
+            file_name=file_name,
+            exception=exception,
         )
 
-    def write_validation_error(self, file_name, error_obj):
-        self._stderr.write(
-            self._error_format.format(
-                file_name=file_name,
-                error=error_obj,
-            )
-        )
+    def validation_error(self, file_name, error_obj):
+        return self._error_format.format(file_name=file_name, error=error_obj)
 
-    def write_validation_success(self, file_name):
-        # Nothing to write in plain mode
-        pass
+    def validation_success(self, file_name):
+        return ""
 
 
 def _namedAnyWithDefault(name):
@@ -162,49 +142,56 @@ def parse_args(args):
     return arguments
 
 
-def _make_validator(schema_path, validator_class, output_writer):
+def _make_validator(schema_path, Validator, formatter, stderr):
     try:
         schema_obj = _load_json_file(schema_path)
     except (ValueError, IOError) as exc:
-        output_writer.write_parsing_error(schema_path, exc)
+        stderr.write(formatter.parsing_error(schema_path, exc))
         raise exc
 
     try:
-        validator = validator_class(schema=schema_obj)
+        validator = Validator(schema=schema_obj)
         validator.check_schema(schema_obj)
     except SchemaError as exc:
-        output_writer.write_validation_error(schema_path, exc)
+        stderr.write(formatter.validation_error(schema_path, exc))
         raise exc
 
     return validator
 
 
-def _load_stdin(stdin, output_writer):
+def _load_stdin(stdin, formatter, stderr):
     try:
         instance_obj = json.load(stdin)
     except ValueError as exc:
-        output_writer.write_parsing_error("stdin", exc)
+        stderr.write(formatter.parsing_error("stdin", exc))
         raise exc
     return instance_obj
 
 
-def _load_instance_file(instance_path, output_writer):
+def _load_instance_file(instance_path, formatter, stderr):
     try:
         instance_obj = _load_json_file(instance_path)
     except (ValueError, IOError) as exc:
-        output_writer.write_parsing_error(instance_path, exc)
+        stderr.write(formatter.parsing_error(instance_path, exc))
         raise exc
     return instance_obj
 
 
-def _validate_instance(instance_name, instance_obj, validator, output_writer):
+def _validate_instance(
+    instance_path,
+    instance,
+    validator,
+    formatter,
+    stdout,
+    stderr,
+):
     instance_errored = False
-    for error in validator.iter_errors(instance_obj):
+    for error in validator.iter_errors(instance):
         instance_errored = True
-        output_writer.write_validation_error(instance_name, error)
+        stderr.write(formatter.validation_error(instance_path, error))
 
     if not instance_errored:
-        output_writer.write_validation_success(instance_name)
+        stdout.write(formatter.validation_success(instance_path))
     else:
         raise ValidationError("Some errors appeared in this instance.")
 
@@ -215,22 +202,16 @@ def main(args=sys.argv[1:]):
 
 def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     if arguments["output"] == "plain":
-        output_writer = _PlainOutputWriter(
-            arguments["error_format"],
-            stdout,
-            stderr,
-        )
+        formatter = _PlainOutputFormatter(arguments["error_format"])
     elif arguments["output"] == "pretty":
-        output_writer = _PrettyOutputWriter(
-            stdout,
-            stderr,
-        )
+        formatter = _PrettyOutputFormatter()
 
     try:
         validator = _make_validator(
-            arguments["schema"],
-            arguments["validator"],
-            output_writer,
+            schema_path=arguments["schema"],
+            Validator=arguments["validator"],
+            formatter=formatter,
+            stderr=stderr,
         )
     except (IOError, ValueError, SchemaError):
         return True
@@ -240,10 +221,16 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         for instance_path in arguments["instances"]:
             try:
                 _validate_instance(
-                    instance_path,
-                    _load_instance_file(instance_path, output_writer),
-                    validator,
-                    output_writer,
+                    instance_path=instance_path,
+                    instance=_load_instance_file(
+                        instance_path=instance_path,
+                        formatter=formatter,
+                        stderr=stderr,
+                    ),
+                    validator=validator,
+                    formatter=formatter,
+                    stdout=stdout,
+                    stderr=stderr,
                 )
             except (ValueError, IOError, ValidationError):
                 errored = True
@@ -253,10 +240,16 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     ):
         try:
             _validate_instance(
-                "stdin",
-                _load_stdin(stdin, output_writer),
-                validator,
-                output_writer,
+                instance_path="stdin",
+                instance=_load_stdin(
+                    stdin=stdin,
+                    stderr=stderr,
+                    formatter=formatter,
+                ),
+                validator=validator,
+                formatter=formatter,
+                stdout=stdout,
+                stderr=stderr,
             )
         except (ValueError, ValidationError):
             errored = True
