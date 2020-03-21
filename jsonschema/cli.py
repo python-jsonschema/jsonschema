@@ -21,21 +21,21 @@ class _PrettyOutputFormatter(object):
 
     _ERROR_MSG = dedent(
         """\
-        ===[{error.__class__.__name__}]===({file_name})===
+        ===[{error.__class__.__name__}]===({path})===
         {error}
         -----------------------------
         """,
     )
-    _SUCCESS_MSG = "===[SUCCESS]===({file_name})===\n"
+    _SUCCESS_MSG = "===[SUCCESS]===({path})===\n"
 
-    def parsing_error(self, file_name, exception):
-        return self._ERROR_MSG.format(file_name=file_name, error=exception)
+    def parsing_error(self, path, error):
+        return self._ERROR_MSG.format(path=path, error=error)
 
-    def validation_error(self, file_name, error_obj):
-        return self._ERROR_MSG.format(file_name=file_name, error=error_obj)
+    def validation_error(self, instance_path, error):
+        return self._ERROR_MSG.format(path=instance_path, error=error)
 
-    def validation_success(self, file_name):
-        return self._SUCCESS_MSG.format(file_name=file_name)
+    def validation_success(self, instance_path):
+        return self._SUCCESS_MSG.format(path=instance_path)
 
 
 @attr.s
@@ -43,16 +43,15 @@ class _PlainOutputFormatter(object):
 
     _error_format = attr.ib()
 
-    def parsing_error(self, file_name, exception):
+    def parsing_error(self, path, error):
         return (
-            "Failed to parse {file_name}. "
-            "Got the following error: {exception}\n"
-        ).format(file_name=file_name, exception=exception)
+            "Failed to parse {path}. Got the following error: {error}\n"
+        ).format(path=path, error=error)
 
-    def validation_error(self, file_name, error_obj):
-        return self._error_format.format(file_name=file_name, error=error_obj)
+    def validation_error(self, instance_path, error):
+        return self._error_format.format(file_name=instance_path, error=error)
 
-    def validation_success(self, file_name):
+    def validation_success(self, instance_path):
         return ""
 
 
@@ -140,16 +139,23 @@ def parse_args(args):
 def _make_validator(schema_path, Validator, formatter, stderr):
     try:
         schema_obj = _load_json_file(schema_path)
-    except (ValueError, IOError) as exc:
-        stderr.write(formatter.parsing_error(schema_path, exc))
-        raise exc
+    except (ValueError, IOError) as error:
+        stderr.write(
+            formatter.parsing_error(path=schema_path, error=error),
+        )
+        raise error
 
     try:
         validator = Validator(schema=schema_obj)
         validator.check_schema(schema_obj)
-    except SchemaError as exc:
-        stderr.write(formatter.validation_error(schema_path, exc))
-        raise exc
+    except SchemaError as error:
+        stderr.write(
+            formatter.validation_error(
+                instance_path=schema_path,
+                error=error,
+            ),
+        )
+        raise error
 
     return validator
 
@@ -157,18 +163,22 @@ def _make_validator(schema_path, Validator, formatter, stderr):
 def _load_stdin(stdin, formatter, stderr):
     try:
         instance_obj = json.load(stdin)
-    except ValueError as exc:
-        stderr.write(formatter.parsing_error("<stdin>", exc))
-        raise exc
+    except ValueError as error:
+        stderr.write(
+            formatter.parsing_error(path="<stdin>", error=error),
+        )
+        raise error
     return instance_obj
 
 
 def _load_instance_file(instance_path, formatter, stderr):
     try:
         instance_obj = _load_json_file(instance_path)
-    except (ValueError, IOError) as exc:
-        stderr.write(formatter.parsing_error(instance_path, exc))
-        raise exc
+    except (ValueError, IOError) as error:
+        stderr.write(
+            formatter.parsing_error(path=instance_path, error=error),
+        )
+        raise error
     return instance_obj
 
 
@@ -183,10 +193,15 @@ def _validate_instance(
     instance_errored = False
     for error in validator.iter_errors(instance):
         instance_errored = True
-        stderr.write(formatter.validation_error(instance_path, error))
+        stderr.write(
+            formatter.validation_error(
+                instance_path=instance_path,
+                error=error,
+            ),
+        )
 
     if not instance_errored:
-        stdout.write(formatter.validation_success(instance_path))
+        stdout.write(formatter.validation_success(instance_path=instance_path))
     else:
         raise ValidationError("Some errors appeared in this instance.")
 
