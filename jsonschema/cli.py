@@ -12,7 +12,8 @@ import attr
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
-from jsonschema.exceptions import SchemaError, ValidationError
+from jsonschema.compat import JSONDecodeError
+from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
 
@@ -190,9 +191,9 @@ def _validate_instance(
     stdout,
     stderr,
 ):
-    instance_errored = False
+    invalid = False
     for error in validator.iter_errors(instance):
-        instance_errored = True
+        invalid = True
         stderr.write(
             formatter.validation_error(
                 instance_path=instance_path,
@@ -200,10 +201,9 @@ def _validate_instance(
             ),
         )
 
-    if not instance_errored:
+    if not invalid:
         stdout.write(formatter.validation_success(instance_path=instance_path))
-    else:
-        raise ValidationError("Some errors appeared in this instance.")
+    return invalid
 
 
 def main(args=sys.argv[1:]):
@@ -226,42 +226,51 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     except (IOError, ValueError, SchemaError):
         return True
 
-    errored = False
+    invalid = []
+
     if arguments["instances"]:
         for instance_path in arguments["instances"]:
             try:
-                _validate_instance(
+                instance = _load_instance_file(
                     instance_path=instance_path,
-                    instance=_load_instance_file(
-                        instance_path=instance_path,
-                        formatter=formatter,
-                        stderr=stderr,
-                    ),
-                    validator=validator,
                     formatter=formatter,
-                    stdout=stdout,
                     stderr=stderr,
                 )
-            except (ValueError, IOError, ValidationError):
-                errored = True
+            except Exception:
+                invalid.append(True)
+            else:
+                invalid.append(
+                    _validate_instance(
+                        instance_path=instance_path,
+                        instance=instance,
+                        validator=validator,
+                        formatter=formatter,
+                        stdout=stdout,
+                        stderr=stderr,
+                    ),
+                )
     elif (
         stdin is sys.stdin and not sys.stdin.isatty()
         or stdin is not sys.stdin and stdin is not None
     ):
         try:
-            _validate_instance(
-                instance_path="<stdin>",
-                instance=_load_stdin(
-                    stdin=stdin,
-                    stderr=stderr,
-                    formatter=formatter,
-                ),
-                validator=validator,
-                formatter=formatter,
-                stdout=stdout,
+            instance = _load_stdin(
+                stdin=stdin,
                 stderr=stderr,
+                formatter=formatter,
             )
-        except (ValueError, ValidationError):
-            errored = True
+        except Exception:
+            invalid.append(True)
+        else:
+            invalid.append(
+                _validate_instance(
+                    instance_path="<stdin>",
+                    instance=instance,
+                    validator=validator,
+                    formatter=formatter,
+                    stdout=stdout,
+                    stderr=stderr,
+                ),
+            )
 
-    return errored
+    return any(invalid)
