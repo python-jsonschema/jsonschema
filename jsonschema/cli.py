@@ -158,7 +158,7 @@ def _load_stdin(stdin, formatter, stderr):
     try:
         instance_obj = json.load(stdin)
     except ValueError as exc:
-        stderr.write(formatter.parsing_error("stdin", exc))
+        stderr.write(formatter.parsing_error("<stdin>", exc))
         raise exc
     return instance_obj
 
@@ -235,7 +235,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     ):
         try:
             _validate_instance(
-                instance_path="stdin",
+                instance_path="<stdin>",
                 instance=_load_stdin(
                     stdin=stdin,
                     stderr=stderr,

@@ -324,7 +324,7 @@ class TestCLI(TestCase):
             stdin=stdin,
         )
         self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse stdin", stderr.getvalue())
+        self.assertIn("Failed to parse <stdin>", stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_stdin_pretty_parsing_error(self):
