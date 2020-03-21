@@ -16,11 +16,6 @@ from jsonschema.exceptions import SchemaError, ValidationError
 from jsonschema.validators import validator_for
 
 
-_PARSING_ERROR_MSG = (
-    "Failed to parse {file_name}. Got the following error: {exception}\n"
-)
-
-
 @attr.s
 class _PrettyOutputFormatter(object):
 
@@ -49,10 +44,10 @@ class _PlainOutputFormatter(object):
     _error_format = attr.ib()
 
     def parsing_error(self, file_name, exception):
-        return _PARSING_ERROR_MSG.format(
-            file_name=file_name,
-            exception=exception,
-        )
+        return (
+            "Failed to parse {file_name}. "
+            "Got the following error: {exception}\n"
+        ).format(file_name=file_name, exception=exception)
 
     def validation_error(self, file_name, error_obj):
         return self._error_format.format(file_name=file_name, error=error_obj)
