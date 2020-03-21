@@ -200,7 +200,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
             stderr=stderr,
         )
     except (IOError, ValueError, SchemaError):
-        return True
+        return 1
 
     exit_code = 0
 
