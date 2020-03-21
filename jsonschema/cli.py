@@ -230,7 +230,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     ):
         try:
             instance = json.load(stdin)
-        except ValueError as error:
+        except JSONDecodeError as error:
             stderr.write(
                 formatter.parsing_error(path="<stdin>", error=error),
             )
