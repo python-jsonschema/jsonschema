@@ -4,9 +4,9 @@ import subprocess
 import sys
 
 from jsonschema import Draft4Validator, ValidationError, cli, __version__
-from jsonschema.validators import _LATEST_VERSION as LatestValidator
-from jsonschema.tests._helpers import captured_output
 from jsonschema.compat import JSONDecodeError, NativeIO
+from jsonschema.tests._helpers import captured_output
+from jsonschema.validators import _LATEST_VERSION as LatestValidator
 
 
 def fake_validator(*errors):
@@ -94,8 +94,8 @@ class TestParser(TestCase):
                         self.schema_file,
                     ]
                 )
-            self.assertIn("invalid choice: 'foo'", stderr.getvalue())
-            self.assertFalse(stdout.getvalue())
+        self.assertIn("invalid choice: 'foo'", stderr.getvalue())
+        self.assertFalse(stdout.getvalue())
 
     def test_useless_error_format(self):
         # Avoid the help message on stdout
@@ -108,11 +108,11 @@ class TestParser(TestCase):
                         self.schema_file,
                     ]
                 )
-            self.assertIn(
-                "--error-format can only be used with --output plain",
-                stderr.getvalue(),
-            )
-            self.assertFalse(stdout.getvalue())
+        self.assertIn(
+            "--error-format can only be used with --output plain",
+            stderr.getvalue(),
+        )
+        self.assertFalse(stdout.getvalue())
 
 
 class TestCLI(TestCase):
