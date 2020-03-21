@@ -13,6 +13,11 @@ try:
 except ImportError:
     from collections import MutableMapping, Sequence  # noqa
 
+try:
+    from json import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
+
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
