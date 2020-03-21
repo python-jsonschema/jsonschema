@@ -34,6 +34,7 @@ class TestParser(TestCase):
     schema_file = "schema.json"
 
     def setUp(self):
+        self.assertFalse(hasattr(cli, "open"))
         cli.open = self.fake_open
         self.addCleanup(delattr, cli, "open")
 
