@@ -264,6 +264,8 @@ Draft 6 meta-schema, you could use:
     Draft6Validator.check_schema(schema)
 
 
+.. _validating formats:
+
 Validating Formats
 ------------------
 

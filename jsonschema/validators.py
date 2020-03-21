@@ -589,6 +589,12 @@ Draft7Validator = create(
 _LATEST_VERSION = Draft7Validator
 
 
+# Preserve backwards compatibility of using HTTP $ids for pre2019-09 validators
+for cls in Draft3Validator, Draft4Validator, Draft6Validator, Draft7Validator:
+    _http_id = cls.ID_OF(cls.META_SCHEMA).replace("https://", "http://")
+    meta_schemas[_http_id] = cls
+
+
 class RefResolver(object):
     """
     Resolve JSON References.
