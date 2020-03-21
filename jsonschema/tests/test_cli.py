@@ -327,6 +327,23 @@ class TestCLI(TestCase):
         self.assertIn("Failed to parse stdin", stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
+    def test_parsing_error(self):
+        stdout, stderr = NativeIO(), NativeIO()
+        exit_code = cli.run(
+            {
+                "validator": fake_validator(),
+                "schema": "bad1.json",
+                "instances": ["foo1.json"],
+                "error_format": "",
+                "output": "plain",
+            },
+            stdout=stdout,
+            stderr=stderr,
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertIn("Failed to parse bad1.json", stderr.getvalue())
+        self.assertEqual(exit_code, 1)
+
     def test_pretty_parsing_error(self):
         stdout, stderr = NativeIO(), NativeIO()
         exit_code = cli.run(
