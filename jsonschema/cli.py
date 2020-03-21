@@ -161,28 +161,6 @@ def _make_validator(schema_path, Validator, formatter, stderr):
     return validator
 
 
-def _load_stdin(stdin, formatter, stderr):
-    try:
-        instance_obj = json.load(stdin)
-    except ValueError as error:
-        stderr.write(
-            formatter.parsing_error(path="<stdin>", error=error),
-        )
-        raise error
-    return instance_obj
-
-
-def _load_instance_file(instance_path, formatter, stderr):
-    try:
-        instance_obj = _load_json_file(instance_path)
-    except (ValueError, IOError) as error:
-        stderr.write(
-            formatter.parsing_error(path=instance_path, error=error),
-        )
-        raise error
-    return instance_obj
-
-
 def _validate_instance(
     instance_path,
     instance,
@@ -231,12 +209,11 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     if arguments["instances"]:
         for instance_path in arguments["instances"]:
             try:
-                instance = _load_instance_file(
-                    instance_path=instance_path,
-                    formatter=formatter,
-                    stderr=stderr,
+                instance = _load_json_file(instance_path)
+            except JSONDecodeError as error:
+                stderr.write(
+                    formatter.parsing_error(path=instance_path, error=error),
                 )
-            except Exception:
                 invalid.append(True)
             else:
                 invalid.append(
@@ -254,12 +231,11 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         or stdin is not sys.stdin and stdin is not None
     ):
         try:
-            instance = _load_stdin(
-                stdin=stdin,
-                stderr=stderr,
-                formatter=formatter,
+            instance = json.load(stdin)
+        except ValueError as error:
+            stderr.write(
+                formatter.parsing_error(path="<stdin>", error=error),
             )
-        except Exception:
             invalid.append(True)
         else:
             invalid.append(
