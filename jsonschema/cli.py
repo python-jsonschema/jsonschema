@@ -202,7 +202,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     except (IOError, ValueError, SchemaError):
         return True
 
-    invalid = []
+    exit_code = 0
 
     if arguments["instances"]:
         for instance_path in arguments["instances"]:
@@ -212,17 +212,15 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 stderr.write(
                     formatter.parsing_error(path=instance_path, error=error),
                 )
-                invalid.append(True)
+                exit_code = 1
             else:
-                invalid.append(
-                    _validate_instance(
-                        instance_path=instance_path,
-                        instance=instance,
-                        validator=validator,
-                        formatter=formatter,
-                        stdout=stdout,
-                        stderr=stderr,
-                    ),
+                exit_code |= _validate_instance(
+                    instance_path=instance_path,
+                    instance=instance,
+                    validator=validator,
+                    formatter=formatter,
+                    stdout=stdout,
+                    stderr=stderr,
                 )
     elif (
         stdin is sys.stdin and not sys.stdin.isatty()
@@ -234,17 +232,15 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
             stderr.write(
                 formatter.parsing_error(path="<stdin>", error=error),
             )
-            invalid.append(True)
+            exit_code = 1
         else:
-            invalid.append(
-                _validate_instance(
-                    instance_path="<stdin>",
-                    instance=instance,
-                    validator=validator,
-                    formatter=formatter,
-                    stdout=stdout,
-                    stderr=stderr,
-                ),
+            exit_code |= _validate_instance(
+                instance_path="<stdin>",
+                instance=instance,
+                validator=validator,
+                formatter=formatter,
+                stdout=stdout,
+                stderr=stderr,
             )
 
-    return any(invalid)
+    return exit_code
