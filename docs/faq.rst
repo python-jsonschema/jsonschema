@@ -225,6 +225,9 @@ notice:
     * the ``jsonschema.compat`` module, which is for internal
       compatibility use
 
+    * the specific non-zero error codes presented by the command line
+      interface
+
     * the exact representation of errors presented by the command line
       interface, other than that errors represented by the plain outputter
       will be reported one per line
