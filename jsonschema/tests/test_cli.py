@@ -153,7 +153,7 @@ class TestCLI(TestCase):
                 ),
             ),
         )
-        return stdout, stderr
+        return stdout.getvalue(), stderr.getvalue()
 
     def test_draft3_schema_draft4_validator(self):
         stdout, stderr = self.run_cli(
@@ -164,8 +164,8 @@ class TestCLI(TestCase):
             output="plain",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertTrue(stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertTrue(stderr)
 
     def test_successful_validation(self):
         stdout, stderr = self.run_cli(
@@ -175,8 +175,8 @@ class TestCLI(TestCase):
             error_format="{error.message}",
             output="plain",
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertFalse(stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertFalse(stderr)
 
     def test_unsuccessful_validation(self):
         error = ValidationError("I am an error!", instance=1)
@@ -188,8 +188,8 @@ class TestCLI(TestCase):
             output="plain",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertEqual(stderr.getvalue(), "1 - I am an error!")
+        self.assertFalse(stdout)
+        self.assertEqual(stderr, "1 - I am an error!")
 
     def test_unsuccessful_validation_multiple_instances(self):
         first_errors = [
@@ -205,8 +205,8 @@ class TestCLI(TestCase):
             output="plain",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
+        self.assertFalse(stdout)
+        self.assertEqual(stderr, "1 - 9\t1 - 8\t2 - 7\t")
 
     def test_piping(self):
         stdout, stderr = self.run_cli(
@@ -217,8 +217,8 @@ class TestCLI(TestCase):
             output="plain",
             stdin=NativeIO("{}"),
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertFalse(stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertFalse(stderr)
 
     def test_schema_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -229,8 +229,8 @@ class TestCLI(TestCase):
             output="plain",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse invalid json", stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertIn("Failed to parse invalid json", stderr)
 
     def test_instance_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -241,10 +241,9 @@ class TestCLI(TestCase):
             output="plain",
             exit_code=1,
         )
-        output_err = stderr.getvalue()
-        self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse invalid json", output_err)
-        self.assertIn("Failed to parse more invalid json", output_err)
+        self.assertFalse(stdout)
+        self.assertIn("Failed to parse invalid json", stderr)
+        self.assertIn("Failed to parse more invalid json", stderr)
 
     def test_stdin_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -256,8 +255,8 @@ class TestCLI(TestCase):
             stdin=NativeIO("{foo}"),
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse <stdin>", stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertIn("Failed to parse <stdin>", stderr)
 
     def test_stdin_pretty_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -268,11 +267,9 @@ class TestCLI(TestCase):
             stdin=NativeIO("{foo}"),
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertIn(
-            "\nTraceback (most recent call last):\n", stderr.getvalue(),
-        )
-        self.assertIn(self.pretty_parsing_error_tag, stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertIn("\nTraceback (most recent call last):\n", stderr)
+        self.assertIn(self.pretty_parsing_error_tag, stderr)
 
     def test_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -283,8 +280,8 @@ class TestCLI(TestCase):
             output="plain",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse invalid json", stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertIn("Failed to parse invalid json", stderr)
 
     def test_pretty_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -295,11 +292,9 @@ class TestCLI(TestCase):
             output="pretty",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertIn(
-            "\nTraceback (most recent call last):\n", stderr.getvalue(),
-        )
-        self.assertIn(self.pretty_parsing_error_tag, stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertIn("\nTraceback (most recent call last):\n", stderr)
+        self.assertIn(self.pretty_parsing_error_tag, stderr)
 
     def test_pretty_successful_validation(self):
         stdout, stderr = self.run_cli(
@@ -309,8 +304,8 @@ class TestCLI(TestCase):
             error_format="",
             output="pretty",
         )
-        self.assertIn(self.pretty_success_tag, stdout.getvalue())
-        self.assertFalse(stderr.getvalue())
+        self.assertIn(self.pretty_success_tag, stdout)
+        self.assertFalse(stderr)
 
     def test_pretty_unsuccessful_validation(self):
         error = ValidationError("I am an error!", instance=1)
@@ -322,8 +317,8 @@ class TestCLI(TestCase):
             output="pretty",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertIn(self.pretty_validation_error_tag, stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertIn(self.pretty_validation_error_tag, stderr)
 
     def test_schema_validation(self):
         stdout, stderr = self.run_cli(
@@ -334,8 +329,8 @@ class TestCLI(TestCase):
             output="plain",
             exit_code=1,
         )
-        self.assertFalse(stdout.getvalue())
-        self.assertTrue(stderr.getvalue())
+        self.assertFalse(stdout)
+        self.assertTrue(stderr)
 
     def test_license(self):
         output = subprocess.check_output(
