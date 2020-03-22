@@ -27,6 +27,15 @@ def fake_validator(*errors):
     return FakeValidator
 
 
+def fake_open(all_contents):
+    def open(path):
+        contents = all_contents.get(path)
+        if contents is None:  # pragma: no cover
+            raise RuntimeError("Unknown test fixture {!r}".format(path))
+        return NativeIO(contents)
+    return open
+
+
 class TestParser(TestCase):
 
     FakeValidator = fake_validator()
@@ -35,17 +44,10 @@ class TestParser(TestCase):
 
     def setUp(self):
         self.assertFalse(hasattr(cli, "open"))
-        cli.open = self.fake_open
+        cli.open = fake_open(
+            {self.instance_file: '""', self.schema_file: "{}"},
+        )
         self.addCleanup(delattr, cli, "open")
-
-    def fake_open(self, path):
-        if path == self.instance_file:
-            contents = ""
-        elif path == self.schema_file:
-            contents = {}
-        else:  # pragma: no cover
-            raise RuntimeError("Unknown test fixture {!r}".format(path))
-        return NativeIO(json.dumps(contents))
 
     def test_find_validator_by_fully_qualified_object_name(self):
         arguments = cli.parse_args(
@@ -120,37 +122,26 @@ class TestCLI(TestCase):
     pretty_success_tag = "===[SUCCESS]==="
 
     def setUp(self):
-        cli.open = self.fake_open
+        self.assertFalse(hasattr(cli, "open"))
+        cli.open = fake_open(
+            {
+                self.instance_file_1: "1",
+                self.instance_file_2: "25",
+                self.schema_file: """
+                    {
+                        "anyOf": [
+                            {"minimum": 20},
+                            {"type": "string"},
+                            {"required": true}
+                        ]
+                    }
+                """,
+                self.schema_error_file: '{"title": 1}',
+                self.bad_json_file_1: "{bad_key: val}",
+                self.bad_json_file_2: "{1 []}",
+            },
+        )
         self.addCleanup(delattr, cli, "open")
-
-    def fake_open(self, path):
-        if path == self.instance_file_1:
-            contents = "1"
-        elif path == self.instance_file_2:
-            contents = "25"
-        elif path == self.schema_file:
-            contents = """
-                {
-                    "anyOf": [
-                        {"minimum": 20},
-                        {"type": "string"},
-                        {"required": true}
-                    ]
-                }
-            """
-        elif path == self.schema_error_file:
-            contents = """
-                {
-                    "title": 1
-                }
-            """
-        elif path == self.bad_json_file_1:
-            contents = "{bad_key: val}"
-        elif path == self.bad_json_file_2:
-            contents = "{1 []}"
-        else:  # pragma: no cover
-            self.fail("What is {!r}".format(path))
-        return NativeIO(contents)
 
     def test_draft3_schema_draft4_validator(self):
         stdout, stderr = NativeIO(), NativeIO()
