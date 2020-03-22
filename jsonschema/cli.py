@@ -19,7 +19,32 @@ from jsonschema.validators import validator_for
 
 
 @attr.s
-class _PrettyOutputFormatter(object):
+class _Outputter(object):
+
+    _formatter = attr.ib()
+    _stdout = attr.ib()
+    _stderr = attr.ib()
+
+    @classmethod
+    def from_arguments(cls, arguments, stdout, stderr):
+        if arguments["output"] == "plain":
+            formatter = _PlainFormatter(arguments["error_format"])
+        elif arguments["output"] == "pretty":
+            formatter = _PrettyFormatter()
+        return cls(formatter=formatter, stdout=stdout, stderr=stderr)
+
+    def parsing_error(self, **kwargs):
+        self._stderr.write(self._formatter.parsing_error(**kwargs))
+
+    def validation_error(self, **kwargs):
+        self._stderr.write(self._formatter.validation_error(**kwargs))
+
+    def validation_success(self, **kwargs):
+        self._stdout.write(self._formatter.validation_success(**kwargs))
+
+
+@attr.s
+class _PrettyFormatter(object):
 
     _ERROR_MSG = dedent(
         """\
@@ -50,7 +75,7 @@ class _PrettyOutputFormatter(object):
 
 
 @attr.s
-class _PlainOutputFormatter(object):
+class _PlainFormatter(object):
 
     _error_format = attr.ib()
 
@@ -145,50 +170,31 @@ def parse_args(args):
     return arguments
 
 
-def _make_validator(schema_path, Validator, formatter, stderr):
+def _make_validator(schema_path, Validator, outputter):
     try:
         schema_obj = _load_json_file(schema_path)
     except (ValueError, IOError) as error:
-        stderr.write(
-            formatter.parsing_error(path=schema_path, exc_info=sys.exc_info()),
-        )
+        outputter.parsing_error(path=schema_path, exc_info=sys.exc_info())
         raise error
 
     try:
         validator = Validator(schema=schema_obj)
         validator.check_schema(schema_obj)
     except SchemaError as error:
-        stderr.write(
-            formatter.validation_error(
-                instance_path=schema_path,
-                error=error,
-            ),
-        )
+        outputter.validation_error(instance_path=schema_path, error=error)
         raise error
 
     return validator
 
 
-def _validate_instance(
-    instance_path,
-    instance,
-    validator,
-    formatter,
-    stdout,
-    stderr,
-):
+def _validate_instance(instance_path, instance, validator, outputter):
     invalid = False
     for error in validator.iter_errors(instance):
         invalid = True
-        stderr.write(
-            formatter.validation_error(
-                instance_path=instance_path,
-                error=error,
-            ),
-        )
+        outputter.validation_error(instance_path=instance_path, error=error)
 
     if not invalid:
-        stdout.write(formatter.validation_success(instance_path=instance_path))
+        outputter.validation_success(instance_path=instance_path)
     return invalid
 
 
@@ -197,17 +203,17 @@ def main(args=sys.argv[1:]):
 
 
 def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
-    if arguments["output"] == "plain":
-        formatter = _PlainOutputFormatter(arguments["error_format"])
-    elif arguments["output"] == "pretty":
-        formatter = _PrettyOutputFormatter()
+    outputter = _Outputter.from_arguments(
+        arguments=arguments,
+        stdout=stdout,
+        stderr=stderr,
+    )
 
     try:
         validator = _make_validator(
             schema_path=arguments["schema"],
             Validator=arguments["validator"],
-            formatter=formatter,
-            stderr=stderr,
+            outputter=outputter,
         )
     except (IOError, ValueError, SchemaError):
         return 1
@@ -224,18 +230,14 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         try:
             instance = load(each)
         except JSONDecodeError:
-            stderr.write(
-                formatter.parsing_error(path=each, exc_info=sys.exc_info()),
-            )
+            outputter.parsing_error(path=each, exc_info=sys.exc_info())
             exit_code = 1
         else:
             exit_code |= _validate_instance(
                 instance_path=each,
                 instance=instance,
                 validator=validator,
-                formatter=formatter,
-                stdout=stdout,
-                stderr=stderr,
+                outputter=outputter,
             )
 
     return exit_code
