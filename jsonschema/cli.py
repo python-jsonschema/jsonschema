@@ -114,12 +114,14 @@ parser.add_argument(
 )
 parser.add_argument(
     "-F", "--error-format",
-    help=(
-        "The format to use for each error output message, specified in "
-        "a form suitable for passing to str.format, which will be called "
-        "with 'error' for each error. This is only used when --output=plain "
-        "(default)."
-    ),
+    help="""
+        The format to use for each validation error message, specified
+        in a form suitable for str.format. This string will be passed
+        one formatted object named 'error' for each ValidationError.
+        Only provide this option when using --output=plain, which is the
+        default. If this argument is unprovided and --output=plain is
+        used, a simple default representation will be used."
+    """,
 )
 parser.add_argument(
     "-o", "--output",
