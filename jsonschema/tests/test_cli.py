@@ -60,7 +60,7 @@ class TestParser(TestCase):
         )
         self.assertIs(arguments["validator"], Draft4Validator)
 
-    def test_none_validator(self):
+    def test_latest_validator_is_the_default(self):
         arguments = cli.parse_args(
             [
                 "--instance", "mem://some/instance",
