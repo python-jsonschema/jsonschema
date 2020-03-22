@@ -1,3 +1,4 @@
+from textwrap import dedent
 from unittest import TestCase
 import subprocess
 import sys
@@ -128,30 +129,46 @@ class TestCLI(TestCase):
         )
         self.addCleanup(delattr, cli, "open")
 
-    def run_cli(self, stdin=NativeIO(), **arguments):
+    def run_cli(self, stdin=NativeIO(), exit_code=0, **arguments):
         stdout, stderr = NativeIO(), NativeIO()
-        exit_code = cli.run(
+        actual_exit_code = cli.run(
             arguments,
             stdin=stdin,
             stdout=stdout,
             stderr=stderr,
         )
-        return exit_code, stdout, stderr
+        self.assertEqual(
+            actual_exit_code, exit_code, msg=dedent(
+                """
+                Expected an exit code of {} != {}.
+
+                stdout: {}
+
+                stderr: {}
+                """.format(
+                    exit_code,
+                    actual_exit_code,
+                    stdout.getvalue(),
+                    stderr.getvalue(),
+                ),
+            ),
+        )
+        return stdout, stderr
 
     def test_draft3_schema_draft4_validator(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=Draft4Validator,
             schema="a schema",
             instances=["an invalid instance"],
             error_format="{error.message}",
             output="plain",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertTrue(stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_successful_validation(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="a schema",
             instances=["a valid instance"],
@@ -160,20 +177,19 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout.getvalue())
         self.assertFalse(stderr.getvalue())
-        self.assertEqual(exit_code, 0)
 
     def test_unsuccessful_validation(self):
         error = ValidationError("I am an error!", instance=1)
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator([error]),
             schema="a schema",
             instances=["an invalid instance"],
             error_format="{error.instance} - {error.message}",
             output="plain",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertEqual(stderr.getvalue(), "1 - I am an error!")
-        self.assertEqual(exit_code, 1)
 
     def test_unsuccessful_validation_multiple_instances(self):
         first_errors = [
@@ -181,19 +197,19 @@ class TestCLI(TestCase):
             ValidationError("8", instance=1),
         ]
         second_errors = [ValidationError("7", instance=2)]
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(first_errors, second_errors),
             schema="a schema",
             instances=["an invalid instance", "a valid instance"],
             error_format="{error.instance} - {error.message}\t",
             output="plain",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertEqual(stderr.getvalue(), "1 - 9\t1 - 8\t2 - 7\t")
-        self.assertEqual(exit_code, 1)
 
     def test_piping(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="a schema",
             instances=None,
@@ -203,91 +219,90 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout.getvalue())
         self.assertFalse(stderr.getvalue())
-        self.assertEqual(exit_code, 0)
 
     def test_schema_parsing_error(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="invalid json",
             instances=["an invalid instance"],
             error_format="{error.message}",
             output="plain",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertIn("Failed to parse invalid json", stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_instance_parsing_error(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="a schema",
             instances=["invalid json", "more invalid json"],
             error_format="{error.message}",
             output="plain",
+            exit_code=1,
         )
         output_err = stderr.getvalue()
         self.assertFalse(stdout.getvalue())
         self.assertIn("Failed to parse invalid json", output_err)
         self.assertIn("Failed to parse more invalid json", output_err)
-        self.assertEqual(exit_code, 1)
 
     def test_stdin_parsing_error(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="a schema",
             instances=None,
             error_format="{error.message}",
             output="plain",
             stdin=NativeIO("{foo}"),
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertIn("Failed to parse <stdin>", stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_stdin_pretty_parsing_error(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="a schema",
             instances=None,
             output="pretty",
             stdin=NativeIO("{foo}"),
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertIn(
             "\nTraceback (most recent call last):\n", stderr.getvalue(),
         )
         self.assertIn(self.pretty_parsing_error_tag, stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_parsing_error(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="invalid json",
             instances=["an invalid instance"],
             error_format="",
             output="plain",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertIn("Failed to parse invalid json", stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_pretty_parsing_error(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="invalid json",
             instances=["an invalid instance"],
             error_format="",
             output="pretty",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertIn(
             "\nTraceback (most recent call last):\n", stderr.getvalue(),
         )
         self.assertIn(self.pretty_parsing_error_tag, stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_pretty_successful_validation(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator(),
             schema="a schema",
             instances=["a valid instance"],
@@ -296,32 +311,31 @@ class TestCLI(TestCase):
         )
         self.assertIn(self.pretty_success_tag, stdout.getvalue())
         self.assertFalse(stderr.getvalue())
-        self.assertEqual(exit_code, 0)
 
     def test_pretty_unsuccessful_validation(self):
         error = ValidationError("I am an error!", instance=1)
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=fake_validator([error]),
             schema="a schema",
             instances=["an invalid instance"],
             error_format="",
             output="pretty",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertIn(self.pretty_validation_error_tag, stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_schema_validation(self):
-        exit_code, stdout, stderr = self.run_cli(
+        stdout, stderr = self.run_cli(
             validator=LatestValidator,
             schema="an invalid schema",
             instances=None,
             error_format="{error.message}",
             output="plain",
+            exit_code=1,
         )
         self.assertFalse(stdout.getvalue())
         self.assertTrue(stderr.getvalue())
-        self.assertEqual(exit_code, 1)
 
     def test_license(self):
         output = subprocess.check_output(
