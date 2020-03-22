@@ -230,7 +230,7 @@ class TestCLI(TestCase):
             exit_code=1,
         )
         self.assertFalse(stdout)
-        self.assertIn("Failed to parse invalid json", stderr)
+        self.assertIn("Failed to parse 'invalid json'", stderr)
 
     def test_instance_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -242,8 +242,8 @@ class TestCLI(TestCase):
             exit_code=1,
         )
         self.assertFalse(stdout)
-        self.assertIn("Failed to parse invalid json", stderr)
-        self.assertIn("Failed to parse more invalid json", stderr)
+        self.assertIn("Failed to parse 'invalid json'", stderr)
+        self.assertIn("Failed to parse 'more invalid json'", stderr)
 
     def test_stdin_parsing_error(self):
         stdout, stderr = self.run_cli(
@@ -281,7 +281,7 @@ class TestCLI(TestCase):
             exit_code=1,
         )
         self.assertFalse(stdout)
-        self.assertIn("Failed to parse invalid json", stderr)
+        self.assertIn("Failed to parse 'invalid json'", stderr)
 
     def test_pretty_parsing_error(self):
         stdout, stderr = self.run_cli(

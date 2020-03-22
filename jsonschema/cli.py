@@ -80,9 +80,10 @@ class _PlainFormatter(object):
     _error_format = attr.ib()
 
     def parsing_error(self, path, exc_info):
-        return (
-            "Failed to parse {path}. Got the following error: {exc_info[1]}\n"
-        ).format(path=path, exc_info=exc_info)
+        return "Failed to parse {}. Got the following error: {}\n".format(
+            "<stdin>" if path == "<stdin>" else repr(path),
+            exc_info[1],
+        )
 
     def validation_error(self, instance_path, error):
         return self._error_format.format(file_name=instance_path, error=error)
