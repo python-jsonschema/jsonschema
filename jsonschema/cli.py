@@ -159,8 +159,6 @@ def parse_args(args):
     arguments = vars(parser.parse_args(args=args or ["--help"]))
     if arguments["validator"] is None:
         arguments["validator"] = validator_for(arguments["schema"])
-    if arguments["instances"] is None:
-        arguments["instances"] = []
     if arguments["output"] != "plain" and arguments["error_format"]:
         raise parser.error(
             "--error-format can only be used with --output plain"

@@ -77,14 +77,6 @@ class TestParser(TestCase):
         )
         self.assertIs(arguments["validator"], LatestValidator)
 
-    def test_none_instance(self):
-        arguments = cli.parse_args(
-            [
-                self.schema_file,
-            ]
-        )
-        self.assertEqual(arguments["instances"], [])
-
     def test_unknown_output(self):
         # Avoid the help message on stdout
         with captured_output() as (stdout, stderr):
@@ -255,7 +247,7 @@ class TestCLI(TestCase):
             {
                 "validator": fake_validator(),
                 "schema": "schema.json",
-                "instances": [],
+                "instances": None,
                 "error_format": "{error.message}",
                 "output": "plain",
             },
@@ -309,7 +301,7 @@ class TestCLI(TestCase):
             {
                 "validator": fake_validator(),
                 "schema": "schema.json",
-                "instances": [],
+                "instances": None,
                 "error_format": "{error.message}",
                 "output": "plain",
             },
@@ -327,7 +319,7 @@ class TestCLI(TestCase):
             {
                 "validator": fake_validator(),
                 "schema": "schema.json",
-                "instances": [],
+                "instances": None,
                 "output": "pretty",
             },
             stdout=stdout,
@@ -419,7 +411,7 @@ class TestCLI(TestCase):
             {
                 "validator": LatestValidator,
                 "schema": "schema_error.json",
-                "instances": [],
+                "instances": None,
                 "error_format": "{error.message}",
                 "output": "plain",
             },
