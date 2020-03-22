@@ -335,6 +335,9 @@ class TestCLI(TestCase):
             stdin=stdin,
         )
         self.assertFalse(stdout.getvalue())
+        self.assertIn(
+            "\nTraceback (most recent call last):\n", stderr.getvalue(),
+        )
         self.assertIn(self.pretty_parsing_error_tag, stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
@@ -369,6 +372,9 @@ class TestCLI(TestCase):
             stderr=stderr,
         )
         self.assertFalse(stdout.getvalue())
+        self.assertIn(
+            "\nTraceback (most recent call last):\n", stderr.getvalue(),
+        )
         self.assertIn(self.pretty_parsing_error_tag, stderr.getvalue())
         self.assertEqual(exit_code, 1)
 

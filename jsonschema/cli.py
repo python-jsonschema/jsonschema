@@ -7,6 +7,7 @@ from textwrap import dedent
 import argparse
 import json
 import sys
+import traceback
 
 import attr
 
@@ -22,18 +23,27 @@ class _PrettyOutputFormatter(object):
 
     _ERROR_MSG = dedent(
         """\
-        ===[{error.__class__.__name__}]===({path})===
-        {error}
+        ===[{type.__name__}]===({path})===
+
+        {body}
         -----------------------------
         """,
     )
     _SUCCESS_MSG = "===[SUCCESS]===({path})===\n"
 
-    def parsing_error(self, path, error):
-        return self._ERROR_MSG.format(path=path, error=error)
+    def parsing_error(self, path, exc_info):
+        exc_type, exc_value, exc_traceback = exc_info
+        exc_lines = "".join(
+            traceback.format_exception(exc_type, exc_value, exc_traceback),
+        )
+        return self._ERROR_MSG.format(path=path, type=exc_type, body=exc_lines)
 
     def validation_error(self, instance_path, error):
-        return self._ERROR_MSG.format(path=instance_path, error=error)
+        return self._ERROR_MSG.format(
+            path=instance_path,
+            type=error.__class__,
+            body=error,
+        )
 
     def validation_success(self, instance_path):
         return self._SUCCESS_MSG.format(path=instance_path)
@@ -44,10 +54,10 @@ class _PlainOutputFormatter(object):
 
     _error_format = attr.ib()
 
-    def parsing_error(self, path, error):
+    def parsing_error(self, path, exc_info):
         return (
-            "Failed to parse {path}. Got the following error: {error}\n"
-        ).format(path=path, error=error)
+            "Failed to parse {path}. Got the following error: {exc_info[1]}\n"
+        ).format(path=path, exc_info=exc_info)
 
     def validation_error(self, instance_path, error):
         return self._error_format.format(file_name=instance_path, error=error)
@@ -140,7 +150,7 @@ def _make_validator(schema_path, Validator, formatter, stderr):
         schema_obj = _load_json_file(schema_path)
     except (ValueError, IOError) as error:
         stderr.write(
-            formatter.parsing_error(path=schema_path, error=error),
+            formatter.parsing_error(path=schema_path, exc_info=sys.exc_info()),
         )
         raise error
 
@@ -213,9 +223,9 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     for each in instances:
         try:
             instance = load(each)
-        except JSONDecodeError as error:
+        except JSONDecodeError:
             stderr.write(
-                formatter.parsing_error(path=each, error=error),
+                formatter.parsing_error(path=each, exc_info=sys.exc_info()),
             )
             exit_code = 1
         else:
