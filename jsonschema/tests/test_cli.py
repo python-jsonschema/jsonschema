@@ -44,7 +44,7 @@ class TestParser(TestCase):
         elif path == self.schema_file:
             contents = {}
         else:  # pragma: no cover
-            self.fail("What is {!r}".format(path))
+            raise RuntimeError("Unknown test fixture {!r}".format(path))
         return NativeIO(json.dumps(contents))
 
     def test_find_validator_by_fully_qualified_object_name(self):
