@@ -38,23 +38,14 @@ def fake_open(all_contents):
 class TestParser(TestCase):
 
     FakeValidator = fake_validator()
-    instance_file = "foo.json"
-    schema_file = "schema.json"
-
-    def setUp(self):
-        self.assertFalse(hasattr(cli, "open"))
-        cli.open = fake_open(
-            {self.instance_file: '""', self.schema_file: "{}"},
-        )
-        self.addCleanup(delattr, cli, "open")
 
     def test_find_validator_by_fully_qualified_object_name(self):
         arguments = cli.parse_args(
             [
                 "--validator",
                 "jsonschema.tests.test_cli.TestParser.FakeValidator",
-                "--instance", self.instance_file,
-                self.schema_file,
+                "--instance", "mem://some/instance",
+                "mem://some/schema",
             ]
         )
         self.assertIs(arguments["validator"], self.FakeValidator)
@@ -63,8 +54,8 @@ class TestParser(TestCase):
         arguments = cli.parse_args(
             [
                 "--validator", "Draft4Validator",
-                "--instance", self.instance_file,
-                self.schema_file,
+                "--instance", "mem://some/instance",
+                "mem://some/schema",
             ]
         )
         self.assertIs(arguments["validator"], Draft4Validator)
@@ -72,8 +63,8 @@ class TestParser(TestCase):
     def test_none_validator(self):
         arguments = cli.parse_args(
             [
-                "--instance", self.instance_file,
-                self.schema_file,
+                "--instance", "mem://some/instance",
+                "mem://some/schema",
             ]
         )
         self.assertIs(arguments["validator"], LatestValidator)
@@ -85,7 +76,7 @@ class TestParser(TestCase):
                 cli.parse_args(
                     [
                         "--output", "foo",
-                        self.schema_file,
+                        "mem://some/schema",
                     ]
                 )
         self.assertIn("invalid choice: 'foo'", stderr.getvalue())
@@ -99,7 +90,7 @@ class TestParser(TestCase):
                     [
                         "--output", "pretty",
                         "--error-format", "foo",
-                        self.schema_file,
+                        "mem://some/schema",
                     ]
                 )
         self.assertIn(
