@@ -101,12 +101,7 @@ class TestParser(TestCase):
 
 
 class TestCLI(TestCase):
-    instance_file_1 = "foo1.json"
-    instance_file_2 = "foo2.json"
-    schema_file = "schema.json"
-    schema_error_file = "schema_error.json"
-    bad_json_file_1 = "bad1.json"
-    bad_json_file_2 = "bad2.json"
+
     pretty_parsing_error_tag = "===[" + JSONDecodeError.__name__ + "]==="
     pretty_validation_error_tag = "===[ValidationError]==="
     pretty_success_tag = "===[SUCCESS]==="
@@ -115,9 +110,9 @@ class TestCLI(TestCase):
         self.assertFalse(hasattr(cli, "open"))
         cli.open = fake_open(
             {
-                self.instance_file_1: "1",
-                self.instance_file_2: "25",
-                self.schema_file: """
+                "an invalid instance": "1",
+                "a valid instance": "25",
+                "a schema": """
                     {
                         "anyOf": [
                             {"minimum": 20},
@@ -126,9 +121,9 @@ class TestCLI(TestCase):
                         ]
                     }
                 """,
-                self.schema_error_file: '{"title": 1}',
-                self.bad_json_file_1: "{bad_key: val}",
-                self.bad_json_file_2: "{1 []}",
+                "an invalid schema": '{"title": 1}',
+                "invalid json": "{bad_key: val}",
+                "more invalid json": "{1 []}",
             },
         )
         self.addCleanup(delattr, cli, "open")
@@ -146,8 +141,8 @@ class TestCLI(TestCase):
     def test_draft3_schema_draft4_validator(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=Draft4Validator,
-            schema="schema.json",
-            instances=["foo1.json"],
+            schema="a schema",
+            instances=["an invalid instance"],
             error_format="{error.message}",
             output="plain",
         )
@@ -158,8 +153,8 @@ class TestCLI(TestCase):
     def test_successful_validation(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="schema.json",
-            instances=["foo2.json"],
+            schema="a schema",
+            instances=["a valid instance"],
             error_format="{error.message}",
             output="plain",
         )
@@ -171,8 +166,8 @@ class TestCLI(TestCase):
         error = ValidationError("I am an error!", instance=1)
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator([error]),
-            schema="schema.json",
-            instances=["foo1.json"],
+            schema="a schema",
+            instances=["an invalid instance"],
             error_format="{error.instance} - {error.message}",
             output="plain",
         )
@@ -188,8 +183,8 @@ class TestCLI(TestCase):
         second_errors = [ValidationError("7", instance=2)]
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(first_errors, second_errors),
-            schema="schema.json",
-            instances=["foo1.json", "foo2.json"],
+            schema="a schema",
+            instances=["an invalid instance", "a valid instance"],
             error_format="{error.instance} - {error.message}\t",
             output="plain",
         )
@@ -200,7 +195,7 @@ class TestCLI(TestCase):
     def test_piping(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="schema.json",
+            schema="a schema",
             instances=None,
             error_format="{error.message}",
             output="plain",
@@ -213,33 +208,33 @@ class TestCLI(TestCase):
     def test_schema_parsing_error(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="bad1.json",
-            instances=["foo1.json"],
+            schema="invalid json",
+            instances=["an invalid instance"],
             error_format="{error.message}",
             output="plain",
         )
         self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse bad1.json", stderr.getvalue())
+        self.assertIn("Failed to parse invalid json", stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_instance_parsing_error(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="schema.json",
-            instances=["bad1.json", "bad2.json"],
+            schema="a schema",
+            instances=["invalid json", "more invalid json"],
             error_format="{error.message}",
             output="plain",
         )
         output_err = stderr.getvalue()
         self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse bad1.json", output_err)
-        self.assertIn("Failed to parse bad2.json", output_err)
+        self.assertIn("Failed to parse invalid json", output_err)
+        self.assertIn("Failed to parse more invalid json", output_err)
         self.assertEqual(exit_code, 1)
 
     def test_stdin_parsing_error(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="schema.json",
+            schema="a schema",
             instances=None,
             error_format="{error.message}",
             output="plain",
@@ -252,7 +247,7 @@ class TestCLI(TestCase):
     def test_stdin_pretty_parsing_error(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="schema.json",
+            schema="a schema",
             instances=None,
             output="pretty",
             stdin=NativeIO("{foo}"),
@@ -267,20 +262,20 @@ class TestCLI(TestCase):
     def test_parsing_error(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="bad1.json",
-            instances=["foo1.json"],
+            schema="invalid json",
+            instances=["an invalid instance"],
             error_format="",
             output="plain",
         )
         self.assertFalse(stdout.getvalue())
-        self.assertIn("Failed to parse bad1.json", stderr.getvalue())
+        self.assertIn("Failed to parse invalid json", stderr.getvalue())
         self.assertEqual(exit_code, 1)
 
     def test_pretty_parsing_error(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="bad1.json",
-            instances=["foo1.json"],
+            schema="invalid json",
+            instances=["an invalid instance"],
             error_format="",
             output="pretty",
         )
@@ -294,8 +289,8 @@ class TestCLI(TestCase):
     def test_pretty_successful_validation(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator(),
-            schema="schema.json",
-            instances=["foo2.json"],
+            schema="a schema",
+            instances=["a valid instance"],
             error_format="",
             output="pretty",
         )
@@ -307,8 +302,8 @@ class TestCLI(TestCase):
         error = ValidationError("I am an error!", instance=1)
         exit_code, stdout, stderr = self.run_cli(
             validator=fake_validator([error]),
-            schema="schema.json",
-            instances=["foo1.json"],
+            schema="a schema",
+            instances=["an invalid instance"],
             error_format="",
             output="pretty",
         )
@@ -319,7 +314,7 @@ class TestCLI(TestCase):
     def test_schema_validation(self):
         exit_code, stdout, stderr = self.run_cli(
             validator=LatestValidator,
-            schema="schema_error.json",
+            schema="an invalid schema",
             instances=None,
             error_format="{error.message}",
             output="plain",
