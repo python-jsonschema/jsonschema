@@ -202,40 +202,25 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     except (IOError, ValueError, SchemaError):
         return 1
 
-    exit_code = 0
-
     if arguments["instances"]:
-        for instance_path in arguments["instances"]:
-            try:
-                instance = _load_json_file(instance_path)
-            except JSONDecodeError as error:
-                stderr.write(
-                    formatter.parsing_error(path=instance_path, error=error),
-                )
-                exit_code = 1
-            else:
-                exit_code |= _validate_instance(
-                    instance_path=instance_path,
-                    instance=instance,
-                    validator=validator,
-                    formatter=formatter,
-                    stdout=stdout,
-                    stderr=stderr,
-                )
-    elif (
-        stdin is sys.stdin and not sys.stdin.isatty()
-        or stdin is not sys.stdin and stdin is not None
-    ):
+        load, instances = _load_json_file, arguments["instances"]
+    else:
+        def load(_):
+            return json.load(stdin)
+        instances = ["<stdin>"]
+
+    exit_code = 0
+    for each in instances:
         try:
-            instance = json.load(stdin)
+            instance = load(each)
         except JSONDecodeError as error:
             stderr.write(
-                formatter.parsing_error(path="<stdin>", error=error),
+                formatter.parsing_error(path=each, error=error),
             )
             exit_code = 1
         else:
             exit_code |= _validate_instance(
-                instance_path="<stdin>",
+                instance_path=each,
                 instance=instance,
                 validator=validator,
                 formatter=formatter,
