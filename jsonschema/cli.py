@@ -105,17 +105,16 @@ parser.add_argument(
     "-i", "--instance",
     action="append",
     dest="instances",
-    help=(
-        "A path to a JSON instance (i.e. filename.json) "
-        "to validate (may be specified multiple times). "
-        "If this option is not used, an instance can be given through stdin. "
-        "If neither -i nor stdin is given, only the schema is checked."
-    ),
+    help="""
+        a path to a JSON instance (i.e. filename.json) to validate (may
+        be specified multiple times). If no instances are provided via this
+        option, one will be expected on standard input.
+    """,
 )
 parser.add_argument(
     "-F", "--error-format",
     help="""
-        The format to use for each validation error message, specified
+        the format to use for each validation error message, specified
         in a form suitable for str.format. This string will be passed
         one formatted object named 'error' for each ValidationError.
         Only provide this option when using --output=plain, which is the
@@ -127,20 +126,20 @@ parser.add_argument(
     "-o", "--output",
     choices=["plain", "pretty"],
     default="plain",
-    help=(
-        "Select the output format. "
-        "'plain': one line per error, minimum text. "
-        "'pretty': human-readable output with multiline details. "
-    ),
+    help="""
+        an output format to use. 'plain' (default) will produce minimal
+        text with one line for each error, while 'pretty' will produce
+        more detailed human-readable output on multiple lines.
+    """,
 )
 parser.add_argument(
     "-V", "--validator",
     type=_namedAnyWithDefault,
-    help=(
-        "the fully qualified object name of a validator to use, or, for "
-        "validators that are registered with jsonschema, simply the name "
-        "of the class."
-    ),
+    help="""
+        the fully qualified object name of a validator to use, or, for
+        validators that are registered with jsonschema, simply the name
+        of the class.
+    """,
 )
 parser.add_argument(
     "--version",
@@ -149,7 +148,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "schema",
-    help="Path to the JSON Schema to validate with (i.e. schema.json)",
+    help="the path to a JSON Schema to validate with (i.e. schema.json)",
 )
 
 
