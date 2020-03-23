@@ -6,10 +6,13 @@ from jsonschema import exceptions, validators
 from jsonschema.compat import PY36
 
 
-async def async_validator(validator, value, instance, schema):
-    await asyncio.sleep(0)
-    if not value:
-        yield exceptions.ValidationError(u"Async whoops!")
+if PY36:
+    exec(textwrap.dedent("""
+    async def async_validator(validator, value, instance, schema):
+        await asyncio.sleep(0)
+        if not value:
+            yield exceptions.ValidationError(u"Async whoops!")
+    """))
 
 
 @unittest.skipIf(not PY36, "Asynchronous validation is not supported before Python 3.6")
