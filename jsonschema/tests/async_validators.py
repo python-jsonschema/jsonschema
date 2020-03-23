@@ -6,6 +6,7 @@ from jsonschema import exceptions, validators
 
 __all__ = ['TestAsyncIterErrors', 'async_validator']
 
+
 async def async_validator(validator, value, instance, schema):
     await asyncio.sleep(0)
     if not value:
