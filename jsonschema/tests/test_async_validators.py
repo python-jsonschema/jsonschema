@@ -1,4 +1,6 @@
 from jsonschema.compat import PY36
 
 if PY36:
-    from .async_validators import *
+    from .async_validators import TestAsyncIterErrors
+
+    __all__ = ['TestAsyncIterErrors']

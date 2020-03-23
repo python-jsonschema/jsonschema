@@ -1,5 +1,4 @@
 import asyncio
-import unittest
 from unittest import TestCase
 
 from jsonschema import exceptions, validators
