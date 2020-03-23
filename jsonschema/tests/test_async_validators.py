@@ -1,14 +1,14 @@
-import asyncio
 import textwrap
-import unittest
-from unittest import TestCase
-
-from jsonschema import exceptions, validators
 from jsonschema.compat import PY36
-
 
 if PY36:
     exec(textwrap.dedent("""
+    import asyncio
+    import unittest
+    from unittest import TestCase
+
+    from jsonschema import exceptions, validators
+
     async def async_validator(validator, value, instance, schema):
         await asyncio.sleep(0)
         if not value:
