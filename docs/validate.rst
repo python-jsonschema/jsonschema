@@ -245,14 +245,14 @@ which each included validator class implements.
 
 
 For example, if you wanted to validate a schema you created against the
-Draft 6 meta-schema, you could use:
+Draft 7 meta-schema, you could use:
 
 .. code-block:: python
 
-    from jsonschema import Draft6Validator
+    from jsonschema import Draft7Validator
 
     schema = {
-        "$schema": "https://json-schema.org/schema#",
+        "$schema": "http://json-schema.org/draft-07/schema#",
 
         "type": "object",
         "properties": {
@@ -261,7 +261,7 @@ Draft 6 meta-schema, you could use:
         },
         "required": ["email"]
     }
-    Draft6Validator.check_schema(schema)
+    Draft7Validator.check_schema(schema)
 
 
 .. _validating formats:

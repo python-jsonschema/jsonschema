@@ -1354,7 +1354,7 @@ class TestDraft7Validator(ValidatorTestMixin, TestCase):
 
 
 class TestValidatorFor(SynchronousTestCase):
-    def test_draft_3(self):
+    def test_draft_3_https(self):
         schema = {"$schema": "https://json-schema.org/draft-03/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1367,7 +1367,7 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft3Validator,
         )
 
-    def test_draft_3_http(self):
+    def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1380,7 +1380,7 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft3Validator,
         )
 
-    def test_draft_4(self):
+    def test_draft_4_https(self):
         schema = {"$schema": "https://json-schema.org/draft-04/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1393,7 +1393,7 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft4Validator,
         )
 
-    def test_draft_4_http(self):
+    def test_draft_4(self):
         schema = {"$schema": "http://json-schema.org/draft-04/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1406,7 +1406,7 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft4Validator,
         )
 
-    def test_draft_6(self):
+    def test_draft_6_https(self):
         schema = {"$schema": "https://json-schema.org/draft-06/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1419,7 +1419,7 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft6Validator,
         )
 
-    def test_draft_6_http(self):
+    def test_draft_6(self):
         schema = {"$schema": "http://json-schema.org/draft-06/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1432,7 +1432,7 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft6Validator,
         )
 
-    def test_draft_7(self):
+    def test_draft_7_https(self):
         schema = {"$schema": "https://json-schema.org/draft-07/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1445,7 +1445,7 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft7Validator,
         )
 
-    def test_draft_7_http(self):
+    def test_draft_7(self):
         schema = {"$schema": "http://json-schema.org/draft-07/schema"}
         self.assertIs(
             validators.validator_for(schema),
@@ -1527,7 +1527,7 @@ class TestValidate(SynchronousTestCase):
         validators.validate({}, schema)
         self.assertEqual(result, [schema])
 
-    def test_draft3_validator_is_chosen(self):
+    def test_draft3_validator_is_chosen_https(self):
         self.assertUses(
             schema={"$schema": "https://json-schema.org/draft-03/schema#"},
             Validator=validators.Draft3Validator,
@@ -1538,7 +1538,7 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft3Validator,
         )
 
-    def test_draft4_validator_is_chosen(self):
+    def test_draft4_validator_is_chosen_https(self):
         self.assertUses(
             schema={"$schema": "https://json-schema.org/draft-04/schema#"},
             Validator=validators.Draft4Validator,
@@ -1549,7 +1549,7 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft4Validator,
         )
 
-    def test_draft6_validator_is_chosen(self):
+    def test_draft6_validator_is_chosen_https(self):
         self.assertUses(
             schema={"$schema": "https://json-schema.org/draft-06/schema#"},
             Validator=validators.Draft6Validator,
@@ -1560,7 +1560,7 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft6Validator,
         )
 
-    def test_draft7_validator_is_chosen(self):
+    def test_draft7_validator_is_chosen_https(self):
         self.assertUses(
             schema={"$schema": "https://json-schema.org/draft-07/schema#"},
             Validator=validators.Draft7Validator,
@@ -1571,7 +1571,7 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft7Validator,
         )
 
-    def test_draft3_validator_is_chosen_http(self):
+    def test_draft3_validator_is_chosen(self):
         self.assertUses(
             schema={"$schema": "http://json-schema.org/draft-03/schema#"},
             Validator=validators.Draft3Validator,
@@ -1582,7 +1582,7 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft3Validator,
         )
 
-    def test_draft4_validator_is_chosen_http(self):
+    def test_draft4_validator_is_chosen(self):
         self.assertUses(
             schema={"$schema": "http://json-schema.org/draft-04/schema#"},
             Validator=validators.Draft4Validator,
@@ -1593,7 +1593,7 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft4Validator,
         )
 
-    def test_draft6_validator_is_chosen_http(self):
+    def test_draft6_validator_is_chosen(self):
         self.assertUses(
             schema={"$schema": "http://json-schema.org/draft-06/schema#"},
             Validator=validators.Draft6Validator,
@@ -1604,7 +1604,7 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft6Validator,
         )
 
-    def test_draft7_validator_is_chosen_http(self):
+    def test_draft7_validator_is_chosen(self):
         self.assertUses(
             schema={"$schema": "http://json-schema.org/draft-07/schema#"},
             Validator=validators.Draft7Validator,

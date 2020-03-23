@@ -1,5 +1,5 @@
 {
-    "$schema": "https://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-04/schema#",
     "default": {},
     "definitions": {
         "positiveInteger": {
@@ -52,7 +52,7 @@
         ]
     },
     "description": "Core schema meta-schema",
-    "id": "https://json-schema.org/draft-04/schema#",
+    "id": "http://json-schema.org/draft-04/schema#",
     "properties": {
         "$schema": {
             "format": "uri",

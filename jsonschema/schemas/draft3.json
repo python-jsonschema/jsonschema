@@ -1,10 +1,10 @@
 {
-    "$schema": "https://json-schema.org/draft-03/schema#",
+    "$schema": "http://json-schema.org/draft-03/schema#",
     "dependencies": {
         "exclusiveMaximum": "maximum",
         "exclusiveMinimum": "minimum"
     },
-    "id": "https://json-schema.org/draft-03/schema#",
+    "id": "http://json-schema.org/draft-03/schema#",
     "properties": {
         "$ref": {
             "format": "uri",
