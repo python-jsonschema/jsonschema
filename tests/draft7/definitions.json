@@ -1,7 +1,7 @@
 [
     {
         "description": "valid definition",
-        "schema": {"$ref": "https://json-schema.org/draft-07/schema#"},
+        "schema": {"$ref": "http://json-schema.org/draft-07/schema#"},
         "tests": [
             {
                 "description": "valid definition schema",
@@ -16,7 +16,7 @@
     },
     {
         "description": "invalid definition",
-        "schema": {"$ref": "https://json-schema.org/draft-07/schema#"},
+        "schema": {"$ref": "http://json-schema.org/draft-07/schema#"},
         "tests": [
             {
                 "description": "invalid definition schema",

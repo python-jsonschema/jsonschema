@@ -357,5 +357,30 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "ref creates new scope when adjacent to keywords",
+        "schema": {
+            "$defs": {
+                "A": {
+                    "unevaluatedProperties": false
+                }
+            },
+            "properties": {
+                "prop1": {
+                    "type": "string"
+                }
+            },
+            "$ref": "#/$defs/A"
+        },
+        "tests": [
+            {
+                "description": "referenced subschema doesn't see annoations from properties",
+                "data": {
+                    "prop1": "match"
+                },
+                "valid": false
+            }
+        ]
     }
 ]
