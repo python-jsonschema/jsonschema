@@ -36,71 +36,6 @@ def fake_open(all_contents):
     return open
 
 
-class TestParser(TestCase):
-
-    FakeValidator = fake_validator()
-
-    def test_find_validator_by_fully_qualified_object_name(self):
-        arguments = cli.parse_args(
-            [
-                "--validator",
-                "jsonschema.tests.test_cli.TestParser.FakeValidator",
-                "--instance", "mem://some/instance",
-                "mem://some/schema",
-            ]
-        )
-        self.assertIs(arguments["validator"], self.FakeValidator)
-
-    def test_find_validator_in_jsonschema(self):
-        arguments = cli.parse_args(
-            [
-                "--validator", "Draft4Validator",
-                "--instance", "mem://some/instance",
-                "mem://some/schema",
-            ]
-        )
-        self.assertIs(arguments["validator"], Draft4Validator)
-
-    def test_latest_validator_is_the_default(self):
-        arguments = cli.parse_args(
-            [
-                "--instance", "mem://some/instance",
-                "mem://some/schema",
-            ]
-        )
-        self.assertIs(arguments["validator"], LatestValidator)
-
-    def test_unknown_output(self):
-        # Avoid the help message on stdout
-        with captured_output() as (stdout, stderr):
-            with self.assertRaises(SystemExit):
-                cli.parse_args(
-                    [
-                        "--output", "foo",
-                        "mem://some/schema",
-                    ]
-                )
-        self.assertIn("invalid choice: 'foo'", stderr.getvalue())
-        self.assertFalse(stdout.getvalue())
-
-    def test_useless_error_format(self):
-        # Avoid the help message on stdout
-        with captured_output() as (stdout, stderr):
-            with self.assertRaises(SystemExit):
-                cli.parse_args(
-                    [
-                        "--output", "pretty",
-                        "--error-format", "foo",
-                        "mem://some/schema",
-                    ]
-                )
-        self.assertIn(
-            "--error-format can only be used with --output plain",
-            stderr.getvalue(),
-        )
-        self.assertFalse(stdout.getvalue())
-
-
 class TestCLI(TestCase):
 
     pretty_parsing_error_tag = "===[" + JSONDecodeError.__name__ + "]==="
@@ -346,3 +281,68 @@ class TestCLI(TestCase):
         )
         version = version.decode("utf-8").strip()
         self.assertEqual(version, __version__)
+
+
+class TestParser(TestCase):
+
+    FakeValidator = fake_validator()
+
+    def test_find_validator_by_fully_qualified_object_name(self):
+        arguments = cli.parse_args(
+            [
+                "--validator",
+                "jsonschema.tests.test_cli.TestParser.FakeValidator",
+                "--instance", "mem://some/instance",
+                "mem://some/schema",
+            ]
+        )
+        self.assertIs(arguments["validator"], self.FakeValidator)
+
+    def test_find_validator_in_jsonschema(self):
+        arguments = cli.parse_args(
+            [
+                "--validator", "Draft4Validator",
+                "--instance", "mem://some/instance",
+                "mem://some/schema",
+            ]
+        )
+        self.assertIs(arguments["validator"], Draft4Validator)
+
+    def test_latest_validator_is_the_default(self):
+        arguments = cli.parse_args(
+            [
+                "--instance", "mem://some/instance",
+                "mem://some/schema",
+            ]
+        )
+        self.assertIs(arguments["validator"], LatestValidator)
+
+    def test_unknown_output(self):
+        # Avoid the help message on stdout
+        with captured_output() as (stdout, stderr):
+            with self.assertRaises(SystemExit):
+                cli.parse_args(
+                    [
+                        "--output", "foo",
+                        "mem://some/schema",
+                    ]
+                )
+        self.assertIn("invalid choice: 'foo'", stderr.getvalue())
+        self.assertFalse(stdout.getvalue())
+
+    def test_useless_error_format(self):
+        # Avoid the help message on stdout
+        with captured_output() as (stdout, stderr):
+            with self.assertRaises(SystemExit):
+                cli.parse_args(
+                    [
+                        "--output", "pretty",
+                        "--error-format", "foo",
+                        "mem://some/schema",
+                    ]
+                )
+        self.assertIn(
+            "--error-format can only be used with --output plain",
+            stderr.getvalue(),
+        )
+        self.assertFalse(stdout.getvalue())
