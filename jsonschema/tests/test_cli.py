@@ -267,21 +267,6 @@ class TestCLI(TestCase):
         self.assertFalse(stdout)
         self.assertTrue(stderr)
 
-    def test_license(self):
-        output = subprocess.check_output(
-            [sys.executable, "-m", "pip", "show", "jsonschema"],
-            stderr=subprocess.STDOUT,
-        )
-        self.assertIn(b"License: MIT", output)
-
-    def test_version(self):
-        version = subprocess.check_output(
-            [sys.executable, "-m", "jsonschema", "--version"],
-            stderr=subprocess.STDOUT,
-        )
-        version = version.decode("utf-8").strip()
-        self.assertEqual(version, __version__)
-
 
 class TestParser(TestCase):
 
@@ -346,3 +331,20 @@ class TestParser(TestCase):
             stderr.getvalue(),
         )
         self.assertFalse(stdout.getvalue())
+
+
+class TestCLIIntegration(TestCase):
+    def test_license(self):
+        output = subprocess.check_output(
+            [sys.executable, "-m", "pip", "show", "jsonschema"],
+            stderr=subprocess.STDOUT,
+        )
+        self.assertIn(b"License: MIT", output)
+
+    def test_version(self):
+        version = subprocess.check_output(
+            [sys.executable, "-m", "jsonschema", "--version"],
+            stderr=subprocess.STDOUT,
+        )
+        version = version.decode("utf-8").strip()
+        self.assertEqual(version, __version__)
