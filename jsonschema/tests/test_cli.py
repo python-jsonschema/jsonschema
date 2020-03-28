@@ -407,7 +407,7 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                Failed to parse 'first_instance'. Got the following error: Error when decoding null at char 1
+                Failed to parse 'first_instance': Error when decoding null at char 1
                 12: 12 is less than the minimum of 30
             """,
         )
@@ -439,7 +439,7 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                Failed to parse 'some_instance'. Got the following error: {}
+                Failed to parse 'some_instance': {}
             """.format(_message_for(instance)),
         )
 
@@ -472,7 +472,7 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                Failed to parse <stdin>. Got the following error: {}
+                Failed to parse <stdin>: {}
             """.format(_message_for(instance)),
         )
 
@@ -502,7 +502,7 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                Failed to parse 'some_schema'. Got the following error: {}
+                Failed to parse 'some_schema': {}
             """.format(_message_for(schema)),
         )
 
@@ -532,7 +532,7 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                Failed to parse 'some_schema'. Got the following error: {}
+                Failed to parse 'some_schema': {}
             """.format(_message_for(schema)),
         )
 

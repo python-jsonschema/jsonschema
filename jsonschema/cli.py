@@ -118,7 +118,7 @@ class _PlainFormatter(object):
         return "{!r} does not exist.\n".format(path)
 
     def parsing_error(self, path, exc_info):
-        return "Failed to parse {}. Got the following error: {}\n".format(
+        return "Failed to parse {}: {}\n".format(
             "<stdin>" if path == "<stdin>" else repr(path),
             exc_info[1],
         )
