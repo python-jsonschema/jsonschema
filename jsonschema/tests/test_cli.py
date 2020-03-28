@@ -1,13 +1,16 @@
 from textwrap import dedent
 from unittest import TestCase
+import errno
 import json
+import os
 import subprocess
 import sys
 
-from jsonschema import Draft4Validator, ValidationError, cli, __version__
+from jsonschema import Draft4Validator, cli, __version__
 from jsonschema.compat import JSONDecodeError, NativeIO
+from jsonschema.exceptions import SchemaError, ValidationError
 from jsonschema.tests._helpers import captured_output
-from jsonschema.validators import _LATEST_VERSION as LatestValidator
+from jsonschema.validators import _LATEST_VERSION, validate
 
 
 def fake_validator(*errors):
@@ -22,6 +25,7 @@ def fake_validator(*errors):
                 return errors.pop()
             return []
 
+        @classmethod
         def check_schema(self, schema):
             pass
 
@@ -31,8 +35,8 @@ def fake_validator(*errors):
 def fake_open(all_contents):
     def open(path):
         contents = all_contents.get(path)
-        if contents is None:  # pragma: no cover
-            raise RuntimeError("Unknown test fixture {!r}".format(path))
+        if contents is None:
+            raise OSError(errno.ENOENT, os.strerror(errno.ENOENT), path)
         return NativeIO(contents)
     return open
 
@@ -47,7 +51,9 @@ def _message_for(non_json):
 
 
 class TestCLI(TestCase):
-    def run_cli(self, argv, files, stdin=NativeIO(), exit_code=0, **override):
+    def run_cli(
+            self, argv, files={}, stdin=NativeIO(), exit_code=0, **override
+    ):
         arguments = cli.parse_args(argv)
         arguments.update(override)
 
@@ -67,11 +73,11 @@ class TestCLI(TestCase):
         self.assertEqual(
             actual_exit_code, exit_code, msg=dedent(
                 """
-                Expected an exit code of {} != {}.
+                    Expected an exit code of {} != {}.
 
-                stdout: {}
+                    stdout: {}
 
-                stderr: {}
+                    stderr: {}
                 """.format(
                     exit_code,
                     actual_exit_code,
@@ -116,12 +122,27 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-            ===[ValidationError]===(some_instance)===
+                ===[ValidationError]===(some_instance)===
 
-            I am an error!
-            -----------------------------
+                I am an error!
+                -----------------------------
             """,
         ),
+
+    def test_invalid_instance_explicit_plain_output(self):
+        error = ValidationError("I am an error!", instance=12)
+        self.assertOutputs(
+            files=dict(
+                some_schema='{"does not": "matter since it is stubbed"}',
+                some_instance=json.dumps(error.instance),
+            ),
+            validator=fake_validator([error]),
+
+            argv=["--output", "plain", "-i", "some_instance", "some_schema"],
+
+            exit_code=1,
+            stderr="12: I am an error!\n",
+        )
 
     def test_invalid_instance_multiple_errors(self):
         instance = 12
@@ -139,8 +160,8 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-            12: First error
-            12: Second error
+                12: First error
+                12: Second error
             """,
         )
 
@@ -160,14 +181,14 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-            ===[ValidationError]===(some_instance)===
+                ===[ValidationError]===(some_instance)===
 
-            First error
-            -----------------------------
-            ===[ValidationError]===(some_instance)===
+                First error
+                -----------------------------
+                ===[ValidationError]===(some_instance)===
 
-            Second error
-            -----------------------------
+                Second error
+                -----------------------------
             """,
         )
 
@@ -196,9 +217,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-            12: An error
-            12: Another error
-            foo: BOOM
+                12: An error
+                12: Another error
+                foo: BOOM
             """,
         )
 
@@ -243,6 +264,34 @@ class TestCLI(TestCase):
             """,
         )
 
+    def test_custom_error_format(self):
+        first_instance = 12
+        first_errors = [
+            ValidationError("An error", instance=first_instance),
+            ValidationError("Another error", instance=first_instance),
+        ]
+        second_instance = "foo"
+        second_errors = [ValidationError("BOOM", instance=second_instance)]
+
+        self.assertOutputs(
+            files=dict(
+                some_schema='{"does not": "matter since it is stubbed"}',
+                some_first_instance=json.dumps(first_instance),
+                some_second_instance=json.dumps(second_instance),
+            ),
+            validator=fake_validator(first_errors, second_errors),
+
+            argv=[
+                "--error-format", ":{error.message}._-_.{error.instance}:",
+                "-i", "some_first_instance",
+                "-i", "some_second_instance",
+                "some_schema",
+            ],
+
+            exit_code=1,
+            stderr=":An error._-_.12::Another error._-_.12::BOOM._-_.foo:",
+        )
+
     def test_invalid_schema(self):
         self.assertOutputs(
             files=dict(some_schema='{"type": 12}'),
@@ -252,6 +301,113 @@ class TestCLI(TestCase):
             stderr="""\
                 12: 12 is not valid under any of the given schemas
             """,
+        )
+
+    def test_invalid_schema_pretty_output(self):
+        schema = {"type": 12}
+
+        with self.assertRaises(SchemaError) as e:
+            validate(schema=schema, instance="")
+        error = str(e.exception)
+
+        self.assertOutputs(
+            files=dict(some_schema=json.dumps(schema)),
+            argv=["--output", "pretty", "some_schema"],
+
+            exit_code=1,
+            stderr=(
+                "===[SchemaError]===(some_schema)===\n\n"
+                + str(error)
+                + "\n-----------------------------\n"
+            ),
+        )
+
+    def test_invalid_schema_multiple_errors(self):
+        self.assertOutputs(
+            files=dict(some_schema='{"type": 12, "items": 57}'),
+            argv=["some_schema"],
+
+            exit_code=1,
+            stderr="""\
+                57: 57 is not valid under any of the given schemas
+            """,
+        )
+
+    def test_invalid_schema_multiple_errors_pretty_output(self):
+        schema = {"type": 12, "items": 57}
+
+        with self.assertRaises(SchemaError) as e:
+            validate(schema=schema, instance="")
+        error = str(e.exception)
+
+        self.assertOutputs(
+            files=dict(some_schema=json.dumps(schema)),
+            argv=["--output", "pretty", "some_schema"],
+
+            exit_code=1,
+            stderr=(
+                "===[SchemaError]===(some_schema)===\n\n"
+                + str(error)
+                + "\n-----------------------------\n"
+            ),
+        )
+
+    def test_invalid_schema_with_invalid_instance(self):
+        """
+        "Validating" an instance that's invalid under an invalid schema
+        just shows the schema error.
+        """
+        self.assertOutputs(
+            files=dict(
+                some_schema='{"type": 12, "minimum": 30}',
+                some_instance="13",
+            ),
+            argv=["-i", "some_instance", "some_schema"],
+
+            exit_code=1,
+            stderr="""\
+                12: 12 is not valid under any of the given schemas
+            """,
+        )
+
+    def test_invalid_schema_with_invalid_instance_pretty_output(self):
+        instance, schema = 13, {"type": 12, "minimum": 30}
+
+        with self.assertRaises(SchemaError) as e:
+            validate(schema=schema, instance=instance)
+        error = str(e.exception)
+
+        self.assertOutputs(
+            files=dict(
+                some_schema=json.dumps(schema),
+                some_instance=json.dumps(instance),
+            ),
+            argv=["--output", "pretty", "-i", "some_instance", "some_schema"],
+
+            exit_code=1,
+            stderr=(
+                "===[SchemaError]===(some_schema)===\n\n"
+                + str(error)
+                + "\n-----------------------------\n"
+            ),
+        )
+
+    def test_custom_error_format_applies_to_schema_errors(self):
+        instance, schema = 13, {"type": 12, "minimum": 30}
+
+        with self.assertRaises(SchemaError):
+            validate(schema=schema, instance=instance)
+
+        self.assertOutputs(
+            files=dict(some_schema=json.dumps(schema)),
+
+            argv=[
+                "--error-format", ":{error.message}._-_.{error.instance}:",
+                "some_schema",
+            ],
+
+            exit_code=1,
+            stderr=":12 is not valid under any of the given schemas._-_.12:",
         )
 
     def test_instance_is_invalid_JSON(self):
@@ -266,6 +422,24 @@ class TestCLI(TestCase):
                 Failed to parse 'some_instance'. Got the following error: {}
             """.format(_message_for(instance)),
         )
+
+    def test_instance_is_invalid_JSON_pretty_output(self):
+        stdout, stderr = self.run_cli(
+            files=dict(
+                some_schema="{}",
+                some_instance="not valid JSON!",
+            ),
+
+            argv=["--output", "pretty", "-i", "some_instance", "some_schema"],
+
+            exit_code=1,
+        )
+        self.assertFalse(stdout)
+        self.assertIn(
+            "(some_instance)===\n\nTraceback (most recent call last):\n",
+            stderr,
+        )
+        self.assertNotIn("some_schema", stderr)
 
     def test_instance_is_invalid_JSON_on_stdin(self):
         instance = "not valid JSON!"
@@ -283,11 +457,9 @@ class TestCLI(TestCase):
         )
 
     def test_instance_is_invalid_JSON_on_stdin_pretty_output(self):
-        instance = "not valid JSON!"
-
         stdout, stderr = self.run_cli(
             files=dict(some_schema="{}"),
-            stdin=NativeIO(instance),
+            stdin=NativeIO("not valid JSON!"),
 
             argv=["--output", "pretty", "some_schema"],
 
@@ -298,6 +470,7 @@ class TestCLI(TestCase):
             "(<stdin>)===\n\nTraceback (most recent call last):\n",
             stderr,
         )
+        self.assertNotIn("some_schema", stderr)
 
     def test_schema_is_invalid_JSON(self):
         schema = "not valid JSON!"
@@ -311,6 +484,20 @@ class TestCLI(TestCase):
             stderr="""\
                 Failed to parse 'some_schema'. Got the following error: {}
             """.format(_message_for(schema)),
+        )
+
+    def test_schema_is_invalid_JSON_pretty_output(self):
+        stdout, stderr = self.run_cli(
+            files=dict(some_schema="not valid JSON!"),
+
+            argv=["--output", "pretty", "some_schema"],
+
+            exit_code=1,
+        )
+        self.assertFalse(stdout)
+        self.assertIn(
+            "(some_schema)===\n\nTraceback (most recent call last):\n",
+            stderr,
         )
 
     def test_schema_and_instance_are_both_invalid_JSON(self):
@@ -350,6 +537,81 @@ class TestCLI(TestCase):
         )
         self.assertNotIn("some_instance", stderr)
 
+    def test_instance_does_not_exist(self):
+        self.assertOutputs(
+            files=dict(some_schema="{}"),
+            argv=["-i", "nonexisting_instance", "some_schema"],
+
+            exit_code=1,
+            stderr="""\
+                'nonexisting_instance' does not exist.
+            """,
+        )
+
+    def test_instance_does_not_exist_pretty_output(self):
+        self.assertOutputs(
+            files=dict(some_schema="{}"),
+            argv=[
+                "--output", "pretty",
+                "-i", "nonexisting_instance",
+                "some_schema",
+            ],
+
+            exit_code=1,
+            stderr="""\
+                ===[FileNotFoundError]===(nonexisting_instance)===
+
+                'nonexisting_instance' does not exist.
+                -----------------------------
+            """,
+        )
+
+    def test_schema_does_not_exist(self):
+        self.assertOutputs(
+            argv=["nonexisting_schema"],
+
+            exit_code=1,
+            stderr="'nonexisting_schema' does not exist.\n",
+        )
+
+    def test_schema_does_not_exist_pretty_output(self):
+        self.assertOutputs(
+            argv=["--output", "pretty", "nonexisting_schema"],
+
+            exit_code=1,
+            stderr="""\
+                ===[FileNotFoundError]===(nonexisting_schema)===
+
+                'nonexisting_schema' does not exist.
+                -----------------------------
+            """,
+        )
+
+    def test_neither_instance_nor_schema_exist(self):
+        self.assertOutputs(
+            argv=["-i", "nonexisting_instance", "nonexisting_schema"],
+
+            exit_code=1,
+            stderr="'nonexisting_schema' does not exist.\n",
+        )
+
+    def test_neither_instance_nor_schema_exist_pretty_output(self):
+        self.assertOutputs(
+            argv=[
+                "--output", "pretty",
+                "-i", "nonexisting_instance",
+                "nonexisting_schema",
+            ],
+
+            exit_code=1,
+            stderr="""\
+                ===[FileNotFoundError]===(nonexisting_schema)===
+
+                'nonexisting_schema' does not exist.
+                -----------------------------
+            """,
+        )
+
     def test_successful_validation(self):
         self.assertOutputs(
             files=dict(some_schema="{}", some_instance="{}"),
@@ -372,6 +634,31 @@ class TestCLI(TestCase):
             stdin=NativeIO("{}"),
             argv=["some_schema"],
             stdout="",
+            stderr="",
+        )
+
+    def test_successful_validation_of_stdin_pretty_output(self):
+        self.assertOutputs(
+            files=dict(some_schema="{}"),
+            stdin=NativeIO("{}"),
+            argv=["--output", "pretty", "some_schema"],
+            stdout="===[SUCCESS]===(<stdin>)===\n",
+            stderr="",
+        )
+
+    def test_successful_validation_of_just_the_schema(self):
+        self.assertOutputs(
+            files=dict(some_schema="{}", some_instance="{}"),
+            argv=["-i", "some_instance", "some_schema"],
+            stdout="",
+            stderr="",
+        )
+
+    def test_successful_validation__of_just_the_schema_pretty_output(self):
+        self.assertOutputs(
+            files=dict(some_schema="{}", some_instance="{}"),
+            argv=["--output", "pretty", "-i", "some_instance", "some_schema"],
+            stdout="===[SUCCESS]===(some_instance)===\n",
             stderr="",
         )
 
@@ -416,7 +703,7 @@ class TestParser(TestCase):
                 "mem://some/schema",
             ]
         )
-        self.assertIs(arguments["validator"], LatestValidator)
+        self.assertIs(arguments["validator"], _LATEST_VERSION)
 
     def test_unknown_output(self):
         # Avoid the help message on stdout

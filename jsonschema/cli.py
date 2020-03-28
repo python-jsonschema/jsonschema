@@ -5,6 +5,7 @@ The ``jsonschema`` command line.
 from __future__ import absolute_import
 from textwrap import dedent
 import argparse
+import errno
 import json
 import sys
 import traceback
@@ -33,6 +34,9 @@ class _Outputter(object):
             formatter = _PrettyFormatter()
         return cls(formatter=formatter, stdout=stdout, stderr=stderr)
 
+    def filenotfound_error(self, **kwargs):
+        self._stderr.write(self._formatter.filenotfound_error(**kwargs))
+
     def parsing_error(self, **kwargs):
         self._stderr.write(self._formatter.parsing_error(**kwargs))
 
@@ -48,7 +52,7 @@ class _PrettyFormatter(object):
 
     _ERROR_MSG = dedent(
         """\
-        ===[{type.__name__}]===({path})===
+        ===[{type}]===({path})===
 
         {body}
         -----------------------------
@@ -56,17 +60,28 @@ class _PrettyFormatter(object):
     )
     _SUCCESS_MSG = "===[SUCCESS]===({path})===\n"
 
+    def filenotfound_error(self, path, exc_info):
+        return self._ERROR_MSG.format(
+            path=path,
+            type="FileNotFoundError",
+            body="{!r} does not exist.".format(path),
+        )
+
     def parsing_error(self, path, exc_info):
         exc_type, exc_value, exc_traceback = exc_info
         exc_lines = "".join(
             traceback.format_exception(exc_type, exc_value, exc_traceback),
         )
-        return self._ERROR_MSG.format(path=path, type=exc_type, body=exc_lines)
+        return self._ERROR_MSG.format(
+            path=path,
+            type=exc_type.__name__,
+            body=exc_lines,
+        )
 
     def validation_error(self, instance_path, error):
         return self._ERROR_MSG.format(
             path=instance_path,
-            type=error.__class__,
+            type=error.__class__.__name__,
             body=error,
         )
 
@@ -78,6 +93,9 @@ class _PrettyFormatter(object):
 class _PlainFormatter(object):
 
     _error_format = attr.ib()
+
+    def filenotfound_error(self, path, exc_info):
+        return "{!r} does not exist.\n".format(path)
 
     def parsing_error(self, path, exc_info):
         return "Failed to parse {}. Got the following error: {}\n".format(
@@ -170,23 +188,6 @@ def parse_args(args):
     return arguments
 
 
-def _make_validator(schema_path, Validator, outputter):
-    try:
-        schema_obj = _load_json_file(schema_path)
-    except (ValueError, IOError) as error:
-        outputter.parsing_error(path=schema_path, exc_info=sys.exc_info())
-        raise error
-
-    try:
-        validator = Validator(schema=schema_obj)
-        validator.check_schema(schema_obj)
-    except SchemaError as error:
-        outputter.validation_error(instance_path=schema_path, error=error)
-        raise error
-
-    return validator
-
-
 def _validate_instance(instance_path, instance, validator, outputter):
     invalid = False
     for error in validator.iter_errors(instance):
@@ -210,13 +211,32 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     )
 
     try:
-        validator = _make_validator(
-            schema_path=arguments["schema"],
-            Validator=arguments["validator"],
-            outputter=outputter,
+        schema = _load_json_file(arguments["schema"])
+    except (IOError, OSError) as error:
+        if error.errno != errno.ENOENT:
+            raise
+        outputter.filenotfound_error(
+            path=arguments["schema"],
+            exc_info=sys.exc_info(),
         )
-    except (IOError, ValueError, SchemaError):
         return 1
+    except JSONDecodeError:
+        outputter.parsing_error(
+            path=arguments["schema"],
+            exc_info=sys.exc_info(),
+        )
+        return 1
+    else:
+        try:
+            arguments["validator"].check_schema(schema)
+        except SchemaError as error:
+            outputter.validation_error(
+                instance_path=arguments["schema"],
+                error=error,
+            )
+            return 1
+        else:
+            validator = arguments["validator"](schema)
 
     if arguments["instances"]:
         load, instances = _load_json_file, arguments["instances"]
@@ -229,6 +249,11 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     for each in instances:
         try:
             instance = load(each)
+        except (IOError, OSError) as error:
+            if error.errno != errno.ENOENT:
+                raise
+            outputter.filenotfound_error(path=each, exc_info=sys.exc_info())
+            exit_code = 1
         except JSONDecodeError:
             outputter.parsing_error(path=each, exc_info=sys.exc_info())
             exit_code = 1
