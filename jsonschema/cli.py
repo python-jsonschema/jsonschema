@@ -19,6 +19,10 @@ from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
 
+class _CannotLoadFile(Exception):
+    pass
+
+
 @attr.s
 class _Outputter(object):
 
@@ -33,6 +37,22 @@ class _Outputter(object):
         elif arguments["output"] == "pretty":
             formatter = _PrettyFormatter()
         return cls(formatter=formatter, stdout=stdout, stderr=stderr)
+
+    def load(self, path):
+        try:
+            file = open(path)
+        except (IOError, OSError) as error:
+            if error.errno != errno.ENOENT:
+                raise
+            self.filenotfound_error(path=path, exc_info=sys.exc_info())
+            raise _CannotLoadFile()
+
+        with file:
+            try:
+                return json.load(file)
+            except JSONDecodeError:
+                self.parsing_error(path=path, exc_info=sys.exc_info())
+                raise _CannotLoadFile()
 
     def filenotfound_error(self, **kwargs):
         self._stderr.write(self._formatter.filenotfound_error(**kwargs))
@@ -170,11 +190,6 @@ parser.add_argument(
 )
 
 
-def _load_json_file(path):
-    with open(path) as file:
-        return json.load(file)
-
-
 def parse_args(args):
     arguments = vars(parser.parse_args(args=args or ["--help"]))
     if arguments["validator"] is None:
@@ -211,20 +226,8 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     )
 
     try:
-        schema = _load_json_file(arguments["schema"])
-    except (IOError, OSError) as error:
-        if error.errno != errno.ENOENT:
-            raise
-        outputter.filenotfound_error(
-            path=arguments["schema"],
-            exc_info=sys.exc_info(),
-        )
-        return 1
-    except JSONDecodeError:
-        outputter.parsing_error(
-            path=arguments["schema"],
-            exc_info=sys.exc_info(),
-        )
+        schema = outputter.load(arguments["schema"])
+    except _CannotLoadFile:
         return 1
     else:
         try:
@@ -239,24 +242,24 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
             validator = arguments["validator"](schema)
 
     if arguments["instances"]:
-        load, instances = _load_json_file, arguments["instances"]
+        load, instances = outputter.load, arguments["instances"]
     else:
         def load(_):
-            return json.load(stdin)
+            try:
+                return json.load(stdin)
+            except JSONDecodeError:
+                outputter.parsing_error(
+                    path="<stdin>", exc_info=sys.exc_info(),
+                )
+                raise _CannotLoadFile()
         instances = ["<stdin>"]
 
     exit_code = 0
     for each in instances:
         try:
             instance = load(each)
-        except (IOError, OSError) as error:
-            if error.errno != errno.ENOENT:
-                raise
-            outputter.filenotfound_error(path=each, exc_info=sys.exc_info())
-            exit_code = 1
-        except JSONDecodeError:
-            outputter.parsing_error(path=each, exc_info=sys.exc_info())
-            exit_code = 1
+        except _CannotLoadFile:
+            return 1
         else:
             exit_code |= _validate_instance(
                 instance_path=each,
