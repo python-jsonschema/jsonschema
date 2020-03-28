@@ -396,8 +396,8 @@ class TestCLI(TestCase):
         self.assertOutputs(
             files=dict(
                 some_schema='{"minimum": 30}',
-                first_instance='not valid JSON!',
-                second_instance='12',
+                first_instance="not valid JSON!",
+                second_instance="12",
             ),
             argv=[
                 "-i", "first_instance",
@@ -407,9 +407,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                Failed to parse 'first_instance': Error when decoding null at char 1
+                Failed to parse 'first_instance': {}
                 12: 12 is less than the minimum of 30
-            """,
+            """.format(_message_for("not valid JSON!")),
         )
 
     def test_custom_error_format_applies_to_schema_errors(self):
