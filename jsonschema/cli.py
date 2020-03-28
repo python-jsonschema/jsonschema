@@ -229,17 +229,15 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         schema = outputter.load(arguments["schema"])
     except _CannotLoadFile:
         return 1
-    else:
-        try:
-            arguments["validator"].check_schema(schema)
-        except SchemaError as error:
-            outputter.validation_error(
-                instance_path=arguments["schema"],
-                error=error,
-            )
-            return 1
-        else:
-            validator = arguments["validator"](schema)
+
+    try:
+        arguments["validator"].check_schema(schema)
+    except SchemaError as error:
+        outputter.validation_error(
+            instance_path=arguments["schema"],
+            error=error,
+        )
+        return 1
 
     if arguments["instances"]:
         load, instances = outputter.load, arguments["instances"]
@@ -254,6 +252,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 raise _CannotLoadFile()
         instances = ["<stdin>"]
 
+    validator = arguments["validator"](schema)
     exit_code = 0
     for each in instances:
         try:
