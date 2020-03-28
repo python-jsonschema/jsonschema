@@ -392,6 +392,26 @@ class TestCLI(TestCase):
             ),
         )
 
+    def test_invalid_instance_continues_with_the_rest(self):
+        self.assertOutputs(
+            files=dict(
+                some_schema='{"minimum": 30}',
+                first_instance='not valid JSON!',
+                second_instance='12',
+            ),
+            argv=[
+                "-i", "first_instance",
+                "-i", "second_instance",
+                "some_schema",
+            ],
+
+            exit_code=1,
+            stderr="""\
+                Failed to parse 'first_instance'. Got the following error: Error when decoding null at char 1
+                12: 12 is less than the minimum of 30
+            """,
+        )
+
     def test_custom_error_format_applies_to_schema_errors(self):
         instance, schema = 13, {"type": 12, "minimum": 30}
 

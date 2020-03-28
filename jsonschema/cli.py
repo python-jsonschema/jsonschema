@@ -258,7 +258,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         try:
             instance = load(each)
         except _CannotLoadFile:
-            return 1
+            exit_code = 1
         else:
             exit_code |= _validate_instance(
                 instance_path=each,
