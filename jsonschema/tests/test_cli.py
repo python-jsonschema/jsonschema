@@ -771,3 +771,14 @@ class TestCLIIntegration(TestCase):
         )
         version = version.decode("utf-8").strip()
         self.assertEqual(version, __version__)
+
+    def test_no_arguments_shows_usage_notes(self):
+        output = subprocess.check_output(
+            [sys.executable, "-m", "jsonschema"],
+            stderr=subprocess.STDOUT,
+        )
+        output_for_help = subprocess.check_output(
+            [sys.executable, "-m", "jsonschema", "--help"],
+            stderr=subprocess.STDOUT,
+        )
+        self.assertEqual(output, output_for_help)
