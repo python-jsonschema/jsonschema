@@ -51,12 +51,6 @@ jobs:
             toxenv: docs-spelling
           - name: pypy3
             toxenv: docs-style
-          - name: 3.5
-            toxenv: py35-build
-          - name: 3.5
-            toxenv: py35-tests
-          - name: 3.5
-            toxenv: py35-tests_nongpl
           - name: 3.6
             toxenv: py36-build
           - name: 3.6
@@ -76,8 +70,8 @@ jobs:
           - name: 3.8
             toxenv: py38-tests_nongpl
         exclude:
-          # Building on Windows isn't supported, and 3.5/PyPy on Windows
-          # seem to fail with silent obscure errors.
+          # Building on Windows isn't supported, and PyPy on Windows
+          # seems to fail with silent obscure errors.
           - os: windows-latest
             python-version:
               name: pypy2
@@ -110,18 +104,6 @@ jobs:
             python-version:
               name: pypy3
               toxenv: style
-          - os: windows-latest
-            python-version:
-              name: 3.5
-              toxenv: py35-build
-          - os: windows-latest
-            python-version:
-              name: 3.5
-              toxenv: py35-tests
-          - os: windows-latest
-            python-version:
-              name: 3.5
-              toxenv: py35-tests_nongpl
           - os: windows-latest
             python-version:
               name: 3.6
