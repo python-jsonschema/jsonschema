@@ -241,7 +241,7 @@ def dependencies(validator, dependencies, instance, schema):
 
 
 def enum(validator, enums, instance, schema):
-    if instance == 0 or instance == 1:
+    if instance is 0 or instance is 1:
         unbooled = unbool(instance)
         if all(unbooled != unbool(each) for each in enums):
             yield ValidationError("%r is not one of %r" % (instance, enums))
