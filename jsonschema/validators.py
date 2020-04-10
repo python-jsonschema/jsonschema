@@ -868,6 +868,26 @@ class RefResolver(object):
         return result
 
 
+def is_valid(instance, schema, cls=None, *args, **kwargs) -> bool:
+    """
+    Same as validate() but returns a boolean instead of raising
+    a ValidationError in case the instance is not valid for the given
+    schema.
+
+    :param instance: see validate()
+    :param schema: see validate()
+    :param cls: see validate()
+    :param args: see validate()
+    :param kwargs: see validate()
+    :return: bool
+    """
+    try:
+        validate(instance, schema, cls=cls, *args, **kwargs)
+        return True
+    except ValidationError:
+        return False
+
+
 def validate(instance, schema, cls=None, *args, **kwargs):
     """
     Validate an instance under the given schema.
