@@ -663,6 +663,18 @@ class RefResolver(object):
         self._urljoin_cache = urljoin_cache
         self._remote_cache = remote_cache
 
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        # LRU caches don't pickle.
+        d.pop("_urljoin_cache", None)
+        d.pop("_remote_cache", None)
+        return d
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._urljoin_cache = lru_cache(1024)(urljoin)
+        self._remote_cache = lru_cache(1024)(self.resolve_from_url)
+
     @classmethod
     def from_schema(cls, schema, id_of=_id_of, *args, **kwargs):
         """
