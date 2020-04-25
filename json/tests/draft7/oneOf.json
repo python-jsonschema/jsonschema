@@ -244,5 +244,31 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "nested oneOf, to check validation semantics",
+        "schema": {
+            "oneOf": [
+                {
+                    "oneOf": [
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "null is valid",
+                "data": null,
+                "valid": true
+            },
+            {
+                "description": "anything non-null is invalid",
+                "data": 123,
+                "valid": false
+            }
+        ]
     }
 ]

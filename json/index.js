@@ -2,7 +2,6 @@
 
 const Ajv = require('ajv');
 const jsonSchemaTest = require('json-schema-test');
-const assert = require('assert');
 
 const refs = {
   'http://localhost:1234/integer.json': require('./remotes/integer.json'),

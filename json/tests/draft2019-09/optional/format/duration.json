@@ -1,0 +1,18 @@
+[
+  {
+      "description": "validation of duration strings",
+      "schema": {"format": "duration"},
+      "tests": [
+          {
+              "description": "a valid duration string",
+              "data": "P4DT12H30M5S",
+              "valid": true
+          },
+          {
+              "description": "an invalid duration string",
+              "data": "PT1D",
+              "valid": false
+          }
+      ]
+  }
+]

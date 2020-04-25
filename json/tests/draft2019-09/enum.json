@@ -37,6 +37,27 @@
         ]
     },
     {
+        "description": "heterogeneous enum-with-null validation",
+        "schema": { "enum": [6, null] },
+        "tests": [
+            {
+                "description": "null is valid",
+                "data": null,
+                "valid": true
+            },
+            {
+                "description": "number is valid",
+                "data": 6,
+                "valid": true
+            },
+            {
+                "description": "something else is invalid",
+                "data": "test",
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "enums in properties",
         "schema": {
             "type":"object",

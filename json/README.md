@@ -1,5 +1,5 @@
 JSON Schema Test Suite [![Build Status](https://github.com/json-schema-org/JSON-Schema-Test-Suite/workflows/Test%20Suite%20Sanity%20Checking/badge.svg)](https://github.com/json-schema-org/JSON-Schema-Test-Suite/actions?query=workflow%3A%22Test+Suite+Sanity+Checking%22)
-======================
+======
 
 This repository contains a set of JSON objects that implementors of JSON Schema
 validation libraries can use to test their validators.
