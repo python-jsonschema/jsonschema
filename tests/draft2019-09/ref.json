@@ -375,7 +375,7 @@
         },
         "tests": [
             {
-                "description": "referenced subschema doesn't see annoations from properties",
+                "description": "referenced subschema doesn't see annotations from properties",
                 "data": {
                     "prop1": "match"
                 },
