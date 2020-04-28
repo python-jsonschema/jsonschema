@@ -9,7 +9,7 @@
                 "valid": true
             },
             {
-                "description": "a valid downwards RJP",  
+                "description": "a valid downwards RJP",
                 "data": "0/foo/bar",
                 "valid": true
             },
@@ -26,6 +26,11 @@
             {
                 "description": "an invalid RJP that is a valid JSON Pointer",
                 "data": "/foo/bar",
+                "valid": false
+            },
+            {
+                "description": "negative prefix",
+                "data": "-1/foo/bar",
                 "valid": false
             }
         ]
