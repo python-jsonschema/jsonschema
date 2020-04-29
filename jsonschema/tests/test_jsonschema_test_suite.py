@@ -137,7 +137,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.tests(),
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="format"),
-    DRAFT6.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
     skip=lambda test: (
@@ -186,7 +185,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.format_tests(),
     DRAFT7.optional_tests_of(name="bignum"),
     DRAFT7.optional_tests_of(name="content"),
-    DRAFT7.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft7Validator,
     format_checker=draft7_format_checker,
     skip=lambda test: (
