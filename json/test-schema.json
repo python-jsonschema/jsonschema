@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "http://json-schema.org/draft-06/schema#",
     "description": "Schema for tests",
     "type": "array",
     "items": {
@@ -12,7 +12,9 @@
                 "format": "uri"
             },
             "description": { "type": "string" },
-            "schema": {},
+            "schema": {
+                "description": "This should be a valid schema. This should be a ref to a meta-schema if schema keywords need testing."
+            },
             "tests": {
                 "description": "A set of related tests all using the same schema",
                 "type": "array",
