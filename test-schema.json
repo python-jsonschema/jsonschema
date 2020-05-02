@@ -11,7 +11,14 @@
                 "type": "string",
                 "format": "uri"
             },
-            "description": { "type": "string" },
+            "description": {
+                "description": "The test set description",
+                "type": "string"
+            },
+            "comment": {
+                "description": "Any additional comments about the test set",
+                "type": "string"
+            },
             "schema": {
                 "description": "This should be a valid schema. This should be a ref to a meta-schema if schema keywords need testing."
             },
@@ -56,7 +63,14 @@
                     "type": "string",
                     "format": "uri"
                 },
-                "description": { "type": "string" },
+                "description": {
+                    "description": "The test description",
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Any additional comments about the test",
+                    "type": "string"
+                },
                 "data": {},
                 "valid": { "type": "boolean" },
                 "output": {

@@ -55,46 +55,5 @@
                 "valid": true
             }
         ]
-    },
-    {
-        "description": "non-BMP, checks for proper surrogate pair handling for UTF-16",
-        "schema": { "pattern": "^🐲*$" },
-        "tests": [
-            {
-                "description": "matches empty",
-                "data": "",
-                "valid": true
-            },
-            {
-                "description": "matches single",
-                "data": "🐲",
-                "valid": true
-            },
-            {
-                "description": "matches two",
-                "data": "🐲🐲",
-                "valid": true
-            },
-            {
-                "description": "doesn't match one",
-                "data": "🐉",
-                "valid": false
-            },
-            {
-                "description": "doesn't match two",
-                "data": "🐉🐉",
-                "valid": false
-            },
-            {
-                "description": "doesn't match one ASCII",
-                "data": "D",
-                "valid": false
-            },
-            {
-                "description": "doesn't match two ASCII",
-                "data": "DD",
-                "valid": false
-            }
-        ]
     }
 ]
