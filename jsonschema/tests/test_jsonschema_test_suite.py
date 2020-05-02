@@ -70,6 +70,7 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
     DRAFT3.optional_tests_of(name="bignum"),
     DRAFT3.optional_tests_of(name="format"),
+    DRAFT3.optional_tests_of(name="non-bmp-regex"),
     DRAFT3.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft3Validator,
     format_checker=draft3_format_checker,
@@ -89,6 +90,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.tests(),
     DRAFT4.optional_tests_of(name="bignum"),
     DRAFT4.optional_tests_of(name="format"),
+    DRAFT4.optional_tests_of(name="non-bmp-regex"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft4Validator,
     format_checker=draft4_format_checker,
@@ -137,6 +139,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.tests(),
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="format"),
+    DRAFT6.optional_tests_of(name="non-bmp-regex"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
     skip=lambda test: (
@@ -185,6 +188,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.format_tests(),
     DRAFT7.optional_tests_of(name="bignum"),
     DRAFT7.optional_tests_of(name="content"),
+    DRAFT7.optional_tests_of(name="non-bmp-regex"),
     Validator=Draft7Validator,
     format_checker=draft7_format_checker,
     skip=lambda test: (
