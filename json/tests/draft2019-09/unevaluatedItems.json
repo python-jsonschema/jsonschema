@@ -1,85 +1,415 @@
 [
     {
-        "description": "anyOf with false unevaluatedItems",
+        "description": "unevaluatedItems true",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
-            "unevaluatedItems": false,
-            "anyOf": [
-                {"items": {"type": "string"}},
-                {"items": [true, true]}
-            ]
+            "type": "array",
+            "unevaluatedItems": true
         },
         "tests": [
             {
-                "description": "all strings is valid",
-                "data": ["foo", "bar", "baz"],
+                "description": "with no unevaluated items",
+                "data": [],
                 "valid": true
             },
             {
-                "description": "one item is valid",
-                "data": [1],
-                "valid": true
-            },
-            {
-                "description": "two items are valid",
-                "data": [1, "two"],
-                "valid": true
-            },
-            {
-                "description": "three items are invalid",
-                "data": [1, "two", "three"],
-                "valid": false
-            },
-            {
-                "description": "four strings are valid",
-                "data": ["one", "two", "three", "four"],
+                "description": "with unevaluated items",
+                "data": ["foo"],
                 "valid": true
             }
         ]
     },
     {
-        "description": "complex unevaluated schema",
+        "description": "unevaluatedItems false",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
-            "unevaluatedItems": {
-                "allOf": [{"minLength": 3}, {"type": "string"}]
-            },
-            "if": {"items": [{"type": "integer"}, {"type":  "array"}]}
+            "type": "array",
+            "unevaluatedItems": false
         },
         "tests": [
             {
-                "description": "empty array",
+                "description": "with no unevaluated items",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "if passes with one item",
-                "data": [1],
+                "description": "with unevaluated items",
+                "data": ["foo"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems as schema",
+        "schema": {
+            "type": "array",
+            "unevaluatedItems": { "type": "string" }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": [],
                 "valid": true
             },
             {
-                "description": "if passes with two items",
-                "data": [1, [2, 3]],
+                "description": "with valid unevaluated items",
+                "data": ["foo"],
                 "valid": true
             },
             {
-                "description": "if passes with third valid unevaluated item",
-                "data": [1, [2, 3], "long-string"],
+                "description": "with invalid unevaluated items",
+                "data": [42],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with uniform items",
+        "schema": {
+            "type": "array",
+            "items": { "type": "string" },
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "unevaluatedItems doesn't apply",
+                "data": ["foo", "bar"],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with tuple",
+        "schema": {
+            "type": "array",
+            "items": [
+                { "type": "string" }
+            ],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with no unevaluted items",
+                "data": ["foo"],
                 "valid": true
             },
             {
-                "description": "if passes with third invalid unevaluated item",
-                "data": [1, [2, 3], "zz"],
+                "description": "with unevaluted items",
+                "data": ["foo", "bar"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with additionalItems",
+        "schema": {
+            "type": "array",
+            "items": [
+                { "type": "string" }
+            ],
+            "additionalItems": true,
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "unevaluatedItems doesn't apply",
+                "data": ["foo", 42],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with nested tuple",
+        "schema": {
+            "type": "array",
+            "items": [
+                { "type": "string" }
+            ],
+            "allOf": [
+                {
+                    "items": [
+                        true,
+                        { "type": "number" }
+                    ]
+                }
+            ],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with no unevaluted items",
+                "data": ["foo", 42],
+                "valid": true
+            },
+            {
+                "description": "with unevaluted items",
+                "data": ["foo", 42, true],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with nested additionalItems",
+        "schema": {
+            "type": "array",
+            "allOf": [
+                {
+                    "items": [
+                        { "type": "string" }
+                    ],
+                    "additionalItems": true
+                }
+            ],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with no additional items",
+                "data": ["foo"],
+                "valid": true
+            },
+            {
+                "description": "with additional items",
+                "data": ["foo", 42, true],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with nested unevaluatedItems",
+        "schema": {
+            "type": "array",
+            "allOf": [
+                {
+                    "items": [
+                        { "type": "string" }
+                    ]
+                },
+                {
+                    "unevaluatedItems": true
+                }
+            ],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with no additional items",
+                "data": ["foo"],
+                "valid": true
+            },
+            {
+                "description": "with additional items",
+                "data": ["foo", 42, true],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with anyOf",
+        "schema": {
+            "type": "array",
+            "items": [
+                { "const": "foo" }
+            ],
+            "anyOf": [
+                {
+                    "items": [
+                        true,
+                        { "const": "bar" }
+                    ]
+                },
+                {
+                    "items": [
+                        true,
+                        true,
+                        { "const": "baz" }
+                    ]
+                }
+            ],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "when one schema matches and has no unevaluted items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "when one schema matches and has unevaluted items",
+                "data": ["foo", "bar", 42],
                 "valid": false
             },
             {
-                "description": "if fails with all valid unevaluated items",
-                "data": ["all", "long", "strings"],
+                "description": "when two schemas match and has no unevaluted items",
+                "data": ["foo", "bar", "baz"],
                 "valid": true
             },
             {
-                "description": "if and unevaluated items fail",
-                "data": ["a", "b", "c"],
+                "description": "when two schemas match and has unevaluted items",
+                "data": ["foo", "bar", "baz", 42],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with oneOf",
+        "schema": {
+            "type": "array",
+            "items": [
+                { "const": "foo" }
+            ],
+            "oneOf": [
+                {
+                    "items": [
+                        true,
+                        { "const": "bar" }
+                    ]
+                },
+                {
+                    "items": [
+                        true,
+                        { "const": "baz" }
+                    ]
+                }
+            ],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with no unevaluted items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluted items",
+                "data": ["foo", "bar", 42],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with not",
+        "schema": {
+            "type": "array",
+            "items": [
+                { "const": "foo" }
+            ],
+            "not": {
+                "not": {
+                    "items": [
+                        true,
+                        { "const": "bar" }
+                    ]
+                }
+            },
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with unevaluted items",
+                "data": ["foo", "bar"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with if/then/else",
+        "schema": {
+            "type": "array",
+            "items": [
+                { "const": "foo" }
+            ],
+            "if": {
+                "items": [
+                    true,
+                    { "const": "bar" }
+                ]
+            },
+            "then": {
+                "items": [
+                    true,
+                    true,
+                    { "const": "then" }
+                ]
+            },
+            "else": {
+                "items": [
+                    true,
+                    true,
+                    true,
+                    { "const": "else" }
+                ]
+            },
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "when if matches and it has no unevaluted items",
+                "data": ["foo", "bar", "then"],
+                "valid": true
+            },
+            {
+                "description": "when if matches and it has unevaluted items",
+                "data": ["foo", "bar", "then", "else"],
+                "valid": false
+            },
+            {
+                "description": "when if doesn't match and it has no unevaluted items",
+                "data": ["foo", 42, 42, "else"],
+                "valid": true
+            },
+            {
+                "description": "when if doesn't match and it has unevaluted items",
+                "data": ["foo", 42, 42, "else", 42],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with boolean schemas",
+        "schema": {
+            "type": "array",
+            "allOf": [true],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": ["foo"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with $ref",
+        "schema": {
+            "type": "array",
+            "$ref": "#/$defs/bar",
+            "items": [
+                { "type": "string" }
+            ],
+            "unevaluatedItems": false,
+            "$defs": {
+              "bar": {
+                  "items": [
+                      true,
+                      { "type": "string" }
+                  ]
+              }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": ["foo", "bar", "baz"],
                 "valid": false
             }
         ]

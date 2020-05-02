@@ -116,42 +116,5 @@
                 "valid": false
             }
         ]
-    },
-    {
-        "description": "non-BMP, checks for proper surrogate pair handling for UTF-16",
-        "schema": {
-            "patternProperties": {
-                "^🐲*$": {
-                    "type": "integer"
-                }
-            }
-        },
-        "tests": [
-            {
-                "description": "matches empty",
-                "data": { "": 1 },
-                "valid": true
-            },
-            {
-                "description": "matches single",
-                "data": { "🐲": 1 },
-                "valid": true
-            },
-            {
-                "description": "matches two",
-                "data": { "🐲🐲": 1 },
-                "valid": true
-            },
-            {
-                "description": "doesn't match one",
-                "data": { "🐲": "hello" },
-                "valid": false
-            },
-            {
-                "description": "doesn't match two",
-                "data": { "🐲🐲": "hello" },
-                "valid": false
-            }
-        ]
     }
 ]
