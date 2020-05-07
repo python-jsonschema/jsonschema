@@ -55,6 +55,11 @@
                 "valid": true
             },
             {
+                "description": "a float with zero fractional part is a number",
+                "data": 1.0,
+                "valid": true
+            },
+            {
                 "description": "a float is a number",
                 "data": 1.1,
                 "valid": true
