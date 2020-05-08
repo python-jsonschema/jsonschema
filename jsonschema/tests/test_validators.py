@@ -630,6 +630,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e.path, deque([]))
         self.assertEqual(e.relative_path, deque([]))
         self.assertEqual(e.absolute_path, deque([]))
+        self.assertEqual(e.json_path, '$')
 
         self.assertEqual(e.schema_path, deque(["anyOf"]))
         self.assertEqual(e.relative_schema_path, deque(["anyOf"]))
@@ -648,6 +649,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.path, deque([]))
         self.assertEqual(e1.absolute_path, deque([]))
         self.assertEqual(e1.relative_path, deque([]))
+        self.assertEqual(e1.json_path, '$')
 
         self.assertEqual(e1.schema_path, deque([0, "minimum"]))
         self.assertEqual(e1.relative_schema_path, deque([0, "minimum"]))
@@ -666,6 +668,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e2.path, deque([]))
         self.assertEqual(e2.relative_path, deque([]))
         self.assertEqual(e2.absolute_path, deque([]))
+        self.assertEqual(e2.json_path, '$')
 
         self.assertEqual(e2.schema_path, deque([1, "type"]))
         self.assertEqual(e2.relative_schema_path, deque([1, "type"]))
@@ -699,6 +702,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e.path, deque([]))
         self.assertEqual(e.relative_path, deque([]))
         self.assertEqual(e.absolute_path, deque([]))
+        self.assertEqual(e.json_path, '$')
 
         self.assertEqual(e.schema_path, deque(["type"]))
         self.assertEqual(e.relative_schema_path, deque(["type"]))
@@ -717,6 +721,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.path, deque([]))
         self.assertEqual(e1.relative_path, deque([]))
         self.assertEqual(e1.absolute_path, deque([]))
+        self.assertEqual(e1.json_path, '$')
 
         self.assertEqual(e1.schema_path, deque([0, "type"]))
         self.assertEqual(e1.relative_schema_path, deque([0, "type"]))
@@ -733,6 +738,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e2.path, deque(["foo"]))
         self.assertEqual(e2.relative_path, deque(["foo"]))
         self.assertEqual(e2.absolute_path, deque(["foo"]))
+        self.assertEqual(e2.json_path, '$.foo')
 
         self.assertEqual(
             e2.schema_path, deque([1, "properties", "foo", "enum"]),
@@ -776,6 +782,11 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e3.absolute_path, deque(["baz"]))
         self.assertEqual(e4.absolute_path, deque(["foo"]))
 
+        self.assertEqual(e1.json_path, '$.bar')
+        self.assertEqual(e2.json_path, '$.baz')
+        self.assertEqual(e3.json_path, '$.baz')
+        self.assertEqual(e4.json_path, '$.foo')
+
         self.assertEqual(e1.validator, "minItems")
         self.assertEqual(e2.validator, "enum")
         self.assertEqual(e3.validator, "maximum")
@@ -810,6 +821,13 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e4.path, deque([1, "bar", "bar"]))
         self.assertEqual(e5.path, deque([1, "bar", "baz"]))
         self.assertEqual(e6.path, deque([1, "foo"]))
+
+        self.assertEqual(e1.json_path, '$')
+        self.assertEqual(e2.json_path, '$[0]')
+        self.assertEqual(e3.json_path, '$[1].bar')
+        self.assertEqual(e4.json_path, '$[1].bar.bar')
+        self.assertEqual(e5.json_path, '$[1].bar.baz')
+        self.assertEqual(e6.json_path, '$[1].foo')
 
         self.assertEqual(e1.schema_path, deque(["type"]))
         self.assertEqual(e2.schema_path, deque(["items", "type"]))
@@ -886,6 +904,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(
             e.absolute_schema_path, deque(["properties", "root", "anyOf"]),
         )
+        self.assertEqual(e.json_path, '$.root')
 
         e1, = e.context
         self.assertEqual(e1.absolute_path, deque(["root", "children", "a"]))
@@ -904,6 +923,7 @@ class TestValidationErrorDetails(TestCase):
                 ],
             ),
         )
+        self.assertEqual(e1.json_path, '$.root.children.a')
 
         e2, = e1.context
         self.assertEqual(
@@ -932,6 +952,7 @@ class TestValidationErrorDetails(TestCase):
                 ],
             ),
         )
+        self.assertEqual(e2.json_path, '$.root.children.a.children.ab')
 
     def test_additionalProperties(self):
         instance = {"bar": "bar", "foo": 2}
@@ -943,6 +964,9 @@ class TestValidationErrorDetails(TestCase):
 
         self.assertEqual(e1.path, deque(["bar"]))
         self.assertEqual(e2.path, deque(["foo"]))
+
+        self.assertEqual(e1.json_path, '$.bar')
+        self.assertEqual(e2.json_path, '$.foo')
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -963,6 +987,9 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.path, deque(["bar"]))
         self.assertEqual(e2.path, deque(["foo"]))
 
+        self.assertEqual(e1.json_path, '$.bar')
+        self.assertEqual(e2.json_path, '$.foo')
+
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
 
@@ -979,6 +1006,9 @@ class TestValidationErrorDetails(TestCase):
 
         self.assertEqual(e1.path, deque([0]))
         self.assertEqual(e2.path, deque([1]))
+
+        self.assertEqual(e1.json_path, '$[0]')
+        self.assertEqual(e2.json_path, '$[1]')
 
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
@@ -997,6 +1027,9 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.path, deque([1]))
         self.assertEqual(e2.path, deque([2]))
 
+        self.assertEqual(e1.json_path, '$[1]')
+        self.assertEqual(e2.json_path, '$[2]')
+
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
 
@@ -1013,6 +1046,7 @@ class TestValidationErrorDetails(TestCase):
             "%r is not allowed for %r" % ({"const": "foo"}, "foo"),
         )
         self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.json_path, '$')
         self.assertEqual(error.schema_path, deque(["propertyNames", "not"]))
 
     def test_if_then(self):
@@ -1027,6 +1061,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.validator, "const")
         self.assertEqual(error.message, "13 was expected")
         self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.json_path, '$')
         self.assertEqual(error.schema_path, deque(["if", "then", "const"]))
 
     def test_if_else(self):
@@ -1041,6 +1076,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.validator, "const")
         self.assertEqual(error.message, "13 was expected")
         self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.json_path, '$')
         self.assertEqual(error.schema_path, deque(["if", "else", "const"]))
 
     def test_boolean_schema_False(self):
@@ -1055,6 +1091,7 @@ class TestValidationErrorDetails(TestCase):
                 error.instance,
                 error.schema,
                 error.schema_path,
+                error.json_path,
             ),
             (
                 "False schema does not allow 12",
@@ -1063,6 +1100,7 @@ class TestValidationErrorDetails(TestCase):
                 12,
                 False,
                 deque([]),
+                '$',
             ),
         )
 
@@ -1083,6 +1121,7 @@ class TestValidationErrorDetails(TestCase):
                 error.absolute_path,
                 error.schema,
                 error.schema_path,
+                error.json_path,
             ),
             (
                 "'notAnInteger' is not of type 'integer'",
@@ -1092,6 +1131,7 @@ class TestValidationErrorDetails(TestCase):
                 deque(["foo"]),
                 {"type": "integer"},
                 deque(["additionalProperties", "type"]),
+                '$.foo',
             ),
         )
 
