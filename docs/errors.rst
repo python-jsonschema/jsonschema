@@ -83,7 +83,7 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: json_path
 
-        A `JSON path <https://goessner.net/articles/JsonPath/index.html>`
+        A `JSON path <https://goessner.net/articles/JsonPath/index.html>`_
         to the offending element within the instance.
 
     .. attribute:: path
