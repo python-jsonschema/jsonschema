@@ -2,7 +2,7 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |CI| |Codecov| |ReadTheDocs|
+|PyPI| |Pythons| |CI| |ReadTheDocs|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
@@ -15,10 +15,6 @@ jsonschema
 .. |CI| image:: https://github.com/Julian/jsonschema/workflows/CI/badge.svg
   :alt: Build status
   :target: https://github.com/Julian/jsonschema/actions?query=workflow%3ACI
-
-.. |Codecov| image:: https://codecov.io/gh/Julian/jsonschema/branch/master/graph/badge.svg
-   :alt: Codecov Code coverage
-   :target: https://codecov.io/gh/Julian/jsonschema
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=stable&style=flat
    :alt: ReadTheDocs status
