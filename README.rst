@@ -127,11 +127,7 @@ Benchmarks
 ``jsonschema``'s benchmarks make use of `pyperf
 <https://pyperf.readthedocs.io>`_.
 
-Running them can be done via ``tox -e perf``, or by invoking the ``pyperf``
-commands externally (after ensuring that both it and ``jsonschema`` itself are
-installed)::
-
-    $ python -m pyperf jsonschema/benchmarks/test_suite.py --hist --output results.json
+Running them can be done via ``tox -e perf``.
 
 To compare to a previous run, use::
 
