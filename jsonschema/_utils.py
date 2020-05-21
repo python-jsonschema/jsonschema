@@ -174,13 +174,17 @@ def equal(one, two):
 
 def unbool(element, true=object(), false=object()):
     """
-    A hack to make True and 1 and False and 0 unique for ``uniq``.
+    A hack to make True and 1, False and 0, [True] and [1], [False] and [0] unique for ``uniq``.
     """
 
     if element is True:
         return true
     elif element is False:
         return false
+    elif element == [True] and isinstance(*element, bool):
+        return [true]
+    elif element == [False] and isinstance(*element, bool):
+        return [false]
     return element
 
 
@@ -197,9 +201,9 @@ def uniq(container):
         return len(set(unbool(i) for i in container)) == len(container)
     except TypeError:
         try:
-            sort = sorted(unbool(i) for i in container)
-            sliced = itertools.islice(sort, 1, None)
-            for i, j in zip(sort, sliced):
+            li = [unbool(i) for i in container]
+            sliced = itertools.islice(li, 1, None)
+            for i, j in zip(li, sliced):
                 if i == j:
                     return False
         except (NotImplementedError, TypeError):
