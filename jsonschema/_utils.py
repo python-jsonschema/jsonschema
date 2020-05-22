@@ -174,43 +174,58 @@ def equal(one, two):
 
 def unbool(element, true=object(), false=object()):
     """
-    A hack to make True and 1, False and 0, [True] and [1], [False] and [0] unique for ``uniq``.
+    A hack to make True and 1 and False and 0 unique for ``uniq``.
     """
 
     if element is True:
         return true
     elif element is False:
         return false
-    elif element == [True] and isinstance(*element, bool):
-        return [true]
-    elif element == [False] and isinstance(*element, bool):
-        return [false]
     return element
+
+
+def unbool_nested(element):
+    """
+    Iterative implementation of breadth-first search for nested unbooling
+    """
+
+    if not isinstance(element, (list, dict)):
+        return unbool(element)
+
+    result = [] if isinstance(element, list) else {}
+    stack = [(element, result)]
+    while stack:
+        element, new = stack.pop()
+        items = enumerate(element) if isinstance(element, list) else element.items()
+        for key, item in items:
+            if not isinstance(item, (list, dict)):
+                x = unbool(item)
+            else:
+                sub = [] if isinstance(item, list) else {}
+                x = sub
+                stack.append((item, sub))
+
+            if isinstance(new, list):
+                new.append(x)
+            else:
+                new[key] = x
+    return result
 
 
 def uniq(container):
     """
     Check if all of a container's elements are unique.
 
-    Successively tries first to rely that the elements are hashable, then
-    falls back on them being sortable, and finally falls back on brute
-    force.
+    Successively tries first to rely that the elements are hashable. If not, it goes to brute force.
     """
 
     try:
         return len(set(unbool(i) for i in container)) == len(container)
     except TypeError:
-        try:
-            li = [unbool(i) for i in container]
-            sliced = itertools.islice(li, 1, None)
-            for i, j in zip(li, sliced):
-                if i == j:
-                    return False
-        except (NotImplementedError, TypeError):
-            seen = []
-            for e in container:
-                e = unbool(e)
-                if e in seen:
-                    return False
-                seen.append(e)
+        seen = []
+        for element in container:
+            element = unbool_nested(element)
+            if element in seen:
+                return False
+            seen.append(element)
     return True
