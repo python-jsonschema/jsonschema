@@ -10,7 +10,11 @@ import subprocess
 import sys
 import unittest
 
-from twisted.python.filepath import FilePath
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
 import attr
 
 from jsonschema.compat import PY3
@@ -21,10 +25,10 @@ import jsonschema
 def _find_suite():
     root = os.environ.get("JSON_SCHEMA_TEST_SUITE")
     if root is not None:
-        return FilePath(root)
+        return Path(root)
 
-    root = FilePath(jsonschema.__file__).parent().sibling("json")
-    if not root.isdir():  # pragma: no cover
+    root = Path(jsonschema.__file__).parent.parent / "json"
+    if not root.is_dir():  # pragma: no cover
         raise ValueError(
             (
                 "Can't find the JSON-Schema-Test-Suite directory. "
@@ -42,9 +46,9 @@ class Suite(object):
     _root = attr.ib(default=attr.Factory(_find_suite))
 
     def _remotes(self):
-        jsonschema_suite = self._root.descendant(["bin", "jsonschema_suite"])
+        jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
         remotes = subprocess.check_output(
-            [sys.executable, jsonschema_suite.path, "remotes"],
+            [sys.executable, str(jsonschema_suite), "remotes"],
         )
         return {
             "http://localhost:1234/" + name: schema
@@ -61,7 +65,7 @@ class Suite(object):
     def version(self, name):
         return Version(
             name=name,
-            path=self._root.descendant(["tests", name]),
+            path=self._root.joinpath("tests", name),
             remotes=self._remotes(),
         )
 
@@ -85,20 +89,20 @@ class Version(object):
     def tests(self):
         return (
             test
-            for child in self._path.globChildren("*.json")
+            for child in self._path.glob("*.json")
             for test in self._tests_in(
-                subject=child.basename()[:-5],
+                subject=child.name[:-5],
                 path=child,
             )
         )
 
     def format_tests(self):
-        path = self._path.descendant(["optional", "format"])
+        path = self._path.joinpath("optional", "format")
         return (
             test
-            for child in path.globChildren("*.json")
+            for child in path.glob("*.json")
             for test in self._tests_in(
-                subject=child.basename()[:-5],
+                subject=child.name[:-5],
                 path=child,
             )
         )
@@ -106,13 +110,13 @@ class Version(object):
     def tests_of(self, name):
         return self._tests_in(
             subject=name,
-            path=self._path.child(name + ".json"),
+            path=self._path / (name + ".json"),
         )
 
     def optional_tests_of(self, name):
         return self._tests_in(
             subject=name,
-            path=self._path.descendant(["optional", name + ".json"]),
+            path=self._path.joinpath("optional", name + ".json"),
         )
 
     def to_unittest_testcase(self, *suites, **kwargs):
@@ -136,7 +140,7 @@ class Version(object):
         return cls
 
     def _tests_in(self, subject, path):
-        for each in json.loads(path.getContent().decode("utf-8")):
+        for each in json.loads(path.read_text()):
             yield (
                 _Test(
                     version=self,
