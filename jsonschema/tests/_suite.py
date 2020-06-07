@@ -140,7 +140,7 @@ class Version(object):
         return cls
 
     def _tests_in(self, subject, path):
-        for each in json.loads(path.read_text()):
+        for each in json.loads(path.read_text(encoding="utf-8")):
             yield (
                 _Test(
                     version=self,
