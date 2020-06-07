@@ -53,7 +53,10 @@ class Suite(object):
 
     def benchmark(self, runner):  # pragma: no cover
         for name in validators:
-            self.version(name=name).benchmark(runner=runner)
+            self.version(name=name).benchmark(
+                runner=runner,
+                Validator=validators[name],
+            )
 
     def version(self, name):
         return Version(
