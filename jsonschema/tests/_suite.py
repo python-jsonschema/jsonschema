@@ -169,6 +169,8 @@ class _Test(object):
 
     _remotes = attr.ib()
 
+    comment = attr.ib(default=None)
+
     def __repr__(self):  # pragma: no cover
         return "<Test {}>".format(self.fully_qualified_name)
 
