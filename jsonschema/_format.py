@@ -237,7 +237,10 @@ try:
 except ImportError:
     pass
 else:
-    @_checks_drafts(draft7="idn-hostname", raises=idna.IDNAError)
+    @_checks_drafts(
+        draft7="idn-hostname",
+        raises=(idna.IDNAError, UnicodeError),
+    )
     def is_idn_host_name(instance):
         if not isinstance(instance, str_types):
             return True
