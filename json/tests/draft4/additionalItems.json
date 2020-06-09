@@ -40,7 +40,17 @@
         },
         "tests": [
             {
-                "description": "fewer number of items present",
+                "description": "empty array",
+                "data": [ ],
+                "valid": true
+            },
+            {
+                "description": "fewer number of items present (1)",
+                "data": [ 1 ],
+                "valid": true
+            },
+            {
+                "description": "fewer number of items present (2)",
                 "data": [ 1, 2 ],
                 "valid": true
             },

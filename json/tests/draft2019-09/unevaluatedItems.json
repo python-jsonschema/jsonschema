@@ -413,5 +413,25 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "unevaluatedItems can't see inside cousins",
+        "schema": {
+            "allOf": [
+                {
+                    "items": [ true ]
+                },
+                {
+                    "unevaluatedItems": false
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "always fails",
+                "data": [ 1 ],
+                "valid": false
+            }
+        ]
     }
 ]

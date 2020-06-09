@@ -40,7 +40,22 @@
         },
         "tests": [
             {
-                "description": "no additional items present",
+                "description": "empty array",
+                "data": [ ],
+                "valid": true
+            },
+            {
+                "description": "fewer number of items present (1)",
+                "data": [ 1 ],
+                "valid": true
+            },
+            {
+                "description": "fewer number of items present (2)",
+                "data": [ 1, 2 ],
+                "valid": true
+            },
+            {
+                "description": "equal number of items present",
                 "data": [ 1, 2, 3 ],
                 "valid": true
             },
@@ -70,10 +85,10 @@
     },
     {
         "description": "additionalItems are allowed by default",
-        "schema": {"items": []},
+        "schema": {"items": [{"type": "integer"}]},
         "tests": [
             {
-                "description": "only the first items are validated",
+                "description": "only the first item is validated",
                 "data": [1, "foo", false],
                 "valid": true
             }

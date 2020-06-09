@@ -65,6 +65,26 @@
                 "valid": true
             },
             {
+                "description": "[1] and [true] are unique",
+                "data": [[1], [true]],
+                "valid": true
+            },
+            {
+                "description": "[0] and [false] are unique",
+                "data": [[0], [false]],
+                "valid": true
+            },
+            {
+                "description": "nested [1] and [true] are unique",
+                "data": [[[1], "foo"], [[true], "foo"]],
+                "valid": true
+            },
+            {
+                "description": "nested [0] and [false] are unique",
+                "data": [[[0], "foo"], [[false], "foo"]],
+                "valid": true
+            },
+            {
                 "description": "unique heterogeneous types are valid",
                 "data": [{}, [1], true, null, 1],
                 "valid": true

@@ -1,0 +1,18 @@
+[
+    {
+        "description": "validation of date strings",
+        "schema": {"format": "date"},
+        "tests": [
+            {
+                "description": "a valid date string",
+                "data": "1963-06-19",
+                "valid": true
+            },
+            {
+                "description": "an invalid date string",
+                "data": "06/19/1963",
+                "valid": false
+            }
+        ]
+    }
+]

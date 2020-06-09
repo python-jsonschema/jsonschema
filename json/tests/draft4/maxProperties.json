@@ -34,5 +34,21 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "maxProperties = 0 means the object is empty",
+        "schema": { "maxProperties": 0 },
+        "tests": [
+            {
+                "description": "no properties is valid",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "one property is invalid",
+                "data": { "foo": 1 },
+                "valid": false
+            }
+        ]
     }
 ]

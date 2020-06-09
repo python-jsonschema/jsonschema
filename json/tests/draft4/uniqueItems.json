@@ -75,13 +75,43 @@
                 "valid": true
             },
             {
+                "description": "[1] and [true] are unique",
+                "data": [[1], [true]],
+                "valid": true
+            },
+            {
+                "description": "[0] and [false] are unique",
+                "data": [[0], [false]],
+                "valid": true
+            },
+            {
+                "description": "nested [1] and [true] are unique",
+                "data": [[[1], "foo"], [[true], "foo"]],
+                "valid": true
+            },
+            {
+                "description": "nested [0] and [false] are unique",
+                "data": [[[0], "foo"], [[false], "foo"]],
+                "valid": true
+            },
+            {
                 "description": "unique heterogeneous types are valid",
-                "data": [{}, [1], true, null, 1],
+                "data": [{}, [1], true, null, 1, "{}"],
                 "valid": true
             },
             {
                 "description": "non-unique heterogeneous types are invalid",
                 "data": [{}, [1], true, null, {}, 1],
+                "valid": false
+            },
+            {
+                "description": "different objects are unique",
+                "data": [{"a": 1, "b": 2}, {"a": 2, "b": 1}],
+                "valid": true
+            },
+            {
+                "description": "objects are non-unique despite key order",
+                "data": [{"a": 1, "b": 2}, {"b": 2, "a": 1}],
                 "valid": false
             }
         ]

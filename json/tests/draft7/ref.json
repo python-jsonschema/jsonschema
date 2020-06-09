@@ -75,11 +75,11 @@
     {
         "description": "escaped pointer ref",
         "schema": {
-            "tilda~field": {"type": "integer"},
+            "tilde~field": {"type": "integer"},
             "slash/field": {"type": "integer"},
             "percent%field": {"type": "integer"},
             "properties": {
-                "tilda": {"$ref": "#/tilda~0field"},
+                "tilde": {"$ref": "#/tilde~0field"},
                 "slash": {"$ref": "#/slash~1field"},
                 "percent": {"$ref": "#/percent%25field"}
             }
@@ -91,8 +91,8 @@
                 "valid": false
             },
             {
-                "description": "tilda invalid",
-                "data": {"tilda": "aoeu"},
+                "description": "tilde invalid",
+                "data": {"tilde": "aoeu"},
                 "valid": false
             },
             {
@@ -106,8 +106,8 @@
                 "valid": true
             },
             {
-                "description": "tilda valid",
-                "data": {"tilda": 123},
+                "description": "tilde valid",
+                "data": {"tilde": 123},
                 "valid": true
             },
             {
