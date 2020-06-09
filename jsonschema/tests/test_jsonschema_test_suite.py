@@ -68,8 +68,8 @@ else:
 
 TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
+    DRAFT3.format_tests(),
     DRAFT3.optional_tests_of(name="bignum"),
-    DRAFT3.optional_tests_of(name="format"),
     DRAFT3.optional_tests_of(name="non-bmp-regex"),
     DRAFT3.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft3Validator,
@@ -79,7 +79,7 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or missing_format(draft3_format_checker)(test)
         or skip(
             message="Upstream bug in strict_rfc3339",
-            subject="format",
+            subject="date-time",
             description="case-insensitive T and Z",
         )(test)
     ),
@@ -88,8 +88,8 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
 
 TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.tests(),
+    DRAFT4.format_tests(),
     DRAFT4.optional_tests_of(name="bignum"),
-    DRAFT4.optional_tests_of(name="format"),
     DRAFT4.optional_tests_of(name="non-bmp-regex"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft4Validator,
@@ -128,7 +128,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         )(test)
         or skip(
             message="Upstream bug in strict_rfc3339",
-            subject="format",
+            subject="date-time",
             description="case-insensitive T and Z",
         )(test)
     ),
@@ -137,8 +137,8 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
 
 TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.tests(),
+    DRAFT6.format_tests(),
     DRAFT6.optional_tests_of(name="bignum"),
-    DRAFT6.optional_tests_of(name="format"),
     DRAFT6.optional_tests_of(name="non-bmp-regex"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
@@ -176,7 +176,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         )(test)
         or skip(
             message="Upstream bug in strict_rfc3339",
-            subject="format",
+            subject="date-time",
             description="case-insensitive T and Z",
         )(test)
     ),
