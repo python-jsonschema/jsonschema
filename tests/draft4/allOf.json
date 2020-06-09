@@ -207,5 +207,55 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "allOf combined with anyOf, oneOf",
+        "schema": {
+            "allOf": [ { "multipleOf": 2 } ],
+            "anyOf": [ { "multipleOf": 3 } ],
+            "oneOf": [ { "multipleOf": 5 } ]
+        },
+        "tests": [
+            {
+                "description": "allOf: false, anyOf: false, oneOf: false",
+                "data": 1,
+                "valid": false
+            },
+            {
+                "description": "allOf: false, anyOf: false, oneOf: true",
+                "data": 5,
+                "valid": false
+            },
+            {
+                "description": "allOf: false, anyOf: true, oneOf: false",
+                "data": 3,
+                "valid": false
+            },
+            {
+                "description": "allOf: false, anyOf: true, oneOf: true",
+                "data": 15,
+                "valid": false
+            },
+            {
+                "description": "allOf: true, anyOf: false, oneOf: false",
+                "data": 2,
+                "valid": false
+            },
+            {
+                "description": "allOf: true, anyOf: false, oneOf: true",
+                "data": 10,
+                "valid": false
+            },
+            {
+                "description": "allOf: true, anyOf: true, oneOf: false",
+                "data": 6,
+                "valid": false
+            },
+            {
+                "description": "allOf: true, anyOf: true, oneOf: true",
+                "data": 30,
+                "valid": true
+            }
+        ]
     }
 ]

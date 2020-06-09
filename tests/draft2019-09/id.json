@@ -1,0 +1,206 @@
+[
+    {
+        "description": "Invalid use of fragments in location-independent $id",
+        "schema": {"$ref": "https://json-schema.org/draft/2019-09/schema"},
+        "tests": [
+            {
+                "description": "Identifier name",
+                "data": {
+                    "$ref": "#foo",
+                    "$defs": {
+                        "A": {
+                            "$id": "#foo",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": false
+            },
+            {
+                "description": "Identifier name and no ref",
+                "data": {
+                    "$defs": {
+                        "A": { "$id": "#foo" }
+                    }
+                },
+                "valid": false
+            },
+            {
+                "description": "Identifier path",
+                "data": {
+                    "$ref": "#/a/b",
+                    "$defs": {
+                        "A": {
+                            "$id": "#/a/b",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": false
+            },
+            {
+                "description": "Identifier name with absolute URI",
+                "data": {
+                    "$ref": "http://localhost:1234/bar#foo",
+                    "$defs": {
+                        "A": {
+                            "$id": "http://localhost:1234/bar#foo",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": false
+            },
+            {
+                "description": "Identifier path with absolute URI",
+                "data": {
+                    "$ref": "http://localhost:1234/bar#/a/b",
+                    "$defs": {
+                        "A": {
+                            "$id": "http://localhost:1234/bar#/a/b",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": false
+            },
+            {
+                "description": "Identifier name with base URI change in subschema",
+                "data": {
+                    "$id": "http://localhost:1234/root",
+                    "$ref": "http://localhost:1234/nested.json#foo",
+                    "$defs": {
+                        "A": {
+                            "$id": "nested.json",
+                            "$defs": {
+                                "B": {
+                                    "$id": "#foo",
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "valid": false
+            },
+            {
+                "description": "Identifier path with base URI change in subschema",
+                "data": {
+                    "$id": "http://localhost:1234/root",
+                    "$ref": "http://localhost:1234/nested.json#/a/b",
+                    "$defs": {
+                        "A": {
+                            "$id": "nested.json",
+                            "$defs": {
+                                "B": {
+                                    "$id": "#/a/b",
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "Valid use of empty fragments in location-independent $id",
+        "comment": "These are allowed but discouraged",
+        "schema": {
+            "$ref": "https://json-schema.org/draft/2019-09/schema"
+        },
+        "tests": [
+            {
+                "description": "Identifier name with absolute URI",
+                "data": {
+                    "$ref": "http://localhost:1234/bar",
+                    "$defs": {
+                        "A": {
+                            "$id": "http://localhost:1234/bar#",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "Identifier name with base URI change in subschema",
+                "data": {
+                    "$id": "http://localhost:1234/root",
+                    "$ref": "http://localhost:1234/nested.json#/$defs/B",
+                    "$defs": {
+                        "A": {
+                            "$id": "nested.json",
+                            "$defs": {
+                                "B": {
+                                    "$id": "#",
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "Unnormalized $ids are allowed but discouraged",
+        "schema": {
+            "$ref": "https://json-schema.org/draft/2019-09/schema"
+        },
+        "tests": [
+            {
+                "description": "Unnormalized identifier",
+                "data": {
+                    "$ref": "http://localhost:1234/foo/baz",
+                    "$defs": {
+                        "A": {
+                            "$id": "http://localhost:1234/foo/bar/../baz",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "Unnormalized identifier and no ref",
+                "data": {
+                    "$defs": {
+                        "A": {
+                            "$id": "http://localhost:1234/foo/bar/../baz",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "Unnormalized identifier with empty fragment",
+                "data": {
+                    "$ref": "http://localhost:1234/foo/baz",
+                    "$defs": {
+                        "A": {
+                            "$id": "http://localhost:1234/foo/bar/../baz#",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "Unnormalized identifier with empty fragment and no ref",
+                "data": {
+                    "$defs": {
+                        "A": {
+                            "$id": "http://localhost:1234/foo/bar/../baz#",
+                            "type": "integer"
+                        }
+                    }
+                },
+                "valid": true
+            }
+        ]
+    }
+]

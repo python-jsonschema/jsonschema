@@ -589,5 +589,29 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "unevaluatedProperties can't see inside cousins",
+        "schema": {
+            "allOf": [
+                {
+                    "properties": {
+                        "foo": true
+                    }
+                },
+                {
+                    "unevaluatedProperties": false
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "always fails",
+                "data": {
+                    "foo": 1
+                },
+                "valid": false
+            }
+        ]
     }
 ]

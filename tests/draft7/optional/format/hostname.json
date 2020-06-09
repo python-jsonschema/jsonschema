@@ -27,6 +27,41 @@
                 "description": "a host name with a component too long",
                 "data": "a-vvvvvvvvvvvvvvvveeeeeeeeeeeeeeeerrrrrrrrrrrrrrrryyyyyyyyyyyyyyyy-long-host-name-component",
                 "valid": false
+            },
+            {
+                "description": "starts with hyphen",
+                "data": "-hostname",
+                "valid": false
+            },
+            {
+                "description": "ends with hyphen",
+                "data": "hostname-",
+                "valid": false
+            },
+            {
+                "description": "starts with underscore",
+                "data": "_hostname",
+                "valid": false
+            },
+            {
+                "description": "ends with underscore",
+                "data": "hostname_",
+                "valid": false
+            },
+            {
+                "description": "contains underscore",
+                "data": "host_name",
+                "valid": false
+            },
+            {
+                "description": "maximum label length",
+                "data": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijk.com",
+                "valid": true
+            },
+            {
+                "description": "exceeds maximum label length",
+                "data": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.com",
+                "valid": false
             }
         ]
     }

@@ -96,5 +96,34 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "items + contains",
+        "schema": {
+            "items": { "multipleOf": 2 },
+            "contains": { "multipleOf": 3 }
+        },
+        "tests": [
+            {
+                "description": "matches items, does not match contains",
+                "data": [ 2, 4, 8 ],
+                "valid": false
+            },
+            {
+                "description": "does not match items, matches contains",
+                "data": [ 3, 6, 9 ],
+                "valid": false
+            },
+            {
+                "description": "matches both items and contains",
+                "data": [ 6, 12 ],
+                "valid": true
+            },
+            {
+                "description": "matches neither items nor contains",
+                "data": [ 1, 5 ],
+                "valid": false
+            }
+        ]
     }
 ]

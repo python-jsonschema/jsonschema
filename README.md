@@ -1,5 +1,4 @@
-JSON Schema Test Suite [![Build Status](https://github.com/json-schema-org/JSON-Schema-Test-Suite/workflows/Test%20Suite%20Sanity%20Checking/badge.svg)](https://github.com/json-schema-org/JSON-Schema-Test-Suite/actions?query=workflow%3A%22Test+Suite+Sanity+Checking%22)
-======
+# JSON Schema Test Suite [![Build Status](https://github.com/json-schema-org/JSON-Schema-Test-Suite/workflows/Test%20Suite%20Sanity%20Checking/badge.svg)](https://github.com/json-schema-org/JSON-Schema-Test-Suite/actions?query=workflow%3A%22Test+Suite+Sanity+Checking%22)
 
 This repository contains a set of JSON objects that implementors of JSON Schema
 validation libraries can use to test their validators.
@@ -9,108 +8,118 @@ It is meant to be language agnostic and should require only a JSON parser.
 The conversion of the JSON objects into tests within your test framework of
 choice is still the job of the validator implementor.
 
-Structure of a Test
--------------------
+## Structure of a Test
 
-The tests in this suite are contained in the `tests` directory at the
-root of this repository.
+The tests in this suite are contained in the `tests` directory at the root of
+this repository. Inside that directory is a subdirectory for each draft or
+version of the specification.
 
-Inside that directory is a subdirectory for each draft or version of the
-specification.
+Inside each draft directory, there are a number of `.json` files and one or more
+special subdirectories. The subdirectories contain `.json` files meant for a
+specific testing purpose, and each `.json` file logically groups a set of test
+cases together. Often the grouping is by property under test, but not always.
 
-Inside each draft directory, there are a number of `.json` files, which
-logically group a set of test cases together. Often the grouping is by
-property under test, but not always, especially within optional test
-files (discussed below).
+The subdirectories are described in the next section.
 
 Inside each `.json` file is a single array containing objects. It's easiest to
 illustrate the structure of these with an example:
 
 ```json
-    {
-        "description": "the description of the test case",
-        "schema": {"the schema that should" : "be validated against"},
-        "tests": [
-            {
-                "description": "a specific test of a valid instance",
-                "data": "the instance",
-                "valid": true
-            },
-            {
-                "description": "another specific test this time, invalid",
-                "data": 15,
-                "valid": false
-            }
-        ]
-    }
+{
+    "description": "The description of the test case",
+    "schema": {
+        "description": "The schema against which the data in each test is validated",
+        "type": "string"
+    },
+    "tests": [
+        {
+            "description": "Test for a valid instance",
+            "data": "the instance to validate",
+            "valid": true
+        },
+        {
+            "description": "Test for an invalid instance",
+            "data": 15,
+            "valid": false
+        }
+    ]
+}
 ```
 
-In short: a description, a schema under test, and some tests, where each
-test in the `tests` array is an objects with a description of the case
-itself, the instance under test, and a boolean indicating whether it
-should be valid or invalid.
+In short: a description, a schema under test, and some tests, where each test
+in the `tests` array is an objects with a description of the case itself, the
+instance under test, and a boolean indicating whether it should be valid
+or invalid.
 
-Coverage
---------
+## Test Subdirectories
 
-Drafts 07, 06, 04 and 03 should have full coverage, with drafts 06 and
-07 being considered current and actively supported.
+There is currently only one subdirectory that may exist within each draft
+directory. This is:
 
-Draft 2019-09 support is under development. Contributions are very
-welcome, especially from implementers as they add support to their own
-implementations.
+1. `optional/`: Contains tests that are considered optional.
 
-If you see anything missing from the current supported drafts, or incorrect
-on any draft still accepting bug fixes, please file an issue or submit a PR.
+## Coverage
 
-Who Uses the Test Suite
------------------------
+Drafts 07, 06, 04, and 03 should have full coverage, with tests for drafts 06,
+07, and 2019-09 being considered current and actively supported. Draft 2019-09
+is almost fully covered.
+
+Contributions are very welcome, especially from implementers as they add support
+to their own implementations.
+
+If you see anything missing from the current supported drafts, or incorrect on
+any draft still accepting bug fixes, please
+[file an issue](https://github.com/json-schema-org/JSON-Schema-Test-Suite/issues)
+or [submit a PR](https://github.com/json-schema-org/JSON-Schema-Test-Suite).
+
+## Who Uses the Test Suite
 
 This suite is being used by:
 
-### Clojure ###
+### Clojure
 
 * [jinx](https://github.com/juxt/jinx)
 * [json-schema](https://github.com/tatut/json-schema)
 
-### Coffeescript ###
+### Coffeescript
 
 * [jsck](https://github.com/pandastrike/jsck)
 
-### C++ ###
+### C++
 
 * [Modern C++ JSON schema validator](https://github.com/pboettch/json-schema-validator)
 
-### Dart ###
+### Dart
 
 * [json_schema](https://github.com/patefacio/json_schema)
 
-### Elixir ###
+### Elixir
 
 * [ex_json_schema](https://github.com/jonasschmidt/ex_json_schema)
 
-### Erlang ###
+### Erlang
 
 * [jesse](https://github.com/for-GET/jesse)
 
-### Go ###
+### Go
 
 * [gojsonschema](https://github.com/sigu-399/gojsonschema)
 * [validate-json](https://github.com/cesanta/validate-json)
 
-### Haskell ###
+### Haskell
 
 * [aeson-schema](https://github.com/timjb/aeson-schema)
 * [hjsonschema](https://github.com/seagreen/hjsonschema)
 
-### Java ###
+### Java
 
 * [json-schema-validator](https://github.com/daveclayton/json-schema-validator)
 * [everit-org/json-schema](https://github.com/everit-org/json-schema)
 * [networknt/json-schema-validator](https://github.com/networknt/json-schema-validator)
 * [Justify](https://github.com/leadpony/justify)
+* [Snow](https://github.com/ssilverman/snowy-json)
 
-### JavaScript ###
+### JavaScript
 
 * [json-schema-benchmark](https://github.com/Muscula/json-schema-benchmark)
 * [direct-schema](https://github.com/IreneKnapp/direct-schema)
@@ -128,7 +137,7 @@ This suite is being used by:
 * [ajv](https://github.com/epoberezkin/ajv)
 * [djv](https://github.com/korzio/djv)
 
-### Node.js ###
+### Node.js
 
 For node.js developers, the suite is also available as an
 [npm](https://www.npmjs.com/package/@json-schema-org/tests) package.
@@ -137,49 +146,53 @@ Node-specific support is maintained in a [separate
 repository](https://github.com/json-schema-org/json-schema-test-suite-npm)
 which also welcomes your contributions!
 
-### .NET ###
+### .NET
 
 * [Newtonsoft.Json.Schema](https://github.com/JamesNK/Newtonsoft.Json.Schema)
 * [Manatee.Json](https://github.com/gregsdennis/Manatee.Json)
 
-### PHP ###
+### Perl
+
+* [JSON::Schema::Draft201909](https://github.com/karenetheridge/JSON-Schema-Draft201909)
+* [Test::JSON::Schema::Acceptance](https://github.com/karenetheridge/Test-JSON-Schema-Acceptance)
+
+### PHP
 
 * [json-schema](https://github.com/justinrainbow/json-schema)
 * [json-guard](https://github.com/thephpleague/json-guard)
 
-### PostgreSQL ###
+### PostgreSQL
 
 * [postgres-json-schema](https://github.com/gavinwahl/postgres-json-schema)
 * [is_jsonb_valid](https://github.com/furstenheim/is_jsonb_valid)
 
-### Python ###
+### Python
 
 * [jsonschema](https://github.com/Julian/jsonschema)
 * [fastjsonschema](https://github.com/seznam/python-fastjsonschema)
 * [hypothesis-jsonschema](https://github.com/Zac-HD/hypothesis-jsonschema)
 
-### Ruby ###
+### Ruby
 
 * [json-schema](https://github.com/hoxworth/json-schema)
 * [json_schemer](https://github.com/davishmcclurg/json_schemer)
 
-### Rust ###
+### Rust
 
 * [valico](https://github.com/rustless/valico)
 
-### Swift ###
+### Swift
 
 * [JSONSchema](https://github.com/kylef/JSONSchema.swift)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).
 
-Contributing
-------------
+## Contributing
 
 If you see something missing or incorrect, a pull request is most welcome!
 
-There are some sanity checks in place for testing the test suite. You
-can run them with `bin/jsonschema_suite check` or `tox`. They will be
-run automatically by [GitHub Actions](https://github.com/json-schema-org/JSON-Schema-Test-Suite/actions?query=workflow%3A%22Test+Suite+Sanity+Checking%22)
+There are some sanity checks in place for testing the test suite. You can run
+them with `bin/jsonschema_suite check` or `tox`. They will be run automatically
+by [GitHub Actions](https://github.com/json-schema-org/JSON-Schema-Test-Suite/actions?query=workflow%3A%22Test+Suite+Sanity+Checking%22)
 as well.

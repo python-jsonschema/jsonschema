@@ -71,7 +71,9 @@
                     "description": "Any additional comments about the test",
                     "type": "string"
                 },
-                "data": {},
+                "data": {
+                    "description": "This is the instance to be validated against the schema in \"schema\"."
+                },
                 "valid": { "type": "boolean" },
                 "output": {
                     "type": "object",

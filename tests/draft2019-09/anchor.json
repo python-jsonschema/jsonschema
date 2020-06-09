@@ -2,9 +2,7 @@
     {
         "description": "Location-independent identifier",
         "schema": {
-            "allOf": [{
-                "$ref": "#foo"
-            }],
+            "$ref": "#foo",
             "$defs": {
                 "A": {
                     "$anchor": "foo",
@@ -28,9 +26,7 @@
     {
         "description": "Location-independent identifier with absolute URI",
         "schema": {
-            "allOf": [{
-                "$ref": "http://localhost:1234/bar#foo"
-            }],
+            "$ref": "http://localhost:1234/bar#foo",
             "$defs": {
                 "A": {
                     "$id": "http://localhost:1234/bar",
@@ -56,9 +52,7 @@
         "description": "Location-independent identifier with base URI change in subschema",
         "schema": {
             "$id": "http://localhost:1234/root",
-            "allOf": [{
-                "$ref": "http://localhost:1234/nested.json#foo"
-            }],
+            "$ref": "http://localhost:1234/nested.json#foo",
             "$defs": {
                 "A": {
                     "$id": "nested.json",
