@@ -93,5 +93,21 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "additionalItems should not look in applicators",
+        "schema": {
+            "extends": [
+                { "items": [ { "type": "integer" } ] }
+            ],
+            "additionalItems": { "type": "boolean" }
+        },
+        "tests": [
+            {
+                "description": "items defined in extends are not examined",
+                "data": [ 1, null ],
+                "valid": true
+            }
+        ]
     }
 ]

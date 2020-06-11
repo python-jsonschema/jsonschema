@@ -93,5 +93,38 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "additionalItems should not look in applicators, valid case",
+        "schema": {
+            "allOf": [
+                { "items": [ { "type": "integer" } ] }
+            ],
+            "additionalItems": { "type": "boolean" }
+        },
+        "tests": [
+            {
+                "description": "items defined in allOf are not examined",
+                "data": [ 1, null ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "additionalItems should not look in applicators, invalid case",
+        "schema": {
+            "allOf": [
+                { "items": [ { "type": "integer" }, { "type": "string" } ] }
+            ],
+            "items": [ {"type": "integer" } ],
+            "additionalItems": { "type": "boolean" }
+        },
+        "tests": [
+            {
+                "description": "items defined in allOf are not examined",
+                "data": [ 1, "hello" ],
+                "valid": false
+            }
+        ]
     }
 ]
