@@ -124,7 +124,7 @@
         },
         "tests": [
             {
-                "description": "properties defined in extends are not allowed",
+                "description": "properties defined in extends are not examined",
                 "data": {"foo": 1, "bar": true},
                 "valid": false
             }

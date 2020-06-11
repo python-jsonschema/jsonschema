@@ -27,6 +27,11 @@
                 "description": "an IP address as an integer",
                 "data": "0x7f000001",
                 "valid": false
+            },
+            {
+                "description": "an IP address as an integer (decimal)",
+                "data": "2130706433",
+                "valid": false
             }
         ]
     }
