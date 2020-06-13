@@ -175,12 +175,23 @@ def equal(one, two):
 def unbool(element, true=object(), false=object()):
     """
     A hack to make True and 1 and False and 0 unique for ``uniq``.
+
+    Recurses through an arbitrarily deep object and unique-ifies True/1 and
+    False/0. Also converts arrays/objects into immutable/hashable alternatives.
+    We have to copy the items anyway to avoid unexpected mutations, so we might
+    as well make the imminent equality check simpler.
     """
 
     if element is True:
         return true
     elif element is False:
         return false
+    elif isinstance(element, list) or isinstance(element, tuple):
+        return tuple(map(unbool, element))
+    elif isinstance(element, dict):
+        # Convert dicts to frozensets of 2-tuples. For equality checks, that's
+        # a reasonable hashable alternative to dicts.
+        return frozenset(map(unbool, element.items()))
     return element
 
 

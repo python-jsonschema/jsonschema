@@ -87,26 +87,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
             subject="host-name",
             description="ends with hyphen",
         )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
-        )(test)
     ),
 )
 
@@ -161,26 +141,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             subject="hostname",
             description="ends with hyphen",
         )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
-        )(test)
     ),
 )
 
@@ -233,26 +193,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             message=bug(),
             subject="hostname",
             description="ends with hyphen",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
         )(test)
     ),
 )
@@ -326,26 +266,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             case_description=(
                 "validation of binary-encoded media type documents"
             ),
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
         )(test)
     ),
 )
