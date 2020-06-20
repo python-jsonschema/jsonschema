@@ -212,6 +212,31 @@
         ]
     },
     {
+        "description": "property named $ref, containing an actual $ref",
+        "schema": {
+            "properties": {
+                "$ref": {"$ref": "#/$defs/is-string"}
+            },
+            "$defs": {
+                "is-string": {
+                    "type": "string"
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "property named $ref valid",
+                "data": {"$ref": "a"},
+                "valid": true
+            },
+            {
+                "description": "property named $ref invalid",
+                "data": {"$ref": 2},
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "$ref to boolean schema true",
         "schema": {
             "$ref": "#/$defs/bool",

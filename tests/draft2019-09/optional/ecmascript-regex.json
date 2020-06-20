@@ -154,7 +154,7 @@
         ]
     },
     {
-        "description": "ECMA 262 \\w matches everything but ascii letters",
+        "description": "ECMA 262 \\W matches everything but ascii letters",
         "schema": {
             "type": "string",
             "pattern": "^\\W$"
@@ -173,7 +173,7 @@
         ]
     },
     {
-        "description": "ECMA 262 \\s matches ascii whitespace only",
+        "description": "ECMA 262 \\s matches whitespace",
         "schema": {
             "type": "string",
             "pattern": "^\\s$"
@@ -185,14 +185,59 @@
                 "valid": true
             },
             {
-                "description": "latin-1 non-breaking-space does not match (unlike e.g. Python)",
+                "description": "Character tabulation matches",
+                "data": "\t",
+                "valid": true
+            },
+            {
+                "description": "Line tabulation matches",
+                "data": "\u000b",
+                "valid": true
+            },
+            {
+                "description": "Form feed matches",
+                "data": "\u000c",
+                "valid": true
+            },
+            {
+                "description": "latin-1 non-breaking-space matches",
                 "data": "\u00a0",
+                "valid": true
+            },
+            {
+                "description": "zero-width whitespace matches",
+                "data": "\ufeff",
+                "valid": true
+            },
+            {
+                "description": "line feed matches (line terminator)",
+                "data": "\u000a",
+                "valid": true
+            },
+            {
+                "description": "paragraph separator matches (line terminator)",
+                "data": "\u2029",
+                "valid": true
+            },
+            {
+                "description": "EM SPACE matches (Space_Separator)",
+                "data": "\u2003",
+                "valid": true
+            },
+            {
+                "description": "Non-whitespace control does not match",
+                "data": "\u0001",
+                "valid": false
+            },
+            {
+                "description": "Non-whitespace does not match",
+                "data": "\u2013",
                 "valid": false
             }
         ]
     },
     {
-        "description": "ECMA 262 \\S matches everything but ascii whitespace",
+        "description": "ECMA 262 \\S matches everything but whitespace",
         "schema": {
             "type": "string",
             "pattern": "^\\S$"
@@ -204,8 +249,53 @@
                 "valid": false
             },
             {
-                "description": "latin-1 non-breaking-space matches (unlike e.g. Python)",
+                "description": "Character tabulation does not match",
+                "data": "\t",
+                "valid": false
+            },
+            {
+                "description": "Line tabulation does not match",
+                "data": "\u000b",
+                "valid": false
+            },
+            {
+                "description": "Form feed does not match",
+                "data": "\u000c",
+                "valid": false
+            },
+            {
+                "description": "latin-1 non-breaking-space does not match",
                 "data": "\u00a0",
+                "valid": false
+            },
+            {
+                "description": "zero-width whitespace does not match",
+                "data": "\ufeff",
+                "valid": false
+            },
+            {
+                "description": "line feed does not match (line terminator)",
+                "data": "\u000a",
+                "valid": false
+            },
+            {
+                "description": "paragraph separator does not match (line terminator)",
+                "data": "\u2029",
+                "valid": false
+            },
+            {
+                "description": "EM SPACE does not match (Space_Separator)",
+                "data": "\u2003",
+                "valid": false
+            },
+            {
+                "description": "Non-whitespace control matches",
+                "data": "\u0001",
+                "valid": true
+            },
+            {
+                "description": "Non-whitespace matches",
+                "data": "\u2013",
                 "valid": true
             }
         ]

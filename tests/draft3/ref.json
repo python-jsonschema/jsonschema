@@ -174,6 +174,31 @@
         ]
     },
     {
+        "description": "property named $ref, containing an actual $ref",
+        "schema": {
+            "properties": {
+                "$ref": {"$ref": "#/definitions/is-string"}
+            },
+            "definitions": {
+                "is-string": {
+                    "type": "string"
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "property named $ref valid",
+                "data": {"$ref": "a"},
+                "valid": true
+            },
+            {
+                "description": "property named $ref invalid",
+                "data": {"$ref": 2},
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "remote ref, containing refs itself",
         "schema": {"$ref": "http://json-schema.org/draft-03/schema#"},
         "tests": [

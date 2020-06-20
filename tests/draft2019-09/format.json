@@ -610,5 +610,41 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "validation of UUIDs",
+        "schema": { "format": "uuid" },
+        "tests": [
+            {
+                "description": "ignores integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "ignores floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "ignores objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "ignores arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "ignores booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "ignores null",
+                "data": null,
+                "valid": true
+            }
+        ]
     }
 ]
