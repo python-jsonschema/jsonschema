@@ -1062,7 +1062,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.message, "13 was expected")
         self.assertEqual(error.path, deque([]))
         self.assertEqual(error.json_path, '$')
-        self.assertEqual(error.schema_path, deque(["if", "then", "const"]))
+        self.assertEqual(error.schema_path, deque(["then", "const"]))
 
     def test_if_else(self):
         schema = {
@@ -1077,7 +1077,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.message, "13 was expected")
         self.assertEqual(error.path, deque([]))
         self.assertEqual(error.json_path, '$')
-        self.assertEqual(error.schema_path, deque(["if", "else", "const"]))
+        self.assertEqual(error.schema_path, deque(["else", "const"]))
 
     def test_boolean_schema_False(self):
         validator = validators.Draft7Validator(False)
