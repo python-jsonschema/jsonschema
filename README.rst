@@ -133,11 +133,13 @@ Benchmarks
 Community
 ---------
 
-There's a `mailing list <https://groups.google.com/forum/#!forum/jsonschema>`_
-for this implementation on Google Groups.
+The JSON Schema specification has `a Slack
+<https://json-schema.slack.com>`_, with an `invite link on its home page
+<https://json-schema.org/>`_. Many folks knowledgeable on authoring
+schemas can be found there.
 
-Please join, and feel free to send questions there.
-
+Otherwise, asking questions on Stack Overflow is another means of
+getting help if you're stuck.
 
 Contributing
 ------------
