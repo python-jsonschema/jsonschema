@@ -21,8 +21,8 @@ jsonschema
    :target: https://python-jsonschema.readthedocs.io/en/stable/
 
 
-``jsonschema`` is an implementation of `JSON Schema <https://json-schema.org>`_
-for Python (supporting 2.7+ including Python 3).
+``jsonschema`` is an implementation of `JSON Schema
+<https://json-schema.org>`_ for Python.
 
 .. code-block:: python
 
