@@ -257,7 +257,10 @@ def ref(validator, ref, instance, schema):
                 yield error
     else:
         scope, resolved = validator.resolver.resolve(ref)
-        validator.resolver.push_scope(scope)
+        if "#" in ref:
+            validator.resolver.push_scope(scope)
+        else:
+            validator.resolver.push_scope(str(scope).replace(ref, ""))
 
         try:
             for error in validator.descend(instance, resolved):
