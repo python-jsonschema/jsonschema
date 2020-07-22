@@ -2,7 +2,6 @@
 The ``jsonschema`` command line.
 """
 
-from __future__ import absolute_import
 from textwrap import dedent
 import argparse
 import errno
