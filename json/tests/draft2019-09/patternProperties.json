@@ -142,6 +142,11 @@
                 "valid": false
             },
             {
+                "description": "object with a property matching both true and false is invalid",
+                "data": {"foobar":1},
+                "valid": false
+            },
+            {
                 "description": "empty object is valid",
                 "data": {},
                 "valid": true

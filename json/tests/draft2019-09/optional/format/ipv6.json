@@ -39,6 +39,21 @@
                 "valid": true
             },
             {
+                "description": "missing leading octet is invalid",
+                "data": ":2:3:4:5:6:7:8",
+                "valid": false
+            },
+            {
+                "description": "missing trailing octet is invalid",
+                "data": "1:2:3:4:5:6:7:",
+                "valid": false
+            },
+            {
+                "description": "missing leading octet with omitted octets later",
+                "data": ":2:3:4::8",
+                "valid": false
+            },
+            {
                 "description": "two sets of double colons is invalid",
                 "data": "1::d6::42",
                 "valid": false
@@ -61,6 +76,41 @@
             {
                 "description": "mixed format with ipv4 section with a hex octet",
                 "data": "1::2:192.168.ff.1",
+                "valid": false
+            },
+            {
+                "description": "mixed format with leading double colons (ipv4-mapped ipv6 address)",
+                "data": "::ffff:192.168.0.1",
+                "valid": true
+            },
+            {
+                "description": "triple colons is invalid",
+                "data": "1:2:3:4:5:::8",
+                "valid": false
+            },
+            {
+                "description": "8 octets",
+                "data": "1:2:3:4:5:6:7:8",
+                "valid": true
+            },
+            {
+                "description": "insufficient octets without double colons",
+                "data": "1:2:3:4:5:6:7",
+                "valid": false
+            },
+            {
+                "description": "no colons is invalid",
+                "data": "1",
+                "valid": false
+            },
+            {
+                "description": "ipv4 is not ipv6",
+                "data": "127.0.0.1",
+                "valid": false
+            },
+            {
+                "description": "ipv4 segment must have 4 octets",
+                "data": "1:2:3:4:1.2.3",
                 "valid": false
             }
         ]
