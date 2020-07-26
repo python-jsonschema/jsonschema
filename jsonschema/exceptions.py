@@ -1,6 +1,7 @@
 """
 Validation errors, and some surrounding helpers.
 """
+import json
 from collections import defaultdict, deque
 import itertools
 import pprint
@@ -68,7 +69,7 @@ class _Error(Exception):
         if any(m is _unset for m in essential_for_verbose):
             return self.message
 
-        pschema = pprint.pformat(self.schema, width=72)
+        pschema = json.dumps(self.schema, separators=(',\n', ': '), sort_keys=True)
         pinstance = pprint.pformat(self.instance, width=72)
         return self.message + textwrap.dedent("""
 
@@ -200,7 +201,7 @@ class UnknownType(Exception):
         self.schema = schema
 
     def __unicode__(self):
-        pschema = pprint.pformat(self.schema, width=72)
+        pschema = json.dumps(self.schema, separators=(',\n', ': '), sort_keys=True)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
             Unknown type %r for validator with schema:

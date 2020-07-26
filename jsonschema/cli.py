@@ -70,18 +70,21 @@ class _Outputter(object):
 @attr.s
 class _PrettyFormatter(object):
 
-    _ERROR_MSG = dedent(
-        """\
-        ===[{type}]===({path})===
+    _WIDTH = 79
 
-        {body}
-        -----------------------------
-        """,
-    )
-    _SUCCESS_MSG = "===[SUCCESS]===({path})===\n"
+    def _simple_msg(self, path, type, header=False):
+        begin_end_chars = '╒╕' if header is True else '══'
+        return '{}══[{}]═══({})'.format(begin_end_chars[0], type, path)\
+                   .ljust(self._WIDTH - 1, '═') + begin_end_chars[1]
+
+    def _error_msg(self, path, type, body):
+        HEADER = self._simple_msg(path, type, header=True)
+        FOOTER = '└' + '─' * (self._WIDTH - 2) + '┘'
+
+        return '\n'.join((HEADER, str(body), FOOTER, '\n'))
 
     def filenotfound_error(self, path, exc_info):
-        return self._ERROR_MSG.format(
+        return self._error_msg(
             path=path,
             type="FileNotFoundError",
             body="{!r} does not exist.".format(path),
@@ -92,21 +95,21 @@ class _PrettyFormatter(object):
         exc_lines = "".join(
             traceback.format_exception(exc_type, exc_value, exc_traceback),
         )
-        return self._ERROR_MSG.format(
+        return self._error_msg(
             path=path,
             type=exc_type.__name__,
             body=exc_lines,
         )
 
     def validation_error(self, instance_path, error):
-        return self._ERROR_MSG.format(
+        return self._error_msg(
             path=instance_path,
             type=error.__class__.__name__,
             body=error,
         )
 
     def validation_success(self, instance_path):
-        return self._SUCCESS_MSG.format(path=instance_path)
+        return self._simple_msg(path=instance_path, type='SUCCESS') + '\n\n'
 
 
 @attr.s
