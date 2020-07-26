@@ -613,5 +613,201 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "nested unevaluatedProperties, outer false, inner true, properties outside",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "foo": { "type": "string" }
+            },
+            "allOf": [
+                {
+                    "unevaluatedProperties": true
+                }
+            ],
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "with no nested unevaluated properties",
+                "data": {
+                    "foo": "foo"
+                },
+                "valid": true
+            },
+            {
+                "description": "with nested unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "nested unevaluatedProperties, outer false, inner true, properties inside",
+        "schema": {
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "foo": { "type": "string" }
+                    },
+                    "unevaluatedProperties": true
+                }
+            ],
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "with no nested unevaluated properties",
+                "data": {
+                    "foo": "foo"
+                },
+                "valid": true
+            },
+            {
+                "description": "with nested unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "nested unevaluatedProperties, outer true, inner false, properties outside",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "foo": { "type": "string" }
+            },
+            "allOf": [
+                {
+                    "unevaluatedProperties": false
+                }
+            ],
+            "unevaluatedProperties": true
+        },
+        "tests": [
+            {
+                "description": "with no nested unevaluated properties",
+                "data": {
+                    "foo": "foo"
+                },
+                "valid": false
+            },
+            {
+                "description": "with nested unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "nested unevaluatedProperties, outer true, inner false, properties inside",
+        "schema": {
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "foo": { "type": "string" }
+                    },
+                    "unevaluatedProperties": false
+                }
+            ],
+            "unevaluatedProperties": true
+        },
+        "tests": [
+            {
+                "description": "with no nested unevaluated properties",
+                "data": {
+                    "foo": "foo"
+                },
+                "valid": true
+            },
+            {
+                "description": "with nested unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "cousin unevaluatedProperties, true and false, true with properties",
+        "schema": {
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "foo": { "type": "string" }
+                    },
+                    "unevaluatedProperties": true
+                },
+                {
+                    "unevaluatedProperties": false
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "with no nested unevaluated properties",
+                "data": {
+                    "foo": "foo"
+                },
+                "valid": false
+            },
+            {
+                "description": "with nested unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "cousin unevaluatedProperties, true and false, false with properties",
+        "schema": {
+            "type": "object",
+            "allOf": [
+                {
+                    "unevaluatedProperties": true
+                },
+                {
+                    "properties": {
+                        "foo": { "type": "string" }
+                    },
+                    "unevaluatedProperties": false
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "with no nested unevaluated properties",
+                "data": {
+                    "foo": "foo"
+                },
+                "valid": true
+            },
+            {
+                "description": "with nested unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": false
+            }
+        ]
     }
 ]
