@@ -62,14 +62,18 @@ class _Error(Exception):
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
 
-    def __unicode__(self):
+    def formatted_message(self, pretty=False):
         essential_for_verbose = (
             self.validator, self.validator_value, self.instance, self.schema,
         )
         if any(m is _unset for m in essential_for_verbose):
             return self.message
 
-        pschema = json.dumps(self.schema, separators=(',\n', ': '), sort_keys=True)
+        if (pretty is True):
+            pschema = json.dumps(self.schema, separators=(',\n', ': '), sort_keys=True)
+        else:
+            pschema = pprint.pformat(self.schema, width=72)
+
         pinstance = pprint.pformat(self.instance, width=72)
         return self.message + textwrap.dedent("""
 
@@ -88,6 +92,9 @@ class _Error(Exception):
             _utils.format_as_index(self.relative_path),
             _utils.indent(pinstance),
         )
+
+    def __unicode__(self):
+        return self.formatted_message(pretty=False)
 
     if PY3:
         __str__ = __unicode__
@@ -201,7 +208,7 @@ class UnknownType(Exception):
         self.schema = schema
 
     def __unicode__(self):
-        pschema = json.dumps(self.schema, separators=(',\n', ': '), sort_keys=True)
+        pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
             Unknown type %r for validator with schema:

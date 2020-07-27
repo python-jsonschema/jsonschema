@@ -3,14 +3,14 @@ The ``jsonschema`` command line.
 """
 
 from __future__ import absolute_import
-from textwrap import dedent
+
 import argparse
-import errno
 import json
-import sys
 import traceback
 
 import attr
+import errno
+import sys
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
@@ -105,7 +105,7 @@ class _PrettyFormatter(object):
         return self._error_msg(
             path=instance_path,
             type=error.__class__.__name__,
-            body=error,
+            body=error.formatted_message(pretty=True),
         )
 
     def validation_success(self, instance_path):
