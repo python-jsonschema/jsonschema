@@ -79,7 +79,7 @@ class _PrettyFormatter(object):
     def _simple_msg(self, path, type, header=False):
         begin_end_chars = '╒╕' if header is True else '══'
         return '{}══[{}]═══({})'.format(begin_end_chars[0], type, path) \
-                   .ljust(self._WIDTH - 1, '═') + begin_end_chars[1]
+            .ljust(self._WIDTH - 1, '═') + begin_end_chars[1]
 
     def _error_msg(self, path, type, body):
         HEADER = self._simple_msg(path, type, header=True)

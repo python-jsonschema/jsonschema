@@ -1,7 +1,6 @@
 """
 Validation errors, and some surrounding helpers.
 """
-import json
 from collections import defaultdict, deque
 import itertools
 import pprint
