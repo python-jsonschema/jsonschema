@@ -122,10 +122,10 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                ===[ValidationError]===(some_instance)===
-
+                ╒══[ValidationError]═══(some_instance)════════════════════════════════════════╕
                 I am an error!
-                -----------------------------
+                └─────────────────────────────────────────────────────────────────────────────┘
+
             """,
         ),
 
@@ -181,14 +181,14 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                ===[ValidationError]===(some_instance)===
-
+                ╒══[ValidationError]═══(some_instance)════════════════════════════════════════╕
                 First error
-                -----------------------------
-                ===[ValidationError]===(some_instance)===
+                └─────────────────────────────────────────────────────────────────────────────┘
 
+                ╒══[ValidationError]═══(some_instance)════════════════════════════════════════╕
                 Second error
-                -----------------------------
+                └─────────────────────────────────────────────────────────────────────────────┘
+
             """,
         )
 
@@ -249,18 +249,18 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                ===[ValidationError]===(some_first_instance)===
-
+                ╒══[ValidationError]═══(some_first_instance)══════════════════════════════════╕
                 An error
-                -----------------------------
-                ===[ValidationError]===(some_first_instance)===
+                └─────────────────────────────────────────────────────────────────────────────┘
 
+                ╒══[ValidationError]═══(some_first_instance)══════════════════════════════════╕
                 Another error
-                -----------------------------
-                ===[ValidationError]===(some_second_instance)===
+                └─────────────────────────────────────────────────────────────────────────────┘
 
+                ╒══[ValidationError]═══(some_second_instance)═════════════════════════════════╕
                 BOOM
-                -----------------------------
+                └─────────────────────────────────────────────────────────────────────────────┘
+
             """,
         )
 
@@ -308,7 +308,8 @@ class TestCLI(TestCase):
 
         with self.assertRaises(SchemaError) as e:
             validate(schema=schema, instance="")
-        error = str(e.exception)
+        error = str(e.exception._formatted_message(formatter=cli._PrettyFormatter._json_formatter))
+
 
         self.assertOutputs(
             files=dict(some_schema=json.dumps(schema)),
@@ -316,9 +317,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr=(
-                "===[SchemaError]===(some_schema)===\n\n"
-                + str(error)
-                + "\n-----------------------------\n"
+                    "╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
+                    + str(error)
+                    + "\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
             ),
         )
 
@@ -338,7 +339,8 @@ class TestCLI(TestCase):
 
         with self.assertRaises(SchemaError) as e:
             validate(schema=schema, instance="")
-        error = str(e.exception)
+        error = str(e.exception._formatted_message(formatter=cli._PrettyFormatter._json_formatter))
+
 
         self.assertOutputs(
             files=dict(some_schema=json.dumps(schema)),
@@ -346,9 +348,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr=(
-                "===[SchemaError]===(some_schema)===\n\n"
-                + str(error)
-                + "\n-----------------------------\n"
+                    "╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
+                    + str(error)
+                    + "\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
             ),
         )
 
@@ -375,7 +377,8 @@ class TestCLI(TestCase):
 
         with self.assertRaises(SchemaError) as e:
             validate(schema=schema, instance=instance)
-        error = str(e.exception)
+        error = str(e.exception._formatted_message(formatter=cli._PrettyFormatter._json_formatter))
+
 
         self.assertOutputs(
             files=dict(
@@ -386,9 +389,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr=(
-                "===[SchemaError]===(some_schema)===\n\n"
-                + str(error)
-                + "\n-----------------------------\n"
+                    "╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
+                    + str(error)
+                    + "\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
             ),
         )
 
@@ -456,7 +459,7 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(some_instance)===\n\nTraceback (most recent call last):\n",
+            "(some_instance)════════════════════════════════════════╕\nTraceback (most recent call last):\n",
             stderr,
         )
         self.assertNotIn("some_schema", stderr)
@@ -487,7 +490,7 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(<stdin>)===\n\nTraceback (most recent call last):\n",
+            "(<stdin>)══════════════════════════════════════════════╕\nTraceback (most recent call last):\n",
             stderr,
         )
         self.assertNotIn("some_schema", stderr)
@@ -516,7 +519,7 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(some_schema)===\n\nTraceback (most recent call last):\n",
+            "(some_schema)══════════════════════════════════════════╕\nTraceback (most recent call last):\n",
             stderr,
         )
 
@@ -552,7 +555,7 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(some_schema)===\n\nTraceback (most recent call last):\n",
+            "(some_schema)══════════════════════════════════════════╕\nTraceback (most recent call last):\n",
             stderr,
         )
         self.assertNotIn("some_instance", stderr)
@@ -579,10 +582,10 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                ===[FileNotFoundError]===(nonexisting_instance)===
-
+                ╒══[FileNotFoundError]═══(nonexisting_instance)═══════════════════════════════╕
                 'nonexisting_instance' does not exist.
-                -----------------------------
+                └─────────────────────────────────────────────────────────────────────────────┘
+
             """,
         )
 
@@ -600,10 +603,10 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                ===[FileNotFoundError]===(nonexisting_schema)===
-
+                ╒══[FileNotFoundError]═══(nonexisting_schema)═════════════════════════════════╕
                 'nonexisting_schema' does not exist.
-                -----------------------------
+                └─────────────────────────────────────────────────────────────────────────────┘
+
             """,
         )
 
@@ -625,10 +628,10 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                ===[FileNotFoundError]===(nonexisting_schema)===
-
+                ╒══[FileNotFoundError]═══(nonexisting_schema)═════════════════════════════════╕
                 'nonexisting_schema' does not exist.
-                -----------------------------
+                └─────────────────────────────────────────────────────────────────────────────┘
+
             """,
         )
 
@@ -644,7 +647,7 @@ class TestCLI(TestCase):
         self.assertOutputs(
             files=dict(some_schema="{}", some_instance="{}"),
             argv=["--output", "pretty", "-i", "some_instance", "some_schema"],
-            stdout="===[SUCCESS]===(some_instance)===\n",
+            stdout="═══[SUCCESS]═══(some_instance)═════════════════════════════════════════════════\n\n",
             stderr="",
         )
 
@@ -662,7 +665,7 @@ class TestCLI(TestCase):
             files=dict(some_schema="{}"),
             stdin=NativeIO("{}"),
             argv=["--output", "pretty", "some_schema"],
-            stdout="===[SUCCESS]===(<stdin>)===\n",
+            stdout="═══[SUCCESS]═══(<stdin>)═══════════════════════════════════════════════════════\n\n",
             stderr="",
         )
 
@@ -678,7 +681,7 @@ class TestCLI(TestCase):
         self.assertOutputs(
             files=dict(some_schema="{}", some_instance="{}"),
             argv=["--output", "pretty", "-i", "some_instance", "some_schema"],
-            stdout="===[SUCCESS]===(some_instance)===\n",
+            stdout="═══[SUCCESS]═══(some_instance)═════════════════════════════════════════════════\n\n",
             stderr="",
         )
 

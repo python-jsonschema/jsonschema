@@ -72,9 +72,13 @@ class _PrettyFormatter(object):
 
     _WIDTH = 79
 
+    @classmethod
+    def _json_formatter(cls, x):
+        return json.dumps(x, separators=(',\n', ': '), sort_keys=True)
+
     def _simple_msg(self, path, type, header=False):
         begin_end_chars = '╒╕' if header is True else '══'
-        return '{}══[{}]═══({})'.format(begin_end_chars[0], type, path)\
+        return '{}══[{}]═══({})'.format(begin_end_chars[0], type, path) \
                    .ljust(self._WIDTH - 1, '═') + begin_end_chars[1]
 
     def _error_msg(self, path, type, body):
@@ -105,7 +109,7 @@ class _PrettyFormatter(object):
         return self._error_msg(
             path=instance_path,
             type=error.__class__.__name__,
-            body=error.formatted_message(pretty=True),
+            body=error._formatted_message(formatter=self._json_formatter),
         )
 
     def validation_success(self, instance_path):
