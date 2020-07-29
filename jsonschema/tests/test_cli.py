@@ -121,7 +121,7 @@ class TestCLI(TestCase):
             argv=["-i", "some_instance", "--output", "pretty", "some_schema"],
 
             exit_code=1,
-            stderr="""\
+            stderr=u"""\
                 ╒══[ValidationError]═══(some_instance)════════════════════════════════════════╕
                 I am an error!
                 └─────────────────────────────────────────────────────────────────────────────┘
@@ -180,7 +180,7 @@ class TestCLI(TestCase):
             argv=["-i", "some_instance", "--output", "pretty", "some_schema"],
 
             exit_code=1,
-            stderr="""\
+            stderr=u"""\
                 ╒══[ValidationError]═══(some_instance)════════════════════════════════════════╕
                 First error
                 └─────────────────────────────────────────────────────────────────────────────┘
@@ -248,7 +248,7 @@ class TestCLI(TestCase):
             ],
 
             exit_code=1,
-            stderr="""\
+            stderr=u"""\
                 ╒══[ValidationError]═══(some_first_instance)══════════════════════════════════╕
                 An error
                 └─────────────────────────────────────────────────────────────────────────────┘
@@ -317,9 +317,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr=(
-                    "╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
+                    u"╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
                     + str(error)
-                    + "\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
+                    + u"\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
             ),
         )
 
@@ -348,9 +348,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr=(
-                    "╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
+                    u"╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
                     + str(error)
-                    + "\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
+                    + u"\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
             ),
         )
 
@@ -389,9 +389,9 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr=(
-                    "╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
+                    u"╒══[SchemaError]═══(some_schema)══════════════════════════════════════════════╕\n"
                     + str(error)
-                    + "\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
+                    + u"\n└─────────────────────────────────────────────────────────────────────────────┘\n\n"
             ),
         )
 
@@ -581,7 +581,7 @@ class TestCLI(TestCase):
             ],
 
             exit_code=1,
-            stderr="""\
+            stderr=u"""\
                 ╒══[FileNotFoundError]═══(nonexisting_instance)═══════════════════════════════╕
                 'nonexisting_instance' does not exist.
                 └─────────────────────────────────────────────────────────────────────────────┘
@@ -602,7 +602,7 @@ class TestCLI(TestCase):
             argv=["--output", "pretty", "nonexisting_schema"],
 
             exit_code=1,
-            stderr="""\
+            stderr=u"""\
                 ╒══[FileNotFoundError]═══(nonexisting_schema)═════════════════════════════════╕
                 'nonexisting_schema' does not exist.
                 └─────────────────────────────────────────────────────────────────────────────┘
@@ -627,7 +627,7 @@ class TestCLI(TestCase):
             ],
 
             exit_code=1,
-            stderr="""\
+            stderr=u"""\
                 ╒══[FileNotFoundError]═══(nonexisting_schema)═════════════════════════════════╕
                 'nonexisting_schema' does not exist.
                 └─────────────────────────────────────────────────────────────────────────────┘
