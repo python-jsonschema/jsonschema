@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from textwrap import dedent
 from unittest import TestCase
 import errno
