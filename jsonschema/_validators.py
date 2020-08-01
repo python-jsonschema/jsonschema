@@ -1,3 +1,5 @@
+import base64
+import json
 import re
 
 from jsonschema._utils import (
@@ -10,7 +12,7 @@ from jsonschema._utils import (
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
-from jsonschema.compat import iteritems
+from jsonschema.compat import iteritems, str_types
 
 
 def patternProperties(validator, patternProperties, instance, schema):
@@ -371,3 +373,35 @@ def if_(validator, if_schema, instance, schema):
         else_ = schema[u"else"]
         for error in validator.descend(instance, else_, schema_path="else"):
             yield error
+
+
+def contentEncoding(validator, cE, instance, schema):
+    if "base64" == cE:
+        if isinstance(instance, str_types):
+            try:
+                instance = base64.b64decode(instance)
+            except Exception:
+                yield ValidationError(
+                    "%r must be encoded by base64" % (instance,)
+                )
+            if "" == instance:
+                yield ValidationError("contentEncoding must be base64")
+
+
+def contentMediaType(validator, cM, instance, schema):
+    cE = schema.get(u'contentEncoding')
+    if "base64" == cE and isinstance(instance, str_types):
+        instance = base64.b64decode(instance)
+    if "application/json" == cM:
+        if isinstance(instance, bytes):
+            try:
+                instance = instance.decode("utf-8")
+            except Exception:
+                yield ValidationError(
+                    "%r must be encoded by utf8" % (instance,)
+                )
+        if isinstance(instance, str_types):
+            try:
+                instance = json.loads(instance)
+            except Exception:
+                yield ValidationError("%r must be vaild JSON" % (instance,))

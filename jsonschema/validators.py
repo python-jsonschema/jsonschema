@@ -581,6 +581,8 @@ Draft7Validator = create(
         u"required": _validators.required,
         u"type": _validators.type,
         u"uniqueItems": _validators.uniqueItems,
+        u"contentEncoding": _validators.contentEncoding,
+        u"contentMediaType": _validators.contentMediaType,
     },
     type_checker=_types.draft7_type_checker,
     version="draft7",

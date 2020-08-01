@@ -309,25 +309,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             description="ends with hyphen",
         )(test)
         or skip(
-            message=bug(593),
-            subject="content",
-            case_description=(
-                "validation of string-encoded content based on media type"
-            ),
-        )(test)
-        or skip(
-            message=bug(593),
-            subject="content",
-            case_description="validation of binary string-encoding",
-        )(test)
-        or skip(
-            message=bug(593),
-            subject="content",
-            case_description=(
-                "validation of binary-encoded media type documents"
-            ),
-        )(test)
-        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
