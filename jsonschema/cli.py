@@ -15,7 +15,7 @@ import sys
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
-from jsonschema.compat import PY3, JSONDecodeError
+from jsonschema.compat import JSONDecodeError
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
@@ -70,35 +70,44 @@ class _Outputter(object):
 
 @attr.s
 class _PrettyFormatter(object):
-
-    _WIDTH = 79
-    _HEADER_LINE = '═'
+    _MESSAGE_BAR_CHAR = '═'
+    _MESSAGE_CORNER_CHARS = ('╒', '╕')
     _MESSAGE_FORMAT = '{}══[{}]═══({})'
+    _MESSAGE_MAX_LENGTH = 79
 
     @classmethod
     def _json_formatter(cls, x):
         return json.dumps(x, separators=(',\n', ': '), sort_keys=True)
 
-    def _simple_msg_v3(self, path, type, header=False):
-        begin_end_chars = ('╒', '╕') if header is True else ('═', '═')
-        return '{}══[{}]═══({})'.format(begin_end_chars[0], type, path) \
-                   .ljust(self._WIDTH - 1, '═') + begin_end_chars[1]
+    def _message_end_chars(self, header=False):
+        return self._MESSAGE_CORNER_CHARS if header is True else [self._MESSAGE_BAR_CHAR] * 2
 
-    def _simple_msg_v2(self, path, type, header=False):
-        begin_end_chars = ('╒', '╕') if header is True else ('═', '═')
+    def _message_line(self, path, type, header=False):
+        begin_char, end_char = self._message_end_chars(header)
+        return self._MESSAGE_FORMAT.format(begin_char, type, path) \
+            .ljust(self._MESSAGE_MAX_LENGTH - 1, self._MESSAGE_BAR_CHAR) + end_char
 
-        # printed length of the static charaters: left end, brackets, bar characters
-        format_length = 11  # TODO: calculate fixed chars printed length
-        desired_length = self._WIDTH - len(type) - len(path) - format_length
+    if len(_MESSAGE_BAR_CHAR) != 1:
+        # The code in this if-block is for Python interpreters that don't
+        # treat multibyte Unicode characters as single characters.
+        # E.g., some versions of Python 2.x.  This block may be removed
+        # when support for those interpreters is no longer needed.
 
-        return self._MESSAGE_FORMAT.format(begin_end_chars[0], type, path) + \
-               self._HEADER_LINE * desired_length + begin_end_chars[1]
+        _FORMAT_LENGTH = len(
+            _MESSAGE_FORMAT.replace(_MESSAGE_BAR_CHAR, '.').format('.', '', '')) + 1
 
-    _simple_msg = _simple_msg_v3 if len(_HEADER_LINE) == 1 else _simple_msg_v2
+        def _message_line(self, path, type, header=False):
+            begin_char, end_char = self._message_end_chars(header)
+
+            bar_length = self._MESSAGE_MAX_LENGTH - len(type) - len(path) - self._FORMAT_LENGTH
+
+            return self._MESSAGE_FORMAT.format(begin_char, type, path) + \
+                self._MESSAGE_BAR_CHAR * bar_length + end_char
+
 
     def _error_msg(self, path, type, body):
-        HEADER = self._simple_msg(path, type, header=True)
-        FOOTER = '└' + '─' * (self._WIDTH - 2) + '┘'
+        HEADER = self._message_line(path, type, header=True)
+        FOOTER = '└' + '─' * (self._MESSAGE_MAX_LENGTH - 2) + '┘'
 
         return '\n'.join((HEADER, str(body), FOOTER, '\n'))
 
@@ -128,7 +137,7 @@ class _PrettyFormatter(object):
         )
 
     def validation_success(self, instance_path):
-        return self._simple_msg(path=instance_path, type='SUCCESS') + '\n\n'
+        return self._message_line(path=instance_path, type='SUCCESS') + '\n\n'
 
 
 @attr.s
