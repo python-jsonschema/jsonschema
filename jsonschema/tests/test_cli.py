@@ -460,7 +460,11 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(some_instance)════════════════════════════════════════╕\nTraceback (most recent call last):\n",
+            "(some_instance)═",
+            stderr,
+        )
+        self.assertIn(
+            "═╕\nTraceback (most recent call last):\n",
             stderr,
         )
         self.assertNotIn("some_schema", stderr)
@@ -491,7 +495,11 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(<stdin>)══════════════════════════════════════════════╕\nTraceback (most recent call last):\n",
+            "(<stdin>)═",
+            stderr,
+        )
+        self.assertIn(
+            "═╕\nTraceback (most recent call last):\n",
             stderr,
         )
         self.assertNotIn("some_schema", stderr)
@@ -520,7 +528,11 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(some_schema)══════════════════════════════════════════╕\nTraceback (most recent call last):\n",
+            "(some_schema)═",
+            stderr,
+        )
+        self.assertIn(
+            "═╕\nTraceback (most recent call last):\n",
             stderr,
         )
 
@@ -556,7 +568,11 @@ class TestCLI(TestCase):
         )
         self.assertFalse(stdout)
         self.assertIn(
-            "(some_schema)══════════════════════════════════════════╕\nTraceback (most recent call last):\n",
+            "(some_schema)═",
+            stderr,
+        )
+        self.assertIn(
+            "═╕\nTraceback (most recent call last):\n",
             stderr,
         )
         self.assertNotIn("some_instance", stderr)
