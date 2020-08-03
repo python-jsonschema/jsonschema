@@ -15,7 +15,7 @@ import sys
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
-from jsonschema.compat import JSONDecodeError
+from jsonschema.compat import PY3, JSONDecodeError
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
@@ -72,19 +72,33 @@ class _Outputter(object):
 class _PrettyFormatter(object):
 
     _WIDTH = 79
+    _HEADER_LINE = '═'
+    _MESSAGE_FORMAT = '{}══[{}]═══({})'
 
     @classmethod
     def _json_formatter(cls, x):
         return json.dumps(x, separators=(',\n', ': '), sort_keys=True)
 
-    def _simple_msg(self, path, type, header=False):
-        begin_end_chars = u'╒╕' if header is True else u'══'
-        return u'{}══[{}]═══({})'.format(begin_end_chars[0], type, path) \
-            .ljust(self._WIDTH - 1, u'═') + begin_end_chars[1]
+    def _simple_msg_v3(self, path, type, header=False):
+        begin_end_chars = ('╒', '╕') if header is True else ('═', '═')
+        return '{}══[{}]═══({})'.format(begin_end_chars[0], type, path) \
+                   .ljust(self._WIDTH - 1, '═') + begin_end_chars[1]
+
+    def _simple_msg_v2(self, path, type, header=False):
+        begin_end_chars = ('╒', '╕') if header is True else ('═', '═')
+
+        # printed length of the static charaters: left end, brackets, bar characters
+        format_length = 11  # TODO: calculate fixed chars printed length
+        desired_length = self._WIDTH - len(type) - len(path) - format_length
+
+        return self._MESSAGE_FORMAT.format(begin_end_chars[0], type, path) + \
+               self._HEADER_LINE * desired_length + begin_end_chars[1]
+
+    _simple_msg = _simple_msg_v3 if len(_HEADER_LINE) == 1 else _simple_msg_v2
 
     def _error_msg(self, path, type, body):
         HEADER = self._simple_msg(path, type, header=True)
-        FOOTER = u'└' + u'─' * (self._WIDTH - 2) + u'┘'
+        FOOTER = '└' + '─' * (self._WIDTH - 2) + '┘'
 
         return '\n'.join((HEADER, str(body), FOOTER, '\n'))
 
