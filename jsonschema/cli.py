@@ -80,30 +80,46 @@ class _PrettyFormatter(object):
         return json.dumps(x, separators=(',\n', ': '), sort_keys=True)
 
     def _message_end_chars(self, header=False):
-        return self._MESSAGE_CORNER_CHARS if header is True else [self._MESSAGE_BAR_CHAR] * 2
+        return self._MESSAGE_CORNER_CHARS if header is True \
+            else [self._MESSAGE_BAR_CHAR] * 2
 
-    def _message_line(self, path, type, header=False):
+    def _message_line_good_unicode(self, path, type, header=False):
+        """
+        Message formatter for Python interpreters with good Unicode support.
+
+        TODO: Rename method when support for old Python no longer needed.
+        """
         begin_char, end_char = self._message_end_chars(header)
         return self._MESSAGE_FORMAT.format(begin_char, type, path) \
-            .ljust(self._MESSAGE_MAX_LENGTH - 1, self._MESSAGE_BAR_CHAR) + end_char
+            .ljust(self._MESSAGE_MAX_LENGTH - 1, self._MESSAGE_BAR_CHAR) + \
+            end_char
+
+    def _message_line_poor_unicode(self, path, type, header=False):
+        """
+        Message formatter for Python interpreters with poor Unicode support.
+
+        TODO: Remove method when support for old Python no longer needed.
+        """
+        begin_char, end_char = self._message_end_chars(header)
+
+        bar_length = self._MESSAGE_MAX_LENGTH - self._FORMAT_LENGTH - \
+            len(type) - len(path)
+
+        return self._MESSAGE_FORMAT.format(begin_char, type, path) + \
+            self._MESSAGE_BAR_CHAR * bar_length + end_char
 
     if len(_MESSAGE_BAR_CHAR) != 1:
         # The code in this if-block is for Python interpreters that don't
         # treat multibyte Unicode characters as single characters.
-        # E.g., some versions of Python 2.x.  This block may be removed
-        # when support for those interpreters is no longer needed.
+        # E.g., most versions of Python 2.x.
+        # TODO: Remove if-block when support for old Python no longer needed.
 
+        _message_line = _message_line_poor_unicode
         _FORMAT_LENGTH = len(
-            _MESSAGE_FORMAT.replace(_MESSAGE_BAR_CHAR, '.').format('.', '', '')) + 1
-
-        def _message_line(self, path, type, header=False):
-            begin_char, end_char = self._message_end_chars(header)
-
-            bar_length = self._MESSAGE_MAX_LENGTH - len(type) - len(path) - self._FORMAT_LENGTH
-
-            return self._MESSAGE_FORMAT.format(begin_char, type, path) + \
-                self._MESSAGE_BAR_CHAR * bar_length + end_char
-
+            _MESSAGE_FORMAT.replace(_MESSAGE_BAR_CHAR, '.')
+            .format('.', '', '')) + 1
+    else:
+        _message_line = _message_line_good_unicode
 
     def _error_msg(self, path, type, body):
         HEADER = self._message_line(path, type, header=True)
