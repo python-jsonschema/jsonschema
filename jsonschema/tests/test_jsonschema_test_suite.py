@@ -337,6 +337,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or skip(
             message=bug(593),
             subject="content",
+            valid=False,
             case_description=(
                 "validation of string-encoded content based on media type"
             ),
@@ -344,11 +345,13 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or skip(
             message=bug(593),
             subject="content",
+            valid=False,
             case_description="validation of binary string-encoding",
         )(test)
         or skip(
             message=bug(593),
             subject="content",
+            valid=False,
             case_description=(
                 "validation of binary-encoded media type documents"
             ),
