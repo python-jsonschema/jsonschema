@@ -68,62 +68,27 @@ class _Outputter(object):
 
 @attr.s
 class _PrettyFormatter(object):
-    _MESSAGE_BAR_CHAR = '═'
-    _MESSAGE_CORNER_CHARS = ('╒', '╕')
-    _MESSAGE_FORMAT = '{}══[{}]═══({})'
+    _MESSAGE_BAR_CHAR = "═"
+    _MESSAGE_CORNER_CHARS = "╒", "╕"
+    _MESSAGE_FORMAT = "{}══[{}]═══({})"
     _MESSAGE_MAX_LENGTH = 79
 
     @classmethod
     def _json_formatter(cls, x):
-        return json.dumps(x, separators=(',\n', ': '), sort_keys=True)
+        return json.dumps(x, indent=4, sort_keys=True)
 
-    def _message_end_chars(self, header=False):
-        return self._MESSAGE_CORNER_CHARS if header is True \
+    def _message_line(self, path, type, header=False):
+        begin_char, end_char = self._MESSAGE_CORNER_CHARS if header \
             else [self._MESSAGE_BAR_CHAR] * 2
-
-    def _message_line_good_unicode(self, path, type, header=False):
-        """
-        Message formatter for Python interpreters with good Unicode support.
-
-        TODO: Rename method when support for old Python no longer needed.
-        """
-        begin_char, end_char = self._message_end_chars(header)
         return self._MESSAGE_FORMAT.format(begin_char, type, path) \
             .ljust(self._MESSAGE_MAX_LENGTH - 1, self._MESSAGE_BAR_CHAR) + \
             end_char
 
-    def _message_line_poor_unicode(self, path, type, header=False):
-        """
-        Message formatter for Python interpreters with poor Unicode support.
-
-        TODO: Remove method when support for old Python no longer needed.
-        """
-        begin_char, end_char = self._message_end_chars(header)
-
-        bar_length = self._MESSAGE_MAX_LENGTH - self._FORMAT_LENGTH - \
-            len(type) - len(path)
-
-        return self._MESSAGE_FORMAT.format(begin_char, type, path) + \
-            self._MESSAGE_BAR_CHAR * bar_length + end_char
-
-    if len(_MESSAGE_BAR_CHAR) != 1:
-        # The code in this if-block is for Python interpreters that don't
-        # treat multibyte Unicode characters as single characters.
-        # E.g., most versions of Python 2.x.
-        # TODO: Remove if-block when support for old Python no longer needed.
-
-        _message_line = _message_line_poor_unicode
-        _FORMAT_LENGTH = len(
-            _MESSAGE_FORMAT.replace(_MESSAGE_BAR_CHAR, '.')
-            .format('.', '', '')) + 1
-    else:
-        _message_line = _message_line_good_unicode
-
     def _error_msg(self, path, type, body):
         HEADER = self._message_line(path, type, header=True)
-        FOOTER = '└' + '─' * (self._MESSAGE_MAX_LENGTH - 2) + '┘'
+        FOOTER = "└" + "─" * (self._MESSAGE_MAX_LENGTH - 2) + "┘"
 
-        return '\n'.join((HEADER, str(body), FOOTER, '\n'))
+        return "\n".join((HEADER, body, FOOTER, "\n"))
 
     def filenotfound_error(self, path, exc_info):
         return self._error_msg(
@@ -151,7 +116,7 @@ class _PrettyFormatter(object):
         )
 
     def validation_success(self, instance_path):
-        return self._message_line(path=instance_path, type='SUCCESS') + '\n\n'
+        return self._message_line(path=instance_path, type="SUCCESS") + "\n\n"
 
 
 @attr.s

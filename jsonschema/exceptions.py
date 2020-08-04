@@ -3,14 +3,14 @@ Validation errors, and some surrounding helpers.
 """
 from collections import defaultdict, deque
 import itertools
-import pprint
 import textwrap
+from functools import partial
+from pprint import pformat
 
 import attr
 
 from jsonschema import _utils
 from jsonschema.compat import PY3, iteritems
-
 
 WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES = frozenset()
@@ -61,19 +61,16 @@ class _Error(Exception):
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
 
-    def _formatted_message(self, formatter=None):
+    def _formatted_message(self, formatter=partial(pformat, width=72)):
         essential_for_verbose = (
             self.validator, self.validator_value, self.instance, self.schema,
         )
         if any(m is _unset for m in essential_for_verbose):
             return self.message
 
-        if (callable(formatter)):
-            pschema = formatter(self.schema)
-        else:
-            pschema = pprint.pformat(self.schema, width=72)
+        pschema = formatter(self.schema)
 
-        pinstance = pprint.pformat(self.instance, width=72)
+        pinstance = pformat(self.instance, width=72)
         return self.message + textwrap.dedent("""
 
             Failed validating %r in %s%s:
@@ -207,8 +204,8 @@ class UnknownType(Exception):
         self.schema = schema
 
     def __unicode__(self):
-        pschema = pprint.pformat(self.schema, width=72)
-        pinstance = pprint.pformat(self.instance, width=72)
+        pschema = pformat(self.schema, width=72)
+        pinstance = pformat(self.instance, width=72)
         return textwrap.dedent("""
             Unknown type %r for validator with schema:
             %s
