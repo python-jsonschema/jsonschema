@@ -41,11 +41,16 @@ def skip(message, **kwargs):
 def missing_format(checker):
     def missing_format(test):
         schema = test.schema
-        if schema is True or schema is False or "format" not in schema:
+        if (
+            schema is True
+            or schema is False
+            or "format" not in schema
+            or schema["format"] in checker.checkers
+            or test.valid
+        ):
             return
 
-        if schema["format"] not in checker.checkers:
-            return "Format checker {0!r} not found.".format(schema["format"])
+        return "Format checker {0!r} not found.".format(schema["format"])
     return missing_format
 
 
