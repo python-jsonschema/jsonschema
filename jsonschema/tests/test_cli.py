@@ -310,7 +310,7 @@ class TestCLI(TestCase):
         with self.assertRaises(SchemaError) as e:
             validate(schema=schema, instance="")
         error = str(e.exception._formatted_message(
-            formatter=cli._PrettyFormatter._json_formatter))
+            formatter=cli._json_formatter))
 
         self.assertOutputs(
             files=dict(some_schema=json.dumps(schema)),
@@ -341,7 +341,7 @@ class TestCLI(TestCase):
         with self.assertRaises(SchemaError) as e:
             validate(schema=schema, instance="")
         error = str(e.exception._formatted_message(
-            formatter=cli._PrettyFormatter._json_formatter))
+            formatter=cli._json_formatter))
 
         self.assertOutputs(
             files=dict(some_schema=json.dumps(schema)),
@@ -379,7 +379,7 @@ class TestCLI(TestCase):
         with self.assertRaises(SchemaError) as e:
             validate(schema=schema, instance=instance)
         error = str(e.exception._formatted_message(
-            formatter=cli._PrettyFormatter._json_formatter))
+            formatter=cli._json_formatter))
 
         self.assertOutputs(
             files=dict(

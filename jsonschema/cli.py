@@ -66,16 +66,16 @@ class _Outputter(object):
         self._stdout.write(self._formatter.validation_success(**kwargs))
 
 
+def _json_formatter(x):
+    return json.dumps(x, indent=4, sort_keys=True)
+
+
 @attr.s
 class _PrettyFormatter(object):
     _MESSAGE_BAR_CHAR = "═"
     _MESSAGE_CORNER_CHARS = "╒", "╕"
     _MESSAGE_FORMAT = "{}══[{}]═══({})"
     _MESSAGE_MAX_LENGTH = 79
-
-    @classmethod
-    def _json_formatter(cls, x):
-        return json.dumps(x, indent=4, sort_keys=True)
 
     def _message_line(self, path, type, header=False):
         begin_char, end_char = self._MESSAGE_CORNER_CHARS if header \
@@ -112,7 +112,7 @@ class _PrettyFormatter(object):
         return self._error_msg(
             path=instance_path,
             type=error.__class__.__name__,
-            body=error._formatted_message(formatter=self._json_formatter),
+            body=error._formatted_message(formatter=_json_formatter),
         )
 
     def validation_success(self, instance_path):
