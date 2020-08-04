@@ -104,7 +104,7 @@ class TypeChecker(object):
 
                 The name of the type to check.
 
-            fn (collections.Callable):
+            fn (collections.abc.Callable):
 
                 A function taking exactly two parameters - the type
                 checker calling the function and the instance to check.
@@ -141,7 +141,7 @@ class TypeChecker(object):
 
         Arguments:
 
-            types (~collections.Iterable):
+            types (~collections.abc.Iterable):
 
                 the names of the types to remove.
 

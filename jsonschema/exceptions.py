@@ -268,10 +268,10 @@ class ErrorTree(object):
         """
         Retrieve the child tree one level down at the given ``index``.
 
-        If the index is not in the instance that this tree corresponds to and
-        is not known by this tree, whatever error would be raised by
-        ``instance.__getitem__`` will be propagated (usually this is some
-        subclass of `exceptions.LookupError`.
+        If the index is not in the instance that this tree corresponds
+        to and is not known by this tree, whatever error would be raised
+        by ``instance.__getitem__`` will be propagated (usually this is
+        some subclass of `LookupError`.
         """
 
         if self._instance is not _unset and index not in self:
@@ -349,14 +349,14 @@ def best_match(errors, key=relevance):
     not be relevant.
 
     Arguments:
-        errors (collections.Iterable):
+        errors (collections.abc.Iterable):
 
             the errors to select from. Do not provide a mixture of
             errors from different validation attempts (i.e. from
             different instances or schemas), since it won't produce
             sensical output.
 
-        key (collections.Callable):
+        key (collections.abc.Callable):
 
             the key to use when sorting errors. See `relevance` and
             transitively `by_relevance` for more details (the default is

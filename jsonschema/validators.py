@@ -113,7 +113,7 @@ def validates(version):
 
     Returns:
 
-        collections.Callable:
+        collections.abc.Callable:
 
             a class decorator to decorate the validator with the version
     """
@@ -165,11 +165,11 @@ def create(
 
     Arguments:
 
-        meta_schema (collections.Mapping):
+        meta_schema (collections.abc.Mapping):
 
             the meta schema for the new validator class
 
-        validators (collections.Mapping):
+        validators (collections.abc.Mapping):
 
             a mapping from names to callables, where each callable will
             validate the schema property with the given name.
@@ -197,7 +197,7 @@ def create(
             If unprovided, a `jsonschema.TypeChecker` will be created
             with a set of default types typical of JSON Schema drafts.
 
-        default_types (collections.Mapping):
+        default_types (collections.abc.Mapping):
 
             .. deprecated:: 3.0.0
 
@@ -207,7 +207,7 @@ def create(
             that will be converted to functions and redefined in this
             object's `jsonschema.TypeChecker`.
 
-        id_of (collections.Callable):
+        id_of (collections.abc.Callable):
 
             A function that given a schema, returns its ID.
 
@@ -374,7 +374,7 @@ def extend(validator, validators=(), version=None, type_checker=None):
 
             an existing validator class
 
-        validators (collections.Mapping):
+        validators (collections.abc.Mapping):
 
             a mapping of new validator callables to extend with, whose
             structure is as in `create`.
@@ -938,7 +938,7 @@ def validator_for(schema, default=_LATEST_VERSION):
 
     Arguments:
 
-        schema (collections.Mapping or bool):
+        schema (collections.abc.Mapping or bool):
 
             the schema to look at
 

@@ -88,8 +88,7 @@ doctest_global_setup = dedent(
 )
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/2.7", None),
-    "python3": ("https://docs.python.org/3", None),
+    "python": ("https://docs.python.org/3", None),
 }
 
 

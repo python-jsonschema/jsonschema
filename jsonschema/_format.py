@@ -24,7 +24,7 @@ class FormatChecker(object):
 
     Arguments:
 
-        formats (~collections.Iterable):
+        formats (~collections.abc.Iterable):
 
             The known formats to validate. This argument can be used to
             limit which formats will be used during validation.
