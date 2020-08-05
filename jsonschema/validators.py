@@ -1,6 +1,10 @@
 """
 Creation and extension of validators, with implementations for existing drafts.
 """
+from collections.abc import Sequence
+from functools import lru_cache
+from urllib.parse import unquote, urldefrag, urljoin, urlsplit
+from urllib.request import urlopen
 from warnings import warn
 import contextlib
 import json
@@ -12,18 +16,6 @@ from jsonschema import (
     _utils,
     _validators,
     exceptions,
-)
-from jsonschema.compat import (
-    Sequence,
-    int_types,
-    iteritems,
-    lru_cache,
-    str_types,
-    unquote,
-    urldefrag,
-    urljoin,
-    urlopen,
-    urlsplit,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -78,7 +70,7 @@ def _generate_legacy_type_checks(types=()):
         return type_check
 
     definitions = {}
-    for typename, pytypes in iteritems(types):
+    for typename, pytypes in types.items():
         definitions[typename] = gen_type_check(pytypes)
 
     return definitions
@@ -87,11 +79,11 @@ def _generate_legacy_type_checks(types=()):
 _DEPRECATED_DEFAULT_TYPES = {
     u"array": list,
     u"boolean": bool,
-    u"integer": int_types,
+    u"integer": int,
     u"null": type(None),
     u"number": numbers.Number,
     u"object": dict,
-    u"string": str_types,
+    u"string": str,
 }
 _TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES = _types.TypeChecker(
     type_checkers=_generate_legacy_type_checks(_DEPRECATED_DEFAULT_TYPES),
@@ -312,7 +304,7 @@ def create(
                 if ref is not None:
                     validators = [(u"$ref", ref)]
                 else:
-                    validators = iteritems(_schema)
+                    validators = _schema.items()
 
                 for k, v in validators:
                     validator = self.VALIDATORS.get(k)
@@ -650,7 +642,7 @@ class RefResolver(object):
         self._scopes_stack = [base_uri]
         self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
-            for id, validator in iteritems(meta_schemas)
+            for id, validator in meta_schemas.items()
         )
         self.store.update(store)
         self.store[base_uri] = referrer

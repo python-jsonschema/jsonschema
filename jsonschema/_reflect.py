@@ -9,8 +9,6 @@ with Python's reflection capabilities.
 
 import sys
 
-from jsonschema.compat import PY3
-
 
 class _NoModuleFound(Exception):
     """
@@ -42,12 +40,8 @@ class ObjectNotFound(InvalidName):
 
 
 
-if PY3:
-    def reraise(exception, traceback):
-        raise exception.with_traceback(traceback)
-else:
-    exec("""def reraise(exception, traceback):
-        raise exception.__class__, exception, traceback""")
+def reraise(exception, traceback):
+    raise exception.with_traceback(traceback)
 
 reraise.__doc__ = """
 Re-raise an exception, with an optional traceback, in a way that is compatible

@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from decimal import Decimal
 from io import BytesIO
 from unittest import TestCase
+from urllib.request import pathname2url
 import json
 import os
 import sys
@@ -13,7 +14,6 @@ from twisted.trial.unittest import SynchronousTestCase
 import attr
 
 from jsonschema import FormatChecker, TypeChecker, exceptions, validators
-from jsonschema.compat import PY3, pathname2url
 from jsonschema.tests._helpers import bug
 
 
@@ -1217,10 +1217,6 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def test_is_type_evades_bool_inheriting_from_int(self):
         self.assertFalse(self.Validator({}).is_type(True, "integer"))
         self.assertFalse(self.Validator({}).is_type(True, "number"))
-
-    @unittest.skipIf(PY3, "In Python 3 json.load always produces unicode")
-    def test_string_a_bytestring_is_a_string(self):
-        self.Validator({"type": "string"}).validate(b"foo")
 
     def test_patterns_can_be_native_strings(self):
         """

@@ -1,9 +1,9 @@
+from collections.abc import MutableMapping
+from urllib.parse import urlsplit
 import itertools
 import json
 import pkgutil
 import re
-
-from jsonschema.compat import MutableMapping, str_types, urlsplit
 
 
 class URIDict(MutableMapping):
@@ -160,7 +160,7 @@ def ensure_list(thing):
     Otherwise, return it unchanged.
     """
 
-    if isinstance(thing, str_types):
+    if isinstance(thing, str):
         return [thing]
     return thing
 

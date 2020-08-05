@@ -1,5 +1,4 @@
 from jsonschema import _utils
-from jsonschema.compat import iteritems
 from jsonschema.exceptions import ValidationError
 
 
@@ -7,7 +6,7 @@ def dependencies_draft3(validator, dependencies, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, dependency in iteritems(dependencies):
+    for property, dependency in dependencies.items():
         if property not in instance:
             continue
 
@@ -100,7 +99,7 @@ def properties_draft3(validator, properties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, subschema in iteritems(properties):
+    for property, subschema in properties.items():
         if property in instance:
             for error in validator.descend(
                 instance[property],

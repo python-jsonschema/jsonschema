@@ -9,7 +9,6 @@ import textwrap
 import attr
 
 from jsonschema import _utils
-from jsonschema.compat import PY3, iteritems
 
 
 WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
@@ -61,7 +60,7 @@ class _Error(Exception):
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
 
-    def __unicode__(self):
+    def __str__(self):
         essential_for_verbose = (
             self.validator, self.validator_value, self.instance, self.schema,
         )
@@ -87,12 +86,6 @@ class _Error(Exception):
             _utils.format_as_index(self.relative_path),
             _utils.indent(pinstance),
         )
-
-    if PY3:
-        __str__ = __unicode__
-    else:
-        def __str__(self):
-            return unicode(self).encode("utf-8")
 
     @classmethod
     def create_from(cls, other):
@@ -129,7 +122,7 @@ class _Error(Exception):
         return path
 
     def _set(self, **kwargs):
-        for k, v in iteritems(kwargs):
+        for k, v in kwargs.items():
             if getattr(self, k) is _unset:
                 setattr(self, k, v)
 
@@ -179,14 +172,8 @@ class UndefinedTypeCheck(Exception):
     def __init__(self, type):
         self.type = type
 
-    def __unicode__(self):
+    def __str__(self):
         return "Type %r is unknown to this type checker" % self.type
-
-    if PY3:
-        __str__ = __unicode__
-    else:
-        def __str__(self):
-            return unicode(self).encode("utf-8")
 
 
 class UnknownType(Exception):
@@ -199,7 +186,7 @@ class UnknownType(Exception):
         self.instance = instance
         self.schema = schema
 
-    def __unicode__(self):
+    def __str__(self):
         pschema = pprint.pformat(self.schema, width=72)
         pinstance = pprint.pformat(self.instance, width=72)
         return textwrap.dedent("""
@@ -210,12 +197,6 @@ class UnknownType(Exception):
             %s
             """.rstrip()
         ) % (self.type, _utils.indent(pschema), _utils.indent(pinstance))
-
-    if PY3:
-        __str__ = __unicode__
-    else:
-        def __str__(self):
-            return unicode(self).encode("utf-8")
 
 
 class FormatError(Exception):
@@ -228,14 +209,8 @@ class FormatError(Exception):
         self.message = message
         self.cause = self.__cause__ = cause
 
-    def __unicode__(self):
+    def __str__(self):
         return self.message
-
-    if PY3:
-        __str__ = __unicode__
-    else:
-        def __str__(self):
-            return self.message.encode("utf-8")
 
 
 class ErrorTree(object):
@@ -306,7 +281,7 @@ class ErrorTree(object):
         The total number of errors in the entire tree, including children.
         """
 
-        child_errors = sum(len(tree) for _, tree in iteritems(self._contents))
+        child_errors = sum(len(tree) for _, tree in self._contents.items())
         return len(self.errors) + child_errors
 
 

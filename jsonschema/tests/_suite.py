@@ -17,7 +17,6 @@ except ImportError:
 
 import attr
 
-from jsonschema.compat import PY3
 from jsonschema.validators import validators
 import jsonschema
 
@@ -188,15 +187,11 @@ class _Test(object):
     @property
     def method_name(self):
         delimiters = r"[\W\- ]+"
-        name = "test_%s_%s_%s" % (
+        return "test_%s_%s_%s" % (
             re.sub(delimiters, "_", self.subject),
             re.sub(delimiters, "_", self.case_description),
             re.sub(delimiters, "_", self.description),
         )
-
-        if not PY3:  # pragma: no cover
-            name = name.encode("utf-8")
-        return name
 
     def to_unittest_method(self, skip=lambda test: None, **kwargs):
         if self.valid:

@@ -2,6 +2,7 @@
 The ``jsonschema`` command line.
 """
 
+from json import JSONDecodeError
 from textwrap import dedent
 import argparse
 import errno
@@ -13,7 +14,6 @@ import attr
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
-from jsonschema.compat import JSONDecodeError
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
