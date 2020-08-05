@@ -17,14 +17,6 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python-version:
-          - name: pypy2
-            toxenv: pypy2-build
-          - name: pypy2
-            toxenv: pypy2-tests
-          - name: pypy2
-            toxenv: pypy2-tests_nongpl
-          - name: pypy2
-            toxenv: safety
           - name: pypy3
             toxenv: pypy3-build
           - name: pypy3
@@ -70,16 +62,6 @@ jobs:
           - name: 3.8
             toxenv: py38-tests_nongpl
         exclude:
-          # Building on Windows isn't supported, and PyPy on Windows
-          # seems to fail with silent obscure errors.
-          - os: windows-latest
-            python-version:
-              name: pypy2
-              toxenv: pypy2-build
-          - os: windows-latest
-            python-version:
-              name: pypy2
-              toxenv: safety
           - os: windows-latest
             python-version:
               name: pypy3

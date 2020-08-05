@@ -83,7 +83,6 @@ pygments_style = "sphinx"
 
 doctest_global_setup = dedent(
     """
-    from __future__ import print_function
     from jsonschema import *
 """
 )

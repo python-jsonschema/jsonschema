@@ -1,14 +1,10 @@
 """
 Creation and extension of validators, with implementations for existing drafts.
 """
-from __future__ import division
-
 from warnings import warn
 import contextlib
 import json
 import numbers
-
-from six import add_metaclass
 
 from jsonschema import (
     _legacy_validators,
@@ -247,8 +243,7 @@ def create(
         else:
             _created_with_default_types = None
 
-    @add_metaclass(_DefaultTypesDeprecatingMetaClass)
-    class Validator(object):
+    class Validator(metaclass=_DefaultTypesDeprecatingMetaClass):
 
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
