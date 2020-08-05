@@ -333,7 +333,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(),
             subject="hostname",
             description="ends with hyphen",
-        )(test) 
+        )(test)
         or skip(
             message=bug(686),
             subject="uniqueItems",
