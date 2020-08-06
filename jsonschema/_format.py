@@ -209,7 +209,9 @@ if hasattr(socket, "inet_pton"):
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
-_host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
+_host_name_re = re.compile(r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]"
+                           r"{0,61}[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9]"
+                           r"[A-Za-z0-9\-]{0,61}[A-Za-z0-9])\Z")
 
 
 @_checks_drafts(
