@@ -25,6 +25,7 @@ sys.path = ext_paths + sys.path
 # coming with Sphinx (named "sphinx.ext.*") or your custom ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
@@ -248,6 +249,10 @@ linkcheck_ignore = [
     "https://github.com/Julian/jsonschema/actions",
     "https://github.com/Julian/jsonschema/workflows/CI/badge.svg",
 ]
+
+# -- Options for sphinxcontrib-autosectionlabel ---------------------------
+
+autosectionlabel_prefix_document = True
 
 # -- Options for sphinxcontrib-spelling -----------------------------------
 
