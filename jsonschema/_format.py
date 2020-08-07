@@ -4,6 +4,7 @@ import socket
 import struct
 
 from jsonschema.exceptions import FormatError
+from fqdn import FQDN
 
 
 class FormatChecker(object):
@@ -209,9 +210,6 @@ if hasattr(socket, "inet_pton"):
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
-_host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
-
-
 @_checks_drafts(
     draft3="host-name",
     draft4="hostname",
@@ -221,13 +219,7 @@ _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
 def is_host_name(instance):
     if not isinstance(instance, str):
         return True
-    if not _host_name_re.match(instance):
-        return False
-    components = instance.split(".")
-    for component in components:
-        if len(component) > 63:
-            return False
-    return True
+    return FQDN(instance).is_valid
 
 
 try:
