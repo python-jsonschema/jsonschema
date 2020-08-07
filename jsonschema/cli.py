@@ -4,16 +4,16 @@ The ``jsonschema`` command line.
 """
 
 import argparse
+import errno
 import json
+import sys
 import traceback
+from json import JSONDecodeError
 
 import attr
-import errno
-import sys
 
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
-from jsonschema.compat import JSONDecodeError
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 

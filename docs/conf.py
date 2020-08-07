@@ -25,6 +25,7 @@ sys.path = ext_paths + sys.path
 # coming with Sphinx (named "sphinx.ext.*") or your custom ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
@@ -88,8 +89,7 @@ doctest_global_setup = dedent(
 )
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/2.7", None),
-    "python3": ("https://docs.python.org/3", None),
+    "python": ("https://docs.python.org/3", None),
 }
 
 
@@ -249,6 +249,10 @@ linkcheck_ignore = [
     "https://github.com/Julian/jsonschema/actions",
     "https://github.com/Julian/jsonschema/workflows/CI/badge.svg",
 ]
+
+# -- Options for sphinxcontrib-autosectionlabel ---------------------------
+
+autosectionlabel_prefix_document = True
 
 # -- Options for sphinxcontrib-spelling -----------------------------------
 

@@ -2,7 +2,6 @@ from unittest import TestCase
 import textwrap
 
 from jsonschema import Draft4Validator, exceptions
-from jsonschema.compat import PY3
 
 
 class TestBestMatch(TestCase):
@@ -299,8 +298,6 @@ class TestErrorInitReprStr(TestCase):
         return exceptions.ValidationError(**defaults)
 
     def assertShows(self, expected, **kwargs):
-        if PY3:  # pragma: no cover
-            expected = expected.replace("u'", "'")
         expected = textwrap.dedent(expected).rstrip("\n")
 
         error = self.make_error(**kwargs)
@@ -338,8 +335,8 @@ class TestErrorInitReprStr(TestCase):
     def test_empty_paths(self):
         self.assertShows(
             """
-            Failed validating u'type' in schema:
-                {u'type': u'string'}
+            Failed validating 'type' in schema:
+                {'type': 'string'}
 
             On instance:
                 5
@@ -351,8 +348,8 @@ class TestErrorInitReprStr(TestCase):
     def test_one_item_paths(self):
         self.assertShows(
             """
-            Failed validating u'type' in schema:
-                {u'type': u'string'}
+            Failed validating 'type' in schema:
+                {'type': 'string'}
 
             On instance[0]:
                 5
@@ -364,10 +361,10 @@ class TestErrorInitReprStr(TestCase):
     def test_multiple_item_paths(self):
         self.assertShows(
             """
-            Failed validating u'type' in schema[u'items'][0]:
-                {u'type': u'string'}
+            Failed validating 'type' in schema['items'][0]:
+                {'type': 'string'}
 
-            On instance[0][u'a']:
+            On instance[0]['a']:
                 5
             """,
             path=[0, u"a"],
@@ -377,7 +374,7 @@ class TestErrorInitReprStr(TestCase):
     def test_uses_pprint(self):
         self.assertShows(
             """
-            Failed validating u'maxLength' in schema:
+            Failed validating 'maxLength' in schema:
                 {0: 0,
                  1: 1,
                  2: 2,

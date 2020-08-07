@@ -1,7 +1,6 @@
-import sys
+from io import StringIO
 from contextlib import contextmanager
-
-from jsonschema.compat import NativeIO
+import sys
 
 
 def bug(issue=None):
@@ -13,7 +12,7 @@ def bug(issue=None):
 
 @contextmanager
 def captured_output():
-    new_out, new_err = NativeIO(), NativeIO()
+    new_out, new_err = StringIO(), StringIO()
     old_out, old_err = sys.stdout, sys.stderr
     try:
         sys.stdout, sys.stderr = new_out, new_err

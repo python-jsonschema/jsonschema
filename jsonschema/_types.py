@@ -3,7 +3,6 @@ import numbers
 from pyrsistent import pmap
 import attr
 
-from jsonschema.compat import int_types, str_types
 from jsonschema.exceptions import UndefinedTypeCheck
 
 
@@ -19,7 +18,7 @@ def is_integer(checker, instance):
     # bool inherits from int, so ensure bools aren't reported as ints
     if isinstance(instance, bool):
         return False
-    return isinstance(instance, int_types)
+    return isinstance(instance, int)
 
 
 def is_null(checker, instance):
@@ -38,7 +37,7 @@ def is_object(checker, instance):
 
 
 def is_string(checker, instance):
-    return isinstance(instance, str_types)
+    return isinstance(instance, str)
 
 
 def is_any(checker, instance):
@@ -104,7 +103,7 @@ class TypeChecker(object):
 
                 The name of the type to check.
 
-            fn (collections.Callable):
+            fn (collections.abc.Callable):
 
                 A function taking exactly two parameters - the type
                 checker calling the function and the instance to check.
@@ -141,7 +140,7 @@ class TypeChecker(object):
 
         Arguments:
 
-            types (~collections.Iterable):
+            types (~collections.abc.Iterable):
 
                 the names of the types to remove.
 

@@ -124,7 +124,7 @@ classes should adhere to.
 
         Lazily yield each of the validation errors in the given instance.
 
-        :rtype: an `collections.Iterable` of
+        :rtype: an `collections.abc.Iterable` of
             `jsonschema.exceptions.ValidationError`\s
 
         >>> schema = {

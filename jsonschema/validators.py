@@ -1,6 +1,10 @@
 """
 Creation and extension of validators, with implementations for existing drafts.
 """
+from collections.abc import Sequence
+from functools import lru_cache
+from urllib.parse import unquote, urldefrag, urljoin, urlsplit
+from urllib.request import urlopen
 from warnings import warn
 import contextlib
 import json
@@ -12,18 +16,6 @@ from jsonschema import (
     _utils,
     _validators,
     exceptions,
-)
-from jsonschema.compat import (
-    Sequence,
-    int_types,
-    iteritems,
-    lru_cache,
-    str_types,
-    unquote,
-    urldefrag,
-    urljoin,
-    urlopen,
-    urlsplit,
 )
 
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
@@ -78,7 +70,7 @@ def _generate_legacy_type_checks(types=()):
         return type_check
 
     definitions = {}
-    for typename, pytypes in iteritems(types):
+    for typename, pytypes in types.items():
         definitions[typename] = gen_type_check(pytypes)
 
     return definitions
@@ -87,11 +79,11 @@ def _generate_legacy_type_checks(types=()):
 _DEPRECATED_DEFAULT_TYPES = {
     u"array": list,
     u"boolean": bool,
-    u"integer": int_types,
+    u"integer": int,
     u"null": type(None),
     u"number": numbers.Number,
     u"object": dict,
-    u"string": str_types,
+    u"string": str,
 }
 _TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES = _types.TypeChecker(
     type_checkers=_generate_legacy_type_checks(_DEPRECATED_DEFAULT_TYPES),
@@ -113,7 +105,7 @@ def validates(version):
 
     Returns:
 
-        collections.Callable:
+        collections.abc.Callable:
 
             a class decorator to decorate the validator with the version
     """
@@ -165,11 +157,11 @@ def create(
 
     Arguments:
 
-        meta_schema (collections.Mapping):
+        meta_schema (collections.abc.Mapping):
 
             the meta schema for the new validator class
 
-        validators (collections.Mapping):
+        validators (collections.abc.Mapping):
 
             a mapping from names to callables, where each callable will
             validate the schema property with the given name.
@@ -197,7 +189,7 @@ def create(
             If unprovided, a `jsonschema.TypeChecker` will be created
             with a set of default types typical of JSON Schema drafts.
 
-        default_types (collections.Mapping):
+        default_types (collections.abc.Mapping):
 
             .. deprecated:: 3.0.0
 
@@ -207,7 +199,7 @@ def create(
             that will be converted to functions and redefined in this
             object's `jsonschema.TypeChecker`.
 
-        id_of (collections.Callable):
+        id_of (collections.abc.Callable):
 
             A function that given a schema, returns its ID.
 
@@ -312,7 +304,7 @@ def create(
                 if ref is not None:
                     validators = [(u"$ref", ref)]
                 else:
-                    validators = iteritems(_schema)
+                    validators = _schema.items()
 
                 for k, v in validators:
                     validator = self.VALIDATORS.get(k)
@@ -374,7 +366,7 @@ def extend(validator, validators=(), version=None, type_checker=None):
 
             an existing validator class
 
-        validators (collections.Mapping):
+        validators (collections.abc.Mapping):
 
             a mapping of new validator callables to extend with, whose
             structure is as in `create`.
@@ -650,7 +642,7 @@ class RefResolver(object):
         self._scopes_stack = [base_uri]
         self.store = _utils.URIDict(
             (id, validator.META_SCHEMA)
-            for id, validator in iteritems(meta_schemas)
+            for id, validator in meta_schemas.items()
         )
         self.store.update(store)
         self.store[base_uri] = referrer
@@ -938,7 +930,7 @@ def validator_for(schema, default=_LATEST_VERSION):
 
     Arguments:
 
-        schema (collections.Mapping or bool):
+        schema (collections.abc.Mapping or bool):
 
             the schema to look at
 

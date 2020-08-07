@@ -3,7 +3,6 @@ import re
 import socket
 import struct
 
-from jsonschema.compat import str_types
 from jsonschema.exceptions import FormatError
 
 
@@ -24,7 +23,7 @@ class FormatChecker(object):
 
     Arguments:
 
-        formats (~collections.Iterable):
+        formats (~collections.abc.Iterable):
 
             The known formats to validate. This argument can be used to
             limit which formats will be used during validation.
@@ -179,7 +178,7 @@ def _checks_drafts(
 @_checks_drafts(name="idn-email")
 @_checks_drafts(name="email")
 def is_email(instance):
-    if not isinstance(instance, str_types):
+    if not isinstance(instance, str):
         return True
     return "@" in instance
 
@@ -191,7 +190,7 @@ _ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
     draft3="ip-address", draft4="ipv4", draft6="ipv4", draft7="ipv4",
 )
 def is_ipv4(instance):
-    if not isinstance(instance, str_types):
+    if not isinstance(instance, str):
         return True
     if not _ipv4_re.match(instance):
         return False
@@ -205,7 +204,7 @@ if hasattr(socket, "inet_pton"):
         name="ipv6", raises=(socket.error, struct.error, ValueError),
     )
     def is_ipv6(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return socket.inet_pton(socket.AF_INET6, instance)
 
@@ -220,7 +219,7 @@ _host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
     draft7="hostname",
 )
 def is_host_name(instance):
-    if not isinstance(instance, str_types):
+    if not isinstance(instance, str):
         return True
     if not _host_name_re.match(instance):
         return False
@@ -242,7 +241,7 @@ else:
         raises=(idna.IDNAError, UnicodeError),
     )
     def is_idn_host_name(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         idna.encode(instance)
         return True
@@ -258,7 +257,7 @@ except ImportError:
     else:
         @_checks_drafts(name="uri")
         def is_uri(instance):
-            if not isinstance(instance, str_types):
+            if not isinstance(instance, str):
                 return True
             return validate_rfc3986(instance, rule="URI")
 
@@ -268,26 +267,26 @@ except ImportError:
             raises=ValueError,
         )
         def is_uri_reference(instance):
-            if not isinstance(instance, str_types):
+            if not isinstance(instance, str):
                 return True
             return validate_rfc3986(instance, rule="URI_reference")
 
 else:
     @_checks_drafts(draft7="iri", raises=ValueError)
     def is_iri(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return rfc3987.parse(instance, rule="IRI")
 
     @_checks_drafts(draft7="iri-reference", raises=ValueError)
     def is_iri_reference(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return rfc3987.parse(instance, rule="IRI_reference")
 
     @_checks_drafts(name="uri", raises=ValueError)
     def is_uri(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return rfc3987.parse(instance, rule="URI")
 
@@ -297,7 +296,7 @@ else:
         raises=ValueError,
     )
     def is_uri_reference(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return rfc3987.parse(instance, rule="URI_reference")
 
@@ -313,34 +312,34 @@ except ImportError:
 if validate_rfc3339:
     @_checks_drafts(name="date-time")
     def is_datetime(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return validate_rfc3339(instance)
 
     @_checks_drafts(draft7="time")
     def is_time(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return is_datetime("1970-01-01T" + instance)
 
 
 @_checks_drafts(name="regex", raises=re.error)
 def is_regex(instance):
-    if not isinstance(instance, str_types):
+    if not isinstance(instance, str):
         return True
     return re.compile(instance)
 
 
 @_checks_drafts(draft3="date", draft7="date", raises=ValueError)
 def is_date(instance):
-    if not isinstance(instance, str_types):
+    if not isinstance(instance, str):
         return True
     return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
 def is_draft3_time(instance):
-    if not isinstance(instance, str_types):
+    if not isinstance(instance, str):
         return True
     return datetime.datetime.strptime(instance, "%H:%M:%S")
 
@@ -361,7 +360,7 @@ else:
     @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if (
-            not isinstance(instance, str_types) or
+            not isinstance(instance, str) or
             instance.lower() in CSS21_NAMES_TO_HEX
         ):
             return True
@@ -384,7 +383,7 @@ else:
         raises=jsonpointer.JsonPointerException,
     )
     def is_json_pointer(instance):
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         return jsonpointer.JsonPointer(instance)
 
@@ -399,7 +398,7 @@ else:
     def is_relative_json_pointer(instance):
         # Definition taken from:
         # https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01#section-3
-        if not isinstance(instance, str_types):
+        if not isinstance(instance, str):
             return True
         non_negative_integer, rest = [], ""
         for i, character in enumerate(instance):

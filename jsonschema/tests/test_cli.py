@@ -1,14 +1,15 @@
 # -*- coding: UTF-8 -*-
-from textwrap import dedent
-from unittest import TestCase
 import errno
 import json
 import os
 import subprocess
 import sys
+from io import StringIO
+from json import JSONDecodeError
+from textwrap import dedent
+from unittest import TestCase
 
 from jsonschema import Draft4Validator, cli, __version__
-from jsonschema.compat import JSONDecodeError, NativeIO
 from jsonschema.exceptions import SchemaError, ValidationError
 from jsonschema.tests._helpers import captured_output
 from jsonschema.validators import _LATEST_VERSION, validate
@@ -38,7 +39,7 @@ def fake_open(all_contents):
         contents = all_contents.get(path)
         if contents is None:
             raise OSError(errno.ENOENT, os.strerror(errno.ENOENT), path)
-        return NativeIO(contents)
+        return StringIO(contents)
     return open
 
 
@@ -53,7 +54,7 @@ def _message_for(non_json):
 
 class TestCLI(TestCase):
     def run_cli(
-            self, argv, files={}, stdin=NativeIO(), exit_code=0, **override
+            self, argv, files={}, stdin=StringIO(), exit_code=0, **override
     ):
         arguments = cli.parse_args(argv)
         arguments.update(override)
@@ -61,7 +62,7 @@ class TestCLI(TestCase):
         self.assertFalse(hasattr(cli, "open"))
         cli.open = fake_open(files)
         try:
-            stdout, stderr = NativeIO(), NativeIO()
+            stdout, stderr = StringIO(), StringIO()
             actual_exit_code = cli.run(
                 arguments,
                 stdin=stdin,
@@ -474,7 +475,7 @@ class TestCLI(TestCase):
 
         self.assertOutputs(
             files=dict(some_schema="{}"),
-            stdin=NativeIO(instance),
+            stdin=StringIO(instance),
 
             argv=["some_schema"],
 
@@ -487,7 +488,7 @@ class TestCLI(TestCase):
     def test_instance_is_invalid_JSON_on_stdin_pretty_output(self):
         stdout, stderr = self.run_cli(
             files=dict(some_schema="{}"),
-            stdin=NativeIO("not valid JSON!"),
+            stdin=StringIO("not valid JSON!"),
 
             argv=["--output", "pretty", "some_schema"],
 
@@ -671,7 +672,7 @@ class TestCLI(TestCase):
     def test_successful_validation_of_stdin(self):
         self.assertOutputs(
             files=dict(some_schema="{}"),
-            stdin=NativeIO("{}"),
+            stdin=StringIO("{}"),
             argv=["some_schema"],
             stdout="",
             stderr="",
@@ -680,7 +681,7 @@ class TestCLI(TestCase):
     def test_successful_validation_of_stdin_pretty_output(self):
         self.assertOutputs(
             files=dict(some_schema="{}"),
-            stdin=NativeIO("{}"),
+            stdin=StringIO("{}"),
             argv=["--output", "pretty", "some_schema"],
             stdout="═══[SUCCESS]═══(<stdin>)═══════════════════════════════════════════════════════\n\n",
             stderr="",

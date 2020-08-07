@@ -10,15 +10,14 @@ from jsonschema._utils import (
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
-from jsonschema.compat import iteritems
 
 
 def patternProperties(validator, patternProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for pattern, subschema in iteritems(patternProperties):
-        for k, v in iteritems(instance):
+    for pattern, subschema in patternProperties.items():
+        for k, v in instance.items():
             if re.search(pattern, k):
                 for error in validator.descend(
                     v, subschema, path=k, schema_path=pattern,
@@ -224,7 +223,7 @@ def dependencies(validator, dependencies, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, dependency in iteritems(dependencies):
+    for property, dependency in dependencies.items():
         if property not in instance:
             continue
 
@@ -277,7 +276,7 @@ def properties(validator, properties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, subschema in iteritems(properties):
+    for property, subschema in properties.items():
         if property in instance:
             for error in validator.descend(
                 instance[property],
