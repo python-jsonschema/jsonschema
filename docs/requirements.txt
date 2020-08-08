@@ -9,6 +9,7 @@ babel==2.8.0              # via sphinx
 certifi==2020.4.5.1       # via requests
 chardet==3.0.4            # via requests
 docutils==0.16            # via sphinx
+fqdn==1.4.0               # via requests
 idna==2.9                 # via requests
 imagesize==1.2.0          # via sphinx
 jinja2==2.11.2            # via sphinx
@@ -31,7 +32,6 @@ sphinxcontrib-qthelp==1.0.3  # via sphinx
 sphinxcontrib-serializinghtml==1.1.4  # via sphinx
 sphinxcontrib-spelling==5.0.0  # via -r requirements.in
 urllib3==1.25.9           # via requests
-fqdn==1.4.0               # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -3,8 +3,9 @@ import re
 import socket
 import struct
 
-from jsonschema.exceptions import FormatError
 from fqdn import FQDN
+
+from jsonschema.exceptions import FormatError
 
 
 class FormatChecker(object):
