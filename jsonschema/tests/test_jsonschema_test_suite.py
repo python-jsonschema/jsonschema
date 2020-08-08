@@ -148,11 +148,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         or complex_email_validation(test)
         or skip(
             message=bug(),
-            subject="ref",
-            case_description="Recursive references between schemas",
-        )(test)
-        or skip(
-            message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
         )(test)
@@ -201,11 +196,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         narrow_unicode_build(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description="Recursive references between schemas",
-        )(test)
         or skip(
             message=bug(),
             subject="refRemote",
@@ -257,11 +247,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         narrow_unicode_build(test)
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description="Recursive references between schemas",
-        )(test)
         or skip(
             message=bug(),
             subject="refRemote",
