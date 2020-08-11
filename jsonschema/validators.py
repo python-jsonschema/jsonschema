@@ -635,6 +635,7 @@ class RefResolver(object):
         if remote_cache is None:
             remote_cache = lru_cache(1024)(self.resolve_from_url)
 
+        self.flags = 0
         self.referrer = referrer
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
@@ -745,14 +746,14 @@ class RefResolver(object):
         finally:
             self.pop_scope()
 
-    def resolve(self, ref):
+    def resolve(self, ref, validator=None):
         """
         Resolve the given reference.
         """
         url = self._urljoin_cache(self.resolution_scope, ref)
-        return url, self._remote_cache(url)
+        return url, self._remote_cache(url, validator)
 
-    def resolve_from_url(self, url):
+    def resolve_from_url(self, url, validator=None):
         """
         Resolve the given remote URL.
         """
@@ -765,9 +766,9 @@ class RefResolver(object):
             except Exception as exc:
                 raise exceptions.RefResolutionError(exc)
 
-        return self.resolve_fragment(document, fragment)
+        return self.resolve_fragment(document, fragment, validator)
 
-    def resolve_fragment(self, document, fragment):
+    def resolve_fragment(self, document, fragment, validator=None):
         """
         Resolve a ``fragment`` within the referenced ``document``.
 
@@ -780,6 +781,10 @@ class RefResolver(object):
             fragment (str):
 
                 a URI fragment to resolve within it
+
+            validator:
+
+                The validator
         """
 
         fragment = fragment.lstrip(u"/")
@@ -795,6 +800,12 @@ class RefResolver(object):
                 except ValueError:
                     pass
             try:
+                if isinstance(document, dict) and validator:
+                    scope = validator.ID_OF(document)
+                    if scope:
+                        self.push_scope(scope)
+                        self.flags = 1
+
                 document = document[part]
             except (TypeError, LookupError):
                 raise exceptions.RefResolutionError(

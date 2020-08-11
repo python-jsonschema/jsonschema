@@ -255,8 +255,11 @@ def ref(validator, ref, instance, schema):
             for error in validator.descend(instance, resolved):
                 yield error
     else:
-        scope, resolved = validator.resolver.resolve(ref)
-        validator.resolver.push_scope(scope)
+        scope, resolved = validator.resolver.resolve(ref, validator)
+        if validator.resolver.flags == 1:
+            validator.resolver.flags = 0
+        else:
+            validator.resolver.push_scope(scope)
 
         try:
             for error in validator.descend(instance, resolved):

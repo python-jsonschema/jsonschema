@@ -171,11 +171,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             ),
         )(test)
         or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
             message="Upstream bug in strict_rfc3339",
             subject="date-time",
             description="case-insensitive T and Z",
@@ -243,11 +238,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             case_description=(
                 "Location-independent identifier with base URI change in subschema"
             ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="base URI change - change folder in subschema",
         )(test)
         or skip(
             message="Upstream bug in strict_rfc3339",
@@ -318,11 +308,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             case_description=(
                 "Location-independent identifier with base URI change in subschema"
             ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="base URI change - change folder in subschema",
         )(test)
         or skip(
             message="Upstream bug in strict_rfc3339",
