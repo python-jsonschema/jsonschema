@@ -3,8 +3,6 @@ import re
 import socket
 import struct
 
-from fqdn import FQDN
-
 from jsonschema.exceptions import FormatError
 
 
@@ -211,16 +209,21 @@ if hasattr(socket, "inet_pton"):
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
-@_checks_drafts(
-    draft3="host-name",
-    draft4="hostname",
-    draft6="hostname",
-    draft7="hostname",
-)
-def is_host_name(instance):
-    if not isinstance(instance, str):
-        return True
-    return FQDN(instance).is_valid
+try:
+    from fqdn import FQDN
+except ImportError:
+    pass
+else:
+    @_checks_drafts(
+        draft3="host-name",
+        draft4="hostname",
+        draft6="hostname",
+        draft7="hostname",
+    )
+    def is_host_name(instance):
+        if not isinstance(instance, str):
+            return True
+        return FQDN(instance).is_valid
 
 
 try:
