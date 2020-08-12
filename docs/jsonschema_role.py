@@ -1,14 +1,9 @@
 from datetime import datetime
 import errno
 import os
+import urllib.request
 
 from docutils import nodes
-
-try:
-    import urllib2 as urllib
-except ImportError:
-    import urllib.request as urllib
-
 from lxml import html
 import certifi
 
@@ -69,8 +64,8 @@ def fetch_or_load(spec_path):
         if error.errno != errno.ENOENT:
             raise
 
-    request = urllib.Request(VALIDATION_SPEC, headers=headers)
-    response = urllib.urlopen(request, cafile=certifi.where())
+    request = urllib.request.Request(VALIDATION_SPEC, headers=headers)
+    response = urllib.request.urlopen(request, cafile=certifi.where())
 
     if response.code == 200:
         with open(spec_path, "w+b") as spec:
