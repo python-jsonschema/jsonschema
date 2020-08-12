@@ -125,7 +125,7 @@ Benchmarks
 ----------
 
 ``jsonschema``'s benchmarks make use of `pyperf
-<https://pyperf.readthedocs.io>`_. Running them can be done via:: 
+<https://pyperf.readthedocs.io>`_. Running them can be done via::
 
       $ tox -e perf
 
