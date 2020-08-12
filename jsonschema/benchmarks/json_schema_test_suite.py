@@ -9,6 +9,5 @@ from pyperf import Runner
 
 from jsonschema.tests._suite import Suite
 
-
 if __name__ == "__main__":
     Suite().benchmark(runner=Runner())

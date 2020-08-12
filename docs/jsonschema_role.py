@@ -1,17 +1,18 @@
 from datetime import datetime
-from docutils import nodes
 import errno
 import os
+
+from docutils import nodes
 
 try:
     import urllib2 as urllib
 except ImportError:
     import urllib.request as urllib
 
-import certifi
-import jsonschema
 from lxml import html
+import certifi
 
+import jsonschema
 
 __version__ = "1.1.0"
 VALIDATION_SPEC = "https://json-schema.org/draft-07/json-schema-validation.html"

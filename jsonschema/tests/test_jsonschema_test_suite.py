@@ -23,7 +23,6 @@ from jsonschema.tests._helpers import bug
 from jsonschema.tests._suite import Suite
 from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
 
-
 SUITE = Suite()
 DRAFT3 = SUITE.version(name="draft3")
 DRAFT4 = SUITE.version(name="draft4")

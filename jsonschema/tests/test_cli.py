@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 
-from jsonschema import Draft4Validator, cli, __version__
+from jsonschema import Draft4Validator, __version__, cli
 from jsonschema.exceptions import SchemaError, ValidationError
 from jsonschema.tests._helpers import captured_output
 from jsonschema.validators import _LATEST_VERSION, validate

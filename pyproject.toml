@@ -8,4 +8,9 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.isort]
+from_first = true
+include_trailing_comma = true
+multi_line_output = 3
+
 [tool.setuptools_scm]

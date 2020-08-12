@@ -17,11 +17,11 @@ from jsonschema import (
     _validators,
     exceptions,
 )
-
 # Sigh. https://gitlab.com/pycqa/flake8/issues/280
 #       https://github.com/pyga/ebb-lint/issues/7
 # Imported for backwards compatibility.
 from jsonschema.exceptions import ErrorTree
+
 ErrorTree
 
 
