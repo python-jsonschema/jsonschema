@@ -106,11 +106,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
             description="case-insensitive T and Z",
         )(test)
         or skip(
-            message=bug(),
-            subject="host-name",
-            description="ends with hyphen",
-        )(test)
-        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
@@ -179,11 +174,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             message="Upstream bug in strict_rfc3339",
             subject="date-time",
             description="case-insensitive T and Z",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="hostname",
-            description="ends with hyphen",
         )(test)
         or skip(
             message=bug(686),
@@ -255,11 +245,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             description="case-insensitive T and Z",
         )(test)
         or skip(
-            message=bug(),
-            subject="hostname",
-            description="ends with hyphen",
-        )(test)
-        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
@@ -328,11 +313,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message="Upstream bug in strict_rfc3339",
             subject="date-time",
             description="case-insensitive T and Z",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="hostname",
-            description="ends with hyphen",
         )(test)
         or skip(
             message=bug(593),

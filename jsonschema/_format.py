@@ -209,25 +209,21 @@ if hasattr(socket, "inet_pton"):
         return socket.inet_pton(socket.AF_INET6, instance)
 
 
-_host_name_re = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\.\-]{1,255}$")
-
-
-@_checks_drafts(
-    draft3="host-name",
-    draft4="hostname",
-    draft6="hostname",
-    draft7="hostname",
-)
-def is_host_name(instance):
-    if not isinstance(instance, str):
-        return True
-    if not _host_name_re.match(instance):
-        return False
-    components = instance.split(".")
-    for component in components:
-        if len(component) > 63:
-            return False
-    return True
+try:
+    from fqdn import FQDN
+except ImportError:
+    pass
+else:
+    @_checks_drafts(
+        draft3="host-name",
+        draft4="hostname",
+        draft6="hostname",
+        draft7="hostname",
+    )
+    def is_host_name(instance):
+        if not isinstance(instance, str):
+            return True
+        return FQDN(instance).is_valid
 
 
 try:
