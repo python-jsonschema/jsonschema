@@ -7,6 +7,7 @@ from textwrap import dedent
 import argparse
 import errno
 import json
+import os
 import sys
 import traceback
 
@@ -15,7 +16,7 @@ import attr
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.exceptions import SchemaError
-from jsonschema.validators import validator_for
+from jsonschema.validators import validator_for, RefResolver
 
 
 class _CannotLoadFile(Exception):
@@ -179,6 +180,15 @@ parser.add_argument(
     """,
 )
 parser.add_argument(
+    "-r", "--local-ref",
+    action="store_true",
+    help="""
+        use this option to indicate that the schema contains some references
+        to some local files. With this option, the validator will try to
+        resolve those references as paths relative to the given schema.
+    """,
+)
+parser.add_argument(
     "--version",
     action="version",
     version=__version__,
@@ -251,7 +261,16 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 raise _CannotLoadFile()
         instances = ["<stdin>"]
 
-    validator = arguments["validator"](schema)
+    if arguments["local_ref"]:
+        file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
+        schema_dirname = os.path.dirname(arguments["schema"])
+        resolver = RefResolver(
+            base_uri=file_prefix.format(os.path.abspath(schema_dirname)),
+            referrer=schema,
+        )
+    else:
+        resolver = None
+    validator = arguments["validator"](schema, resolver=resolver)
     exit_code = 0
     for each in instances:
         try:

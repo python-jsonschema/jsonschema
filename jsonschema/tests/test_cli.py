@@ -683,6 +683,23 @@ class TestCLI(TestCase):
             stderr="",
         )
 
+    def test_successful_validation_with_specifying_base_uri(self):
+        schema = """\
+                {"type": "object", "properties": {"KEY1":
+                {"$ref": "schema.json#definitions/schemas"}},
+                "definitions": {"schemas": {"type": "string"}}}
+                """
+        fp = open("schema.json", "w+")
+        fp.write(schema)
+        fp.close()
+        self.assertOutputs(
+            files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
+            argv=["-i", "some_instance", "-r", "some_schema"],
+            stdout="",
+            stderr="",
+        )
+        os.remove("schema.json")
+
     def test_real_validator(self):
         self.assertOutputs(
             files=dict(some_schema='{"minimum": 30}', some_instance="37"),
