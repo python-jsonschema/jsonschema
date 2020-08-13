@@ -54,7 +54,7 @@
         "schema": {
             "$id": "http://localhost:1234/",
             "items": {
-                "$id": "folder/",
+                "$id": "baseUriChange/",
                 "items": {"$ref": "folderInteger.json"}
             }
         },
@@ -76,10 +76,10 @@
         "schema": {
             "$id": "http://localhost:1234/scope_change_defs1.json",
             "type" : "object",
-            "properties": {"list": {"$ref": "folder/"}},
+            "properties": {"list": {"$ref": "baseUriChangeFolder/"}},
             "$defs": {
                 "baz": {
-                    "$id": "folder/",
+                    "$id": "baseUriChangeFolder/",
                     "type": "array",
                     "items": {"$ref": "folderInteger.json"}
                 }
@@ -103,10 +103,10 @@
         "schema": {
             "$id": "http://localhost:1234/scope_change_defs2.json",
             "type" : "object",
-            "properties": {"list": {"$ref": "folder/#/$defs/bar"}},
+            "properties": {"list": {"$ref": "baseUriChangeFolderInSubschema/#/$defs/bar"}},
             "$defs": {
                 "baz": {
-                    "$id": "folder/",
+                    "$id": "baseUriChangeFolderInSubschema/",
                     "$defs": {
                         "bar": {
                             "type": "array",
