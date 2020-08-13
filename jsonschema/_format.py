@@ -1,7 +1,6 @@
 import datetime
+import ipaddress
 import re
-import socket
-import struct
 
 from jsonschema.exceptions import FormatError
 
@@ -183,30 +182,24 @@ def is_email(instance):
     return "@" in instance
 
 
-_ipv4_re = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
-
-
 @_checks_drafts(
-    draft3="ip-address", draft4="ipv4", draft6="ipv4", draft7="ipv4",
+    draft3="ip-address",
+    draft4="ipv4",
+    draft6="ipv4",
+    draft7="ipv4",
+    raises=ipaddress.AddressValueError,
 )
 def is_ipv4(instance):
     if not isinstance(instance, str):
         return True
-    if not _ipv4_re.match(instance):
-        return False
-    return all(0 <= int(component) <= 255 for component in instance.split("."))
+    return ipaddress.IPv4Address(instance)
 
 
-if hasattr(socket, "inet_pton"):
-    # FIXME: Really this only should raise struct.error, but see the sadness
-    #        that is https://twistedmatrix.com/trac/ticket/9409
-    @_checks_drafts(
-        name="ipv6", raises=(socket.error, struct.error, ValueError),
-    )
-    def is_ipv6(instance):
-        if not isinstance(instance, str):
-            return True
-        return socket.inet_pton(socket.AF_INET6, instance)
+@_checks_drafts(name="ipv6", raises=ipaddress.AddressValueError)
+def is_ipv6(instance):
+    if not isinstance(instance, str):
+        return True
+    return ipaddress.IPv6Address(instance)
 
 
 try:
