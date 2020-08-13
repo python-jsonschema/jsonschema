@@ -1,2 +1,2 @@
 requirements:
-    - jsonschema==3.0.1
+    - jsonschema==3.2.0
