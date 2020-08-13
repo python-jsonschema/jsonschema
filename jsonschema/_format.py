@@ -330,7 +330,10 @@ def is_regex(instance):
 def is_date(instance):
     if not isinstance(instance, str):
         return True
-    return datetime.datetime.strptime(instance, "%Y-%m-%d")
+    try:
+        return datetime.date.fromisoformat(instance)
+    except AttributeError:
+        return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
