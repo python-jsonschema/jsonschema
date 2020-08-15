@@ -694,7 +694,7 @@ class TestCLI(TestCase):
         fp.close()
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
-            argv=["-i", "some_instance", "-r", "some_schema"],
+            argv=["-i", "some_instance", "--base-uri", "some_schema"],
             stdout="",
             stderr="",
         )

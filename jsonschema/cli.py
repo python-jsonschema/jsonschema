@@ -180,7 +180,7 @@ parser.add_argument(
     """,
 )
 parser.add_argument(
-    "-r", "--local-ref",
+    "--base-uri",
     action="store_true",
     help="""
         use this option to indicate that the schema contains some references
@@ -261,7 +261,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 raise _CannotLoadFile()
         instances = ["<stdin>"]
 
-    if arguments["local_ref"]:
+    if arguments["base_uri"]:
         file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
         schema_dirname = os.path.dirname(arguments["schema"])
         resolver = RefResolver(
