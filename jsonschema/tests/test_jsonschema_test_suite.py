@@ -53,23 +53,6 @@ def missing_format(checker):
     return missing_format
 
 
-def complex_email_validation(test):
-    if test.subject != "email":
-        return
-
-    message = "Complex email validation is (intentionally) unsupported."
-    return skip(
-        message=message,
-        description="dot after local part is not valid",
-    )(test) or skip(
-        message=message,
-        description="dot before local part is not valid",
-    )(test) or skip(
-        message=message,
-        description="two subsequent dots inside local part are not valid",
-    )(test)
-
-
 is_narrow_build = sys.maxunicode == 2 ** 16 - 1
 if is_narrow_build:  # pragma: no cover
     message = "Not running surrogate Unicode case, this Python is narrow."
@@ -98,7 +81,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_format(draft3_format_checker)(test)
-        or complex_email_validation(test)
         or skip(
             message=bug(685),
             subject="date",
@@ -159,7 +141,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_format(draft4_format_checker)(test)
-        or complex_email_validation(test)
         or skip(
             message=bug(),
             subject="ref",
@@ -238,7 +219,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_format(draft6_format_checker)(test)
-        or complex_email_validation(test)
         or skip(
             message=bug(),
             subject="ref",
@@ -338,7 +318,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_format(draft7_format_checker)(test)
-        or complex_email_validation(test)
         or skip(
             message=bug(),
             subject="ref",

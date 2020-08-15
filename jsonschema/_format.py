@@ -174,12 +174,27 @@ def _checks_drafts(
     return wrap
 
 
+_idn_email_re = re.compile(r'^[^@]+@[^@]+\.[^@]+\Z')
+
+
 @_checks_drafts(name="idn-email")
+def is_idn_email(instance):
+    if not isinstance(instance, str):
+        return True
+    return _idn_email_re.match(instance)
+
+
+_email_re = re.compile(
+    r"""^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)"""
+    r"""*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\."""
+    r"""[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$""")
+
+
 @_checks_drafts(name="email")
 def is_email(instance):
     if not isinstance(instance, str):
         return True
-    return "@" in instance
+    return _email_re.match(instance)
 
 
 @_checks_drafts(
