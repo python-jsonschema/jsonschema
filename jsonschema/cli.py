@@ -181,11 +181,10 @@ parser.add_argument(
 )
 parser.add_argument(
     "--base-uri",
-    action="store_true",
     help="""
         use this option to indicate that the schema contains some references
-        to some local files. With this option, the validator will try to
-        resolve those references as paths relative to the given schema.
+        to some local or remote files. With this option, the validator will 
+        try to resolve those references as paths relative to the given schema.
     """,
 )
 parser.add_argument(
@@ -261,15 +260,21 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 raise _CannotLoadFile()
         instances = ["<stdin>"]
 
-    if arguments["base_uri"]:
-        file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
-        schema_dirname = os.path.dirname(arguments["schema"])
+    if arguments["base_uri"] is None:
+        resolver = None
+    elif "http:" in arguments["base_uri"] or "https:" in arguments["base_uri"]\
+            or "urn:" in arguments["base_uri"]:
         resolver = RefResolver(
-            base_uri=file_prefix.format(os.path.abspath(schema_dirname)),
+            base_uri=arguments["base_uri"],
             referrer=schema,
         )
     else:
-        resolver = None
+        file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
+        resolver = RefResolver(
+            base_uri=file_prefix.format(os.path.abspath(arguments["base_uri"])),
+            referrer=schema,
+        )
+
     validator = arguments["validator"](schema, resolver=resolver)
     exit_code = 0
     for each in instances:

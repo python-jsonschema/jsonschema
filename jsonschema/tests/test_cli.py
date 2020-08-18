@@ -7,6 +7,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 
 from jsonschema import Draft4Validator, cli, __version__
 from jsonschema.exceptions import SchemaError, ValidationError
@@ -684,21 +685,30 @@ class TestCLI(TestCase):
         )
 
     def test_successful_validation_with_specifying_base_uri(self):
-        schema = """\
-                {"type": "object", "properties": {"KEY1":
-                {"$ref": "schema.json#definitions/schemas"}},
-                "definitions": {"schemas": {"type": "string"}}}
-                """
-        fp = open("schema.json", "w+")
-        fp.write(schema)
-        fp.close()
+        try:
+            schema_file = tempfile.NamedTemporaryFile(
+                mode='w+',
+                prefix='schema',
+                suffix='.json',
+                dir='..',
+                delete=False
+            )
+            self.addCleanup(os.remove, schema_file.name)
+            schema = """
+                    {"type": "object", "properties": {"KEY1":
+                    {"$ref": %s%s#definitions/schemas"}},
+                    "definitions": {"schemas": {"type": "string"}}}
+                    """ % ("\"", os.path.basename(schema_file.name))
+            schema_file.write(schema)
+        finally:
+            schema_file.close()
+
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
-            argv=["-i", "some_instance", "--base-uri", "some_schema"],
+            argv=["-i", "some_instance", "--base-uri", "..", "some_schema"],
             stdout="",
             stderr="",
         )
-        os.remove("schema.json")
 
     def test_real_validator(self):
         self.assertOutputs(
