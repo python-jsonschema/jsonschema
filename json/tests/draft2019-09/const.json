@@ -126,6 +126,90 @@
         ]
     },
     {
+        "description": "const with [false] does not match [0]",
+        "schema": {"const": [false]},
+        "tests": [
+            {
+                "description": "[false] is valid",
+                "data": [false],
+                "valid": true
+            },
+            {
+                "description": "[0] is invalid",
+                "data": [0],
+                "valid": false
+            },
+            {
+                "description": "[0.0] is invalid",
+                "data": [0.0],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "const with [true] does not match [1]",
+        "schema": {"const": [true]},
+        "tests": [
+            {
+                "description": "[true] is valid",
+                "data": [true],
+                "valid": true
+            },
+            {
+                "description": "[1] is invalid",
+                "data": [1],
+                "valid": false
+            },
+            {
+                "description": "[1.0] is invalid",
+                "data": [1.0],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "const with {\"a\": false} does not match {\"a\": 0}",
+        "schema": {"const": {"a": false}},
+        "tests": [
+            {
+                "description": "{\"a\": false} is valid",
+                "data": {"a": false},
+                "valid": true
+            },
+            {
+                "description": "{\"a\": 0} is invalid",
+                "data": {"a": 0},
+                "valid": false
+            },
+            {
+                "description": "{\"a\": 0.0} is invalid",
+                "data": {"a": 0.0},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "const with {\"a\": true} does not match {\"a\": 1}",
+        "schema": {"const": {"a": true}},
+        "tests": [
+            {
+                "description": "{\"a\": true} is valid",
+                "data": {"a": true},
+                "valid": true
+            },
+            {
+                "description": "{\"a\": 1} is invalid",
+                "data": {"a": 1},
+                "valid": false
+            },
+            {
+                "description": "{\"a\": 1.0} is invalid",
+                "data": {"a": 1.0},
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "const with 0 does not match other zero-like types",
         "schema": {"const": 0},
         "tests": [

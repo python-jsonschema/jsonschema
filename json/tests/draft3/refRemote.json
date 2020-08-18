@@ -54,7 +54,7 @@
         "schema": {
             "id": "http://localhost:1234/",
             "items": {
-                "id": "folder/",
+                "id": "baseUriChange/",
                 "items": {"$ref": "folderInteger.json"}
             }
         },

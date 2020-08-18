@@ -12,6 +12,21 @@
                 "description": "an invalid date string",
                 "data": "06/19/1963",
                 "valid": false
+            },
+            {
+                "description": "only RFC3339 not all of ISO 8601 are valid",
+                "data": "2013-350",
+                "valid": false
+            },
+            {
+                "description": "invalidates non-padded month dates",
+                "data": "1998-1-20",
+                "valid": false
+            },
+            {
+                "description": "invalidates non-padded day dates",
+                "data": "1998-01-1",
+                "valid": false
             }
         ]
     }
