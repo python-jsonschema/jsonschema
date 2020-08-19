@@ -92,12 +92,11 @@ if sys.version_info < (3, 7):
 
     def python_lt_37_build(test):
         return skip(
-            message=bug(685),
+            message=message,
             subject="date",
             description="invalidates non-padded month dates",
-        )(test)
-        or skip(
-            message=bug(685),
+        )(test) or skip(
+            message=message,
             subject="date",
             description="invalidates non-padded day dates",
         )(test)
