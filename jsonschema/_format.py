@@ -323,10 +323,12 @@ def is_regex(instance):
 def is_date(instance):
     if not isinstance(instance, str):
         return True
-    try:
-        return datetime.date.fromisoformat(instance)
-    except AttributeError:
-        return datetime.datetime.strptime(instance, "%Y-%m-%d")
+    if hasattr(datetime.date, "fromisoformat"):
+        _is_date = datetime.date.fromisoformat
+    else:
+        def _is_date(instance):
+            return datetime.datetime.strptime(instance, "%Y-%m-%d")
+    return _is_date(instance)
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
