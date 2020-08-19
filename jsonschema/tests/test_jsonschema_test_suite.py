@@ -88,9 +88,9 @@ else:
 
 
 if sys.version_info < (3, 7):
-    message = "Not running tests which require Python 3.7 or greater"
+    message = "datetime.date.fromisoformat is new in 3.7+"
 
-    def python_lt_37_build(test):
+    def missing_date_fromisoformat(test):
         return skip(
             message=message,
             subject="date",
@@ -101,7 +101,7 @@ if sys.version_info < (3, 7):
             description="invalidates non-padded day dates",
         )(test)
 else:
-    def python_lt_37_build(test):
+    def missing_date_fromisoformat(test):
         return
 
 
@@ -115,7 +115,7 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     format_checker=draft3_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or python_lt_37_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -167,7 +167,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     format_checker=draft4_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or python_lt_37_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft4_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -247,7 +247,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     format_checker=draft6_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or python_lt_37_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -348,7 +348,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     format_checker=draft7_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or python_lt_37_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
         or skip(
