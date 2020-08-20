@@ -11,7 +11,7 @@ import sys
 from jsonschema import Draft4Validator, __version__, cli
 from jsonschema.exceptions import SchemaError, ValidationError
 from jsonschema.tests._helpers import captured_output
-from jsonschema.validators import _LATEST_VERSION, validate
+from jsonschema.validators import validate
 
 
 def fake_validator(*errors):
@@ -716,15 +716,6 @@ class TestParser(TestCase):
             ]
         )
         self.assertIs(arguments["validator"], Draft4Validator)
-
-    def test_latest_validator_is_the_default(self):
-        arguments = cli.parse_args(
-            [
-                "--instance", "mem://some/instance",
-                "mem://some/schema",
-            ]
-        )
-        self.assertIs(arguments["validator"], _LATEST_VERSION)
 
     def test_unknown_output(self):
         # Avoid the help message on stdout
