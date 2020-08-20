@@ -319,11 +319,18 @@ def is_regex(instance):
     return re.compile(instance)
 
 
+if hasattr(datetime.date, "fromisoformat"):
+    _is_date = datetime.date.fromisoformat
+else:
+    def _is_date(instance):
+        return datetime.datetime.strptime(instance, "%Y-%m-%d")
+
+
 @_checks_drafts(draft3="date", draft7="date", raises=ValueError)
 def is_date(instance):
     if not isinstance(instance, str):
         return True
-    return datetime.datetime.strptime(instance, "%Y-%m-%d")
+    return _is_date(instance)
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
