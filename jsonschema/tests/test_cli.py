@@ -11,7 +11,7 @@ import sys
 from jsonschema import Draft4Validator, __version__, cli
 from jsonschema.exceptions import SchemaError, ValidationError
 from jsonschema.tests._helpers import captured_output
-from jsonschema.validators import validate
+from jsonschema.validators import _LATEST_VERSION, validate, validator_for
 
 
 def fake_validator(*errors):
@@ -691,6 +691,47 @@ class TestCLI(TestCase):
             stderr="",
         )
 
+    def test_draft07_check_const(self):
+        schema = """
+                {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "properties": {
+                        "value": {
+                            "type": "string",
+                            "const": "check"
+                        }
+                    }
+                }
+                """
+        instance = """{"value": "2"}"""
+        self.assertOutputs(
+            files=dict(some_schema=schema, some_instance=instance),
+            argv=["-i", "some_instance", "some_schema"],
+            exit_code=1,
+            stdout="",
+            stderr="2: 'check' was expected\n",
+        )
+
+    def test_draft04_not_check_const(self):
+        schema = """
+                {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "properties": {
+                        "value": {
+                            "type": "string",
+                            "const": "check"
+                        }
+                    }
+                }
+                """
+        instance = """{"value": "2"}"""
+        self.assertOutputs(
+            files=dict(some_schema=schema, some_instance=instance),
+            argv=["-i", "some_instance", "some_schema"],
+            stdout="",
+            stderr="",
+        )
+
 
 class TestParser(TestCase):
 
@@ -716,6 +757,16 @@ class TestParser(TestCase):
             ]
         )
         self.assertIs(arguments["validator"], Draft4Validator)
+
+    def test_latest_validator_is_the_default(self):
+        arguments = cli.parse_args(
+            [
+                "--instance", "mem://some/instance",
+                "mem://some/schema",
+            ]
+        )
+        arguments["validator"] = validator_for(arguments["schema"])
+        self.assertIs(arguments["validator"], _LATEST_VERSION)
 
     def test_unknown_output(self):
         # Avoid the help message on stdout
