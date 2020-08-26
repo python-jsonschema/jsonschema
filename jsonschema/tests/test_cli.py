@@ -691,40 +691,36 @@ class TestCLI(TestCase):
             stderr="",
         )
 
-    def test_draft07_check_const(self):
+    def test_it_validates_using_draft7_when_specified(self):
+        """
+        Specifically, `const` validation applies for Draft 7.
+        """
         schema = """
-                {
-                    "$schema": "http://json-schema.org/draft-07/schema#",
-                    "properties": {
-                        "value": {
-                            "type": "string",
-                            "const": "check"
-                        }
-                    }
-                }
-                """
-        instance = """{"value": "2"}"""
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "const": "check"
+            }
+        """
+        instance = '"foo"'
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance=instance),
             argv=["-i", "some_instance", "some_schema"],
             exit_code=1,
             stdout="",
-            stderr="2: 'check' was expected\n",
+            stderr="foo: 'check' was expected\n",
         )
 
-    def test_draft04_not_check_const(self):
+    def test_it_validates_using_draft4_when_specified(self):
+        """
+        Specifically, `const` validation *does not* apply for Draft 4.
+        """
         schema = """
-                {
-                    "$schema": "http://json-schema.org/draft-04/schema#",
-                    "properties": {
-                        "value": {
-                            "type": "string",
-                            "const": "check"
-                        }
-                    }
-                }
-                """
-        instance = """{"value": "2"}"""
+            {
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "const": "check"
+            }
+        """
+        instance = '"foo"'
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance=instance),
             argv=["-i", "some_instance", "some_schema"],
