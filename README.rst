@@ -80,24 +80,6 @@ Installation
     $ pip install jsonschema
 
 
-Demo
-----
-
-Try ``jsonschema`` interactively in this online demo:
-
-.. image:: https://user-images.githubusercontent.com/1155573/56745335-8b158a00-6750-11e9-8776-83fa675939c4.png
-    :target: https://notebooks.ai/demo/gh/Julian/jsonschema
-    :alt: Open Live Demo
-
-
-Online demo Notebook will look similar to this:
-
-
-.. image:: https://user-images.githubusercontent.com/1155573/56820861-5c1c1880-6823-11e9-802a-ce01c5ec574f.gif
-    :alt: Open Live Demo
-    :width: 480 px
-
-
 Release Notes
 -------------
 
