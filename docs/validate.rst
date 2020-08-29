@@ -277,15 +277,15 @@ validation can be enabled by hooking in a format-checking object into an
 
 .. doctest::
 
-    >>> validate("localhost", {"format" : "hostname"})
+    >>> validate("127.0.0.1", {"format" : "ipv4"})
     >>> validate(
     ...     instance="-12",
-    ...     schema={"format" : "hostname"},
+    ...     schema={"format" : "ipv4"},
     ...     format_checker=draft7_format_checker,
     ... )
     Traceback (most recent call last):
         ...
-    ValidationError: "-12" is not a "hostname"
+    ValidationError: "-12" is not a "ipv4"
 
 .. autoclass:: FormatChecker
     :members:

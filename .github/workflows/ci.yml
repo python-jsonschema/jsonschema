@@ -18,13 +18,17 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python-version:
           - name: pypy3
-            toxenv: pypy3-build
+            toxenv: pypy3-noextra-build
           - name: pypy3
-            toxenv: pypy3-tests
+            toxenv: pypy3-noextra-tests
           - name: pypy3
-            toxenv: pypy3-tests_nongpl
+            toxenv: pypy3-format-build
           - name: pypy3
-            toxenv: demo
+            toxenv: pypy3-format-tests
+          - name: pypy3
+            toxenv: pypy3-format_nongpl-build
+          - name: pypy3
+            toxenv: pypy3-format_nongpl-tests
           - name: pypy3
             toxenv: readme
           - name: pypy3
@@ -44,36 +48,66 @@ jobs:
           - name: pypy3
             toxenv: docs-style
           - name: 3.6
-            toxenv: py36-build
+            toxenv: py36-noextra-build
           - name: 3.6
-            toxenv: py36-tests
+            toxenv: py36-noextra-tests
           - name: 3.6
-            toxenv: py36-tests_nongpl
+            toxenv: py36-format-build
+          - name: 3.6
+            toxenv: py36-format-tests
+          - name: 3.6
+            toxenv: py36-format_nongpl-build
+          - name: 3.6
+            toxenv: py36-format_nongpl-tests
           - name: 3.7
-            toxenv: py37-build
+            toxenv: py37-noextra-build
           - name: 3.7
-            toxenv: py37-tests
+            toxenv: py37-noextra-tests
           - name: 3.7
-            toxenv: py37-tests_nongpl
+            toxenv: py37-format-build
+          - name: 3.7
+            toxenv: py37-format-tests
+          - name: 3.7
+            toxenv: py37-format_nongpl-build
+          - name: 3.7
+            toxenv: py37-format_nongpl-tests
           - name: 3.8
-            toxenv: py38-build
+            toxenv: py38-noextra-build
           - name: 3.8
-            toxenv: py38-tests
+            toxenv: py38-noextra-tests
           - name: 3.8
-            toxenv: py38-tests_nongpl
+            toxenv: py38-format-build
+          - name: 3.8
+            toxenv: py38-format-tests
+          - name: 3.8
+            toxenv: py38-format_nongpl-build
+          - name: 3.8
+            toxenv: py38-format_nongpl-tests
         exclude:
           - os: windows-latest
             python-version:
               name: pypy3
-              toxenv: pypy3-build
+              toxenv: pypy3-noextra-build
           - os: windows-latest
             python-version:
               name: pypy3
-              toxenv: pypy3-tests
+              toxenv: pypy3-format-build
           - os: windows-latest
             python-version:
               name: pypy3
-              toxenv: pypy3-tests_nongpl
+              toxenv: pypy3-format_nongpl-build
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: pypy3-noextra-tests
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: pypy3-format-tests
+          - os: windows-latest
+            python-version:
+              name: pypy3
+              toxenv: pypy3-format_nongpl-tests
           - os: windows-latest
             python-version:
               name: pypy3
@@ -89,27 +123,51 @@ jobs:
           - os: windows-latest
             python-version:
               name: 3.6
-              toxenv: py36-tests
+              toxenv: py36-noextra-build
           - os: windows-latest
             python-version:
               name: 3.6
-              toxenv: py36-tests_nongpl
+              toxenv: py36-format-build
           - os: windows-latest
             python-version:
               name: 3.6
-              toxenv: py36-build
+              toxenv: py36-format_nongpl-build
+          - os: windows-latest
+            python-version:
+              name: 3.6
+              toxenv: py36-noextra-tests
+          - os: windows-latest
+            python-version:
+              name: 3.6
+              toxenv: py36-format-tests
+          - os: windows-latest
+            python-version:
+              name: 3.6
+              toxenv: py36-format_nongpl-tests
           - os: windows-latest
             python-version:
               name: 3.7
-              toxenv: py37-build
+              toxenv: py37-noextra-tests
+          - os: windows-latest
+            python-version:
+              name: 3.7
+              toxenv: py37-format-tests
+          - os: windows-latest
+            python-version:
+              name: 3.7
+              toxenv: py37-format_nongpl-tests
           - os: windows-latest
             python-version:
               name: 3.8
-              toxenv: py38-build
+              toxenv: py38-noextra-tests
           - os: windows-latest
             python-version:
-              name: pypy3
-              toxenv: demo
+              name: 3.8
+              toxenv: py38-format-tests
+          - os: windows-latest
+            python-version:
+              name: 3.8
+              toxenv: py38-format_nongpl-tests
           - os: windows-latest
             python-version:
               name: pypy3

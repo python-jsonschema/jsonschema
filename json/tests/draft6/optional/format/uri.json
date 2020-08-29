@@ -97,6 +97,11 @@
                 "description": "an invalid URI with spaces and missing scheme",
                 "data": ":// should fail",
                 "valid": false
+            },
+            {
+                "description": "an invalid URI with comma in scheme",
+                "data": "bar,baz:foo",
+                "valid": false
             }
         ]
     }

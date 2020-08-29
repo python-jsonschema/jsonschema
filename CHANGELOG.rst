@@ -43,7 +43,7 @@ v2.6.0
 * Support for Python 2.6 has been dropped.
 * Improve a few error messages for ``uniqueItems`` (#224) and
   ``additionalProperties`` (#317)
-* Fixed an issue with ``ErrorTree``'s handling of multiple errors (#288) 
+* Fixed an issue with ``ErrorTree``'s handling of multiple errors (#288)
 
 v2.5.0
 ------
@@ -175,7 +175,7 @@ v0.4
     In order to make this happen (and also to clean things up a bit), a number
     of deprecations are necessary:
 
-        * ``stop_on_error`` is deprecated in ``Validator.__init__``. Use 
+        * ``stop_on_error`` is deprecated in ``Validator.__init__``. Use
           ``Validator.iter_errors()`` instead.
         * ``number_types`` and ``string_types`` are deprecated there as well.
           Use ``types={"number" : ..., "string" : ...}`` instead.

@@ -93,6 +93,16 @@
                 "description": "non-unique heterogeneous types are invalid",
                 "data": [{}, [1], true, null, {}, 1],
                 "valid": false
+            },
+            {
+                "description": "{\"a\": false} and {\"a\": 0} are unique",
+                "data": [{"a": false}, {"a": 0}],
+                "valid": true
+            },
+            {
+                "description": "{\"a\": true} and {\"a\": 1} are unique",
+                "data": [{"a": true}, {"a": 1}],
+                "valid": true
             }
         ]
     },

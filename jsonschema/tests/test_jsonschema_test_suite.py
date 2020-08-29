@@ -23,7 +23,6 @@ from jsonschema.tests._helpers import bug
 from jsonschema.tests._suite import Suite
 from jsonschema.validators import _DEPRECATED_DEFAULT_TYPES, create
 
-
 SUITE = Suite()
 DRAFT3 = SUITE.version(name="draft3")
 DRAFT4 = SUITE.version(name="draft4")
@@ -88,6 +87,24 @@ else:
         return
 
 
+if sys.version_info < (3, 7):
+    message = "datetime.date.fromisoformat is new in 3.7+"
+
+    def missing_date_fromisoformat(test):
+        return skip(
+            message=message,
+            subject="date",
+            description="invalidates non-padded month dates",
+        )(test) or skip(
+            message=message,
+            subject="date",
+            description="invalidates non-padded day dates",
+        )(test)
+else:
+    def missing_date_fromisoformat(test):
+        return
+
+
 TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
     DRAFT3.format_tests(),
@@ -98,17 +115,13 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     format_checker=draft3_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
             message="Upstream bug in strict_rfc3339",
             subject="date-time",
             description="case-insensitive T and Z",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="host-name",
-            description="ends with hyphen",
         )(test)
         or skip(
             message=bug(686),
@@ -130,6 +143,16 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
             subject="uniqueItems",
             description="nested [1] and [true] are unique",
         )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": false} and {"a": 0} are unique',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": true} and {"a": 1} are unique',
+        )(test)
     ),
 )
 
@@ -144,6 +167,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     format_checker=draft4_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft4_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -181,11 +205,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             description="case-insensitive T and Z",
         )(test)
         or skip(
-            message=bug(),
-            subject="hostname",
-            description="ends with hyphen",
-        )(test)
-        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
@@ -205,6 +224,16 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             subject="uniqueItems",
             description="nested [1] and [true] are unique",
         )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": false} and {"a": 0} are unique',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": true} and {"a": 1} are unique',
+        )(test)
     ),
 )
 
@@ -218,6 +247,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     format_checker=draft6_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -255,11 +285,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             description="case-insensitive T and Z",
         )(test)
         or skip(
-            message=bug(),
-            subject="hostname",
-            description="ends with hyphen",
-        )(test)
-        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
@@ -279,6 +304,36 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             subject="uniqueItems",
             description="nested [1] and [true] are unique",
         )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": false} and {"a": 0} are unique',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": true} and {"a": 1} are unique',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description="const with [false] does not match [0]",
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description="const with [true] does not match [1]",
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description='const with {"a": false} does not match {"a": 0}',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description='const with {"a": true} does not match {"a": 1}',
+        )(test)
     ),
 )
 
@@ -293,6 +348,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     format_checker=draft7_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
+        or missing_date_fromisoformat(test)
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -328,11 +384,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message="Upstream bug in strict_rfc3339",
             subject="date-time",
             description="case-insensitive T and Z",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="hostname",
-            description="ends with hyphen",
         )(test)
         or skip(
             message=bug(593),
@@ -375,6 +426,36 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(686),
             subject="uniqueItems",
             description="nested [1] and [true] are unique",
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": false} and {"a": 0} are unique',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="uniqueItems",
+            description='{"a": true} and {"a": 1} are unique',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description="const with [false] does not match [0]",
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description="const with [true] does not match [1]",
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description='const with {"a": false} does not match {"a": 0}',
+        )(test)
+        or skip(
+            message=bug(686),
+            subject="const",
+            case_description='const with {"a": true} does not match {"a": 1}',
         )(test)
     ),
 )
