@@ -1,11 +1,11 @@
 """
 Validation errors, and some surrounding helpers.
 """
-import itertools
-import textwrap
 from collections import defaultdict, deque
 from functools import partial
 from pprint import pformat
+import itertools
+import textwrap
 
 import attr
 

@@ -1,13 +1,13 @@
 # -*- coding: UTF-8 -*-
+from io import StringIO
+from json import JSONDecodeError
+from textwrap import dedent
+from unittest import TestCase
 import errno
 import json
 import os
 import subprocess
 import sys
-from io import StringIO
-from json import JSONDecodeError
-from textwrap import dedent
-from unittest import TestCase
 
 from jsonschema import Draft4Validator, Draft7Validator, __version__, cli
 from jsonschema.exceptions import SchemaError, ValidationError

@@ -3,12 +3,12 @@
 The ``jsonschema`` command line.
 """
 
+from json import JSONDecodeError
 import argparse
 import errno
 import json
 import sys
 import traceback
-from json import JSONDecodeError
 
 import attr
 
