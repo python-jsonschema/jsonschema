@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 """
 The ``jsonschema`` command line.
 """

@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 from io import StringIO
 from json import JSONDecodeError
 from textwrap import dedent
