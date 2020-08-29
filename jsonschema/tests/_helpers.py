@@ -1,5 +1,5 @@
-from io import StringIO
 from contextlib import contextmanager
+from io import StringIO
 import sys
 
 

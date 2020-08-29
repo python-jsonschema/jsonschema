@@ -10,7 +10,6 @@ import attr
 
 from jsonschema import _utils
 
-
 WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES = frozenset()
 

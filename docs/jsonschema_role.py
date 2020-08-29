@@ -1,17 +1,13 @@
 from datetime import datetime
-from docutils import nodes
 import errno
 import os
+import urllib.request
 
-try:
-    import urllib2 as urllib
-except ImportError:
-    import urllib.request as urllib
-
-import certifi
-import jsonschema
+from docutils import nodes
 from lxml import html
+import certifi
 
+import jsonschema
 
 __version__ = "1.1.0"
 VALIDATION_SPEC = "https://json-schema.org/draft-07/json-schema-validation.html"
@@ -68,8 +64,8 @@ def fetch_or_load(spec_path):
         if error.errno != errno.ENOENT:
             raise
 
-    request = urllib.Request(VALIDATION_SPEC, headers=headers)
-    response = urllib.urlopen(request, cafile=certifi.where())
+    request = urllib.request.Request(VALIDATION_SPEC, headers=headers)
+    response = urllib.request.urlopen(request, cafile=certifi.where())
 
     if response.code == 200:
         with open(spec_path, "w+b") as spec:

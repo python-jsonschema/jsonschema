@@ -1,0 +1,27 @@
+exclude: json
+
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: check-ast
+    -   id: check-docstring-first
+    -   id: check-json
+    -   id: check-toml
+    -   id: check-vcs-permalinks
+    -   id: check-yaml
+    -   id: debug-statements
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/timothycrosley/isort
+    rev: 5.3.2
+    hooks:
+    -   id: isort
+- repo: https://github.com/myint/docformatter
+  rev: v1.3.1
+  hooks:
+    - id: docformatter
+      args:
+        - --in-place
+        - --pre-summary-newline
+        - --make-summary-multi-line

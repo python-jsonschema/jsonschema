@@ -200,8 +200,6 @@ parser.add_argument(
 
 def parse_args(args):
     arguments = vars(parser.parse_args(args=args or ["--help"]))
-    if arguments["validator"] is None:
-        arguments["validator"] = validator_for(arguments["schema"])
     if arguments["output"] != "plain" and arguments["error_format"]:
         raise parser.error(
             "--error-format can only be used with --output plain"
@@ -237,6 +235,9 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         schema = outputter.load(arguments["schema"])
     except _CannotLoadFile:
         return 1
+
+    if arguments["validator"] is None:
+        arguments["validator"] = validator_for(schema)
 
     try:
         arguments["validator"].check_schema(schema)

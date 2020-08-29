@@ -12,7 +12,6 @@ from pyrsistent import m
 from jsonschema.tests._suite import Version
 import jsonschema
 
-
 issue232 = Version(
     path=Path(__file__).parent / "issue232",
     remotes=m(),

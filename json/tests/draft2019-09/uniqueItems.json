@@ -113,6 +113,16 @@
                 "description": "objects are non-unique despite key order",
                 "data": [{"a": 1, "b": 2}, {"b": 2, "a": 1}],
                 "valid": false
+            },
+            {
+                "description": "{\"a\": false} and {\"a\": 0} are unique",
+                "data": [{"a": false}, {"a": 0}],
+                "valid": true
+            },
+            {
+                "description": "{\"a\": true} and {\"a\": 1} are unique",
+                "data": [{"a": true}, {"a": 1}],
+                "valid": true
             }
         ]
     },

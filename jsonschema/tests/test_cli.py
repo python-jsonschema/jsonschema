@@ -7,9 +7,8 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 
-from jsonschema import Draft4Validator, cli, __version__
+from jsonschema import Draft4Validator, Draft7Validator, __version__, cli
 from jsonschema.exceptions import SchemaError, ValidationError
 from jsonschema.tests._helpers import captured_output
 from jsonschema.validators import _LATEST_VERSION, validate
@@ -676,7 +675,7 @@ class TestCLI(TestCase):
             stderr="",
         )
 
-    def test_successful_validation__of_just_the_schema_pretty_output(self):
+    def test_successful_validation_of_just_the_schema_pretty_output(self):
         self.assertOutputs(
             files=dict(some_schema="{}", some_instance="{}"),
             argv=["--output", "pretty", "-i", "some_instance", "some_schema"],
@@ -684,35 +683,54 @@ class TestCLI(TestCase):
             stderr="",
         )
 
-    def test_successful_validation_with_specifying_base_uri(self):
-        try:
-            schema_file = tempfile.NamedTemporaryFile(
-                mode='w+',
-                prefix='schema',
-                suffix='.json',
-                dir='..',
-                delete=False
-            )
-            self.addCleanup(os.remove, schema_file.name)
-            schema = """
-                    {"type": "object", "properties": {"KEY1":
-                    {"$ref": %s%s#definitions/schemas"}},
-                    "definitions": {"schemas": {"type": "string"}}}
-                    """ % ("\"", os.path.basename(schema_file.name))
-            schema_file.write(schema)
-        finally:
-            schema_file.close()
+    def test_it_validates_using_the_latest_validator_when_unspecified(self):
+        # There isn't a better way now I can think of to ensure that the
+        # latest version was used, given that the call to validator_for
+        # is hidden inside the CLI, so guard that that's the case, and
+        # this test will have to be updated when versions change until
+        # we can think of a better way to ensure this behavior.
+        self.assertIs(Draft7Validator, _LATEST_VERSION)
 
         self.assertOutputs(
-            files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
-            argv=["-i", "some_instance", "--base-uri", "..", "some_schema"],
+            files=dict(some_schema='{"const": "check"}', some_instance='"a"'),
+            argv=["-i", "some_instance", "some_schema"],
+            exit_code=1,
             stdout="",
-            stderr="",
+            stderr="a: 'check' was expected\n",
         )
 
-    def test_real_validator(self):
+    def test_it_validates_using_draft7_when_specified(self):
+        """
+        Specifically, `const` validation applies for Draft 7.
+        """
+        schema = """
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "const": "check"
+            }
+        """
+        instance = '"foo"'
         self.assertOutputs(
-            files=dict(some_schema='{"minimum": 30}', some_instance="37"),
+            files=dict(some_schema=schema, some_instance=instance),
+            argv=["-i", "some_instance", "some_schema"],
+            exit_code=1,
+            stdout="",
+            stderr="foo: 'check' was expected\n",
+        )
+
+    def test_it_validates_using_draft4_when_specified(self):
+        """
+        Specifically, `const` validation *does not* apply for Draft 4.
+        """
+        schema = """
+            {
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "const": "check"
+            }
+            """
+        instance = '"foo"'
+        self.assertOutputs(
+            files=dict(some_schema=schema, some_instance=instance),
             argv=["-i", "some_instance", "some_schema"],
             stdout="",
             stderr="",
@@ -743,15 +761,6 @@ class TestParser(TestCase):
             ]
         )
         self.assertIs(arguments["validator"], Draft4Validator)
-
-    def test_latest_validator_is_the_default(self):
-        arguments = cli.parse_args(
-            [
-                "--instance", "mem://some/instance",
-                "mem://some/schema",
-            ]
-        )
-        self.assertIs(arguments["validator"], _LATEST_VERSION)
 
     def test_unknown_output(self):
         # Avoid the help message on stdout
