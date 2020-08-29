@@ -10,6 +10,7 @@ import json
 import os
 import sys
 import traceback
+import urllib
 
 import attr
 
@@ -263,20 +264,30 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
 
     if arguments["base_uri"] is None:
         resolver = None
-    elif "http:" in arguments["base_uri"] or "https:" in arguments["base_uri"]\
-            or "urn:" in arguments["base_uri"]:
-        resolver = RefResolver(
-            base_uri=arguments["base_uri"],
-            referrer=schema,
-        )
     else:
-        file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
-        resolver = RefResolver(
-            base_uri=file_prefix.format(
-                os.path.abspath(arguments["base_uri"])
-            ),
-            referrer=schema,
-        )
+        scheme = urllib.parse.urlsplit(arguments["base_uri"]).scheme
+        alphabet_list = [chr(ord('a') + i) for i in range(0, 26)]
+        local_path_flag = True \
+            if scheme == '' or scheme in alphabet_list else False
+
+        if local_path_flag:
+            file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
+            abs_path_flag = os.path.isabs(arguments["base_uri"])
+
+            resolver = RefResolver(
+                    base_uri=file_prefix.format(arguments["base_uri"]),
+                    referrer=schema,
+                ) if abs_path_flag is True else RefResolver(
+                    base_uri=file_prefix.format(
+                        os.path.abspath(arguments["base_uri"])
+                    ),
+                    referrer=schema,
+                )
+        else:
+            resolver = RefResolver(
+                base_uri=arguments["base_uri"],
+                referrer=schema,
+            )
 
     validator = arguments["validator"](schema, resolver=resolver)
     exit_code = 0
