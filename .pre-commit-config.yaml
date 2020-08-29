@@ -17,11 +17,3 @@ repos:
     rev: 5.4.2
     hooks:
     -   id: isort
-- repo: https://github.com/myint/docformatter
-  rev: v1.3.1
-  hooks:
-    - id: docformatter
-      args:
-        - --in-place
-        - --pre-summary-newline
-        - --make-summary-multi-line
