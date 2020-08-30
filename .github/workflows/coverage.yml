@@ -20,6 +20,6 @@ jobs:
     - name: Install tox
       run: python -m pip install tox
     - name: Collect & Upload Coverage
-      run: python -m tox -e codecov
+      run: python -m tox -e pypy3-format-coverage
       env:
         CODECOV_TOKEN: 2b38dae1-41c4-4435-a29d-79a1299e5617
