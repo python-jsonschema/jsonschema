@@ -51,7 +51,7 @@ It can also be used from console:
 
 .. code-block:: bash
 
-    $ jsonschema -i sample.json sample.schema
+    $ jsonschema --instance sample.json sample.schema
 
 Features
 --------
