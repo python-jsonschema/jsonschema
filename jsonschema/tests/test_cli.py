@@ -309,7 +309,9 @@ class TestCLI(TestCase):
 
         with self.assertRaises(SchemaError) as e:
             validate(schema=schema, instance="")
-        error = str(e.exception._formatted_message(
+str(
+    e.exception._formatted_message(formatter=cli._json_formatter),
+)```
             formatter=cli._json_formatter))
 
         self.assertOutputs(
