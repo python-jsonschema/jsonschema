@@ -690,7 +690,7 @@ class TestCLI(TestCase):
                 mode='w+',
                 prefix='schema',
                 suffix='.json',
-                dir='..',
+                dir='.',
                 delete=False
             )
             self.addCleanup(os.remove, schema_file.name)
@@ -705,7 +705,7 @@ class TestCLI(TestCase):
 
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
-            argv=["-i", "some_instance", "--base-uri", "..", "some_schema"],
+            argv=["-i", "some_instance", "--base-uri", ".", "some_schema"],
             stdout="",
             stderr="",
         )
@@ -716,7 +716,7 @@ class TestCLI(TestCase):
                 mode='w+',
                 prefix='schema',
                 suffix='.json',
-                dir='..',
+                dir='.',
                 delete=False
             )
             self.addCleanup(os.remove, schema_file.name)
@@ -731,7 +731,7 @@ class TestCLI(TestCase):
 
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance='{"KEY1": 1}'),
-            argv=["-i", "some_instance", "--base-uri", "..", "some_schema"],
+            argv=["-i", "some_instance", "--base-uri", ".", "some_schema"],
             exit_code=1,
             stdout="",
             stderr="1: 1 is not of type 'string'\n",
@@ -757,6 +757,8 @@ class TestCLI(TestCase):
         finally:
             schema_file.close()
 
+        file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
+        absolute_path = file_prefix.format(absolute_path)
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
             argv=[
@@ -788,6 +790,8 @@ class TestCLI(TestCase):
         finally:
             schema_file.close()
 
+        file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
+        absolute_path = file_prefix.format(absolute_path)
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance='{"KEY1": 1}'),
             argv=[
@@ -798,43 +802,6 @@ class TestCLI(TestCase):
             exit_code=1,
             stdout="",
             stderr="1: 1 is not of type 'string'\n",
-        )
-
-    def test_successful_validate_with_specifying_base_uri_remote_path(self):
-        schema = """
-                 {"type": "object", "properties": {
-                 "KEY1":{"$ref": "organization.json"}}}
-                 """
-        self.assertOutputs(
-            files=dict(some_schema=schema,
-                       some_instance='{"KEY1": {"name": "remote"}}'
-                       ),
-            argv=[
-                "-i", "some_instance",
-                "--base-uri", "https://project-open-data.cio.gov/v1.1/schema/",
-                "some_schema",
-            ],
-            stdout="",
-            stderr="",
-        )
-
-    def test_failure_validate_with_specifying_base_uri_remote_path(self):
-        schema = """
-                 {"type": "object", "properties": {
-                 "KEY1":{"$ref": "organization.json"}}}
-                 """
-        self.assertOutputs(
-            files=dict(some_schema=schema,
-                       some_instance='{"KEY1": {"fail": "remote"}}'
-                       ),
-            argv=[
-                "-i", "some_instance",
-                "--base-uri", "https://project-open-data.cio.gov/v1.1/schema/",
-                "some_schema",
-            ],
-            exit_code=1,
-            stdout="",
-            stderr="{'fail': 'remote'}: 'name' is a required property\n",
         )
 
     def test_it_validates_using_the_latest_validator_when_unspecified(self):
