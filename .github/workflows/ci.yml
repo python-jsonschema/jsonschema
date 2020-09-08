@@ -30,8 +30,6 @@ jobs:
           - name: pypy3
             toxenv: pypy3-format_nongpl-tests
           - name: pypy3
-            toxenv: demo
-          - name: pypy3
             toxenv: readme
           - name: pypy3
             toxenv: safety
@@ -170,10 +168,6 @@ jobs:
             python-version:
               name: 3.8
               toxenv: py38-format_nongpl-tests
-          - os: windows-latest
-            python-version:
-              name: pypy3
-              toxenv: demo
           - os: windows-latest
             python-version:
               name: pypy3

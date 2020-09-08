@@ -134,6 +134,7 @@ def types_msg(instance, types):
 def flatten(suitable_for_isinstance):
     """
     isinstance() can accept a bunch of really annoying different types:
+
         * a single type
         * a tuple of types
         * an arbitrary nested tree of tuples

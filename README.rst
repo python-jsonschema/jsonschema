@@ -51,7 +51,7 @@ It can also be used from console:
 
 .. code-block:: bash
 
-    $ jsonschema -i sample.json sample.schema
+    $ jsonschema --instance sample.json sample.schema
 
 Features
 --------
@@ -78,33 +78,6 @@ Installation
 .. code-block:: bash
 
     $ pip install jsonschema
-
-
-Demo
-----
-
-Try ``jsonschema`` interactively in this online demo:
-
-.. image:: https://user-images.githubusercontent.com/1155573/56745335-8b158a00-6750-11e9-8776-83fa675939c4.png
-    :target: https://notebooks.ai/demo/gh/Julian/jsonschema
-    :alt: Open Live Demo
-
-
-Online demo Notebook will look similar to this:
-
-
-.. image:: https://user-images.githubusercontent.com/1155573/56820861-5c1c1880-6823-11e9-802a-ce01c5ec574f.gif
-    :alt: Open Live Demo
-    :width: 480 px
-
-
-Release Notes
--------------
-
-v3.1 brings support for ECMA 262 dialect regular expressions
-throughout schemas, as recommended by the specification. Big
-thanks to @Zac-HD for authoring support in a new `js-regex
-<https://pypi.org/project/js-regex/>`_ library.
 
 
 Running the Test Suite

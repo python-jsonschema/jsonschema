@@ -1,7 +1,9 @@
 """
-Tests on the new type interface. The actual correctness of the type checking
-is handled in test_jsonschema_test_suite; these tests check that TypeChecker
-functions correctly and can facilitate extensions to type checking
+Tests for the `TypeChecker`-based type interface.
+
+The actual correctness of the type checking is handled in
+`test_jsonschema_test_suite`; these tests check that TypeChecker
+functions correctly at a more granular level.
 """
 from collections import namedtuple
 from unittest import TestCase
