@@ -13,8 +13,32 @@ from jsonschema import _utils
 WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES = frozenset()
 
-_unset = _utils.Unset()
+RULES_TYPE = {
+    u"additionalItems": list, 
+    u"additionalProperties": dict,
+    u"const": False,
+    u"contains":list ,
+    u"enum": False ,
+    u"exclusiveMaximum": float,
+    u"exclusiveMinimum": float,
+    u"items": list,
+    u"maxItems": list,
+    u"maxLength": str,
+    u"maxProperties": dict,
+    u"maximum": float,
+    u"minItems": list,
+    u"minLength": str,
+    u"minProperties": dict,
+    u"minimum": float,
+    u"multipleOf": float,
+    u"pattern": str,
+    u"patternProperties": dict,
+    u"properties": dict,
+    u"propertyNames": dict,
+    u"uniqueItems": list
+}
 
+_unset = _utils.Unset()
 
 class _Error(Exception):
     def __init__(
@@ -283,6 +307,23 @@ class ErrorTree(object):
         child_errors = sum(len(tree) for _, tree in self._contents.items())
         return len(self.errors) + child_errors
 
+def get_instance_type(value):
+    """
+    Returns the type to use in type comparaisons of values' types
+
+    Arguments:
+        value (object):
+            an object from the schema or the instance
+
+    Returns (type):
+        the type of the object passed consistent with other JSON types
+    """
+    value_type = type(value)
+    if value_type in [int, float]:
+        return float
+    elif value_type in [bool, str, list, dict]:
+        return value_type
+    return None
 
 def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
     """
@@ -302,7 +343,27 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
     """
     def relevance(error):
         validator = error.validator
-        return -len(error.path), validator not in weak, validator in strong
+        same_type = False
+        # Check the rule type against the instance type
+        if validator in RULES_TYPE:
+            rule_type = RULES_TYPE[validator]
+            instance = error.instance
+            instance_type = None
+            instance_type = get_instance_type(instance)
+
+            if rule_type:
+                same_type = instance_type == rule_type
+            elif validator == 'enum':
+                if isinstance(error.validator_value, list):
+                    for value in error.validator_value:
+                        same_type = get_instance_type(value) == instance_type
+                        if same_type:
+                            break
+            elif validator == 'const':
+                same_type = get_instance_type(error.validator_value) == instance_type
+
+        return -len(error.path), validator not in weak, validator in strong, -same_type
+
     return relevance
 
 
