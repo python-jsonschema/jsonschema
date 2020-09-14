@@ -7,7 +7,6 @@ from textwrap import dedent
 import argparse
 import errno
 import json
-import os
 import sys
 import traceback
 
@@ -16,7 +15,7 @@ import attr
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.exceptions import SchemaError
-from jsonschema.validators import validator_for, RefResolver
+from jsonschema.validators import RefResolver, validator_for
 
 
 class _CannotLoadFile(Exception):
@@ -261,19 +260,10 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 raise _CannotLoadFile()
         instances = ["<stdin>"]
 
-    if arguments["base_uri"] is None:
-        resolver = None
-    elif arguments["base_uri"] == ".":
-        file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
-        resolver = RefResolver(
-                    base_uri=file_prefix.format(os.getcwd()),
+    resolver = RefResolver(
+                    base_uri=arguments["base_uri"],
                     referrer=schema,
-                )
-    else:
-        resolver = RefResolver(
-                        base_uri=arguments["base_uri"],
-                        referrer=schema,
-                    )
+                ) if arguments["base_uri"] is not None else None
 
     validator = arguments["validator"](schema, resolver=resolver)
     exit_code = 0

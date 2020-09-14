@@ -684,59 +684,6 @@ class TestCLI(TestCase):
             stderr="",
         )
 
-    def test_successful_validate_with_specifying_base_uri_relative_path(self):
-        try:
-            schema_file = tempfile.NamedTemporaryFile(
-                mode='w+',
-                prefix='schema',
-                suffix='.json',
-                dir='.',
-                delete=False
-            )
-            self.addCleanup(os.remove, schema_file.name)
-            schema = """
-                    {"type": "object", "properties": {"KEY1":
-                    {"$ref": %s%s#definitions/schemas"}},
-                    "definitions": {"schemas": {"type": "string"}}}
-                    """ % ("\"", os.path.basename(schema_file.name))
-            schema_file.write(schema)
-        finally:
-            schema_file.close()
-
-        self.assertOutputs(
-            files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
-            argv=["-i", "some_instance", "--base-uri", ".", "some_schema"],
-            stdout="",
-            stderr="",
-        )
-
-    def test_failure_validate_with_specifying_base_uri_relative_path(self):
-        try:
-            schema_file = tempfile.NamedTemporaryFile(
-                mode='w+',
-                prefix='schema',
-                suffix='.json',
-                dir='.',
-                delete=False
-            )
-            self.addCleanup(os.remove, schema_file.name)
-            schema = """
-                     {"type": "object", "properties": {"KEY1":
-                     {"$ref": %s%s#definitions/schemas"}},
-                     "definitions": {"schemas": {"type": "string"}}}
-                     """ % ("\"", os.path.basename(schema_file.name))
-            schema_file.write(schema)
-        finally:
-            schema_file.close()
-
-        self.assertOutputs(
-            files=dict(some_schema=schema, some_instance='{"KEY1": 1}'),
-            argv=["-i", "some_instance", "--base-uri", ".", "some_schema"],
-            exit_code=1,
-            stdout="",
-            stderr="1: 1 is not of type 'string'\n",
-        )
-
     def test_successful_validate_with_specifying_base_uri_absolute_path(self):
         absolute_path = os.getcwd()
         try:
