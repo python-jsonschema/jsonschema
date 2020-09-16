@@ -10,7 +10,11 @@ import sys
 import tempfile
 
 from jsonschema import Draft4Validator, Draft7Validator, __version__, cli
-from jsonschema.exceptions import SchemaError, ValidationError
+from jsonschema.exceptions import (
+    RefResolutionError,
+    SchemaError,
+    ValidationError,
+)
 from jsonschema.tests._helpers import captured_output
 from jsonschema.validators import _LATEST_VERSION, validate
 
@@ -685,32 +689,29 @@ class TestCLI(TestCase):
         )
 
     def test_successful_validate_with_specifying_base_uri_absolute_path(self):
-        absolute_path = os.getcwd()
         try:
             schema_file = tempfile.NamedTemporaryFile(
                 mode='w+',
-                prefix='schema',
-                suffix='.json',
-                dir=absolute_path,
                 delete=False
             )
             self.addCleanup(os.remove, schema_file.name)
             schema = """
-                    {"type": "object", "properties": {"KEY1":
-                    {"$ref": %s%s#definitions/schemas"}},
-                    "definitions": {"schemas": {"type": "string"}}}
-                    """ % ("\"", os.path.basename(schema_file.name))
-            schema_file.write(schema)
+                    {"$ref": "%s#definitions/num"}
+                    """ % (os.path.basename(schema_file.name))
+            tmp_schema = """{"definitions": {"num": {"type": "integer"}}}"""
+            schema_file.write(tmp_schema)
         finally:
             schema_file.close()
 
         file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
-        absolute_path = file_prefix.format(absolute_path)
+        absolute_dir_path = file_prefix.format(
+            os.path.dirname(schema_file.name)
+        )
         self.assertOutputs(
-            files=dict(some_schema=schema, some_instance='{"KEY1": "1"}'),
+            files=dict(some_schema=schema, some_instance='1'),
             argv=[
                 "-i", "some_instance",
-                "--base-uri", absolute_path,
+                "--base-uri", absolute_dir_path,
                 "some_schema",
             ],
             stdout="",
@@ -718,38 +719,56 @@ class TestCLI(TestCase):
         )
 
     def test_failure_validate_with_specifying_base_uri_absolute_path(self):
-        absolute_path = os.getcwd()
         try:
             schema_file = tempfile.NamedTemporaryFile(
                 mode='w+',
-                prefix='schema',
-                suffix='.json',
-                dir=absolute_path,
                 delete=False
             )
             self.addCleanup(os.remove, schema_file.name)
             schema = """
-                     {"type": "object", "properties": {"KEY1":
-                     {"$ref": %s%s#definitions/schemas"}},
-                     "definitions": {"schemas": {"type": "string"}}}
-                     """ % ("\"", os.path.basename(schema_file.name))
-            schema_file.write(schema)
+                    {"$ref": "%s#definitions/num"}
+                    """ % (os.path.basename(schema_file.name))
+            tmp_schema = """{"definitions": {"num": {"type": "integer"}}}"""
+            schema_file.write(tmp_schema)
         finally:
             schema_file.close()
 
         file_prefix = "file:///{}/" if "nt" == os.name else "file://{}/"
-        absolute_path = file_prefix.format(absolute_path)
+        absolute_dir_path = file_prefix.format(
+            os.path.dirname(schema_file.name)
+        )
         self.assertOutputs(
-            files=dict(some_schema=schema, some_instance='{"KEY1": 1}'),
+            files=dict(some_schema=schema, some_instance='"1"'),
             argv=[
                 "-i", "some_instance",
-                "--base-uri", absolute_path,
+                "--base-uri", absolute_dir_path,
                 "some_schema",
             ],
             exit_code=1,
             stdout="",
-            stderr="1: 1 is not of type 'string'\n",
+            stderr="1: '1' is not of type 'integer'\n",
         )
+
+    def test_validate_with_specifying_invalid_base_uri(self):
+        schema = """
+                {"$ref": "foo.json#definitions/num"}
+                """
+        instance = '1'
+
+        with self.assertRaises(RefResolutionError) as e:
+            self.assertOutputs(
+                files=dict(
+                    some_schema=schema,
+                    some_instance=instance,
+                ),
+                argv=[
+                    "-i", "some_instance",
+                    "--base-uri", ".",
+                    "some_schema",
+                ],
+            )
+        error = str(e.exception)
+        self.assertEqual(error,  "unknown url type: 'foo.json'")
 
     def test_it_validates_using_the_latest_validator_when_unspecified(self):
         # There isn't a better way now I can think of to ensure that the
