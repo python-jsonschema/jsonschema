@@ -182,6 +182,32 @@ class TestBestMatch(TestCase):
         )
         self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "minLength")
 
+    def test_same_type_is_prioritized_const(self):
+        validator = Draft7Validator({
+            "properties" : {
+                "value" : {
+                    "anyOf" : [
+                        {"type" : "array" , "minItems" : 2},
+                        {"const" : "bar"},
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "const")
+ 
+        validator = Draft7Validator({
+            "properties" : {
+                "value" : {
+                    "anyOf" : [
+                        {"const" : "bar"},
+                        {"type" : "array" , "minItems" : 2},
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "const")
 
 class TestByRelevance(TestCase):
     def test_short_paths_are_better_matches(self):
