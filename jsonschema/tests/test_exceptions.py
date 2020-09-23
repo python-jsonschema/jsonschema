@@ -209,6 +209,33 @@ class TestBestMatch(TestCase):
         )
         self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "const")
 
+    def test_same_type_is_prioritized_enum(self):
+        validator = Draft7Validator({
+            "properties" : {
+                "value" : {
+                    "anyOf" : [
+                        {"type" : "array" , "minItems" : 2},
+                        {"enum" : ["bar", 2.3]},
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "enum")
+ 
+        validator = Draft7Validator({
+            "properties" : {
+                "value" : {
+                    "anyOf" : [
+                        {"enum" : ["bar", 2.3]},
+                        {"type" : "array" , "minItems" : 2},
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "enum")
+
 class TestByRelevance(TestCase):
     def test_short_paths_are_better_matches(self):
         shallow = exceptions.ValidationError("Oh no!", path=["baz"])
