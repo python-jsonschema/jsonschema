@@ -1,7 +1,7 @@
 from unittest import TestCase
 import textwrap
 
-from jsonschema import Draft4Validator, exceptions
+from jsonschema import Draft4Validator, Draft7Validator, exceptions
 
 
 class TestBestMatch(TestCase):
@@ -153,6 +153,34 @@ class TestBestMatch(TestCase):
     def test_no_errors(self):
         validator = Draft4Validator({})
         self.assertIsNone(exceptions.best_match(validator.iter_errors({})))
+
+    def test_same_type_is_prioritized(self):
+        # Best match to prioritize error with the same type as value regardless of order
+        validator = Draft7Validator({
+            "properties" : {
+                "value" : {
+                    "anyOf" : [
+                        {"type" : "array" , "minItems" : 2},
+                        {"type" : "string", "minLength" : 10},
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "minLength")
+
+        validator = Draft7Validator({
+            "properties" : {
+                "value" : {
+                    "anyOf" : [
+                        {"type" : "string", "minLength" : 10},
+                        {"type" : "array" , "minItems" : 2},
+                        ],
+                    },
+                },
+            },
+        )
+        self.assertEqual(exceptions.best_match(validator.iter_errors({"value" : "foo"})).validator, "minLength")
 
 
 class TestByRelevance(TestCase):
