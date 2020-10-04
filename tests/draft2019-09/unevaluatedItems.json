@@ -87,12 +87,12 @@
         },
         "tests": [
             {
-                "description": "with no unevaluted items",
+                "description": "with no unevaluated items",
                 "data": ["foo"],
                 "valid": true
             },
             {
-                "description": "with unevaluted items",
+                "description": "with unevaluated items",
                 "data": ["foo", "bar"],
                 "valid": false
             }
@@ -135,12 +135,12 @@
         },
         "tests": [
             {
-                "description": "with no unevaluted items",
+                "description": "with no unevaluated items",
                 "data": ["foo", 42],
                 "valid": true
             },
             {
-                "description": "with unevaluted items",
+                "description": "with unevaluated items",
                 "data": ["foo", 42, true],
                 "valid": false
             }
@@ -228,22 +228,22 @@
         },
         "tests": [
             {
-                "description": "when one schema matches and has no unevaluted items",
+                "description": "when one schema matches and has no unevaluated items",
                 "data": ["foo", "bar"],
                 "valid": true
             },
             {
-                "description": "when one schema matches and has unevaluted items",
+                "description": "when one schema matches and has unevaluated items",
                 "data": ["foo", "bar", 42],
                 "valid": false
             },
             {
-                "description": "when two schemas match and has no unevaluted items",
+                "description": "when two schemas match and has no unevaluated items",
                 "data": ["foo", "bar", "baz"],
                 "valid": true
             },
             {
-                "description": "when two schemas match and has unevaluted items",
+                "description": "when two schemas match and has unevaluated items",
                 "data": ["foo", "bar", "baz", 42],
                 "valid": false
             }
@@ -274,12 +274,12 @@
         },
         "tests": [
             {
-                "description": "with no unevaluted items",
+                "description": "with no unevaluated items",
                 "data": ["foo", "bar"],
                 "valid": true
             },
             {
-                "description": "with unevaluted items",
+                "description": "with unevaluated items",
                 "data": ["foo", "bar", 42],
                 "valid": false
             }
@@ -304,7 +304,7 @@
         },
         "tests": [
             {
-                "description": "with unevaluted items",
+                "description": "with unevaluated items",
                 "data": ["foo", "bar"],
                 "valid": false
             }
@@ -342,22 +342,22 @@
         },
         "tests": [
             {
-                "description": "when if matches and it has no unevaluted items",
+                "description": "when if matches and it has no unevaluated items",
                 "data": ["foo", "bar", "then"],
                 "valid": true
             },
             {
-                "description": "when if matches and it has unevaluted items",
+                "description": "when if matches and it has unevaluated items",
                 "data": ["foo", "bar", "then", "else"],
                 "valid": false
             },
             {
-                "description": "when if doesn't match and it has no unevaluted items",
+                "description": "when if doesn't match and it has no unevaluated items",
                 "data": ["foo", 42, 42, "else"],
                 "valid": true
             },
             {
-                "description": "when if doesn't match and it has unevaluted items",
+                "description": "when if doesn't match and it has unevaluated items",
                 "data": ["foo", 42, 42, "else", 42],
                 "valid": false
             }

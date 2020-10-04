@@ -224,5 +224,35 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "if appears at the end when serialized (keyword processing sequence)",
+        "schema": {
+            "then": { "const": "yes" },
+            "else": { "const": "other" },
+            "if": { "maxLength": 4 }
+        },
+        "tests": [
+            {
+                "description": "yes redirects to then and passes",
+                "data": "yes",
+                "valid": true
+            },
+            {
+                "description": "other redirects to else and passes",
+                "data": "other",
+                "valid": true
+            },
+            {
+                "description": "no redirects to then and fails",
+                "data": "no",
+                "valid": false
+            },
+            {
+                "description": "invalid redirects to else and fails",
+                "data": "invalid",
+                "valid": false
+            }
+        ]
     }
 ]
