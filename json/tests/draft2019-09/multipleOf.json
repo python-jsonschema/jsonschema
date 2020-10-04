@@ -56,5 +56,16 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "invalid instance should not raise error when float division = inf",
+        "schema": {"type": "integer", "multipleOf": 0.123456789},
+        "tests": [
+            {
+                "description": "always invalid, but naive implementations may raise an overflow error",
+                "data": 1e308,
+                "valid": false
+            }
+        ]
     }
 ]
