@@ -161,7 +161,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.tests(),
     DRAFT4.format_tests(),
     DRAFT4.optional_tests_of(name="bignum"),
-    DRAFT4.optional_tests_of(name="float-overflow"),
     DRAFT4.optional_tests_of(name="non-bmp-regex"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft4Validator,
@@ -235,18 +234,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             subject="uniqueItems",
             description='{"a": true} and {"a": 1} are unique',
         )(test)
-        or skip(
-            message=bug(743),
-            subject="float-overflow",
-        )(test)
-        or skip(
-            message=bug(743),
-            subject="multipleOf",
-            description=(
-                "always invalid, but naive implementations "
-                "may raise an overflow error"
-            ),
-        )(test)
     ),
 )
 
@@ -255,7 +242,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.tests(),
     DRAFT6.format_tests(),
     DRAFT6.optional_tests_of(name="bignum"),
-    DRAFT6.optional_tests_of(name="float-overflow"),
     DRAFT6.optional_tests_of(name="non-bmp-regex"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
@@ -348,18 +334,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             subject="const",
             case_description='const with {"a": true} does not match {"a": 1}',
         )(test)
-        or skip(
-            message=bug(743),
-            subject="float-overflow",
-        )(test)
-        or skip(
-            message=bug(743),
-            subject="multipleOf",
-            description=(
-                "always invalid, but naive implementations "
-                "may raise an overflow error"
-            ),
-        )(test)
     ),
 )
 
@@ -368,7 +342,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.tests(),
     DRAFT7.format_tests(),
     DRAFT7.optional_tests_of(name="bignum"),
-    DRAFT7.optional_tests_of(name="float-overflow"),
     DRAFT7.optional_tests_of(name="content"),
     DRAFT7.optional_tests_of(name="non-bmp-regex"),
     Validator=Draft7Validator,
@@ -483,18 +456,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(686),
             subject="const",
             case_description='const with {"a": true} does not match {"a": 1}',
-        )(test)
-        or skip(
-            message=bug(743),
-            subject="float-overflow",
-        )(test)
-        or skip(
-            message=bug(743),
-            subject="multipleOf",
-            description=(
-                "always invalid, but naive implementations "
-                "may raise an overflow error"
-            ),
         )(test)
     ),
 )
