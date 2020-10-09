@@ -16,6 +16,44 @@ STRONG_MATCHES = frozenset()
 _unset = _utils.Unset()
 
 
+class Ellipsis(str):
+    """Simple class to pretty-print ... """
+
+    def __repr__(self):
+        return '...'
+
+
+ELLIPSIS = Ellipsis()
+
+
+def limit_nested_lists(obj, level=3):
+    """Limits lists in nested objects.
+
+    Lists longer than 10 are truncated, with an ellipsis in the middle.
+    Returns a truncated object with a similar layout.
+
+    We do this because Python's pprint has no depth limiting functionality, and
+    reprlib has no indent functionality.
+    """
+    if level == 0:
+        return ELLIPSIS
+
+    if isinstance(obj, dict):
+        # Unfortunately there is no easy way to limit dictionaries.
+        # Using {...: ...} looks ugly, particularly when dictionaries are sorted.
+        return {k: limit_nested_lists(v, level=level - 1)
+                for k, v in obj.items()}
+
+    if isinstance(obj, list):
+        if level == 1:
+            return [ELLIPSIS]
+        if len(obj) > 10:
+            obj = obj[:3] + [ELLIPSIS] + obj[-3:]
+        return [limit_nested_lists(v, level=level - 1) for v in obj]
+
+    return obj
+
+
 class _Error(Exception):
     def __init__(
         self,
@@ -66,24 +104,37 @@ class _Error(Exception):
         if any(m is _unset for m in essential_for_verbose):
             return self.message
 
-        pschema = pprint.pformat(self.schema, width=72)
-        pinstance = pprint.pformat(self.instance, width=72)
-        return self.message + textwrap.dedent("""
+        try:
+            pschema = pprint.pformat(
+                limit_nested_lists(self.schema),
+                depth=2, width=72, sort_dicts=False)
+            pinstance = pprint.pformat(
+                limit_nested_lists(self.instance),
+                depth=2, width=72, sort_dicts=False)
+        except TypeError:
+            # sort_dicts only introduced in python 2.8
+            pschema = pprint.pformat(
+                limit_nested_lists(self.schema),
+                depth=2, width=72)
+            pinstance = pprint.pformat(
+                limit_nested_lists(self.instance),
+                depth=2, width=72)
 
-            Failed validating %r in %s%s:
-            %s
+        return textwrap.dedent(
+            """{message}
 
-            On %s%s:
-            %s
-            """.rstrip()
-        ) % (
-            self.validator,
-            self._word_for_schema_in_error_message,
-            _utils.format_as_index(list(self.relative_schema_path)[:-1]),
-            _utils.indent(pschema),
-            self._word_for_instance_in_error_message,
-            _utils.format_as_index(self.relative_path),
-            _utils.indent(pinstance),
+            Failed validating {validator!r} in {schema_word}{schema_path}:\n{schema}
+
+            On {instance_word}{instance_path}:\n{instance}"""
+        ).format(
+            message=self.message,
+            validator=self.validator,
+            schema_word=self._word_for_schema_in_error_message,
+            schema_path=_utils.format_as_index(list(self.relative_schema_path)[:-1]),
+            schema=_utils.indent(pschema, 4),
+            instance_word=self._word_for_instance_in_error_message,
+            instance_path=_utils.format_as_index(self.relative_path),
+            instance=_utils.indent(pinstance, 4),
         )
 
     @classmethod
