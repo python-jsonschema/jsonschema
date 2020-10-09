@@ -298,7 +298,7 @@ class TestErrorInitReprStr(TestCase):
         return exceptions.ValidationError(**defaults)
 
     def assertShows(self, expected, **kwargs):
-        expected = textwrap.dedent(expected).rstrip("\n")
+        expected = expected.rstrip("\n")
 
         error = self.make_error(**kwargs)
         message_line, _, rest = str(error).partition("\n")
@@ -339,8 +339,7 @@ class TestErrorInitReprStr(TestCase):
                 {'type': 'string'}
 
             On instance:
-                5
-            """,
+                5""",
             path=[],
             schema_path=[],
         )
@@ -352,8 +351,7 @@ class TestErrorInitReprStr(TestCase):
                 {'type': 'string'}
 
             On instance[0]:
-                5
-            """,
+                5""",
             path=[0],
             schema_path=["items"],
         )
@@ -365,8 +363,7 @@ class TestErrorInitReprStr(TestCase):
                 {'type': 'string'}
 
             On instance[0]['a']:
-                5
-            """,
+                5""",
             path=[0, u"a"],
             schema_path=[u"items", 0, 1],
         )
@@ -397,32 +394,7 @@ class TestErrorInitReprStr(TestCase):
                  19: 19}
 
             On instance:
-                [0,
-                 1,
-                 2,
-                 3,
-                 4,
-                 5,
-                 6,
-                 7,
-                 8,
-                 9,
-                 10,
-                 11,
-                 12,
-                 13,
-                 14,
-                 15,
-                 16,
-                 17,
-                 18,
-                 19,
-                 20,
-                 21,
-                 22,
-                 23,
-                 24]
-            """,
+                [0, 1, 2, ..., 22, 23, 24]""",
             instance=list(range(25)),
             schema=dict(zip(range(20), range(20))),
             validator=u"maxLength",
