@@ -325,6 +325,29 @@ def get_instance_type(value):
         return value_type
     return None
 
+def get_schema_type(value):
+    """
+    Returns the type of the validation rule as a python type
+
+    Arguments:
+        value (string):
+            One of the values : ['string', 'array', 'object', 'number', None]
+
+    Returns (type):
+        One of the values : [str, list, dict, float, None]
+    """
+    if value == 'string':
+        return str
+    elif value == 'number':
+        return float
+    elif value == 'object':
+        return dict
+    elif value == 'array':
+        return list
+    else:
+        return None
+
+
 def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
     """
     Create a key function that can be used to sort errors by relevance.
@@ -342,27 +365,30 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
             a collection of validator names to consider to be "strong"
     """
     def relevance(error):
-        validator = error.validator
-        same_type = False
-        # Check the rule type against the instance type
-        if validator in RULES_TYPE:
-            rule_type = RULES_TYPE[validator]
-            instance = error.instance
-            instance_type = None
-            instance_type = get_instance_type(instance)
+        same_type = False 
+        # If the 'type' property has been provided within the schema rule
+        # set rule_type to the python <class 'type'> corresponding
+        if isinstance(error.schema, dict) and 'type' in error.schema:
+            rule_type = get_schema_type(error.schema['type'])
+        else:
+            rule_type = None
 
-            if rule_type:
-                same_type = instance_type == rule_type
-            elif validator == 'enum':
-                if isinstance(error.validator_value, list):
-                    for value in error.validator_value:
-                        same_type = get_instance_type(value) == instance_type
-                        if same_type:
-                            break
-            elif validator == 'const':
-                same_type = get_instance_type(error.validator_value) == instance_type
+        instance = error.instance
+        instance_type = None
+        instance_type = get_instance_type(instance)
 
-        return -len(error.path), validator not in weak, validator in strong, -same_type
+        if rule_type is not None:
+            same_type = instance_type == rule_type
+        elif error.validator == 'enum':
+            if isinstance(error.validator_value, list):
+                for value in error.validator_value:
+                    same_type = get_instance_type(value) == instance_type
+                    if same_type:
+                        break
+        elif error.validator == 'const':
+            same_type = get_instance_type(error.validator_value) == instance_type
+
+        return -len(error.path), error.validator not in weak, error.validator in strong, -same_type
 
     return relevance
 
