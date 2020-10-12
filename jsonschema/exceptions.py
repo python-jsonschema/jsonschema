@@ -13,31 +13,6 @@ from jsonschema import _utils
 WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES = frozenset()
 
-RULES_TYPE = {
-    u"additionalItems": list, 
-    u"additionalProperties": dict,
-    u"const": False,
-    u"contains":list ,
-    u"enum": False ,
-    u"exclusiveMaximum": float,
-    u"exclusiveMinimum": float,
-    u"items": list,
-    u"maxItems": list,
-    u"maxLength": str,
-    u"maxProperties": dict,
-    u"maximum": float,
-    u"minItems": list,
-    u"minLength": str,
-    u"minProperties": dict,
-    u"minimum": float,
-    u"multipleOf": float,
-    u"pattern": str,
-    u"patternProperties": dict,
-    u"properties": dict,
-    u"propertyNames": dict,
-    u"uniqueItems": list
-}
-
 _unset = _utils.Unset()
 
 class _Error(Exception):
