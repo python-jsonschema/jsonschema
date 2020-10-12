@@ -15,6 +15,7 @@ STRONG_MATCHES = frozenset()
 
 _unset = _utils.Unset()
 
+
 class _Error(Exception):
     def __init__(
         self,
@@ -340,7 +341,7 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
             a collection of validator names to consider to be "strong"
     """
     def relevance(error):
-        same_type = False 
+        same_type = False
         # If the 'type' property has been provided within the schema rule
         # set rule_type to the python <class 'type'> corresponding
         if isinstance(error.schema, dict) and 'type' in error.schema:
