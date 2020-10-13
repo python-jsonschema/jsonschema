@@ -3,10 +3,10 @@ Validation errors, and some surrounding helpers.
 """
 from collections import defaultdict, deque
 import itertools
-import pprint
 import textwrap
 
 import attr
+import prettyprinter
 
 from jsonschema import _utils
 
@@ -15,43 +15,11 @@ STRONG_MATCHES = frozenset()
 
 _unset = _utils.Unset()
 
-
-class Ellipsis(str):
-    """Simple class to pretty-print ... """
-
-    def __repr__(self):
-        return '...'
-
-
-ELLIPSIS = Ellipsis()
-
-
-def limit_nested_lists(obj, level=3):
-    """Limits lists in nested objects.
-
-    Lists longer than 10 are truncated, with an ellipsis in the middle.
-    Returns a truncated object with a similar layout.
-
-    We do this because Python's pprint has no depth limiting functionality, and
-    reprlib has no indent functionality.
-    """
-    if level == 0:
-        return ELLIPSIS
-
-    if isinstance(obj, dict):
-        # Unfortunately there is no easy way to limit dictionaries.
-        # Using {...: ...} looks ugly, particularly when dictionaries are sorted.
-        return {k: limit_nested_lists(v, level=level - 1)
-                for k, v in obj.items()}
-
-    if isinstance(obj, list):
-        if level == 1:
-            return [ELLIPSIS]
-        if len(obj) > 10:
-            obj = obj[:3] + [ELLIPSIS] + obj[-3:]
-        return [limit_nested_lists(v, level=level - 1) for v in obj]
-
-    return obj
+prettyprinter.set_default_config(
+    max_seq_len=5,
+    width=80,
+    depth=3,
+)
 
 
 class _Error(Exception):
@@ -104,21 +72,8 @@ class _Error(Exception):
         if any(m is _unset for m in essential_for_verbose):
             return self.message
 
-        try:
-            pschema = pprint.pformat(
-                limit_nested_lists(self.schema),
-                depth=2, width=72, sort_dicts=False)
-            pinstance = pprint.pformat(
-                limit_nested_lists(self.instance),
-                depth=2, width=72, sort_dicts=False)
-        except TypeError:
-            # sort_dicts only introduced in python 2.8
-            pschema = pprint.pformat(
-                limit_nested_lists(self.schema),
-                depth=2, width=72)
-            pinstance = pprint.pformat(
-                limit_nested_lists(self.instance),
-                depth=2, width=72)
+        pschema = prettyprinter.pformat(self.schema)
+        pinstance = prettyprinter.pformat(self.instance)
 
         return textwrap.dedent(
             """{message}

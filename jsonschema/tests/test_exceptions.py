@@ -372,29 +372,25 @@ class TestErrorInitReprStr(TestCase):
         self.assertShows(
             """
             Failed validating 'maxLength' in schema:
-                {0: 0,
-                 1: 1,
-                 2: 2,
-                 3: 3,
-                 4: 4,
-                 5: 5,
-                 6: 6,
-                 7: 7,
-                 8: 8,
-                 9: 9,
-                 10: 10,
-                 11: 11,
-                 12: 12,
-                 13: 13,
-                 14: 14,
-                 15: 15,
-                 16: 16,
-                 17: 17,
-                 18: 18,
-                 19: 19}
+                {
+                    0: 0,
+                    1: 1,
+                    2: 2,
+                    3: 3,
+                    4: 4
+                    # ...and 15 more elements
+                }
 
             On instance:
-                [0, 1, 2, ..., 22, 23, 24]""",
+                [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    # ...and 20 more elements
+                ]""",
+
             instance=list(range(25)),
             schema=dict(zip(range(20), range(20))),
             validator=u"maxLength",
