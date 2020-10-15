@@ -1,5 +1,6 @@
 from io import StringIO
 from json import JSONDecodeError
+from pathlib import Path
 from textwrap import dedent
 from unittest import TestCase
 import errno
@@ -7,9 +8,14 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 
 from jsonschema import Draft4Validator, Draft7Validator, __version__, cli
-from jsonschema.exceptions import SchemaError, ValidationError
+from jsonschema.exceptions import (
+    RefResolutionError,
+    SchemaError,
+    ValidationError,
+)
 from jsonschema.tests._helpers import captured_output
 from jsonschema.validators import _LATEST_VERSION, validate
 
@@ -681,6 +687,87 @@ class TestCLI(TestCase):
             argv=["--output", "pretty", "-i", "some_instance", "some_schema"],
             stdout="===[SUCCESS]===(some_instance)===\n",
             stderr="",
+        )
+
+    def test_successful_validation_via_explicit_base_uri(self):
+        ref_schema_file = tempfile.NamedTemporaryFile(delete=False)
+        self.addCleanup(os.remove, ref_schema_file.name)
+
+        ref_path = Path(ref_schema_file.name)
+        ref_path.write_text('{"definitions": {"num": {"type": "integer"}}}')
+
+        schema = f'{{"$ref": "{ref_path.name}#definitions/num"}}'
+
+        self.assertOutputs(
+            files=dict(some_schema=schema, some_instance='1'),
+            argv=[
+                "-i", "some_instance",
+                "--base-uri", ref_path.parent.as_uri() + "/",
+                "some_schema",
+            ],
+            stdout="",
+            stderr="",
+        )
+
+    def test_unsuccessful_validation_via_explicit_base_uri(self):
+        ref_schema_file = tempfile.NamedTemporaryFile(delete=False)
+        self.addCleanup(os.remove, ref_schema_file.name)
+
+        ref_path = Path(ref_schema_file.name)
+        ref_path.write_text('{"definitions": {"num": {"type": "integer"}}}')
+
+        schema = f'{{"$ref": "{ref_path.name}#definitions/num"}}'
+
+        self.assertOutputs(
+            files=dict(some_schema=schema, some_instance='"1"'),
+            argv=[
+                "-i", "some_instance",
+                "--base-uri", ref_path.parent.as_uri() + "/",
+                "some_schema",
+            ],
+            exit_code=1,
+            stdout="",
+            stderr="1: '1' is not of type 'integer'\n",
+        )
+
+    def test_nonexistent_file_with_explicit_base_uri(self):
+        schema = '{"$ref": "someNonexistentFile.json#definitions/num"}'
+        instance = "1"
+
+        with self.assertRaises(RefResolutionError) as e:
+            self.assertOutputs(
+                files=dict(
+                    some_schema=schema,
+                    some_instance=instance,
+                ),
+                argv=[
+                    "-i", "some_instance",
+                    "--base-uri", Path.cwd().as_uri(),
+                    "some_schema",
+                ],
+            )
+        error = str(e.exception)
+        self.assertIn("/someNonexistentFile.json'", error)
+
+    def test_invalid_exlicit_base_uri(self):
+        schema = '{"$ref": "foo.json#definitions/num"}'
+        instance = "1"
+
+        with self.assertRaises(RefResolutionError) as e:
+            self.assertOutputs(
+                files=dict(
+                    some_schema=schema,
+                    some_instance=instance,
+                ),
+                argv=[
+                    "-i", "some_instance",
+                    "--base-uri", "not@UR1",
+                    "some_schema",
+                ],
+            )
+        error = str(e.exception)
+        self.assertEqual(
+            error, "unknown url type: 'foo.json'",
         )
 
     def test_it_validates_using_the_latest_validator_when_unspecified(self):

@@ -15,7 +15,7 @@ import attr
 from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.exceptions import SchemaError
-from jsonschema.validators import validator_for
+from jsonschema.validators import RefResolver, validator_for
 
 
 class _CannotLoadFile(Exception):
@@ -179,6 +179,14 @@ parser.add_argument(
     """,
 )
 parser.add_argument(
+    "--base-uri",
+    help="""
+        a base URI to assign to the provided schema, even if it does not
+        declare one (via e.g. $id). This option can be used if you wish to
+        resolve relative references to a particular URI (or local path)
+    """,
+)
+parser.add_argument(
     "--version",
     action="version",
     version=__version__,
@@ -252,7 +260,12 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 raise _CannotLoadFile()
         instances = ["<stdin>"]
 
-    validator = arguments["validator"](schema)
+    resolver = RefResolver(
+        base_uri=arguments["base_uri"],
+        referrer=schema,
+    ) if arguments["base_uri"] is not None else None
+
+    validator = arguments["validator"](schema, resolver=resolver)
     exit_code = 0
     for each in instances:
         try:
