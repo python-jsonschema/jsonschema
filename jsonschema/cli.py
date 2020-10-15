@@ -181,9 +181,9 @@ parser.add_argument(
 parser.add_argument(
     "--base-uri",
     help="""
-        use this option to indicate that the schema contains some references
-        to some local or remote files. With this option, the validator will
-        try to resolve those references as paths relative to the given schema.
+        a base URI to assign to the provided schema, even if it does not
+        declare one (via e.g. $id). This option can be used if you wish to
+        resolve relative references to a particular URI (or local path)
     """,
 )
 parser.add_argument(
@@ -261,9 +261,9 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         instances = ["<stdin>"]
 
     resolver = RefResolver(
-                    base_uri=arguments["base_uri"],
-                    referrer=schema,
-                ) if arguments["base_uri"] is not None else None
+        base_uri=arguments["base_uri"],
+        referrer=schema,
+    ) if arguments["base_uri"] is not None else None
 
     validator = arguments["validator"](schema, resolver=resolver)
     exit_code = 0
