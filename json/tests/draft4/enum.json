@@ -33,6 +33,16 @@
                 "description": "objects are deep compared",
                 "data": {"foo": false},
                 "valid": false
+            },
+            {
+                "description": "valid object matches",
+                "data": {"foo": 12},
+                "valid": true
+            },
+            {
+                "description": "extra properties in object is invalid",
+                "data": {"foo": 12, "boo": 42},
+                "valid": false
             }
         ]
     },

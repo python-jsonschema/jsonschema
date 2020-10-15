@@ -1,4 +1,4 @@
-exclude: json
+exclude: json/
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
@@ -14,14 +14,6 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/timothycrosley/isort
-    rev: 5.3.2
+    rev: 5.4.2
     hooks:
     -   id: isort
-- repo: https://github.com/myint/docformatter
-  rev: v1.3.1
-  hooks:
-    - id: docformatter
-      args:
-        - --in-place
-        - --pre-summary-newline
-        - --make-summary-multi-line

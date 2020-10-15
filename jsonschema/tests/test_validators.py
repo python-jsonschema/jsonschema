@@ -1561,7 +1561,7 @@ class TestValidate(SynchronousTestCase):
     def test_validation_error_message(self):
         with self.assertRaises(exceptions.ValidationError) as e:
             validators.validate(12, {"type": "string"})
-        self.assertRegexpMatches(
+        self.assertRegex(
             str(e.exception),
             "(?s)Failed validating u?'.*' in schema.*On instance",
         )
@@ -1569,7 +1569,7 @@ class TestValidate(SynchronousTestCase):
     def test_schema_error_message(self):
         with self.assertRaises(exceptions.SchemaError) as e:
             validators.validate(12, {"type": 12})
-        self.assertRegexpMatches(
+        self.assertRegex(
             str(e.exception),
             "(?s)Failed validating u?'.*' in metaschema.*On schema",
         )
