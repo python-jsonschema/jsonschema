@@ -1,7 +1,7 @@
 """
 Creation and extension of validators, with implementations for existing drafts.
 """
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
@@ -426,6 +426,52 @@ def extend(validator, validators=(), version=None, type_checker=None):
         version=version,
         type_checker=type_checker,
         id_of=validator.ID_OF,
+    )
+
+
+def extend_with_default(validator):
+    """
+    Create a new validator class by extending an existing one
+    with specific validator, which intent is to set default values
+    for mapping properties
+
+    Arguments:
+
+        validator (jsonschema.IValidator):
+
+            an existing validator class
+
+    Returns:
+
+        a new `jsonschema.IValidator` class extending the one provided
+
+    .. note:: Meta Schemas
+
+        The new validator class will have its parent's meta schema.
+
+        If you wish to change or extend the meta schema in the new
+        validator class, modify ``META_SCHEMA`` directly on the returned
+        class. Note that no implicit copying is done, so a copy should
+        likely be made before modifying it, in order to not affect the
+        old validator.
+    """
+
+    validate_properties = validator.VALIDATORS["properties"]
+
+    def set_defaults(validator, properties, instance, schema):
+        for property_name, sub_schema in properties.items():
+            if isinstance(sub_schema, Mapping) \
+                    and "default" in sub_schema \
+                    and hasattr(instance, 'setdefault'):
+                instance.setdefault(property_name, sub_schema["default"])
+
+        for error in validate_properties(
+            validator, properties, instance, schema,
+        ):
+            yield error
+
+    return extend(
+        validator, {"properties": set_defaults},
     )
 
 
