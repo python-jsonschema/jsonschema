@@ -11,13 +11,14 @@ import jsonschema
 ext_paths = [os.path.abspath(os.path.pardir), os.path.dirname(__file__)]
 sys.path = ext_paths + sys.path
 
-# -- General configuration -----------------------------------------------------
+# -- General configuration -------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = "1.0"
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named "sphinx.ext.*") or your custom ones.
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named "sphinx.ext.*") or your custom
+# ones.
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosectionlabel",
@@ -68,7 +69,7 @@ version = release.partition("-")[0]
 # directories to ignore when looking for source files.
 exclude_patterns = ["_build", "_cache", "_static", "_templates"]
 
-# The reST default role (used for this markup: `text`) to use for all documents.
+# The reST default role (used for this markup: `text`) to use for all documents
 default_role = "any"
 
 # The name of the Pygments (syntax highlighting) style to use.
@@ -88,7 +89,7 @@ intersphinx_mapping = {
 }
 
 
-# -- Options for HTML output ---------------------------------------------------
+# -- Options for HTML output -----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -168,10 +169,10 @@ html_theme = "pyramid"
 htmlhelp_basename = "jsonschemadoc"
 
 
-# -- Options for LaTeX output --------------------------------------------------
+# -- Options for LaTeX output ----------------------------------------------
 
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, documentclass [howto/manual]).
+# Grouping the document tree into LaTeX files. List of tuples (source
+# start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
     ("index", "jsonschema.tex", u"jsonschema Documentation", author, "manual"),
 ]
@@ -197,7 +198,7 @@ latex_documents = [
 # latex_domain_indices = True
 
 
-# -- Options for manual page output --------------------------------------------
+# -- Options for manual page output ----------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
@@ -207,7 +208,7 @@ man_pages = [("index", "jsonschema", u"jsonschema Documentation", [author], 1)]
 # man_show_urls = False
 
 
-# -- Options for Texinfo output ------------------------------------------------
+# -- Options for Texinfo output --------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,

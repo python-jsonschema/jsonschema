@@ -170,14 +170,16 @@ def multipleOf(validator, dB, instance, schema):
         try:
             failed = int(quotient) != quotient
         except OverflowError:
-            # When `instance` is large and `dB` is less than one, quotient can
-            # overflow to infinity; and then casting to int raises an error.
+            # When `instance` is large and `dB` is less than one,
+            # quotient can overflow to infinity; and then casting to int
+            # raises an error.
             #
-            # In this case we fall back to Fraction logic, which is exact and
-            # cannot overflow.  The performance is also acceptable: we try the
-            # fast all-float option first, and we know that fraction(dB) can have
-            # at most a few hundred digits in each part.  The worst-case slowdown
-            # is therefore for already-slow enormous integers or Decimals.
+            # In this case we fall back to Fraction logic, which is
+            # exact and cannot overflow.  The performance is also
+            # acceptable: we try the fast all-float option first, and
+            # we know that fraction(dB) can have at most a few hundred
+            # digits in each part.  The worst-case slowdown is therefore
+            # for already-slow enormous integers or Decimals.
             failed = (Fraction(instance) / Fraction(dB)).denominator != 1
     else:
         failed = instance % dB

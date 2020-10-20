@@ -77,7 +77,9 @@ if is_narrow_build:  # pragma: no cover
     def narrow_unicode_build(test):  # pragma: no cover
         return skip(
             message=message,
-            description="one supplementary Unicode code point is not long enough",
+            description=(
+                "one supplementary Unicode code point is not long enough"
+            ),
         )(test) or skip(
             message=message,
             description="two supplementary Unicode code points is long enough",
@@ -191,7 +193,8 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             message=bug(371),
             subject="ref",
             case_description=(
-                "Location-independent identifier with base URI change in subschema"
+                "Location-independent identifier with "
+                "base URI change in subschema"
             ),
         )(test)
         or skip(
@@ -271,7 +274,8 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             message=bug(371),
             subject="ref",
             case_description=(
-                "Location-independent identifier with base URI change in subschema"
+                "Location-independent identifier with "
+                "base URI change in subschema"
             ),
         )(test)
         or skip(
@@ -372,7 +376,8 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(371),
             subject="ref",
             case_description=(
-                "Location-independent identifier with base URI change in subschema"
+                "Location-independent identifier with "
+                "base URI change in subschema"
             ),
         )(test)
         or skip(
