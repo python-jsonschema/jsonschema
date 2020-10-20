@@ -199,7 +199,8 @@ def is_ipv4(instance):
 def is_ipv6(instance):
     if not isinstance(instance, str):
         return True
-    return ipaddress.IPv6Address(instance)
+    address = ipaddress.IPv6Address(instance)
+    return not getattr(address, "scope_id", "")
 
 
 try:
