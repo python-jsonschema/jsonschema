@@ -10,7 +10,7 @@ import certifi
 
 import jsonschema
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 BASE_URL = "https://json-schema.org/draft-07/"
 VALIDATION_SPEC = urljoin(BASE_URL, "json-schema-validation.html")
