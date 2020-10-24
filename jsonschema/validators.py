@@ -837,18 +837,29 @@ class RefResolver(object):
         except ImportError:
             requests = None
 
+        try:
+            import yaml
+        except ImportError:
+            yaml = None
+
         scheme = urlsplit(uri).scheme
 
         if scheme in self.handlers:
             result = self.handlers[scheme](uri)
-        elif scheme in [u"http", u"https"] and requests:
-            # Requests has support for detecting the correct encoding of
-            # json over http
-            result = requests.get(uri).json()
         else:
-            # Otherwise, pass off to urllib and assume utf-8
-            with urlopen(uri) as url:
-                result = json.loads(url.read().decode("utf-8"))
+            path = urlsplit(uri).path
+            if scheme in [u"http", u"https"] and requests:
+                # Requests has support for detecting the correct encoding
+                received = requests.get(uri).text
+            else:
+                # Otherwise, pass off to urllib and assume utf-8
+                with urlopen(uri) as url:
+                    received = url.read().decode("utf-8")
+
+            if path.endswith((".yaml", ".yml")) and yaml:
+                result = yaml.safe_load(received)
+            else:
+                result = json.loads(received)
 
         if self.cache_remote:
             self.store[uri] = result

@@ -1793,6 +1793,8 @@ class ReallyFakeRequests(object):
 class _ReallyFakeJSONResponse(object):
 
     _response = attr.ib()
+    text = str(_response)
 
     def json(self):
         return json.loads(self._response)
+
