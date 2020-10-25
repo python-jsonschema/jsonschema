@@ -121,11 +121,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or missing_format(draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
-            message="Upstream bug in strict_rfc3339",
-            subject="date-time",
-            description="case-insensitive T and Z",
-        )(test)
-        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
@@ -203,11 +198,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             case_description="base URI change - change folder in subschema",
         )(test)
         or skip(
-            message="Upstream bug in strict_rfc3339",
-            subject="date-time",
-            description="case-insensitive T and Z",
-        )(test)
-        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
@@ -282,11 +272,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
-            message="Upstream bug in strict_rfc3339",
-            subject="date-time",
-            description="case-insensitive T and Z",
         )(test)
         or skip(
             message=bug(686),
@@ -384,11 +369,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
-            message="Upstream bug in strict_rfc3339",
-            subject="date-time",
-            description="case-insensitive T and Z",
         )(test)
         or skip(
             message=bug(593),

@@ -304,7 +304,7 @@ if validate_rfc3339:
     def is_datetime(instance):
         if not isinstance(instance, str):
             return True
-        return validate_rfc3339(instance)
+        return validate_rfc3339(instance.upper())
 
     @_checks_drafts(draft7="time")
     def is_time(instance):
