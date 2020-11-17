@@ -190,3 +190,8 @@ class TestCustomTypes(TestCase):
 
         with self.assertRaises(ValidationError):
             validator.validate(Point(x="not an integer", y=5))
+
+    def test_unknown_type(self):
+        with self.assertRaises(UnknownType) as e:
+            Draft4Validator({}).is_type(12, "some unknown type")
+        self.assertIn("'some unknown type'", str(e.exception))
