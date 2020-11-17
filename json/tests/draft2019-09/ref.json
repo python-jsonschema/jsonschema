@@ -407,5 +407,28 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "naive replacement of $ref with its destination is not correct",
+        "schema": {
+            "$defs": {
+                "a_string": { "type": "string" }
+            },
+            "enum": [
+                { "$ref": "#/$defs/a_string" }
+            ]
+        },
+        "tests": [
+            {
+                "description": "do not evaluate the $ref inside the enum",
+                "data": "this is a string",
+                "valid": false
+            },
+            {
+                "description": "match the enum exactly",
+                "data": { "$ref": "#/$defs/a_string" },
+                "valid": true
+            }
+        ]
     }
 ]
