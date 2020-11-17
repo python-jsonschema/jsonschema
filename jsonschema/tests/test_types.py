@@ -10,7 +10,7 @@ from unittest import TestCase
 
 from jsonschema import ValidationError, _validators
 from jsonschema._types import TypeChecker
-from jsonschema.exceptions import UndefinedTypeCheck
+from jsonschema.exceptions import UndefinedTypeCheck, UnknownType
 from jsonschema.validators import Draft4Validator, extend
 
 

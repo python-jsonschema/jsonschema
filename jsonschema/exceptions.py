@@ -80,10 +80,10 @@ class _Error(Exception):
             self.validator,
             self._word_for_schema_in_error_message,
             _utils.format_as_index(list(self.relative_schema_path)[:-1]),
-            _utils.indent(pschema),
+            textwrap.indent(pschema, "    "),
             self._word_for_instance_in_error_message,
             _utils.format_as_index(self.relative_path),
-            _utils.indent(pinstance),
+            textwrap.indent(pinstance, "    "),
         )
 
     @classmethod
@@ -195,7 +195,11 @@ class UnknownType(Exception):
             While checking instance:
             %s
             """.rstrip()
-        ) % (self.type, _utils.indent(pschema), _utils.indent(pinstance))
+        ) % (
+            self.type,
+            textwrap.indent(pschema, "    "),
+            textwrap.indent(pinstance, "    "),
+        )
 
 
 class FormatError(Exception):

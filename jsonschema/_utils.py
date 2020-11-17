@@ -55,14 +55,6 @@ def load_schema(name):
     return json.loads(data.decode("utf-8"))
 
 
-def indent(string, times=1):
-    """
-    A dumb version of `textwrap.indent` from Python 3.3.
-    """
-
-    return "\n".join(" " * (4 * times) + line for line in string.splitlines())
-
-
 def format_as_index(indices):
     """
     Construct a single string containing indexing operations for the indices.
