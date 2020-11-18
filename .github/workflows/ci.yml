@@ -126,14 +126,6 @@ jobs:
               toxenv: safety
           - os: windows-latest
             python-version:
-              name: pypy3
-              toxenv: secrets
-          - os: windows-latest
-            python-version:
-              name: pypy3
-              toxenv: style
-          - os: windows-latest
-            python-version:
               name: 3.6
               toxenv: py36-noextra-build
           - os: windows-latest
@@ -194,27 +186,15 @@ jobs:
               toxenv: py39-format_nongpl-tests
           - os: windows-latest
             python-version:
-              name: pypy3
+              name: 3.9
               toxenv: readme
           - os: windows-latest
             python-version:
-              name: pypy3
-              toxenv: docs-html
-          - os: windows-latest
-            python-version:
-              name: pypy3
-              toxenv: docs-doctest
-          - os: windows-latest
-            python-version:
-              name: pypy3
+              name: 3.9
               toxenv: docs-linkcheck
           - os: windows-latest
             python-version:
-              name: pypy3
-              toxenv: docs-spelling
-          - os: windows-latest
-            python-version:
-              name: pypy3
+              name: 3.9
               toxenv: docs-style
 
     steps:
