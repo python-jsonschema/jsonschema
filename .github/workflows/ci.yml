@@ -29,24 +29,6 @@ jobs:
             toxenv: pypy3-format_nongpl-build
           - name: pypy3
             toxenv: pypy3-format_nongpl-tests
-          - name: pypy3
-            toxenv: readme
-          - name: pypy3
-            toxenv: safety
-          - name: pypy3
-            toxenv: secrets
-          - name: pypy3
-            toxenv: style
-          - name: pypy3
-            toxenv: docs-html
-          - name: pypy3
-            toxenv: docs-doctest
-          - name: pypy3
-            toxenv: docs-linkcheck
-          - name: pypy3
-            toxenv: docs-spelling
-          - name: pypy3
-            toxenv: docs-style
           - name: 3.6
             toxenv: py36-noextra-build
           - name: 3.6
@@ -95,6 +77,24 @@ jobs:
             toxenv: py39-format_nongpl-build
           - name: 3.9
             toxenv: py39-format_nongpl-tests
+          - name: 3.9
+            toxenv: docs-html
+          - name: 3.9
+            toxenv: docs-doctest
+          - name: 3.9
+            toxenv: docs-linkcheck
+          - name: 3.9
+            toxenv: docs-spelling
+          - name: 3.9
+            toxenv: docs-style
+          - name: 3.9
+            toxenv: readme
+          - name: 3.9
+            toxenv: safety
+          - name: 3.9
+            toxenv: secrets
+          - name: 3.9
+            toxenv: style
         exclude:
           - os: windows-latest
             python-version:
