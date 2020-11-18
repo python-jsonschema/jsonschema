@@ -25,6 +25,7 @@ pre
 programmatically
 recurses
 regex
+repr
 sensical
 subschema
 subschemas
