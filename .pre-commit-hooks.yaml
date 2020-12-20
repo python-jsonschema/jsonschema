@@ -1,0 +1,6 @@
+- id: jsonschema
+  name: jsonschema
+  description: json schema validation
+  language: python
+  pass_filenames: false
+  entry: jsonschema
