@@ -1,9 +1,11 @@
 import os
 import sys
+
+from hypothesis import given
+from hypothesis import strategies as st
 import atheris
 
 import jsonschema
-from hypothesis import given, strategies as st
 
 PRIM = st.one_of(
     st.booleans(),
