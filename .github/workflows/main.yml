@@ -14,7 +14,7 @@ jobs:
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
         oss-fuzz-project-name: 'jsonschema'
-        fuzz-seconds: 600
+        fuzz-seconds: 30
         dry-run: false
     - name: Upload Crash
       uses: actions/upload-artifact@v1
