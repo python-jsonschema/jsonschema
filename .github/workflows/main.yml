@@ -12,7 +12,7 @@ jobs:
         dry-run: false
       continue-on-error: true
     - name: Run Fuzzers
-      if: success()
+      if: steps.build.outcome == 'success'
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
         oss-fuzz-project-name: 'jsonschema'
