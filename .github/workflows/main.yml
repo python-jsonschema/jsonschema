@@ -2,7 +2,6 @@ name: CIFuzz
 on: [pull_request]
 jobs:
   Fuzzing:
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
     - name: Build Fuzzers
@@ -11,6 +10,7 @@ jobs:
       with:
         oss-fuzz-project-name: 'jsonschema'
         dry-run: false
+      continue-on-error: true
     - name: Run Fuzzers
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
