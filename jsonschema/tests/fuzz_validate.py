@@ -17,6 +17,7 @@ DICT = st.recursive(
     extend=lambda inner: st.dictionaries(st.text(), inner),
 )
 
+
 @given(obj1=DICT, obj2=DICT)
 def test_schemas(obj1, obj2):
     try:
@@ -26,11 +27,13 @@ def test_schemas(obj1, obj2):
     except jsonschema.exceptions.SchemaError:
         None
 
+
 def main():
     atheris.Setup(sys.argv,
                   test_schemas.hypothesis.fuzz_one_input,
                   enable_python_coverage=True)
     atheris.Fuzz()
+
 
 if __name__ == "__main__":
     main()
