@@ -8,12 +8,12 @@ import jsonschema
 
 PRIM = st.one_of(
     st.booleans(),
-    st.integers(min_value=-(2 ** 63), max_value=2 ** 63 - 1),
+    st.integers(),
     st.floats(allow_nan=False, allow_infinity=False),
     st.text(),
 )
 DICT = st.recursive(
-    base=st.dictionaries(st.text(), PRIM),
+    base=st.booleans() | st.dictionaries(st.text(), PRIM),
     extend=lambda inner: st.dictionaries(st.text(), inner),
 )
 
