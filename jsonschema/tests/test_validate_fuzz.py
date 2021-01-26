@@ -2,7 +2,6 @@ import sys
 
 from hypothesis import given
 from hypothesis import strategies as st
-import atheris
 
 import jsonschema
 
@@ -36,4 +35,5 @@ def main():
 
 
 if __name__ == "__main__":
+    import atheris
     main()
