@@ -17,17 +17,17 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python-version:
-          - name: pypy3
+          - name: pypy-3.7
             toxenv: pypy3-noextra-build
-          - name: pypy3
+          - name: pypy-3.7
             toxenv: pypy3-noextra-tests
-          - name: pypy3
+          - name: pypy-3.7
             toxenv: pypy3-format-build
-          - name: pypy3
+          - name: pypy-3.7
             toxenv: pypy3-format-tests
-          - name: pypy3
+          - name: pypy-3.7
             toxenv: pypy3-format_nongpl-build
-          - name: pypy3
+          - name: pypy-3.7
             toxenv: pypy3-format_nongpl-tests
           - name: 3.6
             toxenv: py36-noextra-build
