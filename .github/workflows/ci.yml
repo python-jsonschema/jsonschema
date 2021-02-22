@@ -108,6 +108,30 @@ jobs:
             python-version:
               name: 3.9
               toxenv: docs-style
+          - os: windows-latest
+            python-version:
+              name: pypy-3.7
+              toxenv: pypy3-noextra-build
+          - os: windows-latest
+            python-version:
+              name: pypy-3.7
+              toxenv: pypy3-noextra-tests
+          - os: windows-latest
+            python-version:
+              name: pypy-3.7
+              toxenv: pypy3-format-build
+          - os: windows-latest
+            python-version:
+              name: pypy-3.7
+              toxenv: pypy3-format-tests
+          - os: windows-latest
+            python-version:
+              name: pypy-3.7
+              toxenv: pypy3-format_nongpl-build
+          - os: windows-latest
+            python-version:
+              name: pypy-3.7
+              toxenv: pypy3-format_nongpl-tests
 
     steps:
     - uses: actions/checkout@v2
