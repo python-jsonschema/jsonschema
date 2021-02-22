@@ -747,7 +747,7 @@ class TestCLI(TestCase):
                 ],
             )
         error = str(e.exception)
-        self.assertIn("/someNonexistentFile.json'", error)
+        self.assertIn(f"{os.sep}someNonexistentFile.json'", error)
 
     def test_invalid_exlicit_base_uri(self):
         schema = '{"$ref": "foo.json#definitions/num"}'
