@@ -127,8 +127,5 @@ jobs:
       if: runner.os == 'macOS' && startsWith(matrix.python-version.toxenv, 'docs-')
     - name: Install tox
       run: python -m pip install tox
-    - name: Use venv on Windows
-      run: python -m pip install tox-venv
-      if: runner.os == 'Windows'
     - name: Run tox
       run: python -m tox -e "${{ matrix.python-version.toxenv }}"
