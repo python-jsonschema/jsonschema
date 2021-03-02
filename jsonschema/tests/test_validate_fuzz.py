@@ -1,19 +1,22 @@
 import sys
 
-from hypothesis import given
-from hypothesis import strategies as st
+from hypothesis import given, strategies
 
 import jsonschema
 
-PRIM = st.one_of(
-    st.booleans(),
-    st.integers(),
-    st.floats(allow_nan=False, allow_infinity=False),
-    st.text(),
+
+PRIM = strategies.one_of(
+    strategies.booleans(),
+    strategies.integers(),
+    strategies.floats(allow_nan=False, allow_infinity=False),
+    strategies.text(),
 )
-DICT = st.recursive(
-    base=st.booleans() | st.dictionaries(st.text(), PRIM),
-    extend=lambda inner: st.dictionaries(st.text(), inner),
+DICT = strategies.recursive(
+    base=(
+        strategies.booleans()
+        | strategies.dictionaries(strategies.text(), PRIM),
+    ),
+    extend=lambda inner: strategies.dictionaries(strategies.text(), inner),
 )
 
 
@@ -22,9 +25,9 @@ def test_schemas(obj1, obj2):
     try:
         jsonschema.validate(instance=obj1, schema=obj2)
     except jsonschema.exceptions.ValidationError:
-        None
+        pass
     except jsonschema.exceptions.SchemaError:
-        None
+        pass
 
 
 def main():
