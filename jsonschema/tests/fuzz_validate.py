@@ -10,7 +10,6 @@ from hypothesis import given, strategies
 
 import jsonschema
 
-
 PRIM = strategies.one_of(
     strategies.booleans(),
     strategies.integers(),
