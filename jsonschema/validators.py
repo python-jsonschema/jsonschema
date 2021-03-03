@@ -392,7 +392,7 @@ def extend(validator, validators=(), version=None, type_checker=None):
             a type checker, used when applying the :validator:`type` validator.
 
             If unprovided, the type checker of the extended
-            `jsonschema.IValidator` will be carried along.`
+            `jsonschema.IValidator` will be carried along.
 
     Returns:
 
