@@ -19,7 +19,8 @@ PRIM = strategies.one_of(
 DICT = strategies.recursive(
     base=strategies.one_of(
         strategies.booleans(),
-        strategies.dictionaries(strategies.text(), PRIM)),
+        strategies.dictionaries(strategies.text(), PRIM),
+    ),
     extend=lambda inner: strategies.dictionaries(strategies.text(), inner),
 )
 
@@ -35,9 +36,11 @@ def test_schemas(obj1, obj2):
 
 
 def main():
-    atheris.Setup(sys.argv,
-                  test_schemas.hypothesis.fuzz_one_input,
-                  enable_python_coverage=True)
+    atheris.Setup(
+        sys.argv,
+        test_schemas.hypothesis.fuzz_one_input,
+        enable_python_coverage=True,
+    )
     atheris.Fuzz()
 
 
