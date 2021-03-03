@@ -17,10 +17,9 @@ PRIM = strategies.one_of(
     strategies.text(),
 )
 DICT = strategies.recursive(
-    base=(
-        strategies.booleans()
-        | strategies.dictionaries(strategies.text(), PRIM),
-    ),
+    base=strategies.one_of(
+        strategies.booleans(),
+        strategies.dictionaries(strategies.text(), PRIM)),
     extend=lambda inner: strategies.dictionaries(strategies.text(), inner),
 )
 
