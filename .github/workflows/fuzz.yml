@@ -1,0 +1,31 @@
+name: CIFuzz
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  Fuzzing:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Fuzzers
+      id: build
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      with:
+        oss-fuzz-project-name: 'jsonschema'
+        language: python
+      # Needed until google/oss-fuzz#4996 is merged
+      continue-on-error: true
+    - name: Run Fuzzers
+      if: steps.build.outcome == 'success'
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      with:
+        oss-fuzz-project-name: 'jsonschema'
+        fuzz-seconds: 30
+    - name: Upload Crash
+      uses: actions/upload-artifact@v1
+      if: failure() && steps.build.outcome == 'success'
+      with:
+        name: artifacts
+        path: ./out/artifacts
