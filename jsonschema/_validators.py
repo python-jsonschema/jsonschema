@@ -324,7 +324,17 @@ def maxProperties(validator, mP, instance, schema):
 
 
 def allOf(validator, allOf, instance, schema):
+    all_properties = {}
     for index, subschema in enumerate(allOf):
+        if u"properties" in subschema:
+            all_properties.update(subschema["properties"])
+        elif u"$ref" in subschema:
+            resolve = getattr(validator.resolver, "resolve", None)
+            scope, resolved = validator.resolver.resolve(subschema[u"$ref"])
+            if u"properties" in resolved:
+                all_properties.update(resolved[u"properties"])           
+    for index, subschema in enumerate(allOf):
+        subschema["properties"] = all_properties
         for error in validator.descend(instance, subschema, schema_path=index):
             yield error
 
