@@ -106,6 +106,14 @@ else:
     def missing_date_fromisoformat(test):
         return
 
+allowed_leading_zeros = skip(
+    message="This behavior is optional (and Python allows it)",
+    subject="ipv4",
+    description=(
+        "leading zeroes should be rejected, as they are treated as octals"
+    ),
+)
+
 
 TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
@@ -165,6 +173,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_date_fromisoformat(test)
+        or allowed_leading_zeros(test)
         or missing_format(draft4_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -241,6 +250,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_date_fromisoformat(test)
+        or allowed_leading_zeros(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -338,6 +348,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or missing_date_fromisoformat(test)
+        or allowed_leading_zeros(test)
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
         or skip(
