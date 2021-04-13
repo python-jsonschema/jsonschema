@@ -433,5 +433,57 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "item is evaluated in an uncle schema to unevaluatedItems",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "foo": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "unevaluatedItems": false
+                  }
+            },
+            "anyOf": [
+                {
+                    "properties": {
+                        "foo": {
+                            "items": [
+                                true,
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "no extra items",
+                "data": {
+                    "foo": [
+                        "test"
+                    ]
+                },
+                "valid": true
+            },
+            {
+                "description": "uncle keyword evaluation is not significant",
+                "data": {
+                    "foo": [
+                        "test",
+                        "test"
+                    ]
+                },
+                "valid": false
+            }
+        ]
     }
 ]

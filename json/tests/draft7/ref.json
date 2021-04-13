@@ -127,7 +127,7 @@
                 "b": {"$ref": "#/definitions/a"},
                 "c": {"$ref": "#/definitions/b"}
             },
-            "$ref": "#/definitions/c"
+            "allOf": [{ "$ref": "#/definitions/c" }]
         },
         "tests": [
             {
@@ -239,7 +239,7 @@
     {
         "description": "$ref to boolean schema true",
         "schema": {
-            "$ref": "#/definitions/bool",
+            "allOf": [{ "$ref": "#/definitions/bool" }],
             "definitions": {
                 "bool": true
             }
@@ -255,7 +255,7 @@
     {
         "description": "$ref to boolean schema false",
         "schema": {
-            "$ref": "#/definitions/bool",
+            "allOf": [{ "$ref": "#/definitions/bool" }],
             "definitions": {
                 "bool": false
             }

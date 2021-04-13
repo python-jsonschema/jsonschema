@@ -9,7 +9,7 @@
                 "valid": true
             },
             {
-                "description": "a valid IRI with anchor tag and parantheses",
+                "description": "a valid IRI with anchor tag and parentheses",
                 "data": "http://ƒøø.com/blah_(wîkïpédiå)_blah#ßité-1",
                 "valid": true
             },

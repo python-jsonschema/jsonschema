@@ -1,6 +1,6 @@
 [
     {
-        "description": "valid definition",
+        "description": "validate definition against metaschema",
         "schema": {"$ref": "http://json-schema.org/draft-06/schema#"},
         "tests": [
             {
@@ -11,13 +11,7 @@
                     }
                 },
                 "valid": true
-            }
-        ]
-    },
-    {
-        "description": "invalid definition",
-        "schema": {"$ref": "http://json-schema.org/draft-06/schema#"},
-        "tests": [
+            },
             {
                 "description": "invalid definition schema",
                 "data": {
