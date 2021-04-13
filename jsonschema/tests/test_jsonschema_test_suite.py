@@ -202,6 +202,16 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             ),
         )(test)
         or skip(
+            message=bug(371),
+            subject="id",
+            description="match $ref to id",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="id",
+            description="no match on enum or $ref to id",
+        )(test)
+        or skip(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
@@ -277,6 +287,16 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
                 "Location-independent identifier with "
                 "base URI change in subschema"
             ),
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="id",
+            description="match $ref to id",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="id",
+            description="no match on enum or $ref to id",
         )(test)
         or skip(
             message=bug(),
@@ -375,6 +395,16 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
                 "Location-independent identifier with "
                 "base URI change in subschema"
             ),
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="id",
+            description="match $ref to id",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="id",
+            description="no match on enum or $ref to id",
         )(test)
         or skip(
             message=bug(),
