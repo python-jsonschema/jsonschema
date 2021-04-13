@@ -26,39 +26,11 @@ ROOT_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir).rstrip("__pycache__"),
 )
 SUITE_ROOT_DIR = os.path.join(ROOT_DIR, "tests")
-
-REMOTES = {
-    "integer.json": {u"type": u"integer"},
-    "name.json": {
-        u"type": "string",
-        u"definitions": {
-            u"orNull": {u"anyOf": [{u"type": u"null"}, {u"$ref": u"#"}]},
-        },
-    },
-    "name-defs.json": {
-        u"type": "string",
-        u"$defs": {
-            u"orNull": {u"anyOf": [{u"type": u"null"}, {u"$ref": u"#"}]},
-        },
-    },
-    "subSchemas.json": {
-        u"integer": {u"type": u"integer"},
-        u"refToInteger": {u"$ref": u"#/integer"},
-    },
-    "subSchemas-defs.json": {
-        u"$defs": {
-            u"integer": {u"type": u"integer"},
-            u"refToInteger": {u"$ref": u"#/$defs/integer"},
-        }
-    },
-    "baseUriChange/folderInteger.json": {u"type": u"integer"},
-    "baseUriChangeFolder/folderInteger.json": {u"type": u"integer"},
-    "baseUriChangeFolderInSubschema/folderInteger.json": {u"type": u"integer"},
-}
 REMOTES_DIR = os.path.join(ROOT_DIR, "remotes")
 
 with open(os.path.join(ROOT_DIR, "test-schema.json")) as schema:
     TESTSUITE_SCHEMA = json.load(schema)
+
 
 def files(paths):
     for path in paths:
@@ -80,7 +52,7 @@ def cases(paths):
 
 
 def collect(root_dir):
-    for root, dirs, files in os.walk(root_dir):
+    for root, _, files in os.walk(root_dir):
         for filename in fnmatch.filter(files, "*.json"):
             yield os.path.join(root, filename)
 
@@ -89,15 +61,27 @@ class SanityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         print("Looking for tests in %s" % SUITE_ROOT_DIR)
+        print("Looking for remotes in %s" % REMOTES_DIR)
         cls.test_files = list(collect(SUITE_ROOT_DIR))
+        cls.remote_files = list(collect(REMOTES_DIR))
         print("Found %s test files" % len(cls.test_files))
+        print("Found %s remote files" % len(cls.remote_files))
         assert cls.test_files, "Didn't find the test files!"
+        assert cls.remote_files, "Didn't find the remote files!"
 
-    def test_all_files_are_valid_json(self):
+    def test_all_test_files_are_valid_json(self):
         for path in self.test_files:
             with open(path) as test_file:
                 try:
                     json.load(test_file)
+                except ValueError as error:
+                    self.fail("%s contains invalid JSON (%s)" % (path, error))
+
+    def test_all_remote_files_are_valid_json(self):
+        for path in self.remote_files:
+            with open(path) as remote_file:
+                try:
+                    json.load(remote_file)
                 except ValueError as error:
                     self.fail("%s contains invalid JSON (%s)" % (path, error))
 
@@ -146,48 +130,6 @@ class SanityTests(unittest.TestCase):
             except jsonschema.ValidationError as error:
                 self.fail(str(error))
 
-    def test_remote_schemas_are_updated(self):
-        files = {}
-        for parent, _, paths in os.walk(REMOTES_DIR):
-            for path in paths:
-                absolute_path = os.path.join(parent, path)
-                with open(absolute_path) as schema_file:
-                    files[absolute_path] = json.load(schema_file)
-
-        expected = {
-            os.path.join(REMOTES_DIR, path): contents
-            for path, contents in REMOTES.items()
-        }
-
-        missing = set(files).symmetric_difference(expected)
-        changed = {
-            path
-            for path, contents in expected.items()
-            if path in files
-            and contents != files[path]
-        }
-
-        self.assertEqual(
-            files,
-            expected,
-            msg=textwrap.dedent(
-                """
-                Remotes in the remotes/ directory do not match those in the
-                ``jsonschema_suite`` Python script.
-
-                Unfortunately for the minute, each remote file is duplicated in
-                two places.""" + ("""
-
-                Only present in one location:
-
-                {}""".format("\n".join(missing)) if missing else "") + ("""
-
-                Conflicting between the two:
-
-                {}""".format("\n".join(changed)) if changed else "")
-            )
-        )
-
 
 def main(arguments):
     if arguments.command == "check":
@@ -202,34 +144,26 @@ def main(arguments):
 
         json.dump(selected_cases, sys.stdout, indent=4, sort_keys=True)
     elif arguments.command == "remotes":
-        json.dump(REMOTES, sys.stdout, indent=4, sort_keys=True)
+        remotes = {}
+        for path in collect(REMOTES_DIR):
+            relative_path = os.path.relpath(path, REMOTES_DIR)
+            with open(path) as schema_file:
+                remotes[relative_path] = json.load(schema_file)
+        json.dump(remotes, sys.stdout, indent=4, sort_keys=True)
     elif arguments.command == "dump_remotes":
         if arguments.update:
             shutil.rmtree(arguments.out_dir, ignore_errors=True)
 
         try:
-            os.makedirs(arguments.out_dir)
+            shutil.copytree(REMOTES_DIR, arguments.out_dir)
         except OSError as e:
             if e.errno == errno.EEXIST:
                 print("%s already exists. Aborting." % arguments.out_dir)
                 sys.exit(1)
             raise
-
-        for url, schema in REMOTES.items():
-            filepath = os.path.join(arguments.out_dir, url)
-
-            try:
-                os.makedirs(os.path.dirname(filepath))
-            except OSError as e:
-                if e.errno != errno.EEXIST:
-                    raise
-
-            with open(filepath, "w") as out_file:
-                json.dump(schema, out_file, indent=4, sort_keys=True)
-                out_file.write("\n")
     elif arguments.command == "serve":
         try:
-            from flask import Flask, jsonify
+            import flask
         except ImportError:
             print(textwrap.dedent("""
                 The Flask library is required to serve the remote schemas.
@@ -242,13 +176,11 @@ def main(arguments):
             """.strip("\n")))
             sys.exit(1)
 
-        app = Flask(__name__)
+        app = flask.Flask(__name__)
 
         @app.route("/<path:path>")
         def serve_path(path):
-            if path in REMOTES:
-                return jsonify(REMOTES[path])
-            return "Document does not exist.", 404
+            return flask.send_from_directory(REMOTES_DIR, path)
 
         app.run(port=1234)
 

@@ -9,7 +9,7 @@
                 "valid": true
             },
             {
-                "description": "a valid URL with anchor tag and parantheses",
+                "description": "a valid URL with anchor tag and parentheses",
                 "data": "http://foo.com/blah_(wikipedia)_blah#cite-1",
                 "valid": true
             },

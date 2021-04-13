@@ -32,6 +32,17 @@
                 "description": "an IP address as an integer (decimal)",
                 "data": "2130706433",
                 "valid": false
+            },
+            {
+                "description": "leading zeroes should be rejected, as they are treated as octals",
+                "comment": "see https://sick.codes/universal-netmask-npm-package-used-by-270000-projects-vulnerable-to-octal-input-data-server-side-request-forgery-remote-file-inclusion-local-file-inclusion-and-more-cve-2021-28918/",
+                "data": "087.10.0.1",
+                "valid": false
+            },
+            {
+                "description": "value without leading zero is valid",
+                "data": "87.10.0.1",
+                "valid": true
             }
         ]
     }
