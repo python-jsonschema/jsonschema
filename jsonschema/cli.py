@@ -7,6 +7,7 @@ from textwrap import dedent
 import argparse
 import errno
 import json
+import pathlib
 import sys
 import traceback
 
@@ -249,6 +250,11 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
 
     if arguments["instances"]:
         load, instances = outputter.load, arguments["instances"]
+        if len(instances) == 1:
+            path = pathlib.Path(instances[0])
+
+            if path.is_dir():
+                instances = path.glob("*.json")
     else:
         def load(_):
             try:
