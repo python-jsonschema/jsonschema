@@ -250,11 +250,11 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
 
     if arguments["instances"]:
         load, instances = outputter.load, arguments["instances"]
-        if len(instances) == 1:
-            path = pathlib.Path(instances[0])
+        for instance in instances:
+            path = pathlib.Path(instance)
 
             if path.is_dir():
-                instances = path.glob("*.json")
+                instances.extend(path.glob("*.json"))
     else:
         def load(_):
             try:
