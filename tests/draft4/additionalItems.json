@@ -19,7 +19,7 @@
         ]
     },
     {
-        "description": "items is schema, no additionalItems",
+        "description": "when items is schema, additionalItems does nothing",
         "schema": {
             "items": {},
             "additionalItems": false
@@ -33,7 +33,7 @@
         ]
     },
     {
-        "description": "array of items with no additionalItems",
+        "description": "array of items with no additionalItems permitted",
         "schema": {
             "items": [{}, {}, {}],
             "additionalItems": false
@@ -123,6 +123,25 @@
             {
                 "description": "items defined in allOf are not examined",
                 "data": [ 1, "hello" ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "items validation adjusts the starting index for additionalItems",
+        "schema": {
+            "items": [ { "type": "string" } ],
+            "additionalItems": { "type": "integer" }
+        },
+        "tests": [
+            {
+                "description": "valid items",
+                "data": [ "x", 2, 3 ],
+                "valid": true
+            },
+            {
+                "description": "wrong type of second item",
+                "data": [ "x", "y" ],
                 "valid": false
             }
         ]

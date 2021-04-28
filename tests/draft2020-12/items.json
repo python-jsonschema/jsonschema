@@ -233,5 +233,24 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "prefixItems validation adjusts the starting index for items",
+        "schema": {
+            "prefixItems": [ { "type": "string" } ],
+            "items": { "type": "integer" }
+        },
+        "tests": [
+            {
+                "description": "valid items",
+                "data": [ "x", 2, 3 ],
+                "valid": true
+            },
+            {
+                "description": "wrong type of second item",
+                "data": [ "x", "y" ],
+                "valid": false
+            }
+        ]
     }
 ]

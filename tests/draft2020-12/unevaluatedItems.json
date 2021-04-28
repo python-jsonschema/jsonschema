@@ -485,5 +485,113 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "unevaluatedItems depends on adjacent contains",
+        "schema": {
+            "prefixItems": [true],
+            "contains": {"type": "string"},
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "second item is evaluated by contains",
+                "data": [ 1, "foo" ],
+                "valid": true
+            },
+            {
+                "description": "contains fails, second item is not evaluated",
+                "data": [ 1, 2 ],
+                "valid": false
+            },
+            {
+                "description": "contains passes, second item is not evaluated",
+                "data": [ 1, 2, "foo" ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems depends on multiple nested contains",
+        "schema": {
+            "allOf": [
+                { "contains": { "multipleOf": 2 } },
+                { "contains": { "multipleOf": 3 } }
+            ],
+            "unevaluatedItems": { "multipleOf": 5 }
+        },
+        "tests": [
+            {
+                "description": "5 not evaluated, passes unevaluatedItems",
+                "data": [ 2, 3, 4, 5, 6 ],
+                "valid": true
+            },
+            {
+                "description": "7 not evaluated, fails unevaluatedItems",
+                "data": [ 2, 3, 4, 7, 8 ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems and contains interact to control item dependency relationship",
+        "schema": {
+            "if": {
+                "contains": {"const": "a"}
+            },
+            "then": {
+                "if": {
+                    "contains": {"const": "b"}
+                },
+                "then": {
+                    "if": {
+                        "contains": {"const": "c"}
+                    }
+                }
+            },
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "only a's are valid",
+                "data": [ "a", "a" ],
+                "valid": true
+            },
+            {
+                "description": "a's and b's are valid",
+                "data": [ "a", "b", "a", "b", "a" ],
+                "valid": true
+            },
+            {
+                "description": "a's, b's and c's are valid",
+                "data": [ "c", "a", "c", "c", "b", "a" ],
+                "valid": true
+            },
+            {
+                "description": "only b's are invalid",
+                "data": [ "b", "b" ],
+                "valid": false
+            },
+            {
+                "description": "only c's are invalid",
+                "data": [ "c", "c" ],
+                "valid": false
+            },
+            {
+                "description": "only b's and c's are invalid",
+                "data": [ "c", "b", "c", "b", "c" ],
+                "valid": false
+            },
+            {
+                "description": "only a's and c's are invalid",
+                "data": [ "c", "a", "c", "a", "c" ],
+                "valid": false
+            }
+        ]
     }
 ]

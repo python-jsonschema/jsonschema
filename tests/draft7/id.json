@@ -7,18 +7,18 @@
                 "id_in_enum": {
                     "enum": [
                         {
-                          "id": "https://localhost:1234/my_identifier.json",
+                          "$id": "https://localhost:1234/my_identifier.json",
                           "type": "null"
                         }
                     ]
                 },
                 "real_id_in_schema": {
-                    "id": "https://localhost:1234/my_identifier.json",
+                    "$id": "https://localhost:1234/my_identifier.json",
                     "type": "string"
                 },
                 "zzz_id_in_const": {
                     "const": {
-                        "id": "https://localhost:1234/my_identifier.json",
+                        "$id": "https://localhost:1234/my_identifier.json",
                         "type": "null"
                     }
                 }
@@ -32,7 +32,7 @@
             {
                 "description": "exact match to enum, and type matches",
                 "data": {
-                    "id": "https://localhost:1234/my_identifier.json",
+                    "$id": "https://localhost:1234/my_identifier.json",
                     "type": "null"
                 },
                 "valid": true

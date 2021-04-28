@@ -45,5 +45,35 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "the default keyword does not do anything if the property is missing",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "alpha": {
+                    "type": "number",
+                    "maximum": 3,
+                    "default": 5
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "an explicit property value is checked against maximum (passing)",
+                "data": { "alpha": 1 },
+                "valid": true
+            },
+            {
+                "description": "an explicit property value is checked against maximum (failing)",
+                "data": { "alpha": 5 },
+                "valid": false
+            },
+            {
+                "description": "missing properties are not filled in with the default",
+                "data": {},
+                "valid": true
+            }
+        ]
     }
 ]
