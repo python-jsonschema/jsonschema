@@ -61,8 +61,8 @@ directory. This is:
 ## Coverage
 
 Drafts 07, 06, 04, and 03 should have full coverage, with tests for drafts 06,
-07, and 2019-09 being considered current and actively supported. Draft 2019-09
-is almost fully covered.
+07, 2019-09 and 2020-12 being considered current and actively supported.
+Drafts 2019-09 and 2020-12 are almost fully covered.
 
 Contributions are very welcome, especially from implementers as they add support
 to their own implementations.
@@ -95,11 +95,11 @@ This suite is being used by:
 
 ### Dart
 
-* [json_schema](https://github.com/patefacio/json_schema)
+* [json\_schema](https://github.com/patefacio/json_schema)
 
 ### Elixir
 
-* [ex_json_schema](https://github.com/jonasschmidt/ex_json_schema)
+* [ex\_json\_schema](https://github.com/jonasschmidt/ex_json_schema)
 
 ### Erlang
 
@@ -159,17 +159,19 @@ which also welcomes your contributions!
 ### Perl
 
 * [JSON::Schema::Draft201909](https://github.com/karenetheridge/JSON-Schema-Draft201909)
+* [JSON::Schema::Tiny](https://github.com/karenetheridge/JSON-Schema-Tiny)
 * [Test::JSON::Schema::Acceptance](https://github.com/karenetheridge/Test-JSON-Schema-Acceptance)
 
 ### PHP
 
+* [opis/json-schema](https://github.com/opis/json-schema)
 * [json-schema](https://github.com/justinrainbow/json-schema)
 * [json-guard](https://github.com/thephpleague/json-guard)
 
 ### PostgreSQL
 
 * [postgres-json-schema](https://github.com/gavinwahl/postgres-json-schema)
-* [is_jsonb_valid](https://github.com/furstenheim/is_jsonb_valid)
+* [is\_jsonb\_valid](https://github.com/furstenheim/is_jsonb_valid)
 
 ### Python
 
@@ -181,7 +183,7 @@ which also welcomes your contributions!
 ### Ruby
 
 * [json-schema](https://github.com/hoxworth/json-schema)
-* [json_schemer](https://github.com/davishmcclurg/json_schemer)
+* [json\_schemer](https://github.com/davishmcclurg/json_schemer)
 
 ### Rust
 

@@ -19,7 +19,7 @@
         ]
     },
     {
-        "description": "items is schema, no additionalItems",
+        "description": "when items is schema, additionalItems does nothing",
         "schema": {
             "items": {},
             "additionalItems": false
@@ -33,7 +33,7 @@
         ]
     },
     {
-        "description": "array of items with no additionalItems",
+        "description": "array of items with no additionalItems permitted",
         "schema": {
             "items": [{}, {}, {}],
             "additionalItems": false
