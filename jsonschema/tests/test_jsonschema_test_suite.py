@@ -114,6 +114,7 @@ allowed_leading_zeros = skip(
     ),
 )
 
+
 def leap_second(test):
     return skip(
         message="Leap seconds are unsupported.",
