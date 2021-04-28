@@ -114,6 +114,17 @@ allowed_leading_zeros = skip(
     ),
 )
 
+def leap_second(test):
+    return skip(
+        message="Leap seconds are unsupported.",
+        subject="time",
+        description="a valid time string with leap second",
+    )(test) or skip(
+        message="Leap seconds are unsupported.",
+        subject="time",
+        description="a valid time string with leap second with offset",
+    )(test)
+
 
 TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
@@ -369,6 +380,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         narrow_unicode_build(test)
         or missing_date_fromisoformat(test)
         or allowed_leading_zeros(test)
+        or leap_second(test)
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
         or skip(
