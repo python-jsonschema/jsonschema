@@ -8,7 +8,6 @@ from urllib.request import urlopen
 from warnings import warn
 import contextlib
 import json
-import numbers
 
 from jsonschema import (
     _legacy_validators,
@@ -25,69 +24,8 @@ from jsonschema.exceptions import ErrorTree
 ErrorTree
 
 
-class _DontDoThat(Exception):
-    """
-    Raised when a Validators with non-default type checker is misused.
-
-    Asking one for DEFAULT_TYPES doesn't make sense, since type checkers
-    exist for the unrepresentable cases where DEFAULT_TYPES can't
-    represent the type relationship.
-    """
-
-    def __str__(self):
-        return "DEFAULT_TYPES cannot be used on Validators using TypeCheckers"
-
-
 validators = {}
 meta_schemas = _utils.URIDict()
-
-
-def _generate_legacy_type_checks(types=()):
-    """
-    Generate newer-style type checks out of JSON-type-name-to-type mappings.
-
-    Arguments:
-
-        types (dict):
-
-            A mapping of type names to their Python types
-
-    Returns:
-
-        A dictionary of definitions to pass to `TypeChecker`
-    """
-    types = dict(types)
-
-    def gen_type_check(pytypes):
-        pytypes = _utils.flatten(pytypes)
-
-        def type_check(checker, instance):
-            if isinstance(instance, bool):
-                if bool not in pytypes:
-                    return False
-            return isinstance(instance, pytypes)
-
-        return type_check
-
-    definitions = {}
-    for typename, pytypes in types.items():
-        definitions[typename] = gen_type_check(pytypes)
-
-    return definitions
-
-
-_DEPRECATED_DEFAULT_TYPES = {
-    u"array": list,
-    u"boolean": bool,
-    u"integer": int,
-    u"null": type(None),
-    u"number": numbers.Number,
-    u"object": dict,
-    u"string": str,
-}
-_TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES = _types.TypeChecker(
-    type_checkers=_generate_legacy_type_checks(_DEPRECATED_DEFAULT_TYPES),
-)
 
 
 def validates(version):
@@ -119,25 +57,6 @@ def validates(version):
     return _validates
 
 
-def _DEFAULT_TYPES(self):
-    if self._CREATED_WITH_DEFAULT_TYPES is None:
-        raise _DontDoThat()
-
-    warn(
-        (
-            "The DEFAULT_TYPES attribute is deprecated. "
-            "See the type checker attached to this validator instead."
-        ),
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return self._DEFAULT_TYPES
-
-
-class _DefaultTypesDeprecatingMetaClass(type):
-    DEFAULT_TYPES = property(_DEFAULT_TYPES)
-
-
 def _id_of(schema):
     if schema is True or schema is False:
         return u""
@@ -148,8 +67,7 @@ def create(
     meta_schema,
     validators=(),
     version=None,
-    default_types=None,
-    type_checker=None,
+    type_checker=_types.draft7_type_checker,
     id_of=_id_of,
 ):
     """
@@ -189,16 +107,6 @@ def create(
             If unprovided, a `jsonschema.TypeChecker` will be created
             with a set of default types typical of JSON Schema drafts.
 
-        default_types (collections.abc.Mapping):
-
-            .. deprecated:: 3.0.0
-
-                Please use the type_checker argument instead.
-
-            If set, it provides mappings of JSON types to Python types
-            that will be converted to functions and redefined in this
-            object's `jsonschema.TypeChecker`.
-
         id_of (collections.abc.Callable):
 
             A function that given a schema, returns its ID.
@@ -208,66 +116,19 @@ def create(
         a new `jsonschema.IValidator` class
     """
 
-    if default_types is not None:
-        if type_checker is not None:
-            raise TypeError(
-                "Do not specify default_types when providing a type checker.",
-            )
-        _created_with_default_types = True
-        warn(
-            (
-                "The default_types argument is deprecated. "
-                "Use the type_checker argument instead."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        type_checker = _types.TypeChecker(
-            type_checkers=_generate_legacy_type_checks(default_types),
-        )
-    else:
-        default_types = _DEPRECATED_DEFAULT_TYPES
-        if type_checker is None:
-            _created_with_default_types = False
-            type_checker = _TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES
-        elif type_checker is _TYPE_CHECKER_FOR_DEPRECATED_DEFAULT_TYPES:
-            _created_with_default_types = False
-        else:
-            _created_with_default_types = None
-
-    class Validator(metaclass=_DefaultTypesDeprecatingMetaClass):
+    class Validator:
 
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
-        DEFAULT_TYPES = property(_DEFAULT_TYPES)
-        _DEFAULT_TYPES = dict(default_types)
-        _CREATED_WITH_DEFAULT_TYPES = _created_with_default_types
-
         def __init__(
             self,
             schema,
-            types=(),
             resolver=None,
             format_checker=None,
         ):
-            if types:
-                warn(
-                    (
-                        "The types argument is deprecated. Provide "
-                        "a type_checker to jsonschema.validators.extend "
-                        "instead."
-                    ),
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-
-                self.TYPE_CHECKER = self.TYPE_CHECKER.redefine_many(
-                    _generate_legacy_type_checks(types),
-                )
-
             if resolver is None:
                 resolver = RefResolver.from_schema(schema, id_of=id_of)
 
@@ -414,12 +275,6 @@ def extend(validator, validators=(), version=None, type_checker=None):
 
     if type_checker is None:
         type_checker = validator.TYPE_CHECKER
-    elif validator._CREATED_WITH_DEFAULT_TYPES:
-        raise TypeError(
-            "Cannot extend a validator created with default_types "
-            "with a type_checker. Update the validator to use a "
-            "type_checker when created."
-        )
     return create(
         meta_schema=validator.META_SCHEMA,
         validators=all_validators,
