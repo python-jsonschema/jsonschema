@@ -1,3 +1,20 @@
+v4.0.0 (Not Yet Released)
+-------------------------
+
+* The CLI has been improved, and in particular now supports a ``--output``
+  option (with ``plain`` (default) or ``pretty`` arguments) to control the
+  output format. Future work may add additional machine-parsable output
+  formats.
+* Code surrounding ``DEFAULT_TYPES`` and the legacy mechanism for
+  specifying types to validators have been removed, as per the deprecation
+  policy. Validators should use the ``TypeChecker`` object to customize
+  the set of Python types corresponding to JSON Schema types.
+* Validation errors now have a ``json_path`` attribute, describing their
+  location in JSON path format
+* Support for the IP address and domain name formats has been improved
+* Support for Python 2 has been dropped, with ``python_requires`` properly
+  set.
+
 v3.2.0
 ------
 
