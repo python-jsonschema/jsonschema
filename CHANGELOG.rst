@@ -14,6 +14,9 @@ v4.0.0 (Not Yet Released)
 * Support for the IP address and domain name formats has been improved
 * Support for Python 2 has been dropped, with ``python_requires`` properly
   set.
+* ``multipleOf`` could overflow when given sufficiently large numbers. Now,
+  when an overflow occurs, ``jsonschema`` will fall back to using fraction
+  division (#746).
 
 v3.2.0
 ------
