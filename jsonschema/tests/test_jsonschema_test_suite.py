@@ -13,10 +13,12 @@ from jsonschema import (
     Draft4Validator,
     Draft6Validator,
     Draft7Validator,
+    Draft202012Validator,
     draft3_format_checker,
     draft4_format_checker,
     draft6_format_checker,
     draft7_format_checker,
+    draft202012_format_checker,
 )
 from jsonschema.tests._helpers import bug
 from jsonschema.tests._suite import Suite
@@ -26,6 +28,7 @@ DRAFT3 = SUITE.version(name="draft3")
 DRAFT4 = SUITE.version(name="draft4")
 DRAFT6 = SUITE.version(name="draft6")
 DRAFT7 = SUITE.version(name="draft7")
+DRAFT202012 = SUITE.version(name="draft2020-12")
 
 
 def skip(message, **kwargs):
@@ -397,4 +400,15 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             ),
         )(test)
     ),
+)
+
+
+DRAFT202012 = DRAFT202012.to_unittest_testcase(
+    DRAFT202012.tests(),
+    DRAFT202012.format_tests(),
+    DRAFT202012.optional_tests_of(name="bignum"),
+    DRAFT202012.optional_tests_of(name="content"),
+    DRAFT202012.optional_tests_of(name="non-bmp-regex"),
+    Validator=Draft202012Validator,
+    format_checker=draft202012_format_checker,
 )

@@ -131,13 +131,14 @@ draft3_format_checker = FormatChecker()
 draft4_format_checker = FormatChecker()
 draft6_format_checker = FormatChecker()
 draft7_format_checker = FormatChecker()
-
+draft202012_format_checker = FormatChecker()
 
 _draft_checkers = dict(
     draft3=draft3_format_checker,
     draft4=draft4_format_checker,
     draft6=draft6_format_checker,
     draft7=draft7_format_checker,
+    draft202012=draft202012_format_checker,
 )
 
 
