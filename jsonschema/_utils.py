@@ -158,10 +158,46 @@ def ensure_list(thing):
     return thing
 
 
+def dict_equal(one, two):
+    """
+    Check if two dicts are the same using `equal`
+    """
+    if len(one.keys()) != len(two.keys()):
+        return False
+
+    for key in one:
+        if key not in two:
+            return False
+        if not equal(one[key], two[key]):
+            return False
+
+    return True
+
+
+def list_equal(one, two):
+    """
+    Check if two lists are the same using `equal`
+    """
+    if len(one) != len(two):
+        return False
+
+    for i in range(0, len(one)):
+        if not equal(one[i], two[i]):
+            return False
+
+    return True
+
+
 def equal(one, two):
     """
     Check if two things are equal, but evade booleans and ints being equal.
     """
+    if isinstance(one, list) and isinstance(two, list):
+        return list_equal(one, two)
+
+    if isinstance(one, dict) and isinstance(two, dict):
+        return dict_equal(one, two)
+
     return unbool(one) == unbool(two)
 
 
@@ -192,14 +228,22 @@ def uniq(container):
         try:
             sort = sorted(unbool(i) for i in container)
             sliced = itertools.islice(sort, 1, None)
+
             for i, j in zip(sort, sliced):
+                if isinstance(i, list) and isinstance(j, list):
+                    return not list_equal(i, j)
                 if i == j:
                     return False
+
         except (NotImplementedError, TypeError):
             seen = []
             for e in container:
                 e = unbool(e)
-                if e in seen:
-                    return False
+
+                for i in seen:
+                    if isinstance(i, dict) and isinstance(e, dict):
+                        if dict_equal(i, e):
+                            return False
+
                 seen.append(e)
     return True
