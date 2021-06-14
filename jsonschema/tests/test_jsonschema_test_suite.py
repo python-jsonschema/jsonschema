@@ -145,36 +145,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
                 "$ref prevents a sibling $id from changing the base uri"
             ),
         )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": false} and {"a": 0} are unique',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": true} and {"a": 1} are unique',
-        )(test)
     ),
 )
 
@@ -239,36 +209,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": false} and {"a": 0} are unique',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": true} and {"a": 1} are unique',
         )(test)
     ),
 )
@@ -350,56 +290,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": false} and {"a": 0} are unique',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": true} and {"a": 1} are unique',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description="const with [false] does not match [0]",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description="const with [true] does not match [1]",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description='const with {"a": false} does not match {"a": 0}',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description='const with {"a": true} does not match {"a": 1}',
         )(test)
     ),
 )
@@ -505,56 +395,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             case_description=(
                 "validation of binary-encoded media type documents"
             ),
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="[1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [0] and [false] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description="nested [1] and [true] are unique",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": false} and {"a": 0} are unique',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="uniqueItems",
-            description='{"a": true} and {"a": 1} are unique',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description="const with [false] does not match [0]",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description="const with [true] does not match [1]",
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description='const with {"a": false} does not match {"a": 0}',
-        )(test)
-        or skip(
-            message=bug(686),
-            subject="const",
-            case_description='const with {"a": true} does not match {"a": 1}',
         )(test)
     ),
 )
