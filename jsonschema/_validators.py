@@ -71,12 +71,28 @@ def items(validator, items, instance, schema):
         return
 
     if validator.is_type(items, "array"):
+        """
+        Used in in Draft 7 an bellow, probably also useful for legacy schema format
+        """
         for (index, item), subschema in zip(enumerate(instance), items):
             for error in validator.descend(
                 item, subschema, path=index, schema_path=index,
             ):
                 yield error
+    elif validator.is_type(items, "boolean") and 'prefixItems' in schema:
+        if len(instance) > len(schema['prefixItems']):
+            yield ValidationError("%r has more items than defined in prefixItems" % instance)
+        else:
+            for error in validator.descend(instance, {'prefixItems': schema['prefixItems']}, path='items__prefixItems'):
+                yield error
     else:
+        if 'prefixItems' in schema:
+            for error in validator.descend(instance, {'prefixItems': schema['prefixItems']}, path='items__prefixItems'):
+                yield error
+
+            # Remove evaluated prefixItems indexes
+            del instance[0:len(schema['prefixItems'])]
+
         for index, item in enumerate(instance):
             for error in validator.descend(item, items, path=index):
                 yield error
