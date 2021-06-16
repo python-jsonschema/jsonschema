@@ -464,6 +464,8 @@ Draft202012Validator = create(
         u"required": _validators.required,
         u"type": _validators.type,
         u"uniqueItems": _validators.uniqueItems,
+        u"unevaluatedItems": _validators.unevaluatedItems,
+        u"prefixItems": _validators.prefixItems,
     },
     type_checker=_types.draft202012_type_checker,
     version="draft2020-12",

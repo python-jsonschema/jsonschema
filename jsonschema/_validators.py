@@ -422,3 +422,27 @@ def if_(validator, if_schema, instance, schema):
         else_ = schema[u"else"]
         for error in validator.descend(instance, else_, schema_path="else"):
             yield error
+
+
+def unevaluatedItems(validator, unevaluatedItems, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    if unevaluatedItems:
+        return
+
+    # ToDo: Implement additional checks for "prefixItems", "items", "contains", "if", "then", "else", "allOf", "anyOf",
+    #  "oneOf" and "not" keywords
+
+
+def prefixItems(validator, prefixItems, instance, schema):
+    if "unevaluatedItems" in schema:
+        return
+
+    if not validator.is_type(instance, "array"):
+        return
+
+    for k, v in enumerate(instance):
+        if k < len(prefixItems):
+            for error in validator.descend(v, prefixItems[k], schema_path="prefixItems"):
+                yield error
