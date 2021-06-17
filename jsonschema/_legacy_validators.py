@@ -138,3 +138,13 @@ def type_draft3(validator, types, instance, schema):
         yield ValidationError(
             _utils.types_msg(instance, types), context=all_errors,
         )
+
+
+def contains_draft6_draft7(validator, contains, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    if not any(validator.is_valid(element, contains) for element in instance):
+        yield ValidationError(
+            "None of %r are valid under the given schema" % (instance,)
+        )

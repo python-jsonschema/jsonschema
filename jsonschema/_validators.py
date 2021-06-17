@@ -127,10 +127,63 @@ def contains(validator, contains, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if not any(validator.is_valid(element, contains) for element in instance):
+    min_contains = max_contains = None
+
+    if 'minContains' in schema:
+        min_contains = schema['minContains']
+        if not validator.is_type(min_contains, "integer"):
+            yield ValidationError(
+                "minContains of %r in not valid under the given schema" % (min_contains,)
+            )
+            return
+
+    if 'maxContains' in schema:
+        max_contains = schema['maxContains']
+        if not validator.is_type(max_contains, "integer"):
+            yield ValidationError(
+                "maxContains of %r is not valid under the given schema" % (instance,)
+            )
+            return
+
+    # minContains set to 0 will ignore contains
+    if min_contains == 0:
+        return
+
+    matches = len(list(filter(lambda x: x, [validator.is_valid(element, contains) for element in instance])))
+
+    # default contains behavior
+    if not matches:
         yield ValidationError(
             "None of %r are valid under the given schema" % (instance,)
         )
+        return
+
+    if min_contains and max_contains is None:
+        if matches < min_contains:
+            yield ValidationError(
+                "Invalid number or matches of %r under the given schema, expected min %d, got %d" % (
+                    instance, min_contains, matches
+                )
+            )
+        return
+
+    if min_contains is None and max_contains:
+        if matches > max_contains:
+            yield ValidationError(
+                "Invalid number or matches of %r under the given schema, expected max %d, got %d" % (
+                    instance, max_contains, matches
+                )
+            )
+        return
+
+    if min_contains and max_contains:
+        if matches < min_contains or matches > max_contains:
+            yield ValidationError(
+                "Invalid number or matches of %r under the given schema, expected min %d and max %d, got %d" % (
+                    instance, min_contains, max_contains, matches
+                )
+            )
+        return
 
 
 def exclusiveMinimum(validator, minimum, instance, schema):
