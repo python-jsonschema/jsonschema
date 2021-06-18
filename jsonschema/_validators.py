@@ -6,6 +6,7 @@ from jsonschema._utils import (
     equal,
     extras_msg,
     find_additional_properties,
+    find_evaluated_item_indexes_by_schema,
     types_msg,
     unbool,
     uniq,
@@ -70,21 +71,13 @@ def items(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if validator.is_type(items, "array"):
-        """
-        Used in in Draft 7 an bellow, probably also useful for legacy schema format
-        """
-        for (index, item), subschema in zip(enumerate(instance), items):
-            for error in validator.descend(
-                item, subschema, path=index, schema_path=index,
-            ):
-                yield error
-    elif validator.is_type(items, "boolean") and 'prefixItems' in schema:
-        if len(instance) > len(schema['prefixItems']):
-            yield ValidationError("%r has more items than defined in prefixItems" % instance)
-        else:
-            for error in validator.descend(instance, {'prefixItems': schema['prefixItems']}, path='items__prefixItems'):
-                yield error
+    if validator.is_type(items, "boolean") and 'prefixItems' in schema:
+        if not items:
+            if len(instance) > len(schema['prefixItems']):
+                yield ValidationError("%r has more items than defined in prefixItems" % instance)
+            else:
+                for error in validator.descend(instance, {'prefixItems': schema['prefixItems']}, path='items__prefixItems'):
+                    yield error
     else:
         if 'prefixItems' in schema:
             for error in validator.descend(instance, {'prefixItems': schema['prefixItems']}, path='items__prefixItems'):
@@ -497,17 +490,18 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if unevaluatedItems:
-        return
+    if validator.is_type(unevaluatedItems, "boolean"):
+        if unevaluatedItems:
+            return
 
-    # ToDo: Implement additional checks for "prefixItems", "items", "contains", "if", "then", "else", "allOf", "anyOf",
-    #  "oneOf" and "not" keywords
+    evaluated_item_indexes = find_evaluated_item_indexes_by_schema(validator, instance, schema)
+    for k, v in enumerate(instance):
+        if k not in evaluated_item_indexes:
+            for error in validator.descend(v, unevaluatedItems, schema_path="unevaluatedItems"):
+                yield error
 
 
 def prefixItems(validator, prefixItems, instance, schema):
-    if "unevaluatedItems" in schema:
-        return
-
     if not validator.is_type(instance, "array"):
         return
 

@@ -232,3 +232,45 @@ def uniq(container):
 
             seen.append(e)
     return True
+
+
+def find_evaluated_item_indexes_by_schema(validator, instance, schema):
+    """
+    Get all indexes of items that get evaluated under the current schema
+
+    Covers are keywords related t unevaluatedItems: items, prefixItems, if, then, else, 'contains', 'unevaluatedItems',
+    'allOf', 'oneOf', 'anyOf'
+    """
+    if not validator.is_type(schema, "object"):
+        return []
+    evaluated_item_indexes = []
+
+    if 'items' in schema:
+        return list(range(0, len(instance)))
+
+    if 'prefixItems' in schema:
+        evaluated_item_indexes = list(range(0, len(schema['prefixItems'])))
+
+    if 'if' in schema:
+        if validator.is_valid(instance, schema['if']):
+            evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, schema['if'])
+            if 'then' in schema:
+                evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, schema['then'])
+        else:
+            if 'else' in schema:
+                evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, schema['else'])
+
+    for keyword in ['contains', 'unevaluatedItems']:
+        if keyword in schema:
+            for k, v in enumerate(instance):
+                if validator.is_valid(v, schema[keyword]):
+                    evaluated_item_indexes.append(k)
+
+    for keyword in ['allOf', 'oneOf', 'anyOf']:
+        if keyword in schema:
+            for subschema in schema[keyword]:
+                errs = list(validator.descend(instance, subschema))
+                if not errs:
+                    evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, subschema)
+
+    return evaluated_item_indexes

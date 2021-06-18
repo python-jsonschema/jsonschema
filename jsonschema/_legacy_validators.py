@@ -61,6 +61,22 @@ def items_draft3_draft4(validator, items, instance, schema):
                 yield error
 
 
+def items_draft6_draft7(validator, items, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    if validator.is_type(items, "array"):
+        for (index, item), subschema in zip(enumerate(instance), items):
+            for error in validator.descend(
+                item, subschema, path=index, schema_path=index,
+            ):
+                yield error
+    else:
+        for index, item in enumerate(instance):
+            for error in validator.descend(item, items, path=index):
+                yield error
+
+
 def minimum_draft3_draft4(validator, minimum, instance, schema):
     if not validator.is_type(instance, "number"):
         return
