@@ -495,10 +495,6 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if validator.is_type(unevaluatedItems, "boolean"):
-        if unevaluatedItems:
-            return
-
     evaluated_item_indexes = find_evaluated_item_indexes_by_schema(validator, instance, schema)
     for k, v in enumerate(instance):
         if k not in evaluated_item_indexes:

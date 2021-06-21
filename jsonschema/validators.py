@@ -161,12 +161,7 @@ def create(
             if scope:
                 self.resolver.push_scope(scope)
             try:
-                ref = _schema.get(u"$ref")
-                if ref is not None:
-                    validators = [(u"$ref", ref)]
-                else:
-                    validators = _schema.items()
-
+                validators = _schema.items()
                 for k, v in validators:
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
@@ -644,11 +639,38 @@ class RefResolver(object):
         finally:
             self.pop_scope()
 
+    def _finditem(self, schema, key):
+        results = []
+
+        if isinstance(schema, dict):
+            if key in schema:
+                results.append(schema)
+
+            for k, v in schema.items():
+                if isinstance(v, dict):
+                    results += self._finditem(v, key)
+
+        return results
+
+    def resolve_local(self, ref, url, schema):
+        """
+        Resolve the given reference within the schema
+        """
+        for subschema in self._finditem(schema, "$id"):
+            if subschema['$id'] == ref or subschema['$id'] == url:
+                if self.cache_remote:
+                    self.store[url] = schema
+                return subschema
+
     def resolve(self, ref):
         """
         Resolve the given reference.
         """
         url = self._urljoin_cache(self.resolution_scope, ref)
+        local_resolve = self.resolve_local(ref, url, self.referrer)
+
+        if local_resolve:
+            return url, local_resolve
         return url, self._remote_cache(url)
 
     def resolve_from_url(self, url):

@@ -248,8 +248,20 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     if 'items' in schema:
         return list(range(0, len(instance)))
 
+    if '$ref' in schema:
+        resolve = getattr(validator.resolver, "resolve", None)
+        if resolve:
+            scope, resolved = validator.resolver.resolve(schema['$ref'])
+            validator.resolver.push_scope(scope)
+
+            try:
+                evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, resolved)
+            finally:
+                validator.resolver.pop_scope()
+
     if 'prefixItems' in schema:
-        evaluated_item_indexes = list(range(0, len(schema['prefixItems'])))
+        if validator.is_valid(instance, {'prefixItems': schema['prefixItems']}):
+            evaluated_item_indexes = list(range(0, len(schema['prefixItems'])))
 
     if 'if' in schema:
         if validator.is_valid(instance, schema['if']):
@@ -286,6 +298,17 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
     if not validator.is_type(schema, "object"):
         return []
     evaluated_property_keys = []
+
+    if '$ref' in schema:
+        resolve = getattr(validator.resolver, "resolve", None)
+        if resolve:
+            scope, resolved = validator.resolver.resolve(schema['$ref'])
+            validator.resolver.push_scope(scope)
+
+            try:
+                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, resolved)
+            finally:
+                validator.resolver.pop_scope()
 
     for keyword in ['properties', 'additionalProperties', 'unevaluatedProperties']:
         if keyword in schema:
