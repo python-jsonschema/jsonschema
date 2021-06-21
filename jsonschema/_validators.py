@@ -7,6 +7,7 @@ from jsonschema._utils import (
     extras_msg,
     find_additional_properties,
     find_evaluated_item_indexes_by_schema,
+    find_evaluated_property_keys_by_schema,
     types_msg,
     unbool,
     uniq,
@@ -76,7 +77,11 @@ def items(validator, items, instance, schema):
             if len(instance) > len(schema['prefixItems']):
                 yield ValidationError("%r has more items than defined in prefixItems" % instance)
             else:
-                for error in validator.descend(instance, {'prefixItems': schema['prefixItems']}, path='items__prefixItems'):
+                for error in validator.descend(
+                        instance,
+                        {'prefixItems': schema['prefixItems']},
+                        path='items__prefixItems',
+                ):
                     yield error
     else:
         if 'prefixItems' in schema:
@@ -498,6 +503,22 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     for k, v in enumerate(instance):
         if k not in evaluated_item_indexes:
             for error in validator.descend(v, unevaluatedItems, schema_path="unevaluatedItems"):
+                yield error
+
+
+def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
+    if not validator.is_type(instance, "object"):
+        return
+
+    evaluated_property_keys = find_evaluated_property_keys_by_schema(validator, instance, schema)
+    for property, subschema in instance.items():
+        if property not in evaluated_property_keys:
+            for error in validator.descend(
+                    instance[property],
+                    unevaluatedProperties,
+                    path=property,
+                    schema_path=property,
+            ):
                 yield error
 
 

@@ -238,7 +238,7 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     """
     Get all indexes of items that get evaluated under the current schema
 
-    Covers are keywords related t unevaluatedItems: items, prefixItems, if, then, else, 'contains', 'unevaluatedItems',
+    Covers all keywords related to unevaluatedItems: items, prefixItems, if, then, else, 'contains', 'unevaluatedItems',
     'allOf', 'oneOf', 'anyOf'
     """
     if not validator.is_type(schema, "object"):
@@ -274,3 +274,61 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
                     evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, subschema)
 
     return evaluated_item_indexes
+
+
+def find_evaluated_property_keys_by_schema(validator, instance, schema):
+    """
+    Get all keys of items that get evaluated under the current schema
+
+    Covers all keywords related to unevaluatedProperties: properties, 'additionalProperties', 'unevaluatedProperties',
+    patternProperties, dependentSchemas, 'allOf', 'oneOf', 'anyOf', if, then, else
+    """
+    if not validator.is_type(schema, "object"):
+        return []
+    evaluated_property_keys = []
+
+    for keyword in ['properties', 'additionalProperties', 'unevaluatedProperties']:
+        if keyword in schema:
+            if validator.is_type(schema[keyword], "boolean"):
+                for property, value in instance.items():
+                    if validator.is_valid({property: value}, schema[keyword]):
+                        evaluated_property_keys.append(property)
+
+            if validator.is_type(schema[keyword], "object"):
+                for property, subschema in schema[keyword].items():
+                    if property in instance and validator.is_valid(instance[property], subschema):
+                        evaluated_property_keys.append(property)
+
+    if 'patternProperties' in schema:
+        for property, value in instance.items():
+            for pattern, subschema in schema['patternProperties'].items():
+                if re.search(pattern, property):
+                    if validator.is_valid({property: value}, schema['patternProperties']):
+                        evaluated_property_keys.append(property)
+
+    if 'dependentSchemas' in schema:
+        for property, subschema in schema['dependentSchemas'].items():
+            if property not in instance:
+                continue
+
+            errs = list(validator.descend(instance, subschema))
+            if not errs:
+                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, subschema)
+
+    for keyword in ['allOf', 'oneOf', 'anyOf']:
+        if keyword in schema:
+            for subschema in schema[keyword]:
+                errs = list(validator.descend(instance, subschema))
+                if not errs:
+                    evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, subschema)
+
+    if 'if' in schema:
+        if validator.is_valid(instance, schema['if']):
+            evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, schema['if'])
+            if 'then' in schema:
+                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, schema['then'])
+        else:
+            if 'else' in schema:
+                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, schema['else'])
+
+    return evaluated_property_keys
