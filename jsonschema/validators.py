@@ -665,17 +665,24 @@ class RefResolver(object):
         """
         Resolve the given reference within the schema
         """
+        targets = [urldefrag(url), urldefrag(ref)]
+
         for subschema in self._finditem(schema, "$id"):
-            if subschema['$id'] == ref or subschema['$id'] == url:
-                if self.cache_remote:
-                    self.store[url] = subschema
-                return subschema
+            for uri, fragment in targets:
+                if subschema['$id'] == uri:
+
+                    if fragment:
+                        subschema = self.resolve_fragment(subschema, fragment)
+
+                    if self.cache_remote:
+                        self.store[url] = subschema
+                    return subschema
 
     def resolve(self, ref):
         """
         Resolve the given reference.
         """
-        url = self._urljoin_cache(self.resolution_scope, ref)
+        url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
         local_resolve = self.resolve_local(ref, url, self.referrer)
 
         if local_resolve:
