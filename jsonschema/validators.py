@@ -161,7 +161,16 @@ def create(
             if scope:
                 self.resolver.push_scope(scope)
             try:
-                validators = _schema.items()
+                validators = []
+
+                # We make sure $ref is evaluated first if available in schema
+                ref = _schema.get(u"$ref")
+                if ref is not None:
+                    validators = [(u"$ref", ref)]
+
+                # Add all remaining validators
+                validators += [(x, _schema[x]) for x in _schema if x not in ["$ref"]]
+
                 for k, v in validators:
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
@@ -659,7 +668,7 @@ class RefResolver(object):
         for subschema in self._finditem(schema, "$id"):
             if subschema['$id'] == ref or subschema['$id'] == url:
                 if self.cache_remote:
-                    self.store[url] = schema
+                    self.store[url] = subschema
                 return subschema
 
     def resolve(self, ref):

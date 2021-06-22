@@ -261,7 +261,7 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
 
     if 'prefixItems' in schema:
         if validator.is_valid(instance, {'prefixItems': schema['prefixItems']}):
-            evaluated_item_indexes = list(range(0, len(schema['prefixItems'])))
+            evaluated_item_indexes += list(range(0, len(schema['prefixItems'])))
 
     if 'if' in schema:
         if validator.is_valid(instance, schema['if']):
