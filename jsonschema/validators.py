@@ -661,29 +661,27 @@ class RefResolver(object):
 
         return results
 
-    def resolve_local(self, ref, url, schema):
+    def resolve_local(self, url, schema):
         """
         Resolve the given reference within the schema
         """
-        targets = [urldefrag(url), urldefrag(ref)]
+        uri, fragment = urldefrag(url)
 
         for subschema in self._finditem(schema, "$id"):
-            for uri, fragment in targets:
-                if subschema['$id'] == uri:
+            if self._urljoin_cache(self.resolution_scope, subschema['$id']).rstrip("/") == uri.rstrip("/"):
+                if fragment:
+                    subschema = self.resolve_fragment(subschema, fragment)
 
-                    if fragment:
-                        subschema = self.resolve_fragment(subschema, fragment)
-
-                    if self.cache_remote:
-                        self.store[url] = subschema
-                    return subschema
+                if self.cache_remote:
+                    self.store[url] = subschema
+                return subschema
 
     def resolve(self, ref):
         """
         Resolve the given reference.
         """
         url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
-        local_resolve = self.resolve_local(ref, url, self.referrer)
+        local_resolve = self.resolve_local(url, self.referrer)
 
         if local_resolve:
             return url, local_resolve
@@ -720,8 +718,14 @@ class RefResolver(object):
         """
 
         fragment = fragment.lstrip(u"/")
-        parts = unquote(fragment).split(u"/") if fragment else []
 
+        # Resolve via anchor
+        for subschema in self._finditem(document, "$anchor"):
+            if fragment == subschema['$anchor']:
+                return subschema
+
+        # Resolve via path
+        parts = unquote(fragment).split(u"/") if fragment else []
         for part in parts:
             part = part.replace(u"~1", u"/").replace(u"~0", u"~")
 
