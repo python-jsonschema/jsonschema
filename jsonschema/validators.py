@@ -436,6 +436,7 @@ Draft202012Validator = create(
     meta_schema=_utils.load_schema("draft2020-12"),
     validators={
         u"$ref": _validators.ref,
+        u"$defs": _validators.defs,
         u"additionalItems": _validators.additionalItems,
         u"additionalProperties": _validators.additionalProperties,
         u"allOf": _validators.allOf,

@@ -384,6 +384,21 @@ def ref(validator, ref, instance, schema):
             validator.resolver.pop_scope()
 
 
+def defs(validator, defs, instance, schema):
+    if not validator.is_type(instance, "object"):
+        return
+
+    if '$defs' in instance:
+        for definition, subschema in instance['$defs'].items():
+            for error in validator.descend(
+                    subschema,
+                    schema,
+                    path=definition,
+                    schema_path=definition,
+            ):
+                yield error
+
+
 def type(validator, types, instance, schema):
     types = ensure_list(types)
 
