@@ -437,6 +437,7 @@ Draft202012Validator = create(
     validators={
         u"$ref": _validators.ref,
         u"$defs": _validators.defs,
+        u"$dynamicRef": _validators.dynamicRef,
         u"additionalItems": _validators.additionalItems,
         u"additionalProperties": _validators.additionalProperties,
         u"allOf": _validators.allOf,
@@ -610,6 +611,13 @@ class RefResolver(object):
         return self._scopes_stack[-1]
 
     @property
+    def scopes_stack_copy(self):
+        """
+        Retrieve a copy of the stack of resolution scopes.
+        """
+        return self._scopes_stack.copy()
+
+    @property
     def base_uri(self):
         """
         Retrieve the current base URI, not including any fragment.
@@ -677,6 +685,7 @@ class RefResolver(object):
                     self.store[url] = subschema
                 return subschema
 
+
     def resolve(self, ref):
         """
         Resolve the given reference.
@@ -720,10 +729,12 @@ class RefResolver(object):
 
         fragment = fragment.lstrip(u"/")
 
-        # Resolve via anchor
-        for subschema in self._finditem(document, "$anchor"):
-            if fragment == subschema['$anchor']:
-                return subschema
+        # Resolve fragment via $anchor or $dynamicAnchor
+        if fragment:
+            for keyword in ["$anchor", "$dynamicAnchor"]:
+                for subschema in self._finditem(document, keyword):
+                    if fragment == subschema[keyword]:
+                        return subschema
 
         # Resolve via path
         parts = unquote(fragment).split(u"/") if fragment else []

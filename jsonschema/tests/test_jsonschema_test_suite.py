@@ -484,7 +484,23 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
             subject="dynamicRef",
             case_description="multiple dynamic paths to the $dynamicRef "
                              "keyword",
-            description='recurse to integerNode - floats are not allowed',
+            description="recurse to integerNode - floats are not allowed",
+        )(test)
+        or skip(
+            message="ToDo: Extend validation",
+            subject="dynamicRef",
+            case_description="after leaving a dynamic scope, it should not be "
+                             "used by a $dynamicRef",
+            description="/then/$defs/thingy is the final stop for the "
+                        "$dynamicRef",
+        )(test)
+        or skip(
+            message="ToDo: Extend validation",
+            subject="dynamicRef",
+            case_description="after leaving a dynamic scope, it should not be "
+                             'used by a $dynamicRef',
+            description="string matches /$defs/thingy, but the $dynamicRef "
+                        "does not stop here",
         )(test)
     ),
 )

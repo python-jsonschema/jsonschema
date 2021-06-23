@@ -1,4 +1,5 @@
 from fractions import Fraction
+from urllib.parse import urldefrag, urljoin
 import re
 
 from jsonschema._utils import (
@@ -382,6 +383,24 @@ def ref(validator, ref, instance, schema):
                 yield error
         finally:
             validator.resolver.pop_scope()
+
+
+def dynamicRef(validator, dynamicRef, instance, schema):
+    _, fragment = urldefrag(dynamicRef)
+    scope_stack = validator.resolver.scopes_stack_copy
+
+    for url in scope_stack:
+        with validator.resolver.resolving(urljoin(url, dynamicRef)) as lookup_schema:
+            if "$dynamicAnchor" in lookup_schema and fragment == lookup_schema["$dynamicAnchor"]:
+                subschema = lookup_schema
+                for error in validator.descend(instance, subschema):
+                    yield error
+                break
+    else:
+        with validator.resolver.resolving(dynamicRef) as lookup_schema:
+            subschema = lookup_schema
+            for error in validator.descend(instance, subschema):
+                yield error
 
 
 def defs(validator, defs, instance, schema):
