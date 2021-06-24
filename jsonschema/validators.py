@@ -26,7 +26,7 @@ ErrorTree
 
 validators = {}
 meta_schemas = _utils.URIDict()
-vocabulary_schemas = _utils.URIDict()
+_VOCABULARIES = _utils.URIDict()
 
 
 def validates(version):
@@ -56,7 +56,7 @@ def validates(version):
 
         for vocabulary in cls.VOCABULARY_SCHEMAS:
             vocabulary_id = cls.ID_OF(vocabulary)
-            vocabulary_schemas[vocabulary_id] = vocabulary
+            _VOCABULARIES[vocabulary_id] = vocabulary
 
         return cls
     return _validates
@@ -70,11 +70,10 @@ def _id_of(schema):
 
 def _store_schema_list():
     return [
-               (id, validator.META_SCHEMA)
-               for id, validator in meta_schemas.items()
-           ] + [
-               (id, schema) for id, schema in vocabulary_schemas.items()
-           ]
+        (id, validator.META_SCHEMA) for id, validator in meta_schemas.items()
+    ] + [
+        (id, schema) for id, schema in _VOCABULARIES.items()
+    ]
 
 
 def create(
@@ -84,6 +83,7 @@ def create(
     version=None,
     type_checker=_types.draft7_type_checker,
     id_of=_id_of,
+    applicable_validators=lambda schema: schema.items(),
 ):
     """
     Create a new validator class.
@@ -125,6 +125,11 @@ def create(
         id_of (collections.abc.Callable):
 
             A function that given a schema, returns its ID.
+
+        applicable_validators (collections.abc.Callable):
+
+            A function that returns a list of validators that should apply
+            to a given schema
 
     Returns:
 
@@ -177,16 +182,7 @@ def create(
             if scope:
                 self.resolver.push_scope(scope)
             try:
-                validators = []
-
-                # We make sure $ref is evaluated first if available in schema
-                ref = _schema.get(u"$ref")
-                if ref is not None:
-                    validators = [(u"$ref", ref)]
-
-                # Add all remaining validators
-                validators += [(x, _schema[x]) for x in _schema if x not in ["$ref"]]
-
+                validators = applicable_validators(_schema)
                 for k, v in validators:
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
@@ -332,6 +328,7 @@ Draft3Validator = create(
     type_checker=_types.draft3_type_checker,
     version="draft3",
     id_of=lambda schema: schema.get(u"id", ""),
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
 Draft4Validator = create(
@@ -367,6 +364,7 @@ Draft4Validator = create(
     type_checker=_types.draft4_type_checker,
     version="draft4",
     id_of=lambda schema: schema.get(u"id", ""),
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
 Draft6Validator = create(
@@ -406,6 +404,7 @@ Draft6Validator = create(
     },
     type_checker=_types.draft6_type_checker,
     version="draft6",
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
 Draft7Validator = create(
@@ -446,6 +445,7 @@ Draft7Validator = create(
     },
     type_checker=_types.draft7_type_checker,
     version="draft7",
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
 Draft202012Validator = create(

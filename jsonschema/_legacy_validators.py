@@ -2,6 +2,18 @@ from jsonschema import _utils
 from jsonschema.exceptions import ValidationError
 
 
+def ignore_ref_siblings(schema):
+    """
+    Returns a list of validators that should apply for the given schema
+    Used for draft7 and earlier
+    """
+    ref = schema.get(u"$ref")
+    if ref is not None:
+        return [(u"$ref", ref)]
+    else:
+        return schema.items()
+
+
 def dependencies_draft3(validator, dependencies, instance, schema):
     if not validator.is_type(instance, "object"):
         return
