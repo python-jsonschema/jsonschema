@@ -44,6 +44,35 @@
         ]
     },
     {
+        "description": "propertyNames validation with pattern",
+        "schema": {
+            "propertyNames": { "pattern": "^a+$" }
+        },
+        "tests": [
+            {
+                "description": "matching property names valid",
+                "data": {
+                    "a": {},
+                    "aa": {},
+                    "aaa": {}
+                },
+                "valid": true
+            },
+            {
+                "description": "non-matching property name is invalid",
+                "data": {
+                    "aaA": {}
+                },
+                "valid": false
+            },
+            {
+                "description": "object without properties is valid",
+                "data": {},
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "propertyNames with boolean schema true",
         "schema": {"propertyNames": true},
         "tests": [

@@ -163,5 +163,28 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "remote ref with ref to defs",
+        "schema": {
+            "$id": "http://localhost:1234/schema-remote-ref-ref-defs1.json",
+            "$ref": "ref-and-defs.json"
+        },
+        "tests": [
+            {
+                "description": "invalid",
+                "data": {
+                    "bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "valid",
+                "data": {
+                    "bar": "a"
+                },
+                "valid": true
+            }
+        ]
     }
 ]
