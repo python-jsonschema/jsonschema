@@ -300,6 +300,16 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         )(test)
         or skip(
             message=bug(371),
+            subject="ref",
+            case_description="refs with relative uris and defs",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="relative refs with absolute uris and defs",
+        )(test)
+        or skip(
+            message=bug(371),
             subject="id",
             description="match $ref to id",
         )(test)
@@ -307,6 +317,13 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             message=bug(371),
             subject="id",
             description="no match on enum or $ref to id",
+        )(test)
+        or skip(
+            message=bug(),
+            subject="unknownKeyword",
+            case_description=(
+                "$id inside an unknown keyword is not a real identifier"
+            ),
         )(test)
         or skip(
             message=bug(),
@@ -409,6 +426,16 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         )(test)
         or skip(
             message=bug(371),
+            subject="ref",
+            case_description="refs with relative uris and defs",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description="relative refs with absolute uris and defs",
+        )(test)
+        or skip(
+            message=bug(371),
             subject="id",
             description="match $ref to id",
         )(test)
@@ -416,6 +443,13 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(371),
             subject="id",
             description="no match on enum or $ref to id",
+        )(test)
+        or skip(
+            message=bug(),
+            subject="unknownKeyword",
+            case_description=(
+                "$id inside an unknown keyword is not a real identifier"
+            ),
         )(test)
         or skip(
             message=bug(),

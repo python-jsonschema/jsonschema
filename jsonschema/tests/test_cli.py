@@ -881,13 +881,6 @@ class TestParser(TestCase):
 
 
 class TestCLIIntegration(TestCase):
-    def test_license(self):
-        output = subprocess.check_output(
-            [sys.executable, "-m", "pip", "show", "jsonschema"],
-            stderr=subprocess.STDOUT,
-        )
-        self.assertIn(b"License: MIT", output)
-
     def test_version(self):
         version = subprocess.check_output(
             [sys.executable, "-m", "jsonschema", "--version"],
