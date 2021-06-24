@@ -1,3 +1,4 @@
+from uuid import UUID
 import datetime
 import ipaddress
 import re
@@ -471,3 +472,15 @@ else:
         if not isinstance(instance, str):
             return True
         return isoduration.parse_duration(instance)
+
+
+@_checks_drafts(
+    draft202012="uuid",
+    raises=ValueError,
+)
+def is_uuid(instance):
+    if not isinstance(instance, str):
+        return True
+    if "-" not in instance:
+        raise ValueError("Invalid UUID format")
+    return UUID(instance)
