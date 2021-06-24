@@ -1,0 +1,129 @@
+[
+    {
+        "description": "maxContains without contains is ignored",
+        "schema": {
+            "maxContains": 1
+        },
+        "tests": [
+            {
+                "description": "one item valid against lone maxContains",
+                "data": [1],
+                "valid": true
+            },
+            {
+                "description": "two items still valid against lone maxContains",
+                "data": [1, 2],
+                "valid": true
+            },
+            {
+                "description": "one property valid against lone maxContains",
+                "data": { "a": 1 },
+                "valid": true
+            },
+            {
+                "description": "two properties still valid against lone maxContains",
+                "data": { "a": 1, "b": 2 },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "maxContains with contains",
+        "schema": {
+            "contains": { "const": 1 },
+            "maxContains": 1
+        },
+        "tests": [
+            {
+                "description": "empty array",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "all elements match, valid maxContains",
+                "data": [1],
+                "valid": true
+            },
+            {
+                "description": "all elements match, invalid maxContains",
+                "data": [1, 1],
+                "valid": false
+            },
+            {
+                "description": "some elements match, valid maxContains",
+                "data": [1, 2],
+                "valid": true
+            },
+            {
+                "description": "some elements match, invalid maxContains",
+                "data": [1, 2, 1],
+                "valid": false
+            },
+            {
+                "description": "empty object",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "all properties match, valid maxContains",
+                "data": { "a": 1 },
+                "valid": true
+            },
+            {
+                "description": "all properties match, invalid maxContains",
+                "data": { "a": 1, "b": 1 },
+                "valid": false
+            },
+            {
+                "description": "some properties match, valid maxContains",
+                "data": { "a": 1, "b": 2 },
+                "valid": true
+            },
+            {
+                "description": "some properties match, invalid maxContains",
+                "data": { "a": 1, "b": 2, "c": 1 },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "minContains < maxContains",
+        "schema": {
+            "contains": { "const": 1 },
+            "minContains": 1,
+            "maxContains": 3
+        },
+        "tests": [
+            {
+                "description": "array with actual < minContains < maxContains",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "array with minContains < actual < maxContains",
+                "data": [1, 1],
+                "valid": true
+            },
+            {
+                "description": "array with minContains < maxContains < actual",
+                "data": [1, 1, 1, 1],
+                "valid": false
+            },
+            {
+                "description": "object with actual < minContains < maxContains",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "object with minContains < actual < maxContains",
+                "data": { "a": 1, "b": 1 },
+                "valid": true
+            },
+            {
+                "description": "object with minContains < maxContains < actual",
+                "data": { "a": 1, "b": 1, "c": 1, "d": 1 },
+                "valid": false
+            }
+        ]
+    }
+]

@@ -410,32 +410,6 @@
         ]
     },
     {
-        "description": "Location-independent identifier with absolute URI",
-        "schema": {
-            "allOf": [{
-                "$ref": "http://localhost:1234/bar#foo"
-            }],
-            "definitions": {
-                "A": {
-                    "$id": "http://localhost:1234/bar#foo",
-                    "type": "integer"
-                }
-            }
-        },
-        "tests": [
-            {
-                "data": 1,
-                "description": "match",
-                "valid": true
-            },
-            {
-                "data": "a",
-                "description": "mismatch",
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "Location-independent identifier with base URI change in subschema",
         "schema": {
             "$id": "http://localhost:1234/root",
@@ -491,6 +465,110 @@
             {
                 "description": "match the enum exactly",
                 "data": { "$ref": "#/definitions/a_string" },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "refs with relative uris and defs",
+        "schema": {
+            "$id": "http://example.com/schema-relative-uri-defs1.json",
+            "properties": {
+                "foo": {
+                    "$id": "schema-relative-uri-defs2.json",
+                    "definitions": {
+                        "inner": {
+                            "properties": {
+                                "bar": { "type": "string" }
+                            }
+                        }
+                    },
+                    "allOf": [ { "$ref": "#/definitions/inner" } ]
+                }
+            },
+            "allOf": [ { "$ref": "schema-relative-uri-defs2.json" } ]
+        },
+        "tests": [
+            {
+                "description": "invalid on inner field",
+                "data": {
+                    "foo": {
+                        "bar": 1
+                    },
+                    "bar": "a"
+                },
+                "valid": false
+            },
+            {
+                "description": "invalid on outer field",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "valid on both fields",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": "a"
+                },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "relative refs with absolute uris and defs",
+        "schema": {
+            "$id": "http://example.com/schema-refs-absolute-uris-defs1.json",
+            "properties": {
+                "foo": {
+                    "$id": "http://example.com/schema-refs-absolute-uris-defs2.json",
+                    "definitions": {
+                        "inner": {
+                            "properties": {
+                                "bar": { "type": "string" }
+                            }
+                        }
+                    },
+                    "allOf": [ { "$ref": "#/definitions/inner" } ]
+                }
+            },
+            "allOf": [ { "$ref": "schema-refs-absolute-uris-defs2.json" } ]
+        },
+        "tests": [
+            {
+                "description": "invalid on inner field",
+                "data": {
+                    "foo": {
+                        "bar": 1
+                    },
+                    "bar": "a"
+                },
+                "valid": false
+            },
+            {
+                "description": "invalid on outer field",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "valid on both fields",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": "a"
+                },
                 "valid": true
             }
         ]

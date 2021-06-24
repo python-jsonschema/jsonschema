@@ -435,5 +435,109 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "refs with relative uris and defs",
+        "schema": {
+            "$id": "http://example.com/schema-relative-uri-defs1.json",
+            "properties": {
+                "foo": {
+                    "$id": "schema-relative-uri-defs2.json",
+                    "$defs": {
+                        "inner": {
+                            "properties": {
+                                "bar": { "type": "string" }
+                            }
+                        }
+                    },
+                    "$ref": "#/$defs/inner"
+                }
+            },
+            "$ref": "schema-relative-uri-defs2.json"
+        },
+        "tests": [
+            {
+                "description": "invalid on inner field",
+                "data": {
+                    "foo": {
+                        "bar": 1
+                    },
+                    "bar": "a"
+                },
+                "valid": false
+            },
+            {
+                "description": "invalid on outer field",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "valid on both fields",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": "a"
+                },
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "relative refs with absolute uris and defs",
+        "schema": {
+            "$id": "http://example.com/schema-refs-absolute-uris-defs1.json",
+            "properties": {
+                "foo": {
+                    "$id": "http://example.com/schema-refs-absolute-uris-defs2.json",
+                    "$defs": {
+                        "inner": {
+                            "properties": {
+                                "bar": { "type": "string" }
+                            }
+                        }
+                    },
+                    "$ref": "#/$defs/inner"
+                }
+            },
+            "$ref": "schema-refs-absolute-uris-defs2.json"
+        },
+        "tests": [
+            {
+                "description": "invalid on inner field",
+                "data": {
+                    "foo": {
+                        "bar": 1
+                    },
+                    "bar": "a"
+                },
+                "valid": false
+            },
+            {
+                "description": "invalid on outer field",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "valid on both fields",
+                "data": {
+                    "foo": {
+                        "bar": "a"
+                    },
+                    "bar": "a"
+                },
+                "valid": true
+            }
+        ]
     }
 ]

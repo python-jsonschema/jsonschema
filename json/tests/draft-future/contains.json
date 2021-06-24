@@ -1,0 +1,241 @@
+[
+    {
+        "description": "contains keyword validation",
+        "schema": {
+            "contains": { "minimum": 5 }
+        },
+        "tests": [
+            {
+                "description": "array with item matching schema (5) is valid",
+                "data": [3, 4, 5],
+                "valid": true
+            },
+            {
+                "description": "array with item matching schema (6) is valid",
+                "data": [3, 4, 6],
+                "valid": true
+            },
+            {
+                "description": "array with two items matching schema (5, 6) is valid",
+                "data": [3, 4, 5, 6],
+                "valid": true
+            },
+            {
+                "description": "array without items matching schema is invalid",
+                "data": [2, 3, 4],
+                "valid": false
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "object with property matching schema (5) is valid",
+                "data": { "a": 3, "b": 4, "c": 5 },
+                "valid": true
+            },
+            {
+                "description": "object with property matching schema (6) is valid",
+                "data": { "a": 3, "b": 4, "c": 6 },
+                "valid": true
+            },
+            {
+                "description": "object with two properties matching schema (5, 6) is valid",
+                "data": { "a": 3, "b": 4, "c": 5, "d": 6 },
+                "valid": true
+            },
+            {
+                "description": "object without properties matching schema is invalid",
+                "data": { "a": 2, "b": 3, "c": 4 },
+                "valid": false
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "not array or object is valid",
+                "data": 42,
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "contains keyword with const keyword",
+        "schema": {
+            "contains": { "const": 5 }
+        },
+        "tests": [
+            {
+                "description": "array with item 5 is valid",
+                "data": [3, 4, 5],
+                "valid": true
+            },
+            {
+                "description": "array with two items 5 is valid",
+                "data": [3, 4, 5, 5],
+                "valid": true
+            },
+            {
+                "description": "array without item 5 is invalid",
+                "data": [1, 2, 3, 4],
+                "valid": false
+            },
+            {
+                "description": "object with property 5 is valid",
+                "data": { "a": 3, "b": 4, "c": 5 },
+                "valid": true
+            },
+            {
+                "description": "object with two properties 5 is valid",
+                "data": { "a": 3, "b": 4, "c": 5, "d": 5 },
+                "valid": true
+            },
+            {
+                "description": "object without property 5 is invalid",
+                "data": { "a": 1, "b": 2, "c": 3, "d": 4 },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "contains keyword with boolean schema true",
+        "schema": { "contains": true },
+        "tests": [
+            {
+                "description": "any non-empty array is valid",
+                "data": ["foo"],
+                "valid": true
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "any non-empty object is valid",
+                "data": { "a": "foo" },
+                "valid": true
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "contains keyword with boolean schema false",
+        "schema": { "contains": false },
+        "tests": [
+            {
+                "description": "any non-empty array is invalid",
+                "data": ["foo"],
+                "valid": false
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "any non-empty object is invalid",
+                "data": ["foo"],
+                "valid": false
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "non-arrays/objects are valid",
+                "data": "contains does not apply to strings",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "items + contains",
+        "schema": {
+            "additionalProperties": { "multipleOf": 2 },
+            "items": { "multipleOf": 2 },
+            "contains": { "multipleOf": 3 }
+        },
+        "tests": [
+            {
+                "description": "matches items, does not match contains",
+                "data": [2, 4, 8],
+                "valid": false
+            },
+            {
+                "description": "does not match items, matches contains",
+                "data": [3, 6, 9],
+                "valid": false
+            },
+            {
+                "description": "matches both items and contains",
+                "data": [6, 12],
+                "valid": true
+            },
+            {
+                "description": "matches neither items nor contains",
+                "data": [1, 5],
+                "valid": false
+            },
+            {
+                "description": "matches additionalProperties, does not match contains",
+                "data": { "a": 2, "b": 4, "c": 8 },
+                "valid": false
+            },
+            {
+                "description": "does not match additionalProperties, matches contains",
+                "data": { "a": 3, "b": 6, "c": 9 },
+                "valid": false
+            },
+            {
+                "description": "matches both additionalProperties and contains",
+                "data": { "a": 6, "b": 12 },
+                "valid": true
+            },
+            {
+                "description": "matches neither additionalProperties nor contains",
+                "data": { "a": 1, "b": 5 },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "contains with false if subschema",
+        "schema": {
+            "contains": {
+                "if": false,
+                "else": true
+            }
+        },
+        "tests": [
+            {
+                "description": "any non-empty array is valid",
+                "data": ["foo"],
+                "valid": true
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "any non-empty object is valid",
+                "data": { "a": "foo" },
+                "valid": true
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            }
+        ]
+    }
+]

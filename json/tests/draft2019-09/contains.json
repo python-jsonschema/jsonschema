@@ -125,5 +125,26 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "contains with false if subschema",
+        "schema": {
+            "contains": {
+                "if": false,
+                "else": true
+            }
+        },
+        "tests": [
+            {
+                "description": "any non-empty array is valid",
+                "data": ["foo"],
+                "valid": true
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            }
+        ]
     }
 ]
