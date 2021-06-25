@@ -76,7 +76,9 @@ def items(validator, items, instance, schema):
     if validator.is_type(items, "boolean") and 'prefixItems' in schema:
         if not items:
             if len(instance) > len(schema['prefixItems']):
-                yield ValidationError("%r has more items than defined in prefixItems" % instance)
+                yield ValidationError(
+                    "%r has more items than defined in prefixItems" % instance
+                )
             else:
                 for error in validator.descend(
                         instance,
@@ -86,7 +88,11 @@ def items(validator, items, instance, schema):
                     yield error
     else:
         if 'prefixItems' in schema:
-            for error in validator.descend(instance, {'prefixItems': schema['prefixItems']}, path='items__prefixItems'):
+            for error in validator.descend(
+                    instance,
+                    {'prefixItems': schema['prefixItems']},
+                    path='items__prefixItems',
+            ):
                 yield error
 
             # Remove evaluated prefixItems indexes
@@ -130,25 +136,18 @@ def contains(validator, contains, instance, schema):
 
     if 'minContains' in schema:
         min_contains = schema['minContains']
-        if not validator.is_type(min_contains, "integer"):
-            yield ValidationError(
-                "minContains of %r in not valid under the given schema" % (min_contains,)
-            )
-            return
 
     if 'maxContains' in schema:
         max_contains = schema['maxContains']
-        if not validator.is_type(max_contains, "integer"):
-            yield ValidationError(
-                "maxContains of %r is not valid under the given schema" % (instance,)
-            )
-            return
 
     # minContains set to 0 will ignore contains
     if min_contains == 0:
         return
 
-    matches = len(list(filter(lambda x: x, [validator.is_valid(element, contains) for element in instance])))
+    matches = len(list(
+        filter(lambda x: x, [validator.is_valid(element, contains) for
+                             element in instance]))
+    )
 
     # default contains behavior
     if not matches:
@@ -160,7 +159,8 @@ def contains(validator, contains, instance, schema):
     if min_contains and max_contains is None:
         if matches < min_contains:
             yield ValidationError(
-                "Invalid number or matches of %r under the given schema, expected min %d, got %d" % (
+                "Invalid number or matches of %r under the given schema, "
+                "expected min %d, got %d" % (
                     instance, min_contains, matches
                 )
             )
@@ -169,7 +169,8 @@ def contains(validator, contains, instance, schema):
     if min_contains is None and max_contains:
         if matches > max_contains:
             yield ValidationError(
-                "Invalid number or matches of %r under the given schema, expected max %d, got %d" % (
+                "Invalid number or matches of %r under the given schema, "
+                "expected max %d, got %d" % (
                     instance, max_contains, matches
                 )
             )
@@ -178,7 +179,8 @@ def contains(validator, contains, instance, schema):
     if min_contains and max_contains:
         if matches < min_contains or matches > max_contains:
             yield ValidationError(
-                "Invalid number or matches of %r under the given schema, expected min %d and max %d, got %d" % (
+                "Invalid number or matches of %r under the given schema, "
+                "expected min %d and max %d, got %d" % (
                     instance, min_contains, max_contains, matches
                 )
             )
@@ -366,8 +368,10 @@ def dynamicRef(validator, dynamicRef, instance, schema):
     scope_stack = validator.resolver.scopes_stack_copy
 
     for url in scope_stack:
-        with validator.resolver.resolving(urljoin(url, dynamicRef)) as lookup_schema:
-            if "$dynamicAnchor" in lookup_schema and fragment == lookup_schema["$dynamicAnchor"]:
+        lookup_url = urljoin(url, dynamicRef)
+        with validator.resolver.resolving(lookup_url) as lookup_schema:
+            if "$dynamicAnchor" in lookup_schema \
+                    and fragment == lookup_schema["$dynamicAnchor"]:
                 subschema = lookup_schema
                 for error in validator.descend(instance, subschema):
                     yield error
@@ -505,10 +509,14 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    evaluated_item_indexes = find_evaluated_item_indexes_by_schema(validator, instance, schema)
+    evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
+        validator, instance, schema
+    )
     for k, v in enumerate(instance):
         if k not in evaluated_item_indexes:
-            for error in validator.descend(v, unevaluatedItems, schema_path="unevaluatedItems"):
+            for error in validator.descend(
+                    v, unevaluatedItems, schema_path="unevaluatedItems"
+            ):
                 yield error
 
 
@@ -516,7 +524,9 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    evaluated_property_keys = find_evaluated_property_keys_by_schema(validator, instance, schema)
+    evaluated_property_keys = find_evaluated_property_keys_by_schema(
+        validator, instance, schema
+    )
     for property, subschema in instance.items():
         if property not in evaluated_property_keys:
             for error in validator.descend(
@@ -534,5 +544,7 @@ def prefixItems(validator, prefixItems, instance, schema):
 
     for k, v in enumerate(instance):
         if k < len(prefixItems):
-            for error in validator.descend(v, prefixItems[k], schema_path="prefixItems"):
+            for error in validator.descend(
+                    v, prefixItems[k], schema_path="prefixItems"
+            ):
                 yield error

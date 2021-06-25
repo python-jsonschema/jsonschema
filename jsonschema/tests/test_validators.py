@@ -1410,8 +1410,23 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft7Validator,
         )
 
-    def test_draft7_validator_is_the_default(self):
-        self.assertUses(schema={}, Validator=validators.Draft7Validator)
+    def test_draft202012_validator_is_chosen(self):
+        self.assertUses(
+            schema={
+                "$schema": "https://json-schema.org/draft/2020-12/schema#"
+            },
+            Validator=validators.Draft202012Validator,
+        )
+        # Make sure it works without the empty fragment
+        self.assertUses(
+            schema={
+                "$schema": "https://json-schema.org/draft/2020-12/schema"
+            },
+            Validator=validators.Draft202012Validator,
+        )
+
+    def test_draft202012_validator_is_the_default(self):
+        self.assertUses(schema={}, Validator=validators.Draft202012Validator)
 
     def test_validation_error_message(self):
         with self.assertRaises(exceptions.ValidationError) as e:

@@ -27,12 +27,17 @@ def dependencies_draft3(validator, dependencies, instance, schema):
                     yield ValidationError(message % (each, property))
 
 
-def dependencies_draft4_draft6_draft7(validator, dependencies, instance, schema):
+def dependencies_draft4_draft6_draft7(
+        validator,
+        dependencies,
+        instance,
+        schema,
+):
     """
     Support for the ``dependencies`` validator from pre-draft 2019-09.
 
-    In later drafts, the validator was split into separate ``dependentRequired``
-    and ``dependentSchemas`` validators.
+    In later drafts, the validator was split into separate
+    ``dependentRequired`` and ``dependentSchemas`` validators.
     """
     if not validator.is_type(instance, "object"):
         return

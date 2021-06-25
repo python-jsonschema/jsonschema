@@ -677,14 +677,16 @@ class RefResolver(object):
         uri, fragment = urldefrag(url)
 
         for subschema in self._finditem(schema, "$id"):
-            if self._urljoin_cache(self.resolution_scope, subschema['$id']).rstrip("/") == uri.rstrip("/"):
+            target_uri = self._urljoin_cache(
+                self.resolution_scope, subschema['$id']
+            )
+            if target_uri.rstrip("/") == uri.rstrip("/"):
                 if fragment:
                     subschema = self.resolve_fragment(subschema, fragment)
 
                 if self.cache_remote:
                     self.store[url] = subschema
                 return subschema
-
 
     def resolve(self, ref):
         """

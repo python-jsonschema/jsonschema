@@ -238,12 +238,12 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     """
     Get all indexes of items that get evaluated under the current schema
 
-    Covers all keywords related to unevaluatedItems: items, prefixItems, if, then, else, 'contains', 'unevaluatedItems',
-    'allOf', 'oneOf', 'anyOf'
+    Covers all keywords related to unevaluatedItems: items, prefixItems, if,
+    then, else, 'contains', 'unevaluatedItems', 'allOf', 'oneOf', 'anyOf'
     """
     if not validator.is_type(schema, "object"):
         return []
-    evaluated_item_indexes = []
+    evaluated_indexes = []
 
     if 'items' in schema:
         return list(range(0, len(instance)))
@@ -255,49 +255,61 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
             validator.resolver.push_scope(scope)
 
             try:
-                evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, resolved)
+                evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                    validator, instance, resolved)
             finally:
                 validator.resolver.pop_scope()
 
     if 'prefixItems' in schema:
-        if validator.is_valid(instance, {'prefixItems': schema['prefixItems']}):
-            evaluated_item_indexes += list(range(0, len(schema['prefixItems'])))
+        if validator.is_valid(
+                instance, {'prefixItems': schema['prefixItems']}
+        ):
+            evaluated_indexes += list(range(0, len(schema['prefixItems'])))
 
     if 'if' in schema:
         if validator.is_valid(instance, schema['if']):
-            evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, schema['if'])
+            evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                validator, instance, schema['if']
+            )
             if 'then' in schema:
-                evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, schema['then'])
+                evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                    validator, instance, schema['then']
+                )
         else:
             if 'else' in schema:
-                evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, schema['else'])
+                evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                    validator, instance, schema['else']
+                )
 
     for keyword in ['contains', 'unevaluatedItems']:
         if keyword in schema:
             for k, v in enumerate(instance):
                 if validator.is_valid(v, schema[keyword]):
-                    evaluated_item_indexes.append(k)
+                    evaluated_indexes.append(k)
 
     for keyword in ['allOf', 'oneOf', 'anyOf']:
         if keyword in schema:
             for subschema in schema[keyword]:
                 errs = list(validator.descend(instance, subschema))
                 if not errs:
-                    evaluated_item_indexes += find_evaluated_item_indexes_by_schema(validator, instance, subschema)
+                    evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                        validator, instance, subschema
+                    )
 
-    return evaluated_item_indexes
+    return evaluated_indexes
 
 
 def find_evaluated_property_keys_by_schema(validator, instance, schema):
     """
     Get all keys of items that get evaluated under the current schema
 
-    Covers all keywords related to unevaluatedProperties: properties, 'additionalProperties', 'unevaluatedProperties',
-    patternProperties, dependentSchemas, 'allOf', 'oneOf', 'anyOf', if, then, else
+    Covers all keywords related to unevaluatedProperties: properties,
+    'additionalProperties', 'unevaluatedProperties', patternProperties,
+    dependentSchemas, 'allOf', 'oneOf', 'anyOf', if, then, else
     """
     if not validator.is_type(schema, "object"):
         return []
-    evaluated_property_keys = []
+    evaluated_keys = []
 
     if '$ref' in schema:
         resolve = getattr(validator.resolver, "resolve", None)
@@ -306,28 +318,36 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
             validator.resolver.push_scope(scope)
 
             try:
-                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, resolved)
+                evaluated_keys += find_evaluated_property_keys_by_schema(
+                    validator, instance, resolved
+                )
             finally:
                 validator.resolver.pop_scope()
 
-    for keyword in ['properties', 'additionalProperties', 'unevaluatedProperties']:
+    for keyword in [
+        'properties', 'additionalProperties', 'unevaluatedProperties'
+    ]:
         if keyword in schema:
             if validator.is_type(schema[keyword], "boolean"):
                 for property, value in instance.items():
                     if validator.is_valid({property: value}, schema[keyword]):
-                        evaluated_property_keys.append(property)
+                        evaluated_keys.append(property)
 
             if validator.is_type(schema[keyword], "object"):
                 for property, subschema in schema[keyword].items():
-                    if property in instance and validator.is_valid(instance[property], subschema):
-                        evaluated_property_keys.append(property)
+                    if property in instance and validator.is_valid(
+                            instance[property], subschema
+                    ):
+                        evaluated_keys.append(property)
 
     if 'patternProperties' in schema:
         for property, value in instance.items():
             for pattern, subschema in schema['patternProperties'].items():
                 if re.search(pattern, property):
-                    if validator.is_valid({property: value}, schema['patternProperties']):
-                        evaluated_property_keys.append(property)
+                    if validator.is_valid(
+                            {property: value}, schema['patternProperties']
+                    ):
+                        evaluated_keys.append(property)
 
     if 'dependentSchemas' in schema:
         for property, subschema in schema['dependentSchemas'].items():
@@ -336,22 +356,32 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
 
             errs = list(validator.descend(instance, subschema))
             if not errs:
-                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, subschema)
+                evaluated_keys += find_evaluated_property_keys_by_schema(
+                    validator, instance, subschema
+                )
 
     for keyword in ['allOf', 'oneOf', 'anyOf']:
         if keyword in schema:
             for subschema in schema[keyword]:
                 errs = list(validator.descend(instance, subschema))
                 if not errs:
-                    evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, subschema)
+                    evaluated_keys += find_evaluated_property_keys_by_schema(
+                        validator, instance, subschema
+                    )
 
     if 'if' in schema:
         if validator.is_valid(instance, schema['if']):
-            evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, schema['if'])
+            evaluated_keys += find_evaluated_property_keys_by_schema(
+                validator, instance, schema['if']
+            )
             if 'then' in schema:
-                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, schema['then'])
+                evaluated_keys += find_evaluated_property_keys_by_schema(
+                    validator, instance, schema['then']
+                )
         else:
             if 'else' in schema:
-                evaluated_property_keys += find_evaluated_property_keys_by_schema(validator, instance, schema['else'])
+                evaluated_keys += find_evaluated_property_keys_by_schema(
+                    validator, instance, schema['else']
+                )
 
-    return evaluated_property_keys
+    return evaluated_keys
