@@ -432,6 +432,10 @@ else:
         non_negative_integer, rest = [], ""
         for i, character in enumerate(instance):
             if character.isdigit():
+                # digits with a leading "0" are not allowed
+                if i > 0 and int(instance[i-1]) == 0:
+                    return False
+
                 non_negative_integer.append(character)
                 continue
 
