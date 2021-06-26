@@ -1244,6 +1244,12 @@ class TestDraft7Validator(ValidatorTestMixin, TestCase):
     invalid = {"type": "integer"}, "foo"
 
 
+class TestDraft202012Validator(ValidatorTestMixin, TestCase):
+    Validator = validators.Draft202012Validator
+    valid = {}, {}
+    invalid = {"type": "integer"}, "foo"
+
+
 class TestValidatorFor(SynchronousTestCase):
     def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}
@@ -1295,6 +1301,19 @@ class TestValidatorFor(SynchronousTestCase):
         self.assertIs(
             validators.validator_for(schema),
             validators.Draft7Validator,
+        )
+
+    def test_draft_202012(self):
+        schema = {"$schema": "https://json-schema.org/draft/2020-12/schema"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft202012Validator,
+        )
+
+        schema = {"$schema": "https://json-schema.org/draft/2020-12/schema#"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft202012Validator,
         )
 
     def test_True(self):
