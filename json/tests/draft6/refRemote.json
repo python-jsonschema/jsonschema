@@ -172,7 +172,9 @@
         "description": "remote ref with ref to definitions",
         "schema": {
             "$id": "http://localhost:1234/schema-remote-ref-ref-defs1.json",
-            "$ref": "ref-and-definitions.json"
+            "allOf": [
+                { "$ref": "ref-and-definitions.json" }
+            ]
         },
         "tests": [
             {
