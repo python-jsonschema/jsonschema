@@ -176,6 +176,42 @@
         ]
     },
     {
+        "description": "$ref prevents a sibling $id from changing the base uri",
+        "schema": {
+            "$id": "http://localhost:1234/sibling_id/base/",
+            "definitions": {
+                "foo": {
+                    "$id": "http://localhost:1234/sibling_id/foo.json",
+                    "minimum": 2
+                },
+                "base_foo": {
+                    "$comment": "this canonical uri is http://localhost:1234/sibling_id/base/foo.json",
+                    "$id": "foo.json",
+                    "minimum": 5
+                }
+            },
+            "allOf": [
+                {
+                    "$comment": "$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not ttp://localhost:1234/sibling_id/foo.json",
+                    "$id": "http://localhost:1234/sibling_id/",
+                    "$ref": "foo.json"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "$ref resolves to /definitions/foo, data validates",
+                "data": 10,
+                "valid": true
+            },
+            {
+                "description": "$ref resolves to /definitions/foo, data does not validate",
+                "data": 1,
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "remote ref, containing refs itself",
         "schema": {"$ref": "http://json-schema.org/draft-07/schema#"},
         "tests": [
