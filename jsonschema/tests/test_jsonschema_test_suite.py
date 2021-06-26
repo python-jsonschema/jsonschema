@@ -139,6 +139,13 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or missing_format(draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
+            message=bug(371),
+            subject="ref",
+            case_description=(
+                "$ref prevents a sibling $id from changing the base uri"
+            ),
+        )(test)
+        or skip(
             message=bug(686),
             subject="uniqueItems",
             description="[0] and [false] are unique",
@@ -209,6 +216,13 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             case_description=(
                 "Location-independent identifier with "
                 "base URI change in subschema"
+            ),
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description=(
+                "$ref prevents a sibling $id from changing the base uri"
             ),
         )(test)
         or skip(
@@ -307,6 +321,13 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             message=bug(371),
             subject="ref",
             case_description="relative refs with absolute uris and defs",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description=(
+                "$ref prevents a sibling $id from changing the base uri"
+            ),
         )(test)
         or skip(
             message=bug(371),
@@ -433,6 +454,13 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(371),
             subject="ref",
             case_description="relative refs with absolute uris and defs",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description=(
+                "$ref prevents a sibling $id from changing the base uri"
+            ),
         )(test)
         or skip(
             message=bug(371),
