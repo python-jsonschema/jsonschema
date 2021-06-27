@@ -412,18 +412,15 @@ else:
 
 
 try:
-    import uritemplate.exceptions
+    import uri_template
 except ImportError:
     pass
 else:
     @_checks_drafts(
         draft6="uri-template",
         draft7="uri-template",
-        raises=uritemplate.exceptions.InvalidTemplate,
     )
-    def is_uri_template(
-        instance,
-        template_validator=uritemplate.Validator().force_balanced_braces(),
-    ):
-        template = uritemplate.URITemplate(instance)
-        return template_validator.validate(template)
+    def is_uri_template(instance):
+        if not isinstance(instance, str):
+            return True
+        return uri_template.validate(instance)
