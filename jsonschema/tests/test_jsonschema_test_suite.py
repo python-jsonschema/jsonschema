@@ -128,6 +128,62 @@ def leap_second(test):
     )(test)
 
 
+def ecmascript_regex_validation(test):
+    """
+    Considering switching from re to js-regex after the following issues are
+     resolved:
+    * https://github.com/Julian/jsonschema/issues/612
+    * https://github.com/Zac-HD/js-regex/issues/4
+
+    Notice: Zac-HD/js-regex Repository has been archived
+    """
+    return skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='NKO DIGIT ZERO does not match (unlike e.g. Python)',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='NKO DIGIT ZERO (as \\u escape) does not match',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='NKO DIGIT ZERO matches (unlike e.g. Python)',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='NKO DIGIT ZERO (as \\u escape) matches',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='zero-width whitespace matches',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='zero-width whitespace does not match',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='latin-1 e-acute matches (unlike e.g. Python)',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='latin-1 e-acute does not match (unlike e.g. Python)',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='matches in Python, but should not in jsonschema',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='does not match',
+    )(test) or skip(
+        message=bug(612),
+        subject="ecmascript-regex",
+        description='matches',
+    )(test)
+
+
 TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.tests(),
     DRAFT3.format_tests(),
@@ -403,12 +459,47 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
 )
 
 
-DRAFT202012 = DRAFT202012.to_unittest_testcase(
+TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.tests(),
-    DRAFT202012.format_tests(),
     DRAFT202012.optional_tests_of(name="bignum"),
-    DRAFT202012.optional_tests_of(name="content"),
+    DRAFT202012.optional_tests_of(name="ecmascript-regex"),
+    DRAFT202012.optional_tests_of(name="float-overflow"),
     DRAFT202012.optional_tests_of(name="non-bmp-regex"),
+    DRAFT202012.optional_tests_of(name="refOfUnknownKeyword"),
+    Validator=Draft202012Validator,
+    skip=lambda test: (
+        narrow_unicode_build(test)
+        or ecmascript_regex_validation(test)
+        or skip(
+            message="ToDo: Extend validation",
+            subject="dynamicRef",
+            case_description="A $dynamicRef that initially resolves to a "
+                             "schema with a matching $dynamicAnchor should "
+                             "resolve to the first $dynamicAnchor in the "
+                             "dynamic scope",
+            description='The recursive part is not valid against the root',
+        )(test)
+        or skip(
+            message="ToDo: Extend validation",
+            subject="dynamicRef",
+            case_description="multiple dynamic paths to the $dynamicRef "
+                             "keyword",
+            description='recurse to integerNode - floats are not allowed',
+        )(test)
+    ),
+)
+
+
+TestDraft202012Format = DRAFT202012.to_unittest_testcase(
+    DRAFT202012.format_tests(),
     Validator=Draft202012Validator,
     format_checker=draft202012_format_checker,
+    skip=lambda test: (
+        complex_email_validation(test)
+        or missing_date_fromisoformat(test)
+        or allowed_leading_zeros(test)
+        or leap_second(test)
+        or missing_format(draft202012_format_checker)(test)
+        or complex_email_validation(test)
+    )
 )
