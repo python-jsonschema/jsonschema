@@ -1,9 +1,12 @@
 from collections.abc import Mapping, MutableMapping, Sequence
+from pathlib import Path
 from urllib.parse import urlsplit
 import itertools
 import json
+import os
 import pkgutil
 import re
+import sys
 
 
 class URIDict(MutableMapping):
@@ -53,6 +56,19 @@ def load_schema(name):
 
     data = pkgutil.get_data("jsonschema", "schemas/{0}.json".format(name))
     return json.loads(data.decode("utf-8"))
+
+
+def load_vocabulary(name):
+    """
+    Load all schema files from ./schemas/``name`` and return them as a list.
+    """
+    vocabulary = []
+    base_path = os.path.dirname(sys.modules["jsonschema"].__file__)
+    pathlist = Path(os.path.join(base_path, 'schemas', name)).glob('*.json')
+    for path in pathlist:
+        with open(path) as data:
+            vocabulary.append(json.load(data))
+    return vocabulary
 
 
 def format_as_index(indices):

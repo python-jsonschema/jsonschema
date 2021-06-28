@@ -26,6 +26,7 @@ ErrorTree
 
 validators = {}
 meta_schemas = _utils.URIDict()
+vocabulary_schemas = _utils.URIDict()
 
 
 def validates(version):
@@ -53,6 +54,12 @@ def validates(version):
         meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
         if meta_schema_id:
             meta_schemas[meta_schema_id] = cls
+
+        for vocabulary in cls.VOCABULARY_SCHEMAS:
+            vocabulary_id = cls.ID_OF(vocabulary)
+            if vocabulary_id:
+                vocabulary_schemas[vocabulary_id] = vocabulary
+
         return cls
     return _validates
 
@@ -63,8 +70,18 @@ def _id_of(schema):
     return schema.get(u"$id", u"")
 
 
+def _store_schema_list():
+    return [
+               (id, validator.META_SCHEMA)
+               for id, validator in meta_schemas.items()
+           ] + [
+               (id, schema) for id, schema in vocabulary_schemas.items()
+           ]
+
+
 def create(
     meta_schema,
+    vocabulary_schemas=(),
     validators=(),
     version=None,
     type_checker=_types.draft7_type_checker,
@@ -120,6 +137,7 @@ def create(
 
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
+        VOCABULARY_SCHEMAS = list(vocabulary_schemas)
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
@@ -434,6 +452,7 @@ Draft7Validator = create(
 
 Draft202012Validator = create(
     meta_schema=_utils.load_schema("draft2020-12"),
+    vocabulary_schemas=_utils.load_vocabulary("draft2020-12"),
     validators={
         u"$ref": _validators.ref,
         u"$defs": _validators.defs,
@@ -545,10 +564,7 @@ class RefResolver(object):
         self.handlers = dict(handlers)
 
         self._scopes_stack = [base_uri]
-        self.store = _utils.URIDict(
-            (id, validator.META_SCHEMA)
-            for id, validator in meta_schemas.items()
-        )
+        self.store = _utils.URIDict(_store_schema_list())
         self.store.update(store)
         self.store[base_uri] = referrer
 
