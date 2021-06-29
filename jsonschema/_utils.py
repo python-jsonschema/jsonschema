@@ -217,33 +217,27 @@ def uniq(container):
     """
     Check if all of a container's elements are unique.
 
-    Successively tries first to rely that the elements are hashable, then
-    falls back on them being sortable, and finally falls back on brute
-    force.
+    Successively tries first to rely that the elements are being sortable
+    and finally falls back on brute force.
     """
-
     try:
-        return len(set(unbool(i) for i in container)) == len(container)
-    except TypeError:
-        try:
-            sort = sorted(unbool(i) for i in container)
-            sliced = itertools.islice(sort, 1, None)
+        sort = sorted(unbool(i) for i in container)
+        sliced = itertools.islice(sort, 1, None)
 
-            for i, j in zip(sort, sliced):
-                if isinstance(i, list) and isinstance(j, list):
-                    return not list_equal(i, j)
-                if i == j:
+        for i, j in zip(sort, sliced):
+            return not list_equal(list(i), list(j))
+
+    except (NotImplementedError, TypeError):
+        seen = []
+        for e in container:
+            e = unbool(e)
+
+            for i in seen:
+                if isinstance(i, dict) and isinstance(e, dict):
+                    if dict_equal(i, e):
+                        return False
+                elif i == e:
                     return False
 
-        except (NotImplementedError, TypeError):
-            seen = []
-            for e in container:
-                e = unbool(e)
-
-                for i in seen:
-                    if isinstance(i, dict) and isinstance(e, dict):
-                        if dict_equal(i, e):
-                            return False
-
-                seen.append(e)
+            seen.append(e)
     return True
