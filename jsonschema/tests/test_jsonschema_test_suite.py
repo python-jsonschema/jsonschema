@@ -142,7 +142,7 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
             message=bug(371),
             subject="ref",
             case_description=(
-                "$ref prevents a sibling $id from changing the base uri"
+                "$ref prevents a sibling id from changing the base uri"
             ),
         )(test)
         or skip(
@@ -222,7 +222,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             message=bug(371),
             subject="ref",
             case_description=(
-                "$ref prevents a sibling $id from changing the base uri"
+                "$ref prevents a sibling id from changing the base uri"
             ),
         )(test)
         or skip(
