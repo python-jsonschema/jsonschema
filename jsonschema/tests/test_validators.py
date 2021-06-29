@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, namedtuple
 from contextlib import contextmanager
 from decimal import Decimal
 from io import BytesIO
@@ -1087,6 +1087,42 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         with self.assertRaises(exceptions.ValidationError) as e:
             TupleValidator({"uniqueItems": True}).validate((1, 1))
         self.assertIn("(1, 1) has non-unique elements", str(e.exception))
+
+    def test_check_redefined_sequence(self):
+        """
+        Allow array to validate against another defined sequence type
+        """
+        schema = {
+            "type": "array",
+            "uniqueItems": True
+        }
+
+        MyMapping = namedtuple('MyMapping', 'a, b')
+
+        Validator = validators.extend(
+            self.Validator,
+            type_checker=self.Validator.TYPE_CHECKER.redefine(
+                "array",
+                lambda checker, thing: isinstance(thing, (list, deque)),
+            )
+        )
+
+        validator = Validator(schema)
+        validator.validate(deque(['a', None, '1', '', True]))
+        with self.assertRaises(exceptions.ValidationError):
+            validator.validate(deque(['a', 'b', 'a']))
+
+        validator.validate(deque([[False], [0]]))
+        with self.assertRaises(exceptions.ValidationError):
+            validator.validate(deque([[False], [False]]))
+
+        validator.validate([deque([False]), deque([0])])
+        with self.assertRaises(exceptions.ValidationError):
+            validator.validate([deque([False]), deque([False])])
+
+        validator.validate([MyMapping('a', 0), MyMapping('a', False)])
+        with self.assertRaises(exceptions.ValidationError):
+            validator.validate([MyMapping('a', False), MyMapping('a', False)])
 
 
 class AntiDraft6LeakMixin(object):
