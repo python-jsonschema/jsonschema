@@ -512,12 +512,17 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
         validator, instance, schema
     )
+    unevaluated_items = []
     for k, v in enumerate(instance):
         if k not in evaluated_item_indexes:
             for error in validator.descend(
                     v, unevaluatedItems, schema_path="unevaluatedItems"
             ):
-                yield error
+                unevaluated_items.append(v)
+
+    if len(unevaluated_items):
+        error = "Unevaluated items are not allowed (%s %s unexpected)"
+        yield ValidationError(error % extras_msg(unevaluated_items))
 
 
 def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
@@ -527,6 +532,7 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
     evaluated_property_keys = find_evaluated_property_keys_by_schema(
         validator, instance, schema
     )
+    unevaluated_property_keys = []
     for property, subschema in instance.items():
         if property not in evaluated_property_keys:
             for error in validator.descend(
@@ -535,7 +541,11 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
                     path=property,
                     schema_path=property,
             ):
-                yield error
+                unevaluated_property_keys.append(property)
+
+    if len(unevaluated_property_keys):
+        error = "Unevaluated properties are not allowed (%s %s unexpected)"
+        yield ValidationError(error % extras_msg(unevaluated_property_keys))
 
 
 def prefixItems(validator, prefixItems, instance, schema):

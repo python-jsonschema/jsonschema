@@ -383,6 +383,40 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertIn("False schema does not allow 'something'", message)
 
+    def test_unevaluated_properties(self):
+        schema = {
+            "type": "object",
+            "unevaluatedProperties": False
+        }
+        message = self.message_for(
+            instance={
+                "foo": "foo",
+                "bar": "bar",
+            },
+            schema=schema,
+            cls=validators.Draft202012Validator,
+        )
+        self.assertIn(
+            "Unevaluated properties are not allowed "
+            "('foo', 'bar' were unexpected)",
+            message,
+        )
+
+    def test_unevaluated_items(self):
+        schema = {
+            "type": "array",
+            "unevaluatedItems": False
+        }
+        message = self.message_for(
+            instance=["foo", "bar"],
+            schema=schema,
+            cls=validators.Draft202012Validator,
+        )
+        self.assertIn(
+            "Unevaluated items are not allowed ('foo', 'bar' were unexpected)",
+            message,
+        )
+
 
 class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
