@@ -79,26 +79,11 @@ def items(validator, items, instance, schema):
                 yield ValidationError(
                     "%r has more items than defined in prefixItems" % instance
                 )
-            else:
-                for error in validator.descend(
-                        instance,
-                        {'prefixItems': schema['prefixItems']},
-                        path='items__prefixItems',
-                ):
-                    yield error
     else:
-        if 'prefixItems' in schema:
-            for error in validator.descend(
-                    instance,
-                    {'prefixItems': schema['prefixItems']},
-                    path='items__prefixItems',
-            ):
-                yield error
+        non_prefixed_items = instance[len(schema['prefixItems']):] \
+            if 'prefixItems' in schema else instance
 
-            # Remove evaluated prefixItems indexes
-            del instance[0:len(schema['prefixItems'])]
-
-        for index, item in enumerate(instance):
+        for index, item in enumerate(non_prefixed_items):
             for error in validator.descend(item, items, path=index):
                 yield error
 
