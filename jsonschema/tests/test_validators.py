@@ -1096,33 +1096,72 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             "type": "array",
             "uniqueItems": True
         }
-
         MyMapping = namedtuple('MyMapping', 'a, b')
-
         Validator = validators.extend(
             self.Validator,
-            type_checker=self.Validator.TYPE_CHECKER.redefine(
-                "array",
-                lambda checker, thing: isinstance(thing, (list, deque)),
-            )
+            type_checker=self.Validator.TYPE_CHECKER.redefine_many({
+                "array": lambda checker, thing: isinstance(
+                    thing, (list, deque)
+                ),
+                "object": lambda checker, thing: isinstance(
+                    thing, (dict, MyMapping)
+                ),
+            })
         )
-
         validator = Validator(schema)
-        validator.validate(deque(['a', None, '1', '', True]))
-        with self.assertRaises(exceptions.ValidationError):
-            validator.validate(deque(['a', 'b', 'a']))
 
-        validator.validate(deque([[False], [0]]))
-        with self.assertRaises(exceptions.ValidationError):
-            validator.validate(deque([[False], [False]]))
+        valid_instances = [
+            deque(['a', None, '1', '', True]),
+            deque([[False], [0]]),
+            [deque([False]), deque([0])],
+            [[deque([False])], [deque([0])]],
+            [[[[[deque([False])]]]], [[[[deque([0])]]]]],
+            [deque([deque([False])]), deque([deque([0])])],
+            [MyMapping('a', 0), MyMapping('a', False)],
+            [
+                MyMapping('a', [deque([0])]),
+                MyMapping('a', [deque([False])])
+            ],
+            [
+                MyMapping('a', [
+                    MyMapping('a', deque([0]))
+                ]),
+                MyMapping('a', [
+                    MyMapping('a', deque([False]))
+                ])
+            ],
+            [deque(deque(deque([False]))), deque(deque(deque([0])))],
+        ]
 
-        validator.validate([deque([False]), deque([0])])
-        with self.assertRaises(exceptions.ValidationError):
-            validator.validate([deque([False]), deque([False])])
+        for instance in valid_instances:
+            validator.validate(instance)
 
-        validator.validate([MyMapping('a', 0), MyMapping('a', False)])
-        with self.assertRaises(exceptions.ValidationError):
-            validator.validate([MyMapping('a', False), MyMapping('a', False)])
+        invalid_instances = [
+            deque(['a', 'b', 'a']),
+            deque([[False], [False]]),
+            [deque([False]), deque([False])],
+            [[deque([False])], [deque([False])]],
+            [[[[[deque([False])]]]], [[[[deque([False])]]]]],
+            [deque([deque([False])]), deque([deque([False])])],
+            [MyMapping('a', False), MyMapping('a', False)],
+            [
+                MyMapping('a', [deque([False])]),
+                MyMapping('a', [deque([False])])
+            ],
+            [
+                MyMapping('a', [
+                    MyMapping('a', deque([False]))
+                ]),
+                MyMapping('a', [
+                    MyMapping('a', deque([False]))
+                ])
+            ],
+            [deque(deque(deque([False]))), deque(deque(deque([False])))],
+        ]
+
+        for instance in invalid_instances:
+            with self.assertRaises(exceptions.ValidationError):
+                validator.validate(instance)
 
 
 class AntiDraft6LeakMixin(object):

@@ -1,5 +1,6 @@
 from collections.abc import MutableMapping
 from urllib.parse import urlsplit
+import collections
 import itertools
 import json
 import pkgutil
@@ -188,14 +189,32 @@ def list_equal(one, two):
     return True
 
 
+def is_sequence(instance):
+    """
+    Checks if an instance is a sequence but not a string
+    """
+    return isinstance(
+        instance, collections.Sequence
+    ) and not isinstance(
+        instance, str
+    )
+
+
+def is_mapping(instance):
+    """
+    Checks if an instance is a mapping
+    """
+    return isinstance(instance, collections.Mapping)
+
+
 def equal(one, two):
     """
     Check if two things are equal, but evade booleans and ints being equal.
     """
-    if isinstance(one, list) and isinstance(two, list):
+    if is_sequence(one) and is_sequence(two):
         return list_equal(one, two)
 
-    if isinstance(one, dict) and isinstance(two, dict):
+    if is_mapping(one) and is_mapping(two):
         return dict_equal(one, two)
 
     return unbool(one) == unbool(two)
@@ -225,7 +244,7 @@ def uniq(container):
         sliced = itertools.islice(sort, 1, None)
 
         for i, j in zip(sort, sliced):
-            return not list_equal(list(i), list(j))
+            return not list_equal(i, j)
 
     except (NotImplementedError, TypeError):
         seen = []
@@ -233,10 +252,7 @@ def uniq(container):
             e = unbool(e)
 
             for i in seen:
-                if isinstance(i, dict) and isinstance(e, dict):
-                    if dict_equal(i, e):
-                        return False
-                elif i == e:
+                if equal(i, e):
                     return False
 
             seen.append(e)
