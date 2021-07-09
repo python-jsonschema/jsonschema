@@ -158,9 +158,9 @@ def ensure_list(thing):
     return thing
 
 
-def dict_equal(one, two):
+def _mapping_equal(one, two):
     """
-    Check if two dicts are the same using `equal`
+    Check if two mappings are equal using the semantics of `equal`.
     """
     if len(one.keys()) != len(two.keys()):
         return False
@@ -174,9 +174,9 @@ def dict_equal(one, two):
     return True
 
 
-def list_equal(one, two):
+def _sequence_equal(one, two):
     """
-    Check if two lists are the same using `equal`
+    Check if two sequences are equal using the semantics of `equal`.
     """
     if len(one) != len(two):
         return False
@@ -188,23 +188,19 @@ def list_equal(one, two):
     return True
 
 
-def is_sequence(instance):
-    """
-    Checks if an instance is a sequence but not a string
-    """
-    return isinstance(instance, Sequence) and not isinstance(instance, str)
-
-
 def equal(one, two):
     """
-    Check if two things are equal, but evade booleans and ints being equal.
+    Check if two things are equal evading some Python type hierarchy semantics.
+
+    Specifically in JSON Schema, evade `bool` inheriting from `int`,
+    recursing into sequences to do the same.
     """
-    if is_sequence(one) and is_sequence(two):
-        return list_equal(one, two)
-
+    if isinstance(one, str) or isinstance(two, str):
+        return one == two
+    if isinstance(one, Sequence) and isinstance(two, Sequence):
+        return _sequence_equal(one, two)
     if isinstance(one, Mapping) and isinstance(two, Mapping):
-        return dict_equal(one, two)
-
+        return _mapping_equal(one, two)
     return unbool(one) == unbool(two)
 
 
@@ -232,7 +228,7 @@ def uniq(container):
         sliced = itertools.islice(sort, 1, None)
 
         for i, j in zip(sort, sliced):
-            return not list_equal(i, j)
+            return not _sequence_equal(i, j)
 
     except (NotImplementedError, TypeError):
         seen = []
