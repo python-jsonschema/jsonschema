@@ -1,6 +1,12 @@
 v4.0.0 (Not Yet Released)
 -------------------------
 
+* ``False`` and ``0`` are now properly considered non-equal even
+  recursively within a container (#686). As part of this change,
+  ``uniqueItems`` validation may be *slower* in some cases. Please feel
+  free to report any significant performance regressions, though in
+  some cases they may be difficult to address given the specification
+  requirement.
 * The CLI has been improved, and in particular now supports a ``--output``
   option (with ``plain`` (default) or ``pretty`` arguments) to control the
   output format. Future work may add additional machine-parsable output
