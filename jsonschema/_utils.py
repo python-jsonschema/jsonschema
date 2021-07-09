@@ -162,16 +162,12 @@ def _mapping_equal(one, two):
     """
     Check if two mappings are equal using the semantics of `equal`.
     """
-    if len(one.keys()) != len(two.keys()):
+    if len(one) != len(two):
         return False
-
-    for key in one:
-        if key not in two:
-            return False
-        if not equal(one[key], two[key]):
-            return False
-
-    return True
+    return all(
+        key in two and equal(value, two[key])
+        for key, value in one.items()
+    )
 
 
 def _sequence_equal(one, two):
@@ -180,12 +176,7 @@ def _sequence_equal(one, two):
     """
     if len(one) != len(two):
         return False
-
-    for i in range(0, len(one)):
-        if not equal(one[i], two[i]):
-            return False
-
-    return True
+    return all(equal(i, j) for i, j in zip(one, two))
 
 
 def equal(one, two):
