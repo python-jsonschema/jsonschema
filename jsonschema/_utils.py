@@ -1,6 +1,5 @@
-from collections.abc import MutableMapping
+from collections.abc import Mapping, MutableMapping, Sequence
 from urllib.parse import urlsplit
-import collections
 import itertools
 import json
 import pkgutil
@@ -193,18 +192,7 @@ def is_sequence(instance):
     """
     Checks if an instance is a sequence but not a string
     """
-    return isinstance(
-        instance, collections.Sequence
-    ) and not isinstance(
-        instance, str
-    )
-
-
-def is_mapping(instance):
-    """
-    Checks if an instance is a mapping
-    """
-    return isinstance(instance, collections.Mapping)
+    return isinstance(instance, Sequence) and not isinstance(instance, str)
 
 
 def equal(one, two):
@@ -214,7 +202,7 @@ def equal(one, two):
     if is_sequence(one) and is_sequence(two):
         return list_equal(one, two)
 
-    if is_mapping(one) and is_mapping(two):
+    if isinstance(one, Mapping) and isinstance(two, Mapping):
         return dict_equal(one, two)
 
     return unbool(one) == unbool(two)
