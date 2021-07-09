@@ -1,4 +1,4 @@
-from collections.abc import MutableMapping
+from collections.abc import Mapping, MutableMapping, Sequence
 from urllib.parse import urlsplit
 import itertools
 import json
@@ -158,10 +158,40 @@ def ensure_list(thing):
     return thing
 
 
+def _mapping_equal(one, two):
+    """
+    Check if two mappings are equal using the semantics of `equal`.
+    """
+    if len(one) != len(two):
+        return False
+    return all(
+        key in two and equal(value, two[key])
+        for key, value in one.items()
+    )
+
+
+def _sequence_equal(one, two):
+    """
+    Check if two sequences are equal using the semantics of `equal`.
+    """
+    if len(one) != len(two):
+        return False
+    return all(equal(i, j) for i, j in zip(one, two))
+
+
 def equal(one, two):
     """
-    Check if two things are equal, but evade booleans and ints being equal.
+    Check if two things are equal evading some Python type hierarchy semantics.
+
+    Specifically in JSON Schema, evade `bool` inheriting from `int`,
+    recursing into sequences to do the same.
     """
+    if isinstance(one, str) or isinstance(two, str):
+        return one == two
+    if isinstance(one, Sequence) and isinstance(two, Sequence):
+        return _sequence_equal(one, two)
+    if isinstance(one, Mapping) and isinstance(two, Mapping):
+        return _mapping_equal(one, two)
     return unbool(one) == unbool(two)
 
 
@@ -181,25 +211,24 @@ def uniq(container):
     """
     Check if all of a container's elements are unique.
 
-    Successively tries first to rely that the elements are hashable, then
-    falls back on them being sortable, and finally falls back on brute
-    force.
+    Successively tries first to rely that the elements are being sortable
+    and finally falls back on brute force.
     """
-
     try:
-        return len(set(unbool(i) for i in container)) == len(container)
-    except TypeError:
-        try:
-            sort = sorted(unbool(i) for i in container)
-            sliced = itertools.islice(sort, 1, None)
-            for i, j in zip(sort, sliced):
-                if i == j:
+        sort = sorted(unbool(i) for i in container)
+        sliced = itertools.islice(sort, 1, None)
+
+        for i, j in zip(sort, sliced):
+            return not _sequence_equal(i, j)
+
+    except (NotImplementedError, TypeError):
+        seen = []
+        for e in container:
+            e = unbool(e)
+
+            for i in seen:
+                if equal(i, e):
                     return False
-        except (NotImplementedError, TypeError):
-            seen = []
-            for e in container:
-                e = unbool(e)
-                if e in seen:
-                    return False
-                seen.append(e)
+
+            seen.append(e)
     return True
