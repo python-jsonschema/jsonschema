@@ -211,8 +211,8 @@ def uniq(container):
     """
     Check if all of a container's elements are unique.
 
-    Successively tries first to rely that the elements are being sortable
-    and finally falls back on brute force.
+    Tries to rely on the container being recursively sortable, or otherwise
+    falls back on (slow) brute force.
     """
     try:
         sort = sorted(unbool(i) for i in container)
