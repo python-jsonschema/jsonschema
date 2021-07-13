@@ -1,359 +1,359 @@
 [
     {
-        "description": "validation of e-mail addresses",
-        "schema": {"format": "email"},
+        "description": "email format",
+        "schema": { "format": "email" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of IP addresses",
-        "schema": {"format": "ip-address"},
+        "description": "ip-address format",
+        "schema": { "format": "ip-address" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of IPv6 addresses",
-        "schema": {"format": "ipv6"},
+        "description": "ipv6 format",
+        "schema": { "format": "ipv6" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of hostnames",
-        "schema": {"format": "host-name"},
+        "description": "host-name format",
+        "schema": { "format": "host-name" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of date-time strings",
-        "schema": {"format": "date-time"},
+        "description": "date-time format",
+        "schema": { "format": "date-time" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of regular expressions",
-        "schema": {"format": "regex"},
+        "description": "regex format",
+        "schema": { "format": "regex" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of date strings",
-        "schema": {"format": "date"},
+        "description": "date format",
+        "schema": { "format": "date" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of time strings",
-        "schema": {"format": "time"},
+        "description": "time format",
+        "schema": { "format": "time" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of CSS colors",
-        "schema": {"format": "color"},
+        "description": "color format",
+        "schema": { "format": "color" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
         ]
     },
     {
-        "description": "validation of URIs",
-        "schema": {"format": "uri"},
+        "description": "uri format",
+        "schema": { "format": "uri" },
         "tests": [
             {
-                "description": "ignores integers",
+                "description": "all string formats ignore integers",
                 "data": 12,
                 "valid": true
             },
             {
-                "description": "ignores floats",
+                "description": "all string formats ignore floats",
                 "data": 13.7,
                 "valid": true
             },
             {
-                "description": "ignores objects",
+                "description": "all string formats ignore objects",
                 "data": {},
                 "valid": true
             },
             {
-                "description": "ignores arrays",
+                "description": "all string formats ignore arrays",
                 "data": [],
                 "valid": true
             },
             {
-                "description": "ignores booleans",
+                "description": "all string formats ignore booleans",
                 "data": false,
                 "valid": true
             },
             {
-                "description": "ignores null",
+                "description": "all string formats ignore nulls",
                 "data": null,
                 "valid": true
             }
