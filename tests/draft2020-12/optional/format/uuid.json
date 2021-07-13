@@ -64,26 +64,6 @@
                 "description": "hypothetical version 15",
                 "data": "99c17cbb-656f-f64a-940f-1a4568f03487",
                 "valid": true
-            },
-            {
-                "description": "null value should be ignored",
-                "data": null,
-                "valid": true
-            },
-            {
-                "description": "number value should be ignored",
-                "data": 1,
-                "valid": true
-            },
-            {
-                "description": "list value should be ignored",
-                "data": [],
-                "valid": true
-            },
-            {
-                "description": "object value should be ignored",
-                "data": {},
-                "valid": true
             }
         ]
     }

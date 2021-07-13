@@ -2,6 +2,7 @@
     {
         "description": "A $dynamicRef to a $dynamicAnchor in the same schema resource should behave like a normal $ref to an $anchor",
         "schema": {
+            "$id": "https://test.json-schema.org/dynamicRef-dynamicAnchor-same-schema/root",
             "type": "array",
             "items": { "$dynamicRef": "#items" },
             "$defs": {
@@ -27,6 +28,7 @@
     {
         "description": "A $dynamicRef to an $anchor in the same schema resource should behave like a normal $ref to an $anchor",
         "schema": {
+            "$id": "https://test.json-schema.org/dynamicRef-anchor-same-schema/root",
             "type": "array",
             "items": { "$dynamicRef": "#items" },
             "$defs": {
@@ -52,6 +54,7 @@
     {
         "description": "A $ref to a $dynamicAnchor in the same schema resource should behave like a normal $ref to an $anchor",
         "schema": {
+            "$id": "https://test.json-schema.org/ref-dynamicAnchor-same-schema/root",
             "type": "array",
             "items": { "$ref": "#items" },
             "$defs": {

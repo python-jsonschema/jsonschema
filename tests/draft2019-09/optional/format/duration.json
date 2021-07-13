@@ -87,26 +87,6 @@
               "description": "weeks cannot be combined with other units",
               "data": "P1Y2W",
               "valid": false
-          },
-          {
-              "description": "null value should be ignored",
-              "data": null,
-              "valid": true
-          },
-          {
-              "description": "number value should be ignored",
-              "data": 1,
-              "valid": true
-          },
-          {
-              "description": "list value should be ignored",
-              "data": [],
-              "valid": true
-          },
-          {
-              "description": "object value should be ignored",
-              "data": {},
-              "valid": true
           }
       ]
   }
