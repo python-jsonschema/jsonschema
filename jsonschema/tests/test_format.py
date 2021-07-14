@@ -79,9 +79,9 @@ class TestFormatChecker(TestCase):
 
     def test_repr(self):
         checker = FormatChecker(formats=())
-        checker.checks("foo")(lambda thing: True)
-        checker.checks("bar")(lambda thing: True)
-        checker.checks("baz")(lambda thing: True)
+        checker.checks("foo")(lambda thing: True)  # pragma: no cover
+        checker.checks("bar")(lambda thing: True)  # pragma: no cover
+        checker.checks("baz")(lambda thing: True)  # pragma: no cover
         self.assertEqual(
             repr(checker),
             "<FormatChecker checkers=['bar', 'baz', 'foo']>",

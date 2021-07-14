@@ -52,13 +52,11 @@ def validates(version):
     def _validates(cls):
         validators[version] = cls
         meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
-        if meta_schema_id:
-            meta_schemas[meta_schema_id] = cls
+        meta_schemas[meta_schema_id] = cls
 
         for vocabulary in cls.VOCABULARY_SCHEMAS:
             vocabulary_id = cls.ID_OF(vocabulary)
-            if vocabulary_id:
-                vocabulary_schemas[vocabulary_id] = vocabulary
+            vocabulary_schemas[vocabulary_id] = vocabulary
 
         return cls
     return _validates
@@ -675,7 +673,6 @@ class RefResolver(object):
 
     def _finditem(self, schema, key):
         results = []
-
         if isinstance(schema, dict):
             if key in schema:
                 results.append(schema)
@@ -699,9 +696,6 @@ class RefResolver(object):
             if target_uri.rstrip("/") == uri.rstrip("/"):
                 if fragment:
                     subschema = self.resolve_fragment(subschema, fragment)
-
-                if self.cache_remote:
-                    self.store[url] = subschema
                 return subschema
 
     def resolve(self, ref):

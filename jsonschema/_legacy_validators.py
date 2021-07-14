@@ -28,10 +28,10 @@ def dependencies_draft3(validator, dependencies, instance, schema):
 
 
 def dependencies_draft4_draft6_draft7(
-        validator,
-        dependencies,
-        instance,
-        schema,
+    validator,
+    dependencies,
+    instance,
+    schema,
 ):
     """
     Support for the ``dependencies`` validator from pre-draft 2019-09.
