@@ -86,3 +86,22 @@ class TestFormatChecker(TestCase):
             repr(checker),
             "<FormatChecker checkers=['bar', 'baz', 'foo']>",
         )
+
+    def test_duration_format(self):
+        try:
+            from jsonschema._format import is_duration  # noqa: F401
+        except ImportError:  # pragma: no cover
+            pass
+        else:
+            checker = FormatChecker()
+            self.assertTrue(checker.conforms(1, "duration"))
+            self.assertTrue(checker.conforms("P4Y", "duration"))
+            self.assertFalse(checker.conforms("test", "duration"))
+
+    def test_uuid_format(self):
+        checker = FormatChecker()
+        self.assertTrue(checker.conforms(1, "uuid"))
+        self.assertTrue(
+            checker.conforms("6e6659ec-4503-4428-9f03-2e2ea4d6c278", "uuid")
+        )
+        self.assertFalse(checker.conforms("test", "uuid"))
