@@ -3,17 +3,13 @@ Python representations of the JSON Schema Test Suite tests.
 """
 
 from functools import partial
+from pathlib import Path
 import json
 import os
 import re
 import subprocess
 import sys
 import unittest
-
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
 
 import attr
 
