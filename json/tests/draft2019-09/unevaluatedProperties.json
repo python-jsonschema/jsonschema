@@ -492,6 +492,112 @@
         ]
     },
     {
+        "description": "unevaluatedProperties with if/then/else, then not defined",
+        "schema": {
+            "type": "object",
+            "if": {
+                "properties": {
+                    "foo": { "const": "then" }
+                },
+                "required": ["foo"]
+            },
+            "else": {
+                "properties": {
+                    "baz": { "type": "string" }
+                },
+                "required": ["baz"]
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "when if is true and has no unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is true and has unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is false and has no unevaluated properties",
+                "data": {
+                    "baz": "baz"
+                },
+                "valid": true
+            },
+            {
+                "description": "when if is false and has unevaluated properties",
+                "data": {
+                    "foo": "else",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties with if/then/else, else not defined",
+        "schema": {
+            "type": "object",
+            "if": {
+                "properties": {
+                    "foo": { "const": "then" }
+                },
+                "required": ["foo"]
+            },
+            "then": {
+                "properties": {
+                    "bar": { "type": "string" }
+                },
+                "required": ["bar"]
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "when if is true and has no unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar"
+                },
+                "valid": true
+            },
+            {
+                "description": "when if is true and has unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is false and has no unevaluated properties",
+                "data": {
+                    "baz": "baz"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is false and has unevaluated properties",
+                "data": {
+                    "foo": "else",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedProperties with dependentSchemas",
         "schema": {
             "type": "object",
