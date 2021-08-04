@@ -4,8 +4,11 @@ from jsonschema.exceptions import ValidationError
 
 def ignore_ref_siblings(schema):
     """
-    Returns a list of validators that should apply for the given schema
-    Used for draft7 and earlier
+    Ignore siblings of ``$ref`` if it is present.
+
+    Otherwise, return all validators.
+
+    Suitable for use with `create`'s ``applicable_validators`` argument.
     """
     ref = schema.get(u"$ref")
     if ref is not None:

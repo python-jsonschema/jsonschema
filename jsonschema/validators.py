@@ -128,8 +128,9 @@ def create(
 
         applicable_validators (collections.abc.Callable):
 
-            A function that returns a list of validators that should apply
-            to a given schema
+            A function that given a schema, returns the list of applicable
+            validators (names and callables) which will be called on to
+            validate the instance.
 
     Returns:
 
