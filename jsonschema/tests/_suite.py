@@ -143,7 +143,7 @@ class Version(object):
                     case_description=each["description"],
                     schema=each["schema"],
                     remotes=self._remotes,
-                    **test
+                    **test,
                 ) for test in each["tests"]
             )
 
@@ -177,7 +177,7 @@ class _Test(object):
                 self.subject,
                 self.case_description,
                 self.description,
-            ]
+            ],
         )
 
     @property
@@ -213,7 +213,7 @@ class _Test(object):
             schema=self.schema,
             cls=Validator,
             resolver=resolver,
-            **kwargs
+            **kwargs,
         )
 
     def validate_ignoring_errors(self, Validator):  # pragma: no cover

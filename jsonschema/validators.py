@@ -615,7 +615,7 @@ class RefResolver(object):
             raise exceptions.RefResolutionError(
                 "Failed to pop the scope from an empty stack. "
                 "`pop_scope()` should only be called once for every "
-                "`push_scope()`"
+                "`push_scope()`",
             )
 
     @property
@@ -692,7 +692,7 @@ class RefResolver(object):
 
         for subschema in self._finditem(schema, "$id"):
             target_uri = self._urljoin_cache(
-                self.resolution_scope, subschema['$id']
+                self.resolution_scope, subschema['$id'],
             )
             if target_uri.rstrip("/") == uri.rstrip("/"):
                 if fragment:
@@ -764,7 +764,7 @@ class RefResolver(object):
                 document = document[part]
             except (TypeError, LookupError):
                 raise exceptions.RefResolutionError(
-                    "Unresolvable JSON pointer: %r" % fragment
+                    "Unresolvable JSON pointer: %r" % fragment,
                 )
 
         return document

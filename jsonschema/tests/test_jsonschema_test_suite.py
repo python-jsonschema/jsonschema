@@ -459,5 +459,5 @@ TestDraft202012Format = DRAFT202012.to_unittest_testcase(
         or leap_second(test)
         or missing_format(draft202012_format_checker)(test)
         or complex_email_validation(test)
-    )
+    ),
 )

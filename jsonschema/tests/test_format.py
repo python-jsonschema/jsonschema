@@ -40,7 +40,7 @@ class TestFormatChecker(TestCase):
         checker.checks("boom")(boom)
         self.assertEqual(
             checker.checkers,
-            dict(FormatChecker.checkers, boom=(boom, ()))
+            dict(FormatChecker.checkers, boom=(boom, ())),
         )
 
     def test_it_catches_registered_errors(self):
@@ -102,6 +102,6 @@ class TestFormatChecker(TestCase):
         checker = FormatChecker()
         self.assertTrue(checker.conforms(1, "uuid"))
         self.assertTrue(
-            checker.conforms("6e6659ec-4503-4428-9f03-2e2ea4d6c278", "uuid")
+            checker.conforms("6e6659ec-4503-4428-9f03-2e2ea4d6c278", "uuid"),
         )
         self.assertFalse(checker.conforms("test", "uuid"))

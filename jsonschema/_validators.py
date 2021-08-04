@@ -77,7 +77,7 @@ def items(validator, items, instance, schema):
         if not items:
             if len(instance) > len(schema['prefixItems']):
                 yield ValidationError(
-                    "%r has more items than defined in prefixItems" % instance
+                    "%r has more items than defined in prefixItems" % instance,
                 )
     else:
         non_prefixed_items = instance[len(schema['prefixItems']):] \
@@ -104,7 +104,7 @@ def additionalItems(validator, aI, instance, schema):
         error = "Additional items are not allowed (%s %s unexpected)"
         yield ValidationError(
             error %
-            extras_msg(instance[len(schema.get("items", [])):])
+            extras_msg(instance[len(schema.get("items", [])):]),
         )
 
 
@@ -134,7 +134,7 @@ def contains(validator, contains, instance, schema):
     # default contains behavior
     if not matches:
         yield ValidationError(
-            "None of %r are valid under the given schema" % (instance,)
+            "None of %r are valid under the given schema" % (instance,),
         )
         return
 
@@ -143,8 +143,8 @@ def contains(validator, contains, instance, schema):
             yield ValidationError(
                 "Too few matches under the given schema. "
                 "Expected %d but there were only %d." % (
-                    min_contains, matches
-                )
+                    min_contains, matches,
+                ),
             )
         return
 
@@ -153,8 +153,8 @@ def contains(validator, contains, instance, schema):
             yield ValidationError(
                 "Too many matches under the given schema. "
                 "Expected %d but there were only %d." % (
-                    max_contains, matches
-                )
+                    max_contains, matches,
+                ),
             )
         return
 
@@ -163,8 +163,8 @@ def contains(validator, contains, instance, schema):
             yield ValidationError(
                 "Invalid number or matches under the given schema, "
                 "expected between %d and %d, got %d" % (
-                    min_contains, max_contains, matches
-                )
+                    min_contains, max_contains, matches,
+                ),
             )
         return
 
@@ -199,7 +199,7 @@ def minimum(validator, minimum, instance, schema):
 
     if instance < minimum:
         yield ValidationError(
-            "%r is less than the minimum of %r" % (instance, minimum)
+            "%r is less than the minimum of %r" % (instance, minimum),
         )
 
 
@@ -209,7 +209,7 @@ def maximum(validator, maximum, instance, schema):
 
     if instance > maximum:
         yield ValidationError(
-            "%r is greater than the maximum of %r" % (instance, maximum)
+            "%r is greater than the maximum of %r" % (instance, maximum),
         )
 
 
@@ -404,7 +404,7 @@ def required(validator, required, instance, schema):
 def minProperties(validator, mP, instance, schema):
     if validator.is_type(instance, "object") and len(instance) < mP:
         yield ValidationError(
-            "%r does not have enough properties" % (instance,)
+            "%r does not have enough properties" % (instance,),
         )
 
 
@@ -455,14 +455,14 @@ def oneOf(validator, oneOf, instance, schema):
         more_valid.append(first_valid)
         reprs = ", ".join(repr(schema) for schema in more_valid)
         yield ValidationError(
-            "%r is valid under each of %s" % (instance, reprs)
+            "%r is valid under each of %s" % (instance, reprs),
         )
 
 
 def not_(validator, not_schema, instance, schema):
     if validator.is_valid(instance, not_schema):
         yield ValidationError(
-            "%r is not allowed for %r" % (not_schema, instance)
+            "%r is not allowed for %r" % (not_schema, instance),
         )
 
 
@@ -480,13 +480,13 @@ def if_(validator, if_schema, instance, schema):
 
 def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
-        validator, instance, schema
+        validator, instance, schema,
     )
     unevaluated_items = []
     for k, v in enumerate(instance):
         if k not in evaluated_item_indexes:
             for error in validator.descend(
-                v, unevaluatedItems, schema_path="unevaluatedItems"
+                v, unevaluatedItems, schema_path="unevaluatedItems",
             ):
                 unevaluated_items.append(v)
 
@@ -497,7 +497,7 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
 
 def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
     evaluated_property_keys = find_evaluated_property_keys_by_schema(
-        validator, instance, schema
+        validator, instance, schema,
     )
     unevaluated_property_keys = []
     for property, subschema in instance.items():
@@ -521,6 +521,6 @@ def prefixItems(validator, prefixItems, instance, schema):
 
     for k, v in enumerate(instance[:min(len(prefixItems), len(instance))]):
         for error in validator.descend(
-            v, prefixItems[k], schema_path="prefixItems"
+            v, prefixItems[k], schema_path="prefixItems",
         ):
             yield error

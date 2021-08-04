@@ -75,7 +75,7 @@ class _Error(Exception):
 
             On %s%s:
             %s
-            """.rstrip()
+            """.rstrip(),
         ) % (
             self.validator,
             self._word_for_schema_in_error_message,
@@ -194,7 +194,7 @@ class UnknownType(Exception):
 
             While checking instance:
             %s
-            """.rstrip()
+            """.rstrip(),
         ) % (
             self.type,
             textwrap.indent(pschema, "    "),
