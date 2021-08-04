@@ -201,7 +201,7 @@ def parse_args(args):
     arguments = vars(parser.parse_args(args=args or ["--help"]))
     if arguments["output"] != "plain" and arguments["error_format"]:
         raise parser.error(
-            "--error-format can only be used with --output plain"
+            "--error-format can only be used with --output plain",
         )
     if arguments["output"] == "plain" and arguments["error_format"] is None:
         arguments["error_format"] = "{error.instance}: {error.message}\n"

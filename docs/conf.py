@@ -1,4 +1,3 @@
-from textwrap import dedent
 import os
 import re
 import sys
@@ -78,11 +77,9 @@ pygments_style = "sphinx"
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
 
-doctest_global_setup = dedent(
-    """
-    from jsonschema import *
+doctest_global_setup = """
+from jsonschema import *
 """
-)
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

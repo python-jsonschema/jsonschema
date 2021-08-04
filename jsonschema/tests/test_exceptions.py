@@ -41,7 +41,7 @@ class TestBestMatch(TestCase):
                 "minProperties": 2,
                 "anyOf": [{"type": "string"}, {"type": "number"}],
                 "oneOf": [{"type": "string"}, {"type": "number"}],
-            }
+            },
         )
         best = self.best_match(validator.iter_errors({}))
         self.assertEqual(best.validator, "minProperties")

@@ -59,7 +59,7 @@ def _message_for(non_json):
 
 class TestCLI(TestCase):
     def run_cli(
-            self, argv, files={}, stdin=StringIO(), exit_code=0, **override
+        self, argv, files={}, stdin=StringIO(), exit_code=0, **override,
     ):
         arguments = cli.parse_args(argv)
         arguments.update(override)
@@ -134,7 +134,7 @@ class TestCLI(TestCase):
                 I am an error!
                 -----------------------------
             """,
-        ),
+        )
 
     def test_invalid_instance_explicit_plain_output(self):
         error = ValidationError("I am an error!", instance=12)
@@ -835,7 +835,7 @@ class TestParser(TestCase):
                 "jsonschema.tests.test_cli.TestParser.FakeValidator",
                 "--instance", "mem://some/instance",
                 "mem://some/schema",
-            ]
+            ],
         )
         self.assertIs(arguments["validator"], self.FakeValidator)
 
@@ -845,7 +845,7 @@ class TestParser(TestCase):
                 "--validator", "Draft4Validator",
                 "--instance", "mem://some/instance",
                 "mem://some/schema",
-            ]
+            ],
         )
         self.assertIs(arguments["validator"], Draft4Validator)
 
@@ -857,7 +857,7 @@ class TestParser(TestCase):
                     [
                         "--output", "foo",
                         "mem://some/schema",
-                    ]
+                    ],
                 )
         self.assertIn("invalid choice: 'foo'", stderr.getvalue())
         self.assertFalse(stdout.getvalue())
@@ -871,7 +871,7 @@ class TestParser(TestCase):
                         "--output", "pretty",
                         "--error-format", "foo",
                         "mem://some/schema",
-                    ]
+                    ],
                 )
         self.assertIn(
             "--error-format can only be used with --output plain",

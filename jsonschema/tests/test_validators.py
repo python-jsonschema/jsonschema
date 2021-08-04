@@ -288,7 +288,7 @@ class TestValidationErrorMessages(TestCase):
     def test_additionalItems_multiple_failures(self):
         message = self.message_for(
             instance=[1, 2, 3],
-            schema={u"items": [], u"additionalItems": False}
+            schema={u"items": [], u"additionalItems": False},
         )
         self.assertIn("(1, 2, 3 were unexpected)", message)
 
@@ -371,7 +371,7 @@ class TestValidationErrorMessages(TestCase):
         self.assertEqual(
             message,
             "{}, {} do not match any of the regexes: {}, {}".format(
-                repr(u"fish"), repr(u"zebra"), repr(u"^abc$"), repr(u"^def$")
+                repr(u"fish"), repr(u"zebra"), repr(u"^abc$"), repr(u"^def$"),
             ),
         )
 
@@ -384,10 +384,7 @@ class TestValidationErrorMessages(TestCase):
         self.assertIn("False schema does not allow 'something'", message)
 
     def test_unevaluated_properties(self):
-        schema = {
-            "type": "object",
-            "unevaluatedProperties": False
-        }
+        schema = {"type": "object", "unevaluatedProperties": False}
         message = self.message_for(
             instance={
                 "foo": "foo",
@@ -403,10 +400,7 @@ class TestValidationErrorMessages(TestCase):
         )
 
     def test_unevaluated_items(self):
-        schema = {
-            "type": "array",
-            "unevaluatedItems": False
-        }
+        schema = {"type": "array", "unevaluatedItems": False}
         message = self.message_for(
             instance=["foo", "bar"],
             schema=schema,
@@ -654,7 +648,7 @@ class TestValidationErrorDetails(TestCase):
         )
         self.assertEqual(
             list(e5.schema_path),
-            ["items", "properties", "bar", "properties", "baz", "minItems"]
+            ["items", "properties", "bar", "properties", "baz", "minItems"],
         )
         self.assertEqual(
             list(e6.schema_path), ["items", "properties", "foo", "enum"],
@@ -1047,7 +1041,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
                 lambda checker, thing: isinstance(
                     thing, (int, float, Decimal),
                 ) and not isinstance(thing, bool),
-            )
+            ),
         )
 
         validator = Validator(schema)
@@ -1101,7 +1095,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             type_checker=self.Validator.TYPE_CHECKER.redefine(
                 non_string_type,
                 lambda checker, thing: isinstance(thing, int),
-            )
+            ),
         )
         Crazy(schema).validate(15)
 
@@ -1116,7 +1110,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             type_checker=self.Validator.TYPE_CHECKER.redefine(
                 "array",
                 lambda checker, thing: isinstance(thing, tuple),
-            )
+            ),
         )
         with self.assertRaises(exceptions.ValidationError) as e:
             TupleValidator({"uniqueItems": True}).validate((1, 1))
@@ -1126,21 +1120,20 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         """
         Allow array to validate against another defined sequence type
         """
-        schema = {
-            "type": "array",
-            "uniqueItems": True
-        }
+        schema = {"type": "array", "uniqueItems": True}
         MyMapping = namedtuple('MyMapping', 'a, b')
         Validator = validators.extend(
             self.Validator,
-            type_checker=self.Validator.TYPE_CHECKER.redefine_many({
-                "array": lambda checker, thing: isinstance(
-                    thing, (list, deque)
-                ),
-                "object": lambda checker, thing: isinstance(
-                    thing, (dict, MyMapping)
-                ),
-            })
+            type_checker=self.Validator.TYPE_CHECKER.redefine_many(
+                {
+                    "array": lambda checker, thing: isinstance(
+                        thing, (list, deque),
+                    ),
+                    "object": lambda checker, thing: isinstance(
+                        thing, (dict, MyMapping),
+                    ),
+                },
+            ),
         )
         validator = Validator(schema)
 
@@ -1154,15 +1147,11 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             [MyMapping('a', 0), MyMapping('a', False)],
             [
                 MyMapping('a', [deque([0])]),
-                MyMapping('a', [deque([False])])
+                MyMapping('a', [deque([False])]),
             ],
             [
-                MyMapping('a', [
-                    MyMapping('a', deque([0]))
-                ]),
-                MyMapping('a', [
-                    MyMapping('a', deque([False]))
-                ])
+                MyMapping('a', [MyMapping('a', deque([0]))]),
+                MyMapping('a', [MyMapping('a', deque([False]))]),
             ],
             [deque(deque(deque([False]))), deque(deque(deque([0])))],
         ]
@@ -1180,15 +1169,11 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             [MyMapping('a', False), MyMapping('a', False)],
             [
                 MyMapping('a', [deque([False])]),
-                MyMapping('a', [deque([False])])
+                MyMapping('a', [deque([False])]),
             ],
             [
-                MyMapping('a', [
-                    MyMapping('a', deque([False]))
-                ]),
-                MyMapping('a', [
-                    MyMapping('a', deque([False]))
-                ])
+                MyMapping('a', [MyMapping('a', deque([False]))]),
+                MyMapping('a', [MyMapping('a', deque([False]))]),
             ],
             [deque(deque(deque([False]))), deque(deque(deque([False])))],
         ]
@@ -1245,7 +1230,7 @@ class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
             self.Validator,
             type_checker=self.Validator.TYPE_CHECKER.redefine(
                 "any", lambda checker, thing: isinstance(thing, int),
-            )
+            ),
         )
         validator = Crazy({"type": "any"})
         validator.validate(12)
@@ -1408,7 +1393,7 @@ class TestValidatorFor(SynchronousTestCase):
         )
 
     def test_does_not_warn_if_meta_schema_is_unspecified(self):
-        validators.validator_for(schema={}, default={}),
+        validators.validator_for(schema={}, default={})
         self.assertFalse(self.flushWarnings())
 
 
@@ -1466,14 +1451,14 @@ class TestValidate(SynchronousTestCase):
     def test_draft202012_validator_is_chosen(self):
         self.assertUses(
             schema={
-                "$schema": "https://json-schema.org/draft/2020-12/schema#"
+                "$schema": "https://json-schema.org/draft/2020-12/schema#",
             },
             Validator=validators.Draft202012Validator,
         )
         # Make sure it works without the empty fragment
         self.assertUses(
             schema={
-                "$schema": "https://json-schema.org/draft/2020-12/schema"
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
             },
             Validator=validators.Draft202012Validator,
         )

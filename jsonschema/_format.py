@@ -168,15 +168,15 @@ def _checks_drafts(
         if draft7:
             func = _draft_checkers["draft7"].checks(draft7, raises)(func)
         if draft202012:
-            func = _draft_checkers["draft202012"].checks(
-                draft202012, raises
-            )(func)
+            func = _draft_checkers["draft202012"].checks(draft202012, raises)(
+                func,
+            )
 
         # Oy. This is bad global state, but relied upon for now, until
         # deprecation. See https://github.com/Julian/jsonschema/issues/519
         # and test_format_checkers_come_with_defaults
         FormatChecker.cls_checks(
-            draft202012 or draft7 or draft6 or draft4 or draft3, raises
+            draft202012 or draft7 or draft6 or draft4 or draft3, raises,
         )(func)
         return func
     return wrap

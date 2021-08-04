@@ -4,8 +4,11 @@ from jsonschema.exceptions import ValidationError
 
 def ignore_ref_siblings(schema):
     """
-    Returns a list of validators that should apply for the given schema
-    Used for draft7 and earlier
+    Ignore siblings of ``$ref`` if it is present.
+
+    Otherwise, return all validators.
+
+    Suitable for use with `create`'s ``applicable_validators`` argument.
     """
     ref = schema.get(u"$ref")
     if ref is not None:
@@ -29,9 +32,8 @@ def dependencies_draft3(validator, dependencies, instance, schema):
                 yield error
         elif validator.is_type(dependency, "string"):
             if dependency not in instance:
-                yield ValidationError(
-                    "%r is a dependency of %r" % (dependency, property)
-                )
+                message = "%r is a dependency of %r"
+                yield ValidationError(message % (dependency, property))
         else:
             for each in dependency:
                 if each not in instance:
@@ -74,7 +76,7 @@ def disallow_draft3(validator, disallow, instance, schema):
     for disallowed in _utils.ensure_list(disallow):
         if validator.is_valid(instance, {"type": [disallowed]}):
             yield ValidationError(
-                "%r is disallowed for %r" % (disallowed, instance)
+                "%r is disallowed for %r" % (disallowed, instance),
             )
 
 
@@ -133,7 +135,7 @@ def minimum_draft3_draft4(validator, minimum, instance, schema):
 
     if failed:
         yield ValidationError(
-            "%r is %s the minimum of %r" % (instance, cmp, minimum)
+            "%r is %s the minimum of %r" % (instance, cmp, minimum),
         )
 
 
@@ -150,7 +152,7 @@ def maximum_draft3_draft4(validator, maximum, instance, schema):
 
     if failed:
         yield ValidationError(
-            "%r is %s the maximum of %r" % (instance, cmp, maximum)
+            "%r is %s the maximum of %r" % (instance, cmp, maximum),
         )
 
 
@@ -205,5 +207,5 @@ def contains_draft6_draft7(validator, contains, instance, schema):
 
     if not any(validator.is_valid(element, contains) for element in instance):
         yield ValidationError(
-            "None of %r are valid under the given schema" % (instance,)
+            "None of %r are valid under the given schema" % (instance,),
         )
