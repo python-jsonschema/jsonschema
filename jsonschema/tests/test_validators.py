@@ -383,6 +383,40 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertIn("False schema does not allow 'something'", message)
 
+    def test_unevaluated_properties(self):
+        schema = {
+            "type": "object",
+            "unevaluatedProperties": False
+        }
+        message = self.message_for(
+            instance={
+                "foo": "foo",
+                "bar": "bar",
+            },
+            schema=schema,
+            cls=validators.Draft202012Validator,
+        )
+        self.assertIn(
+            "Unevaluated properties are not allowed "
+            "('foo', 'bar' were unexpected)",
+            message,
+        )
+
+    def test_unevaluated_items(self):
+        schema = {
+            "type": "array",
+            "unevaluatedItems": False
+        }
+        message = self.message_for(
+            instance=["foo", "bar"],
+            schema=schema,
+            cls=validators.Draft202012Validator,
+        )
+        self.assertIn(
+            "Unevaluated items are not allowed ('foo', 'bar' were unexpected)",
+            message,
+        )
+
 
 class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
@@ -1244,6 +1278,12 @@ class TestDraft7Validator(ValidatorTestMixin, TestCase):
     invalid = {"type": "integer"}, "foo"
 
 
+class TestDraft202012Validator(ValidatorTestMixin, TestCase):
+    Validator = validators.Draft202012Validator
+    valid = {}, {}
+    invalid = {"type": "integer"}, "foo"
+
+
 class TestValidatorFor(SynchronousTestCase):
     def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}
@@ -1295,6 +1335,19 @@ class TestValidatorFor(SynchronousTestCase):
         self.assertIs(
             validators.validator_for(schema),
             validators.Draft7Validator,
+        )
+
+    def test_draft_202012(self):
+        schema = {"$schema": "https://json-schema.org/draft/2020-12/schema"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft202012Validator,
+        )
+
+        schema = {"$schema": "https://json-schema.org/draft/2020-12/schema#"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft202012Validator,
         )
 
     def test_True(self):
@@ -1410,8 +1463,23 @@ class TestValidate(SynchronousTestCase):
             Validator=validators.Draft7Validator,
         )
 
-    def test_draft7_validator_is_the_default(self):
-        self.assertUses(schema={}, Validator=validators.Draft7Validator)
+    def test_draft202012_validator_is_chosen(self):
+        self.assertUses(
+            schema={
+                "$schema": "https://json-schema.org/draft/2020-12/schema#"
+            },
+            Validator=validators.Draft202012Validator,
+        )
+        # Make sure it works without the empty fragment
+        self.assertUses(
+            schema={
+                "$schema": "https://json-schema.org/draft/2020-12/schema"
+            },
+            Validator=validators.Draft202012Validator,
+        )
+
+    def test_draft202012_validator_is_the_default(self):
+        self.assertUses(schema={}, Validator=validators.Draft202012Validator)
 
     def test_validation_error_message(self):
         with self.assertRaises(exceptions.ValidationError) as e:
