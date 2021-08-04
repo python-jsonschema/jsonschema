@@ -13,10 +13,12 @@ from jsonschema import (
     Draft4Validator,
     Draft6Validator,
     Draft7Validator,
+    Draft202012Validator,
     draft3_format_checker,
     draft4_format_checker,
     draft6_format_checker,
     draft7_format_checker,
+    draft202012_format_checker,
 )
 from jsonschema.tests._helpers import bug
 from jsonschema.tests._suite import Suite
@@ -26,6 +28,7 @@ DRAFT3 = SUITE.version(name="draft3")
 DRAFT4 = SUITE.version(name="draft4")
 DRAFT6 = SUITE.version(name="draft6")
 DRAFT7 = SUITE.version(name="draft7")
+DRAFT202012 = SUITE.version(name="draft2020-12")
 
 
 def skip(message, **kwargs):
@@ -397,4 +400,64 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             ),
         )(test)
     ),
+)
+
+
+TestDraft202012 = DRAFT202012.to_unittest_testcase(
+    DRAFT202012.tests(),
+    DRAFT202012.optional_tests_of(name="bignum"),
+    DRAFT202012.optional_tests_of(name="float-overflow"),
+    DRAFT202012.optional_tests_of(name="non-bmp-regex"),
+    DRAFT202012.optional_tests_of(name="refOfUnknownKeyword"),
+    Validator=Draft202012Validator,
+    skip=lambda test: (
+        narrow_unicode_build(test)
+        or skip(
+            message="Issue: Resolving of dynamicRef based on dynamic scope",
+            subject="dynamicRef",
+            case_description="A $dynamicRef that initially resolves to a "
+                             "schema with a matching $dynamicAnchor should "
+                             "resolve to the first $dynamicAnchor in the "
+                             "dynamic scope",
+            description='The recursive part is not valid against the root',
+        )(test)
+        or skip(
+            message="Issue: Resolving of dynamicRef based on dynamic scope",
+            subject="dynamicRef",
+            case_description="multiple dynamic paths to the $dynamicRef "
+                             "keyword",
+            description="recurse to integerNode - floats are not allowed",
+        )(test)
+        or skip(
+            message="Issue: Resolving of dynamicRef based on dynamic scope",
+            subject="dynamicRef",
+            case_description="after leaving a dynamic scope, it should not be "
+                             "used by a $dynamicRef",
+            description="/then/$defs/thingy is the final stop for the "
+                        "$dynamicRef",
+        )(test)
+        or skip(
+            message="Issue: Resolving of dynamicRef based on dynamic scope",
+            subject="dynamicRef",
+            case_description="after leaving a dynamic scope, it should not be "
+                             'used by a $dynamicRef',
+            description="string matches /$defs/thingy, but the $dynamicRef "
+                        "does not stop here",
+        )(test)
+    ),
+)
+
+
+TestDraft202012Format = DRAFT202012.to_unittest_testcase(
+    DRAFT202012.format_tests(),
+    Validator=Draft202012Validator,
+    format_checker=draft202012_format_checker,
+    skip=lambda test: (
+        complex_email_validation(test)
+        or missing_date_fromisoformat(test)
+        or allowed_leading_zeros(test)
+        or leap_second(test)
+        or missing_format(draft202012_format_checker)(test)
+        or complex_email_validation(test)
+    )
 )

@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 
-from jsonschema import Draft4Validator, Draft7Validator, __version__, cli
+from jsonschema import Draft4Validator, Draft202012Validator, __version__, cli
 from jsonschema.exceptions import (
     RefResolutionError,
     SchemaError,
@@ -336,7 +336,7 @@ class TestCLI(TestCase):
 
             exit_code=1,
             stderr="""\
-                57: 57 is not valid under any of the given schemas
+                57: 57 is not of type 'object', 'boolean'
             """,
         )
 
@@ -776,7 +776,7 @@ class TestCLI(TestCase):
         # is hidden inside the CLI, so guard that that's the case, and
         # this test will have to be updated when versions change until
         # we can think of a better way to ensure this behavior.
-        self.assertIs(Draft7Validator, _LATEST_VERSION)
+        self.assertIs(Draft202012Validator, _LATEST_VERSION)
 
         self.assertOutputs(
             files=dict(some_schema='{"const": "check"}', some_instance='"a"'),

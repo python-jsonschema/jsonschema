@@ -1,4 +1,5 @@
 from fractions import Fraction
+from urllib.parse import urldefrag, urljoin
 import re
 
 from jsonschema._utils import (
@@ -6,6 +7,8 @@ from jsonschema._utils import (
     equal,
     extras_msg,
     find_additional_properties,
+    find_evaluated_item_indexes_by_schema,
+    find_evaluated_property_keys_by_schema,
     types_msg,
     unbool,
     uniq,
@@ -70,14 +73,17 @@ def items(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if validator.is_type(items, "array"):
-        for (index, item), subschema in zip(enumerate(instance), items):
-            for error in validator.descend(
-                item, subschema, path=index, schema_path=index,
-            ):
-                yield error
+    if validator.is_type(items, "boolean") and 'prefixItems' in schema:
+        if not items:
+            if len(instance) > len(schema['prefixItems']):
+                yield ValidationError(
+                    "%r has more items than defined in prefixItems" % instance
+                )
     else:
-        for index, item in enumerate(instance):
+        non_prefixed_items = instance[len(schema['prefixItems']):] \
+            if 'prefixItems' in schema else instance
+
+        for index, item in enumerate(non_prefixed_items):
             for error in validator.descend(item, items, path=index):
                 yield error
 
@@ -111,10 +117,56 @@ def contains(validator, contains, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if not any(validator.is_valid(element, contains) for element in instance):
+    min_contains = max_contains = None
+
+    if 'minContains' in schema:
+        min_contains = schema['minContains']
+
+    if 'maxContains' in schema:
+        max_contains = schema['maxContains']
+
+    # minContains set to 0 will ignore contains
+    if min_contains == 0:
+        return
+
+    matches = sum(1 for each in instance if validator.is_valid(each, contains))
+
+    # default contains behavior
+    if not matches:
         yield ValidationError(
             "None of %r are valid under the given schema" % (instance,)
         )
+        return
+
+    if min_contains and max_contains is None:
+        if matches < min_contains:
+            yield ValidationError(
+                "Too few matches under the given schema. "
+                "Expected %d but there were only %d." % (
+                    min_contains, matches
+                )
+            )
+        return
+
+    if min_contains is None and max_contains:
+        if matches > max_contains:
+            yield ValidationError(
+                "Too many matches under the given schema. "
+                "Expected %d but there were only %d." % (
+                    max_contains, matches
+                )
+            )
+        return
+
+    if min_contains and max_contains:
+        if matches < min_contains or matches > max_contains:
+            yield ValidationError(
+                "Invalid number or matches under the given schema, "
+                "expected between %d and %d, got %d" % (
+                    min_contains, max_contains, matches
+                )
+            )
+        return
 
 
 def exclusiveMinimum(validator, minimum, instance, schema):
@@ -233,24 +285,29 @@ def maxLength(validator, mL, instance, schema):
         yield ValidationError("%r is too long" % (instance,))
 
 
-def dependencies(validator, dependencies, instance, schema):
+def dependentRequired(validator, dependentRequired, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    for property, dependency in dependencies.items():
+    for property, dependency in dependentRequired.items():
         if property not in instance:
             continue
 
-        if validator.is_type(dependency, "array"):
-            for each in dependency:
-                if each not in instance:
-                    message = "%r is a dependency of %r"
-                    yield ValidationError(message % (each, property))
-        else:
-            for error in validator.descend(
+        for each in dependency:
+            if each not in instance:
+                message = "%r is a dependency of %r"
+                yield ValidationError(message % (each, property))
+
+
+def dependentSchemas(validator, dependentSchemas, instance, schema):
+    for property, dependency in dependentSchemas.items():
+        if property not in instance:
+            continue
+
+        for error in validator.descend(
                 instance, dependency, schema_path=property,
-            ):
-                yield error
+        ):
+            yield error
 
 
 def enum(validator, enums, instance, schema):
@@ -277,6 +334,41 @@ def ref(validator, ref, instance, schema):
                 yield error
         finally:
             validator.resolver.pop_scope()
+
+
+def dynamicRef(validator, dynamicRef, instance, schema):
+    _, fragment = urldefrag(dynamicRef)
+    scope_stack = validator.resolver.scopes_stack_copy
+
+    for url in scope_stack:
+        lookup_url = urljoin(url, dynamicRef)
+        with validator.resolver.resolving(lookup_url) as lookup_schema:
+            if ("$dynamicAnchor" in lookup_schema
+                    and fragment == lookup_schema["$dynamicAnchor"]):
+                subschema = lookup_schema
+                for error in validator.descend(instance, subschema):
+                    yield error
+                break
+    else:
+        with validator.resolver.resolving(dynamicRef) as lookup_schema:
+            subschema = lookup_schema
+            for error in validator.descend(instance, subschema):
+                yield error
+
+
+def defs(validator, defs, instance, schema):
+    if not validator.is_type(instance, "object"):
+        return
+
+    if '$defs' in instance:
+        for definition, subschema in instance['$defs'].items():
+            for error in validator.descend(
+                subschema,
+                schema,
+                path=definition,
+                schema_path=definition,
+            ):
+                yield error
 
 
 def type(validator, types, instance, schema):
@@ -383,4 +475,52 @@ def if_(validator, if_schema, instance, schema):
     elif u"else" in schema:
         else_ = schema[u"else"]
         for error in validator.descend(instance, else_, schema_path="else"):
+            yield error
+
+
+def unevaluatedItems(validator, unevaluatedItems, instance, schema):
+    evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
+        validator, instance, schema
+    )
+    unevaluated_items = []
+    for k, v in enumerate(instance):
+        if k not in evaluated_item_indexes:
+            for error in validator.descend(
+                v, unevaluatedItems, schema_path="unevaluatedItems"
+            ):
+                unevaluated_items.append(v)
+
+    if len(unevaluated_items):
+        error = "Unevaluated items are not allowed (%s %s unexpected)"
+        yield ValidationError(error % extras_msg(unevaluated_items))
+
+
+def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
+    evaluated_property_keys = find_evaluated_property_keys_by_schema(
+        validator, instance, schema
+    )
+    unevaluated_property_keys = []
+    for property, subschema in instance.items():
+        if property not in evaluated_property_keys:
+            for error in validator.descend(
+                instance[property],
+                unevaluatedProperties,
+                path=property,
+                schema_path=property,
+            ):
+                unevaluated_property_keys.append(property)
+
+    if len(unevaluated_property_keys):
+        error = "Unevaluated properties are not allowed (%s %s unexpected)"
+        yield ValidationError(error % extras_msg(unevaluated_property_keys))
+
+
+def prefixItems(validator, prefixItems, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    for k, v in enumerate(instance[:min(len(prefixItems), len(instance))]):
+        for error in validator.descend(
+            v, prefixItems[k], schema_path="prefixItems"
+        ):
             yield error

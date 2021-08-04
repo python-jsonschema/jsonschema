@@ -26,6 +26,7 @@ ErrorTree
 
 validators = {}
 meta_schemas = _utils.URIDict()
+_VOCABULARIES = _utils.URIDict()
 
 
 def validates(version):
@@ -51,8 +52,12 @@ def validates(version):
     def _validates(cls):
         validators[version] = cls
         meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
-        if meta_schema_id:
-            meta_schemas[meta_schema_id] = cls
+        meta_schemas[meta_schema_id] = cls
+
+        for vocabulary in cls.VOCABULARY_SCHEMAS:
+            vocabulary_id = cls.ID_OF(vocabulary)
+            _VOCABULARIES[vocabulary_id] = vocabulary
+
         return cls
     return _validates
 
@@ -63,12 +68,22 @@ def _id_of(schema):
     return schema.get(u"$id", u"")
 
 
+def _store_schema_list():
+    return [
+        (id, validator.META_SCHEMA) for id, validator in meta_schemas.items()
+    ] + [
+        (id, schema) for id, schema in _VOCABULARIES.items()
+    ]
+
+
 def create(
     meta_schema,
+    vocabulary_schemas=(),
     validators=(),
     version=None,
     type_checker=_types.draft7_type_checker,
     id_of=_id_of,
+    applicable_validators=lambda schema: schema.items(),
 ):
     """
     Create a new validator class.
@@ -111,6 +126,11 @@ def create(
 
             A function that given a schema, returns its ID.
 
+        applicable_validators (collections.abc.Callable):
+
+            A function that returns a list of validators that should apply
+            to a given schema
+
     Returns:
 
         a new `jsonschema.IValidator` class
@@ -120,6 +140,7 @@ def create(
 
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
+        VOCABULARY_SCHEMAS = list(vocabulary_schemas)
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
@@ -161,12 +182,7 @@ def create(
             if scope:
                 self.resolver.push_scope(scope)
             try:
-                ref = _schema.get(u"$ref")
-                if ref is not None:
-                    validators = [(u"$ref", ref)]
-                else:
-                    validators = _schema.items()
-
+                validators = applicable_validators(_schema)
                 for k, v in validators:
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
@@ -312,6 +328,7 @@ Draft3Validator = create(
     type_checker=_types.draft3_type_checker,
     version="draft3",
     id_of=lambda schema: schema.get(u"id", ""),
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
 Draft4Validator = create(
@@ -322,7 +339,7 @@ Draft4Validator = create(
         u"additionalProperties": _validators.additionalProperties,
         u"allOf": _validators.allOf,
         u"anyOf": _validators.anyOf,
-        u"dependencies": _validators.dependencies,
+        u"dependencies": _legacy_validators.dependencies_draft4_draft6_draft7,
         u"enum": _validators.enum,
         u"format": _validators.format,
         u"items": _legacy_validators.items_draft3_draft4,
@@ -347,6 +364,7 @@ Draft4Validator = create(
     type_checker=_types.draft4_type_checker,
     version="draft4",
     id_of=lambda schema: schema.get(u"id", ""),
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
 Draft6Validator = create(
@@ -358,13 +376,13 @@ Draft6Validator = create(
         u"allOf": _validators.allOf,
         u"anyOf": _validators.anyOf,
         u"const": _validators.const,
-        u"contains": _validators.contains,
-        u"dependencies": _validators.dependencies,
+        u"contains": _legacy_validators.contains_draft6_draft7,
+        u"dependencies": _legacy_validators.dependencies_draft4_draft6_draft7,
         u"enum": _validators.enum,
         u"exclusiveMaximum": _validators.exclusiveMaximum,
         u"exclusiveMinimum": _validators.exclusiveMinimum,
         u"format": _validators.format,
-        u"items": _validators.items,
+        u"items": _legacy_validators.items_draft6_draft7,
         u"maxItems": _validators.maxItems,
         u"maxLength": _validators.maxLength,
         u"maxProperties": _validators.maxProperties,
@@ -386,6 +404,7 @@ Draft6Validator = create(
     },
     type_checker=_types.draft6_type_checker,
     version="draft6",
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
 Draft7Validator = create(
@@ -397,8 +416,53 @@ Draft7Validator = create(
         u"allOf": _validators.allOf,
         u"anyOf": _validators.anyOf,
         u"const": _validators.const,
+        u"contains": _legacy_validators.contains_draft6_draft7,
+        u"dependencies": _legacy_validators.dependencies_draft4_draft6_draft7,
+        u"enum": _validators.enum,
+        u"exclusiveMaximum": _validators.exclusiveMaximum,
+        u"exclusiveMinimum": _validators.exclusiveMinimum,
+        u"format": _validators.format,
+        u"if": _validators.if_,
+        u"items": _legacy_validators.items_draft6_draft7,
+        u"maxItems": _validators.maxItems,
+        u"maxLength": _validators.maxLength,
+        u"maxProperties": _validators.maxProperties,
+        u"maximum": _validators.maximum,
+        u"minItems": _validators.minItems,
+        u"minLength": _validators.minLength,
+        u"minProperties": _validators.minProperties,
+        u"minimum": _validators.minimum,
+        u"multipleOf": _validators.multipleOf,
+        u"oneOf": _validators.oneOf,
+        u"not": _validators.not_,
+        u"pattern": _validators.pattern,
+        u"patternProperties": _validators.patternProperties,
+        u"properties": _validators.properties,
+        u"propertyNames": _validators.propertyNames,
+        u"required": _validators.required,
+        u"type": _validators.type,
+        u"uniqueItems": _validators.uniqueItems,
+    },
+    type_checker=_types.draft7_type_checker,
+    version="draft7",
+    applicable_validators=_legacy_validators.ignore_ref_siblings,
+)
+
+Draft202012Validator = create(
+    meta_schema=_utils.load_schema("draft2020-12"),
+    vocabulary_schemas=_utils.load_vocabulary("draft2020-12"),
+    validators={
+        u"$ref": _validators.ref,
+        u"$defs": _validators.defs,
+        u"$dynamicRef": _validators.dynamicRef,
+        u"additionalItems": _validators.additionalItems,
+        u"additionalProperties": _validators.additionalProperties,
+        u"allOf": _validators.allOf,
+        u"anyOf": _validators.anyOf,
+        u"const": _validators.const,
         u"contains": _validators.contains,
-        u"dependencies": _validators.dependencies,
+        u"dependentRequired": _validators.dependentRequired,
+        u"dependentSchemas": _validators.dependentSchemas,
         u"enum": _validators.enum,
         u"exclusiveMaximum": _validators.exclusiveMaximum,
         u"exclusiveMinimum": _validators.exclusiveMinimum,
@@ -423,12 +487,15 @@ Draft7Validator = create(
         u"required": _validators.required,
         u"type": _validators.type,
         u"uniqueItems": _validators.uniqueItems,
+        u"unevaluatedItems": _validators.unevaluatedItems,
+        u"unevaluatedProperties": _validators.unevaluatedProperties,
+        u"prefixItems": _validators.prefixItems,
     },
-    type_checker=_types.draft7_type_checker,
-    version="draft7",
+    type_checker=_types.draft202012_type_checker,
+    version="draft2020-12",
 )
 
-_LATEST_VERSION = Draft7Validator
+_LATEST_VERSION = Draft202012Validator
 
 
 class RefResolver(object):
@@ -495,10 +562,7 @@ class RefResolver(object):
         self.handlers = dict(handlers)
 
         self._scopes_stack = [base_uri]
-        self.store = _utils.URIDict(
-            (id, validator.META_SCHEMA)
-            for id, validator in meta_schemas.items()
-        )
+        self.store = _utils.URIDict(_store_schema_list())
         self.store.update(store)
         self.store[base_uri] = referrer
 
@@ -561,6 +625,13 @@ class RefResolver(object):
         return self._scopes_stack[-1]
 
     @property
+    def scopes_stack_copy(self):
+        """
+        Retrieve a copy of the stack of resolution scopes.
+        """
+        return self._scopes_stack.copy()
+
+    @property
     def base_uri(self):
         """
         Retrieve the current base URI, not including any fragment.
@@ -600,11 +671,42 @@ class RefResolver(object):
         finally:
             self.pop_scope()
 
+    def _finditem(self, schema, key):
+        results = []
+        if isinstance(schema, dict):
+            if key in schema:
+                results.append(schema)
+
+            for k, v in schema.items():
+                if isinstance(v, dict):
+                    results += self._finditem(v, key)
+
+        return results
+
+    def resolve_local(self, url, schema):
+        """
+        Resolve the given reference within the schema
+        """
+        uri, fragment = urldefrag(url)
+
+        for subschema in self._finditem(schema, "$id"):
+            target_uri = self._urljoin_cache(
+                self.resolution_scope, subschema['$id']
+            )
+            if target_uri.rstrip("/") == uri.rstrip("/"):
+                if fragment:
+                    subschema = self.resolve_fragment(subschema, fragment)
+                return subschema
+
     def resolve(self, ref):
         """
         Resolve the given reference.
         """
-        url = self._urljoin_cache(self.resolution_scope, ref)
+        url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
+        local_resolve = self.resolve_local(url, self.referrer)
+
+        if local_resolve:
+            return url, local_resolve
         return url, self._remote_cache(url)
 
     def resolve_from_url(self, url):
@@ -638,8 +740,16 @@ class RefResolver(object):
         """
 
         fragment = fragment.lstrip(u"/")
-        parts = unquote(fragment).split(u"/") if fragment else []
 
+        # Resolve fragment via $anchor or $dynamicAnchor
+        if fragment:
+            for keyword in ["$anchor", "$dynamicAnchor"]:
+                for subschema in self._finditem(document, keyword):
+                    if fragment == subschema[keyword]:
+                        return subschema
+
+        # Resolve via path
+        parts = unquote(fragment).split(u"/") if fragment else []
         for part in parts:
             part = part.replace(u"~1", u"/").replace(u"~0", u"~")
 

@@ -2,6 +2,18 @@ from jsonschema import _utils
 from jsonschema.exceptions import ValidationError
 
 
+def ignore_ref_siblings(schema):
+    """
+    Returns a list of validators that should apply for the given schema
+    Used for draft7 and earlier
+    """
+    ref = schema.get(u"$ref")
+    if ref is not None:
+        return [(u"$ref", ref)]
+    else:
+        return schema.items()
+
+
 def dependencies_draft3(validator, dependencies, instance, schema):
     if not validator.is_type(instance, "object"):
         return
@@ -25,6 +37,37 @@ def dependencies_draft3(validator, dependencies, instance, schema):
                 if each not in instance:
                     message = "%r is a dependency of %r"
                     yield ValidationError(message % (each, property))
+
+
+def dependencies_draft4_draft6_draft7(
+    validator,
+    dependencies,
+    instance,
+    schema,
+):
+    """
+    Support for the ``dependencies`` validator from pre-draft 2019-09.
+
+    In later drafts, the validator was split into separate
+    ``dependentRequired`` and ``dependentSchemas`` validators.
+    """
+    if not validator.is_type(instance, "object"):
+        return
+
+    for property, dependency in dependencies.items():
+        if property not in instance:
+            continue
+
+        if validator.is_type(dependency, "array"):
+            for each in dependency:
+                if each not in instance:
+                    message = "%r is a dependency of %r"
+                    yield ValidationError(message % (each, property))
+        else:
+            for error in validator.descend(
+                    instance, dependency, schema_path=property,
+            ):
+                yield error
 
 
 def disallow_draft3(validator, disallow, instance, schema):
@@ -58,6 +101,22 @@ def items_draft3_draft4(validator, items, instance, schema):
             for error in validator.descend(
                 item, subschema, path=index, schema_path=index,
             ):
+                yield error
+
+
+def items_draft6_draft7(validator, items, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    if validator.is_type(items, "array"):
+        for (index, item), subschema in zip(enumerate(instance), items):
+            for error in validator.descend(
+                item, subschema, path=index, schema_path=index,
+            ):
+                yield error
+    else:
+        for index, item in enumerate(instance):
+            for error in validator.descend(item, items, path=index):
                 yield error
 
 
@@ -137,4 +196,14 @@ def type_draft3(validator, types, instance, schema):
     else:
         yield ValidationError(
             _utils.types_msg(instance, types), context=all_errors,
+        )
+
+
+def contains_draft6_draft7(validator, contains, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    if not any(validator.is_valid(element, contains) for element in instance):
+        yield ValidationError(
+            "None of %r are valid under the given schema" % (instance,)
         )

@@ -1,3 +1,4 @@
+from uuid import UUID
 import datetime
 import ipaddress
 import re
@@ -131,13 +132,14 @@ draft3_format_checker = FormatChecker()
 draft4_format_checker = FormatChecker()
 draft6_format_checker = FormatChecker()
 draft7_format_checker = FormatChecker()
-
+draft202012_format_checker = FormatChecker()
 
 _draft_checkers = dict(
     draft3=draft3_format_checker,
     draft4=draft4_format_checker,
     draft6=draft6_format_checker,
     draft7=draft7_format_checker,
+    draft202012=draft202012_format_checker,
 )
 
 
@@ -147,12 +149,14 @@ def _checks_drafts(
     draft4=None,
     draft6=None,
     draft7=None,
+    draft202012=None,
     raises=(),
 ):
     draft3 = draft3 or name
     draft4 = draft4 or name
     draft6 = draft6 or name
     draft7 = draft7 or name
+    draft202012 = draft202012 or name
 
     def wrap(func):
         if draft3:
@@ -163,13 +167,17 @@ def _checks_drafts(
             func = _draft_checkers["draft6"].checks(draft6, raises)(func)
         if draft7:
             func = _draft_checkers["draft7"].checks(draft7, raises)(func)
+        if draft202012:
+            func = _draft_checkers["draft202012"].checks(
+                draft202012, raises
+            )(func)
 
         # Oy. This is bad global state, but relied upon for now, until
         # deprecation. See https://github.com/Julian/jsonschema/issues/519
         # and test_format_checkers_come_with_defaults
-        FormatChecker.cls_checks(draft7 or draft6 or draft4 or draft3, raises)(
-            func,
-        )
+        FormatChecker.cls_checks(
+            draft202012 or draft7 or draft6 or draft4 or draft3, raises
+        )(func)
         return func
     return wrap
 
@@ -187,6 +195,7 @@ def is_email(instance):
     draft4="ipv4",
     draft6="ipv4",
     draft7="ipv4",
+    draft202012="ipv4",
     raises=ipaddress.AddressValueError,
 )
 def is_ipv4(instance):
@@ -213,6 +222,7 @@ else:
         draft4="hostname",
         draft6="hostname",
         draft7="hostname",
+        draft202012="hostname",
     )
     def is_host_name(instance):
         if not isinstance(instance, str):
@@ -228,6 +238,7 @@ except ImportError:  # pragma: no cover
 else:
     @_checks_drafts(
         draft7="idn-hostname",
+        draft202012="idn-hostname",
         raises=(idna.IDNAError, UnicodeError),
     )
     def is_idn_host_name(instance):
@@ -254,6 +265,7 @@ except ImportError:
         @_checks_drafts(
             draft6="uri-reference",
             draft7="uri-reference",
+            draft202012="uri-reference",
             raises=ValueError,
         )
         def is_uri_reference(instance):
@@ -262,19 +274,30 @@ except ImportError:
             return validate_rfc3986(instance, rule="URI_reference")
 
 else:
-    @_checks_drafts(draft7="iri", raises=ValueError)
+    @_checks_drafts(
+        draft7="iri",
+        draft202012="iri",
+        raises=ValueError,
+    )
     def is_iri(instance):
         if not isinstance(instance, str):
             return True
         return rfc3987.parse(instance, rule="IRI")
 
-    @_checks_drafts(draft7="iri-reference", raises=ValueError)
+    @_checks_drafts(
+        draft7="iri-reference",
+        draft202012="iri-reference",
+        raises=ValueError,
+    )
     def is_iri_reference(instance):
         if not isinstance(instance, str):
             return True
         return rfc3987.parse(instance, rule="IRI_reference")
 
-    @_checks_drafts(name="uri", raises=ValueError)
+    @_checks_drafts(
+        name="uri",
+        raises=ValueError,
+    )
     def is_uri(instance):
         if not isinstance(instance, str):
             return True
@@ -283,6 +306,7 @@ else:
     @_checks_drafts(
         draft6="uri-reference",
         draft7="uri-reference",
+        draft202012="uri-reference",
         raises=ValueError,
     )
     def is_uri_reference(instance):
@@ -306,7 +330,10 @@ if validate_rfc3339:
             return True
         return validate_rfc3339(instance.upper())
 
-    @_checks_drafts(draft7="time")
+    @_checks_drafts(
+        draft7="time",
+        draft202012="time",
+    )
     def is_time(instance):
         if not isinstance(instance, str):
             return True
@@ -327,7 +354,12 @@ else:
         return datetime.datetime.strptime(instance, "%Y-%m-%d")
 
 
-@_checks_drafts(draft3="date", draft7="date", raises=ValueError)
+@_checks_drafts(
+    draft3="date",
+    draft7="date",
+    draft202012="date",
+    raises=ValueError,
+)
 def is_date(instance):
     if not isinstance(instance, str):
         return True
@@ -377,6 +409,7 @@ else:
     @_checks_drafts(
         draft6="json-pointer",
         draft7="json-pointer",
+        draft202012="json-pointer",
         raises=jsonpointer.JsonPointerException,
     )
     def is_json_pointer(instance):
@@ -390,6 +423,7 @@ else:
     #       into a new external library.
     @_checks_drafts(
         draft7="relative-json-pointer",
+        draft202012="relative-json-pointer",
         raises=jsonpointer.JsonPointerException,
     )
     def is_relative_json_pointer(instance):
@@ -400,6 +434,10 @@ else:
         non_negative_integer, rest = [], ""
         for i, character in enumerate(instance):
             if character.isdigit():
+                # digits with a leading "0" are not allowed
+                if i > 0 and int(instance[i-1]) == 0:
+                    return False
+
                 non_negative_integer.append(character)
                 continue
 
@@ -419,8 +457,36 @@ else:
     @_checks_drafts(
         draft6="uri-template",
         draft7="uri-template",
+        draft202012="uri-template",
     )
     def is_uri_template(instance):
         if not isinstance(instance, str):
             return True
         return uri_template.validate(instance)
+
+
+try:
+    import isoduration
+except ImportError:  # pragma: no cover
+    pass
+else:
+    @_checks_drafts(
+        draft202012="duration",
+        raises=isoduration.DurationParsingException,
+    )
+    def is_duration(instance):
+        if not isinstance(instance, str):
+            return True
+        return isoduration.parse_duration(instance)
+
+
+@_checks_drafts(
+    draft202012="uuid",
+    raises=ValueError,
+)
+def is_uuid(instance):
+    if not isinstance(instance, str):
+        return True
+    if "-" not in instance:
+        raise ValueError("Invalid UUID format")
+    return UUID(instance)
