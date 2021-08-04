@@ -32,6 +32,21 @@
                 "description": "negative prefix",
                 "data": "-1/foo/bar",
                 "valid": false
+            },
+            {
+                "description": "## is not a valid json-pointer",
+                "data": "0##",
+                "valid": false
+            },
+            {
+                "description": "zero cannot be followed by other digits, plus json-pointer",
+                "data": "01/a",
+                "valid": false
+            },
+            {
+                "description": "zero cannot be followed by other digits, plus octothorpe",
+                "data": "01#",
+                "valid": false
             }
         ]
     }
