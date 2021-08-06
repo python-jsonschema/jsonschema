@@ -46,6 +46,21 @@
                 "valid": false
             },
             {
+                "description": "too few dashes",
+                "data": "2eb8aa08aa98-11ea-b4aa73b441d16380",
+                "valid": false
+            },
+            {
+                "description": "too many dashes",
+                "data": "2eb8-aa08-aa98-11ea-b4aa73b44-1d16380",
+                "valid": false
+            },
+            {
+                "description": "dashes in the wrong spot",
+                "data": "2eb8aa08aa9811eab4aa73b441d16380----",
+                "valid": false
+            },
+            {
                 "description": "valid version 4",
                 "data": "98d80576-482e-427f-8434-7f86890ab222",
                 "valid": true
