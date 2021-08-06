@@ -487,6 +487,5 @@ else:
 def is_uuid(instance):
     if not isinstance(instance, str):
         return True
-    if "-" not in instance:
-        raise ValueError("Invalid UUID format")
-    return UUID(instance)
+    UUID(instance)
+    return all(instance[position] == "-" for position in (8, 13, 18, 23))
