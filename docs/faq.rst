@@ -69,7 +69,7 @@ implemented here, across any other implementation they encounter.
 
         for details on how to enable format validation
 
-    `FormatChecker`
+    `jsonschema.FormatChecker`
 
         the object which implements format validation
 
