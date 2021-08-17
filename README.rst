@@ -124,11 +124,11 @@ I'm Julian Berman.
 Get in touch, via GitHub or otherwise, if you've got something to contribute,
 it'd be most welcome!
 
-You can also generally find me on Freenode (nick: ``tos9``) in various
+You can also generally find me on Libera (nick: ``Julian``) in various
 channels, including ``#python``.
 
-If you feel overwhelmingly grateful, you can also woo me with beer money
-via Google Pay with the email in my GitHub profile.
+If you feel overwhelmingly grateful, you can also `sponsor me
+<https://github.com/sponsors/Julian/>`_.
 
 And for companies who appreciate ``jsonschema`` and its continued support
 and growth, ``jsonschema`` is also now supportable via `TideLift
