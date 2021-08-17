@@ -115,7 +115,7 @@ class Version(object):
         )
 
     def to_unittest_testcase(self, *suites, **kwargs):
-        name = kwargs.pop("name", "Test" + self.name.title())
+        name = kwargs.pop("name", "Test" + self.name.title().replace("-", ""))
         methods = {
             test.method_name: test.to_unittest_method(**kwargs)
             for suite in suites
