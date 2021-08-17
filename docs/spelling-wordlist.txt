@@ -40,5 +40,5 @@ Zac
 HD
 
 Berman
-Freenode
+Libera
 GPL
