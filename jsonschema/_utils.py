@@ -120,25 +120,6 @@ def extras_msg(extras):
     return ", ".join(repr(extra) for extra in extras), verb
 
 
-def types_msg(instance, types):
-    """
-    Create an error message for a failure to match the given types.
-
-    If the ``instance`` is an object and contains a ``name`` property, it will
-    be considered to be a description of that object and used as its type.
-
-    Otherwise the message is simply the reprs of the given ``types``.
-    """
-
-    reprs = []
-    for type in types:
-        try:
-            reprs.append(repr(type["name"]))
-        except Exception:
-            reprs.append(repr(type))
-    return f"{instance!r} is not of type {', '.join(reprs)}"
-
-
 def flatten(suitable_for_isinstance):
     """
     isinstance() can accept a bunch of really annoying different types:

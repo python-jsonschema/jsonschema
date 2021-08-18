@@ -193,8 +193,15 @@ def type_draft3(validator, types, instance, schema):
             if validator.is_type(instance, type):
                 return
     else:
+        reprs = []
+        for type in types:
+            try:
+                reprs.append(repr(type["name"]))
+            except Exception:
+                reprs.append(repr(type))
         yield ValidationError(
-            _utils.types_msg(instance, types), context=all_errors,
+            f"{instance!r} is not of type {', '.join(reprs)}",
+            context=all_errors,
         )
 
 

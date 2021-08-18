@@ -9,7 +9,6 @@ from jsonschema._utils import (
     find_additional_properties,
     find_evaluated_item_indexes_by_schema,
     find_evaluated_property_keys_by_schema,
-    types_msg,
     unbool,
     uniq,
 )
@@ -356,7 +355,8 @@ def type(validator, types, instance, schema):
     types = ensure_list(types)
 
     if not any(validator.is_type(instance, type) for type in types):
-        yield ValidationError(types_msg(instance, types))
+        reprs = ", ".join(repr(type) for type in types)
+        yield ValidationError(f"{instance!r} is not of type {reprs}")
 
 
 def properties(validator, properties, instance, schema):
