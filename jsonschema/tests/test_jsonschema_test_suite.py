@@ -159,7 +159,9 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.tests(),
     DRAFT4.format_tests(),
     DRAFT4.optional_tests_of(name="bignum"),
+    DRAFT4.optional_tests_of(name="float-overflow"),
     DRAFT4.optional_tests_of(name="non-bmp-regex"),
+    DRAFT4.optional_tests_of(name="unicode"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft4Validator,
     format_checker=draft4_format_checker,
@@ -224,7 +226,9 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.tests(),
     DRAFT6.format_tests(),
     DRAFT6.optional_tests_of(name="bignum"),
+    DRAFT6.optional_tests_of(name="float-overflow"),
     DRAFT6.optional_tests_of(name="non-bmp-regex"),
+    DRAFT7.optional_tests_of(name="unicode"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
     skip=lambda test: (
@@ -306,7 +310,9 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.format_tests(),
     DRAFT7.optional_tests_of(name="bignum"),
     DRAFT7.optional_tests_of(name="content"),
+    DRAFT7.optional_tests_of(name="float-overflow"),
     DRAFT7.optional_tests_of(name="non-bmp-regex"),
+    DRAFT7.optional_tests_of(name="unicode"),
     Validator=Draft7Validator,
     format_checker=draft7_format_checker,
     skip=lambda test: (
@@ -412,6 +418,7 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
     DRAFT201909.optional_tests_of(name="float-overflow"),
     DRAFT201909.optional_tests_of(name="non-bmp-regex"),
     DRAFT201909.optional_tests_of(name="refOfUnknownKeyword"),
+    DRAFT201909.optional_tests_of(name="unicode"),
     Validator=Draft201909Validator,
     skip=lambda test: (
         skip(
@@ -447,6 +454,7 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.optional_tests_of(name="float-overflow"),
     DRAFT202012.optional_tests_of(name="non-bmp-regex"),
     DRAFT202012.optional_tests_of(name="refOfUnknownKeyword"),
+    DRAFT202012.optional_tests_of(name="unicode"),
     Validator=Draft202012Validator,
     skip=lambda test: (
         narrow_unicode_build(test)
