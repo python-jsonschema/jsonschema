@@ -26,10 +26,9 @@ def dependencies_draft3(validator, dependencies, instance, schema):
             continue
 
         if validator.is_type(dependency, "object"):
-            for error in validator.descend(
+            yield from validator.descend(
                 instance, dependency, schema_path=property,
-            ):
-                yield error
+            )
         elif validator.is_type(dependency, "string"):
             if dependency not in instance:
                 message = f"{dependency!r} is a dependency of {property!r}"
@@ -66,10 +65,9 @@ def dependencies_draft4_draft6_draft7(
                     message = f"{each!r} is a dependency of {property!r}"
                     yield ValidationError(message)
         else:
-            for error in validator.descend(
-                    instance, dependency, schema_path=property,
-            ):
-                yield error
+            yield from validator.descend(
+                instance, dependency, schema_path=property,
+            )
 
 
 def disallow_draft3(validator, disallow, instance, schema):
@@ -81,12 +79,10 @@ def disallow_draft3(validator, disallow, instance, schema):
 
 def extends_draft3(validator, extends, instance, schema):
     if validator.is_type(extends, "object"):
-        for error in validator.descend(instance, extends):
-            yield error
+        yield from validator.descend(instance, extends)
         return
     for index, subschema in enumerate(extends):
-        for error in validator.descend(instance, subschema, schema_path=index):
-            yield error
+        yield from validator.descend(instance, subschema, schema_path=index)
 
 
 def items_draft3_draft4(validator, items, instance, schema):
@@ -95,14 +91,12 @@ def items_draft3_draft4(validator, items, instance, schema):
 
     if validator.is_type(items, "object"):
         for index, item in enumerate(instance):
-            for error in validator.descend(item, items, path=index):
-                yield error
+            yield from validator.descend(item, items, path=index)
     else:
         for (index, item), subschema in zip(enumerate(instance), items):
-            for error in validator.descend(
+            yield from validator.descend(
                 item, subschema, path=index, schema_path=index,
-            ):
-                yield error
+            )
 
 
 def items_draft6_draft7_draft201909(validator, items, instance, schema):
@@ -111,14 +105,12 @@ def items_draft6_draft7_draft201909(validator, items, instance, schema):
 
     if validator.is_type(items, "array"):
         for (index, item), subschema in zip(enumerate(instance), items):
-            for error in validator.descend(
+            yield from validator.descend(
                 item, subschema, path=index, schema_path=index,
-            ):
-                yield error
+            )
     else:
         for index, item in enumerate(instance):
-            for error in validator.descend(item, items, path=index):
-                yield error
+            yield from validator.descend(item, items, path=index)
 
 
 def minimum_draft3_draft4(validator, minimum, instance, schema):
@@ -159,13 +151,12 @@ def properties_draft3(validator, properties, instance, schema):
 
     for property, subschema in properties.items():
         if property in instance:
-            for error in validator.descend(
+            yield from validator.descend(
                 instance[property],
                 subschema,
                 path=property,
                 schema_path=property,
-            ):
-                yield error
+            )
         elif subschema.get("required", False):
             error = ValidationError(f"{property!r} is a required property")
             error._set(
@@ -227,5 +218,4 @@ def recursiveRef(validator, recursiveRef, instance, schema):
             break
 
     subschema = validator.resolver.resolve_local(recursiveRef, target)
-    for error in validator.descend(instance, subschema):
-        yield error
+    yield from validator.descend(instance, subschema)

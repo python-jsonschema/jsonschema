@@ -22,10 +22,9 @@ def patternProperties(validator, patternProperties, instance, schema):
     for pattern, subschema in patternProperties.items():
         for k, v in instance.items():
             if re.search(pattern, k):
-                for error in validator.descend(
+                yield from validator.descend(
                     v, subschema, path=k, schema_path=pattern,
-                ):
-                    yield error
+                )
 
 
 def propertyNames(validator, propertyNames, instance, schema):
@@ -33,11 +32,7 @@ def propertyNames(validator, propertyNames, instance, schema):
         return
 
     for property in instance:
-        for error in validator.descend(
-            instance=property,
-            schema=propertyNames,
-        ):
-            yield error
+        yield from validator.descend(instance=property, schema=propertyNames)
 
 
 def additionalProperties(validator, aP, instance, schema):
@@ -48,8 +43,7 @@ def additionalProperties(validator, aP, instance, schema):
 
     if validator.is_type(aP, "object"):
         for extra in extras:
-            for error in validator.descend(instance[extra], aP, path=extra):
-                yield error
+            yield from validator.descend(instance[extra], aP, path=extra)
     elif not aP and extras:
         if "patternProperties" in schema:
             if len(extras) == 1:
@@ -86,8 +80,7 @@ def items(validator, items, instance, schema):
         )
 
         for index, item in enumerate(non_prefixed_items):
-            for error in validator.descend(item, items, path=index):
-                yield error
+            yield from validator.descend(item, items, path=index)
 
 
 def additionalItems(validator, aI, instance, schema):
@@ -100,8 +93,7 @@ def additionalItems(validator, aI, instance, schema):
     len_items = len(schema.get("items", []))
     if validator.is_type(aI, "object"):
         for index, item in enumerate(instance[len_items:], start=len_items):
-            for error in validator.descend(item, aI, path=index):
-                yield error
+            yield from validator.descend(item, aI, path=index)
     elif not aI and len(instance) > len(schema.get("items", [])):
         error = "Additional items are not allowed (%s %s unexpected)"
         yield ValidationError(
@@ -276,11 +268,9 @@ def dependentSchemas(validator, dependentSchemas, instance, schema):
     for property, dependency in dependentSchemas.items():
         if property not in instance:
             continue
-
-        for error in validator.descend(
+        yield from validator.descend(
             instance, dependency, schema_path=property,
-        ):
-            yield error
+        )
 
 
 def enum(validator, enums, instance, schema):
@@ -296,15 +286,13 @@ def ref(validator, ref, instance, schema):
     resolve = getattr(validator.resolver, "resolve", None)
     if resolve is None:
         with validator.resolver.resolving(ref) as resolved:
-            for error in validator.descend(instance, resolved):
-                yield error
+            yield from validator.descend(instance, resolved)
     else:
         scope, resolved = validator.resolver.resolve(ref)
         validator.resolver.push_scope(scope)
 
         try:
-            for error in validator.descend(instance, resolved):
-                yield error
+            yield from validator.descend(instance, resolved)
         finally:
             validator.resolver.pop_scope()
 
@@ -318,13 +306,11 @@ def dynamicRef(validator, dynamicRef, instance, schema):
         with validator.resolver.resolving(lookup_url) as subschema:
             if ("$dynamicAnchor" in subschema
                     and fragment == subschema["$dynamicAnchor"]):
-                for error in validator.descend(instance, subschema):
-                    yield error
+                yield from validator.descend(instance, subschema)
                 break
     else:
         with validator.resolver.resolving(dynamicRef) as subschema:
-            for error in validator.descend(instance, subschema):
-                yield error
+            yield from validator.descend(instance, subschema)
 
 
 def type(validator, types, instance, schema):
@@ -341,13 +327,12 @@ def properties(validator, properties, instance, schema):
 
     for property, subschema in properties.items():
         if property in instance:
-            for error in validator.descend(
+            yield from validator.descend(
                 instance[property],
                 subschema,
                 path=property,
                 schema_path=property,
-            ):
-                yield error
+            )
 
 
 def required(validator, required, instance, schema):
@@ -372,8 +357,7 @@ def maxProperties(validator, mP, instance, schema):
 
 def allOf(validator, allOf, instance, schema):
     for index, subschema in enumerate(allOf):
-        for error in validator.descend(instance, subschema, schema_path=index):
-            yield error
+        yield from validator.descend(instance, subschema, schema_path=index)
 
 
 def anyOf(validator, anyOf, instance, schema):
@@ -423,12 +407,10 @@ def if_(validator, if_schema, instance, schema):
     if validator.is_valid(instance, if_schema):
         if "then" in schema:
             then = schema["then"]
-            for error in validator.descend(instance, then, schema_path="then"):
-                yield error
+            yield from validator.descend(instance, then, schema_path="then")
     elif "else" in schema:
         else_ = schema["else"]
-        for error in validator.descend(instance, else_, schema_path="else"):
-            yield error
+        yield from validator.descend(instance, else_, schema_path="else")
 
 
 def unevaluatedItems(validator, unevaluatedItems, instance, schema):
@@ -469,7 +451,6 @@ def prefixItems(validator, prefixItems, instance, schema):
         return
 
     for k, v in enumerate(instance[:min(len(prefixItems), len(instance))]):
-        for error in validator.descend(
+        yield from validator.descend(
             v, prefixItems[k], schema_path="prefixItems",
-        ):
-            yield error
+        )
