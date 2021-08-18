@@ -13,11 +13,13 @@ from jsonschema import (
     Draft4Validator,
     Draft6Validator,
     Draft7Validator,
+    Draft201909Validator,
     Draft202012Validator,
     draft3_format_checker,
     draft4_format_checker,
     draft6_format_checker,
     draft7_format_checker,
+    draft201909_format_checker,
     draft202012_format_checker,
 )
 from jsonschema.tests._helpers import bug
@@ -28,6 +30,7 @@ DRAFT3 = SUITE.version(name="draft3")
 DRAFT4 = SUITE.version(name="draft4")
 DRAFT6 = SUITE.version(name="draft6")
 DRAFT7 = SUITE.version(name="draft7")
+DRAFT201909 = SUITE.version(name="draft2019-09")
 DRAFT202012 = SUITE.version(name="draft2020-12")
 
 
@@ -399,6 +402,41 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
                 "validation of binary-encoded media type documents"
             ),
         )(test)
+    ),
+)
+
+
+TestDraft201909 = DRAFT201909.to_unittest_testcase(
+    DRAFT201909.tests(),
+    DRAFT201909.optional_tests_of(name="bignum"),
+    DRAFT201909.optional_tests_of(name="float-overflow"),
+    DRAFT201909.optional_tests_of(name="non-bmp-regex"),
+    DRAFT201909.optional_tests_of(name="refOfUnknownKeyword"),
+    Validator=Draft201909Validator,
+    skip=lambda test: (
+        skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+        )(test)
+        or skip(
+            message="dynamicRef support isn't working yet.",
+            subject="recursiveRef",
+        )(test)
+    ),
+)
+
+
+TestDraft201909Format = DRAFT201909.to_unittest_testcase(
+    DRAFT201909.format_tests(),
+    Validator=Draft201909Validator,
+    format_checker=draft201909_format_checker,
+    skip=lambda test: (
+        complex_email_validation(test)
+        or missing_date_fromisoformat(test)
+        or allowed_leading_zeros(test)
+        or leap_second(test)
+        or missing_format(draft201909_format_checker)(test)
+        or complex_email_validation(test)
     ),
 )
 

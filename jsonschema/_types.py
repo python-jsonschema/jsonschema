@@ -185,4 +185,5 @@ draft6_type_checker = draft4_type_checker.redefine(
     ),
 )
 draft7_type_checker = draft6_type_checker
-draft202012_type_checker = draft7_type_checker
+draft201909_type_checker = draft7_type_checker
+draft202012_type_checker = draft201909_type_checker

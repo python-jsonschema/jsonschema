@@ -342,32 +342,15 @@ def dynamicRef(validator, dynamicRef, instance, schema):
 
     for url in scope_stack:
         lookup_url = urljoin(url, dynamicRef)
-        with validator.resolver.resolving(lookup_url) as lookup_schema:
-            if ("$dynamicAnchor" in lookup_schema
-                    and fragment == lookup_schema["$dynamicAnchor"]):
-                subschema = lookup_schema
+        with validator.resolver.resolving(lookup_url) as subschema:
+            if ("$dynamicAnchor" in subschema
+                    and fragment == subschema["$dynamicAnchor"]):
                 for error in validator.descend(instance, subschema):
                     yield error
                 break
     else:
-        with validator.resolver.resolving(dynamicRef) as lookup_schema:
-            subschema = lookup_schema
+        with validator.resolver.resolving(dynamicRef) as subschema:
             for error in validator.descend(instance, subschema):
-                yield error
-
-
-def defs(validator, defs, instance, schema):
-    if not validator.is_type(instance, "object"):
-        return
-
-    if '$defs' in instance:
-        for definition, subschema in instance['$defs'].items():
-            for error in validator.descend(
-                subschema,
-                schema,
-                path=definition,
-                schema_path=definition,
-            ):
                 yield error
 
 

@@ -132,6 +132,7 @@ draft3_format_checker = FormatChecker()
 draft4_format_checker = FormatChecker()
 draft6_format_checker = FormatChecker()
 draft7_format_checker = FormatChecker()
+draft201909_format_checker = FormatChecker()
 draft202012_format_checker = FormatChecker()
 
 _draft_checkers = dict(
@@ -139,6 +140,7 @@ _draft_checkers = dict(
     draft4=draft4_format_checker,
     draft6=draft6_format_checker,
     draft7=draft7_format_checker,
+    draft201909=draft201909_format_checker,
     draft202012=draft202012_format_checker,
 )
 
@@ -149,6 +151,7 @@ def _checks_drafts(
     draft4=None,
     draft6=None,
     draft7=None,
+    draft201909=None,
     draft202012=None,
     raises=(),
 ):
@@ -156,6 +159,7 @@ def _checks_drafts(
     draft4 = draft4 or name
     draft6 = draft6 or name
     draft7 = draft7 or name
+    draft201909 = draft201909 or name
     draft202012 = draft202012 or name
 
     def wrap(func):
@@ -167,6 +171,10 @@ def _checks_drafts(
             func = _draft_checkers["draft6"].checks(draft6, raises)(func)
         if draft7:
             func = _draft_checkers["draft7"].checks(draft7, raises)(func)
+        if draft201909:
+            func = _draft_checkers["draft201909"].checks(draft201909, raises)(
+                func,
+            )
         if draft202012:
             func = _draft_checkers["draft202012"].checks(draft202012, raises)(
                 func,
@@ -176,7 +184,8 @@ def _checks_drafts(
         # deprecation. See https://github.com/Julian/jsonschema/issues/519
         # and test_format_checkers_come_with_defaults
         FormatChecker.cls_checks(
-            draft202012 or draft7 or draft6 or draft4 or draft3, raises,
+            draft202012 or draft201909 or draft7 or draft6 or draft4 or draft3,
+            raises,
         )(func)
         return func
     return wrap
@@ -195,6 +204,7 @@ def is_email(instance):
     draft4="ipv4",
     draft6="ipv4",
     draft7="ipv4",
+    draft201909="ipv4",
     draft202012="ipv4",
     raises=ipaddress.AddressValueError,
 )
@@ -222,6 +232,7 @@ else:
         draft4="hostname",
         draft6="hostname",
         draft7="hostname",
+        draft201909="hostname",
         draft202012="hostname",
     )
     def is_host_name(instance):
@@ -238,6 +249,7 @@ except ImportError:  # pragma: no cover
 else:
     @_checks_drafts(
         draft7="idn-hostname",
+        draft201909="idn-hostname",
         draft202012="idn-hostname",
         raises=(idna.IDNAError, UnicodeError),
     )
@@ -265,6 +277,7 @@ except ImportError:
         @_checks_drafts(
             draft6="uri-reference",
             draft7="uri-reference",
+            draft201909="uri-reference",
             draft202012="uri-reference",
             raises=ValueError,
         )
@@ -276,6 +289,7 @@ except ImportError:
 else:
     @_checks_drafts(
         draft7="iri",
+        draft201909="iri",
         draft202012="iri",
         raises=ValueError,
     )
@@ -286,6 +300,7 @@ else:
 
     @_checks_drafts(
         draft7="iri-reference",
+        draft201909="iri-reference",
         draft202012="iri-reference",
         raises=ValueError,
     )
@@ -294,10 +309,7 @@ else:
             return True
         return rfc3987.parse(instance, rule="IRI_reference")
 
-    @_checks_drafts(
-        name="uri",
-        raises=ValueError,
-    )
+    @_checks_drafts(name="uri", raises=ValueError)
     def is_uri(instance):
         if not isinstance(instance, str):
             return True
@@ -306,6 +318,7 @@ else:
     @_checks_drafts(
         draft6="uri-reference",
         draft7="uri-reference",
+        draft201909="uri-reference",
         draft202012="uri-reference",
         raises=ValueError,
     )
@@ -332,6 +345,7 @@ if validate_rfc3339:
 
     @_checks_drafts(
         draft7="time",
+        draft201909="time",
         draft202012="time",
     )
     def is_time(instance):
@@ -357,6 +371,7 @@ else:
 @_checks_drafts(
     draft3="date",
     draft7="date",
+    draft201909="date",
     draft202012="date",
     raises=ValueError,
 )
@@ -409,6 +424,7 @@ else:
     @_checks_drafts(
         draft6="json-pointer",
         draft7="json-pointer",
+        draft201909="json-pointer",
         draft202012="json-pointer",
         raises=jsonpointer.JsonPointerException,
     )
@@ -423,6 +439,7 @@ else:
     #       into a new external library.
     @_checks_drafts(
         draft7="relative-json-pointer",
+        draft201909="relative-json-pointer",
         draft202012="relative-json-pointer",
         raises=jsonpointer.JsonPointerException,
     )
@@ -457,6 +474,7 @@ else:
     @_checks_drafts(
         draft6="uri-template",
         draft7="uri-template",
+        draft201909="uri-template",
         draft202012="uri-template",
     )
     def is_uri_template(instance):
@@ -471,6 +489,7 @@ except ImportError:  # pragma: no cover
     pass
 else:
     @_checks_drafts(
+        draft201909="duration",
         draft202012="duration",
         raises=isoduration.DurationParsingException,
     )
@@ -481,6 +500,7 @@ else:
 
 
 @_checks_drafts(
+    draft201909="uuid",
     draft202012="uuid",
     raises=ValueError,
 )

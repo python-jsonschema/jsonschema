@@ -237,6 +237,8 @@ which each included validator class implements.
 
 .. autoclass:: Draft202012Validator
 
+.. autoclass:: Draft201909Validator
+
 .. autoclass:: Draft7Validator
 
 .. autoclass:: Draft6Validator

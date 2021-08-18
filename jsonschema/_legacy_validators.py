@@ -106,7 +106,7 @@ def items_draft3_draft4(validator, items, instance, schema):
                 yield error
 
 
-def items_draft6_draft7(validator, items, instance, schema):
+def items_draft6_draft7_draft201909(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
@@ -209,3 +209,19 @@ def contains_draft6_draft7(validator, contains, instance, schema):
         yield ValidationError(
             "None of %r are valid under the given schema" % (instance,),
         )
+
+
+def recursiveRef(validator, recursiveRef, instance, schema):
+    scope_stack = validator.resolver.scopes_stack_copy
+    lookup_url, target = validator.resolver.resolution_scope, validator.schema
+
+    for each in reversed(scope_stack[1:]):
+        lookup_url, next_target = validator.resolver.resolve(each)
+        if next_target.get("$recursiveAnchor"):
+            target = next_target
+        else:
+            break
+
+    subschema = validator.resolver.resolve_local(recursiveRef, target)
+    for error in validator.descend(instance, subschema):
+        yield error

@@ -145,12 +145,7 @@ def create(
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
-        def __init__(
-            self,
-            schema,
-            resolver=None,
-            format_checker=None,
-        ):
+        def __init__(self, schema, resolver=None, format_checker=None):
             if resolver is None:
                 resolver = RefResolver.from_schema(schema, id_of=id_of)
 
@@ -385,7 +380,7 @@ Draft6Validator = create(
         "exclusiveMaximum": _validators.exclusiveMaximum,
         "exclusiveMinimum": _validators.exclusiveMinimum,
         "format": _validators.format,
-        "items": _legacy_validators.items_draft6_draft7,
+        "items": _legacy_validators.items_draft6_draft7_draft201909,
         "maxItems": _validators.maxItems,
         "maxLength": _validators.maxLength,
         "maxProperties": _validators.maxProperties,
@@ -426,7 +421,7 @@ Draft7Validator = create(
         "exclusiveMinimum": _validators.exclusiveMinimum,
         "format": _validators.format,
         "if": _validators.if_,
-        "items": _legacy_validators.items_draft6_draft7,
+        "items": _legacy_validators.items_draft6_draft7_draft201909,
         "maxItems": _validators.maxItems,
         "maxLength": _validators.maxLength,
         "maxProperties": _validators.maxProperties,
@@ -449,6 +444,51 @@ Draft7Validator = create(
     type_checker=_types.draft7_type_checker,
     version="draft7",
     applicable_validators=_legacy_validators.ignore_ref_siblings,
+)
+
+Draft201909Validator = create(
+    meta_schema=_utils.load_schema("draft2019-09"),
+    vocabulary_schemas=_utils.load_vocabulary("draft2019-09"),
+    validators={
+        "$ref": _validators.ref,
+        "$recursiveRef": _legacy_validators.recursiveRef,
+        "additionalItems": _validators.additionalItems,
+        "additionalProperties": _validators.additionalProperties,
+        "allOf": _validators.allOf,
+        "anyOf": _validators.anyOf,
+        "const": _validators.const,
+        "contains": _validators.contains,
+        "dependentRequired": _validators.dependentRequired,
+        "dependentSchemas": _validators.dependentSchemas,
+        "enum": _validators.enum,
+        "exclusiveMaximum": _validators.exclusiveMaximum,
+        "exclusiveMinimum": _validators.exclusiveMinimum,
+        "format": _validators.format,
+        "if": _validators.if_,
+        "items": _legacy_validators.items_draft6_draft7_draft201909,
+        "maxItems": _validators.maxItems,
+        "maxLength": _validators.maxLength,
+        "maxProperties": _validators.maxProperties,
+        "maximum": _validators.maximum,
+        "minItems": _validators.minItems,
+        "minLength": _validators.minLength,
+        "minProperties": _validators.minProperties,
+        "minimum": _validators.minimum,
+        "multipleOf": _validators.multipleOf,
+        "not": _validators.not_,
+        "oneOf": _validators.oneOf,
+        "pattern": _validators.pattern,
+        "patternProperties": _validators.patternProperties,
+        "properties": _validators.properties,
+        "propertyNames": _validators.propertyNames,
+        "required": _validators.required,
+        "type": _validators.type,
+        "unevaluatedItems": _validators.unevaluatedItems,
+        "unevaluatedProperties": _validators.unevaluatedProperties,
+        "uniqueItems": _validators.uniqueItems,
+    },
+    type_checker=_types.draft201909_type_checker,
+    version="draft2019-09",
 )
 
 Draft202012Validator = create(

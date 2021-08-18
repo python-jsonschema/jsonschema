@@ -14,6 +14,7 @@ from jsonschema._format import (
     draft4_format_checker,
     draft6_format_checker,
     draft7_format_checker,
+    draft201909_format_checker,
     draft202012_format_checker,
 )
 from jsonschema._types import TypeChecker
@@ -29,6 +30,7 @@ from jsonschema.validators import (
     Draft4Validator,
     Draft6Validator,
     Draft7Validator,
+    Draft201909Validator,
     Draft202012Validator,
     RefResolver,
     validate,
