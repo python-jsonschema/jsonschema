@@ -208,13 +208,8 @@ class _Test(object):
             store=self._remotes,
             id_of=Validator.ID_OF,
         )
-        jsonschema.validate(
-            instance=self.data,
-            schema=self.schema,
-            cls=Validator,
-            resolver=resolver,
-            **kwargs,
-        )
+        validator = Validator(schema=self.schema, resolver=resolver, **kwargs)
+        validator.validate(instance=self.data)
 
     def validate_ignoring_errors(self, Validator):  # pragma: no cover
         try:
