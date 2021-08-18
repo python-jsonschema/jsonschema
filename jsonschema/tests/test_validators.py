@@ -84,6 +84,14 @@ class TestCreateAndExtend(SynchronousTestCase):
         self.addCleanup(validators.meta_schemas.pop, "something")
         self.assertEqual(Validator.__name__, "MyVersionValidator")
 
+    def test_dashes_are_stripped_from_validator_names(self):
+        Validator = validators.create(
+            meta_schema={u"$id": "something"},
+            version="foo-bar",
+        )
+        self.addCleanup(validators.meta_schemas.pop, "something")
+        self.assertEqual(Validator.__name__, "FooBarValidator")
+
     def test_if_a_version_is_not_provided_it_is_not_registered(self):
         original = dict(validators.meta_schemas)
         validators.create(meta_schema={u"id": "id"})

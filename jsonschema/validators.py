@@ -229,7 +229,9 @@ def create(
 
     if version is not None:
         Validator = validates(version)(Validator)
-        Validator.__name__ = version.title().replace(" ", "") + "Validator"
+        Validator.__name__ = (
+            version.title().replace(" ", "").replace("-", "") + "Validator"
+        )
 
     return Validator
 
