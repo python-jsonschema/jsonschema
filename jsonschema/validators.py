@@ -456,7 +456,6 @@ Draft202012Validator = create(
     vocabulary_schemas=_utils.load_vocabulary("draft2020-12"),
     validators={
         "$ref": _validators.ref,
-        "$defs": _validators.defs,
         "$dynamicRef": _validators.dynamicRef,
         "additionalItems": _validators.additionalItems,
         "additionalProperties": _validators.additionalProperties,
@@ -744,7 +743,6 @@ class RefResolver(object):
 
         fragment = fragment.lstrip("/")
 
-        # Resolve fragment via $anchor or $dynamicAnchor
         if fragment:
             for keyword in ["$anchor", "$dynamicAnchor"]:
                 for subschema in self._finditem(document, keyword):

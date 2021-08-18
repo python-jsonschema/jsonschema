@@ -413,36 +413,12 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or skip(
-            message="Issue: Resolving of dynamicRef based on dynamic scope",
+            message="dynamicRef support isn't working yet.",
             subject="dynamicRef",
-            case_description="A $dynamicRef that initially resolves to a "
-                             "schema with a matching $dynamicAnchor should "
-                             "resolve to the first $dynamicAnchor in the "
-                             "dynamic scope",
-            description='The recursive part is not valid against the root',
         )(test)
         or skip(
-            message="Issue: Resolving of dynamicRef based on dynamic scope",
-            subject="dynamicRef",
-            case_description="multiple dynamic paths to the $dynamicRef "
-                             "keyword",
-            description="recurse to integerNode - floats are not allowed",
-        )(test)
-        or skip(
-            message="Issue: Resolving of dynamicRef based on dynamic scope",
-            subject="dynamicRef",
-            case_description="after leaving a dynamic scope, it should not be "
-                             "used by a $dynamicRef",
-            description="/then/$defs/thingy is the final stop for the "
-                        "$dynamicRef",
-        )(test)
-        or skip(
-            message="Issue: Resolving of dynamicRef based on dynamic scope",
-            subject="dynamicRef",
-            case_description="after leaving a dynamic scope, it should not be "
-                             'used by a $dynamicRef',
-            description="string matches /$defs/thingy, but the $dynamicRef "
-                        "does not stop here",
+            message="These tests depends on dynamicRef working.",
+            subject="defs",
         )(test)
     ),
 )
