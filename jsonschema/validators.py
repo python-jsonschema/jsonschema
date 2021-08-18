@@ -166,7 +166,7 @@ def create(
                 return
             elif _schema is False:
                 yield exceptions.ValidationError(
-                    "False schema does not allow %r" % (instance,),
+                    f"False schema does not allow {instance!r}",
                     validator=None,
                     validator_value=None,
                     instance=instance,
@@ -804,7 +804,7 @@ class RefResolver(object):
                 document = document[part]
             except (TypeError, LookupError):
                 raise exceptions.RefResolutionError(
-                    "Unresolvable JSON pointer: %r" % fragment,
+                    f"Unresolvable JSON pointer: {fragment!r}",
                 )
 
         return document

@@ -2,9 +2,9 @@
 Validation errors, and some surrounding helpers.
 """
 from collections import defaultdict, deque
+from pprint import pformat
+from textwrap import dedent, indent
 import itertools
-import pprint
-import textwrap
 
 import attr
 
@@ -57,7 +57,7 @@ class _Error(Exception):
             error.parent = self
 
     def __repr__(self):
-        return "<%s: %r>" % (self.__class__.__name__, self.message)
+        return f"<{self.__class__.__name__}: {self.message!r}>"
 
     def __str__(self):
         essential_for_verbose = (
@@ -66,24 +66,24 @@ class _Error(Exception):
         if any(m is _unset for m in essential_for_verbose):
             return self.message
 
-        pschema = pprint.pformat(self.schema, width=72)
-        pinstance = pprint.pformat(self.instance, width=72)
-        return self.message + textwrap.dedent("""
+        schema_word = self._word_for_schema_in_error_message
+        schema_path = _utils.format_as_index(
+            list(self.relative_schema_path)[:-1],
+        )
+        instance_word = self._word_for_instance_in_error_message
+        instance_path = _utils.format_as_index(self.relative_path)
+        prefix = 16 * " "
 
-            Failed validating %r in %s%s:
-            %s
+        return dedent(
+            f"""\
+            {self.message}
 
-            On %s%s:
-            %s
+            Failed validating {self.validator!r} in {schema_word}{schema_path}:
+                {indent(pformat(self.schema, width=72), prefix).lstrip()}
+
+            On {instance_word}{instance_path}:
+                {indent(pformat(self.instance, width=72), prefix).lstrip()}
             """.rstrip(),
-        ) % (
-            self.validator,
-            self._word_for_schema_in_error_message,
-            _utils.format_as_index(list(self.relative_schema_path)[:-1]),
-            textwrap.indent(pschema, "    "),
-            self._word_for_instance_in_error_message,
-            _utils.format_as_index(self.relative_path),
-            textwrap.indent(pinstance, "    "),
         )
 
     @classmethod
@@ -172,7 +172,7 @@ class UndefinedTypeCheck(Exception):
         self.type = type
 
     def __str__(self):
-        return "Type %r is unknown to this type checker" % self.type
+        return f"Type {self.type!r} is unknown to this type checker"
 
 
 class UnknownType(Exception):
@@ -186,19 +186,16 @@ class UnknownType(Exception):
         self.schema = schema
 
     def __str__(self):
-        pschema = pprint.pformat(self.schema, width=72)
-        pinstance = pprint.pformat(self.instance, width=72)
-        return textwrap.dedent("""
-            Unknown type %r for validator with schema:
-            %s
+        prefix = 16 * " "
+
+        return dedent(
+            f"""\
+            Unknown type {self.type!r} for validator with schema:
+                {indent(pformat(self.schema, width=72), prefix).lstrip()}
 
             While checking instance:
-            %s
+                {indent(pformat(self.instance, width=72), prefix).lstrip()}
             """.rstrip(),
-        ) % (
-            self.type,
-            textwrap.indent(pschema, "    "),
-            textwrap.indent(pinstance, "    "),
         )
 
 
@@ -276,7 +273,7 @@ class ErrorTree(object):
         return self.total_errors
 
     def __repr__(self):
-        return "<%s (%s total errors)>" % (self.__class__.__name__, len(self))
+        return f"<{self.__class__.__name__} ({len(self)} total errors)>"
 
     @property
     def total_errors(self):

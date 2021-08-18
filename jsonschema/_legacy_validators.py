@@ -32,13 +32,13 @@ def dependencies_draft3(validator, dependencies, instance, schema):
                 yield error
         elif validator.is_type(dependency, "string"):
             if dependency not in instance:
-                message = "%r is a dependency of %r"
-                yield ValidationError(message % (dependency, property))
+                message = f"{dependency!r} is a dependency of {property!r}"
+                yield ValidationError(message)
         else:
             for each in dependency:
                 if each not in instance:
-                    message = "%r is a dependency of %r"
-                    yield ValidationError(message % (each, property))
+                    message = f"{each!r} is a dependency of {property!r}"
+                    yield ValidationError(message)
 
 
 def dependencies_draft4_draft6_draft7(
@@ -63,8 +63,8 @@ def dependencies_draft4_draft6_draft7(
         if validator.is_type(dependency, "array"):
             for each in dependency:
                 if each not in instance:
-                    message = "%r is a dependency of %r"
-                    yield ValidationError(message % (each, property))
+                    message = f"{each!r} is a dependency of {property!r}"
+                    yield ValidationError(message)
         else:
             for error in validator.descend(
                     instance, dependency, schema_path=property,
@@ -75,9 +75,8 @@ def dependencies_draft4_draft6_draft7(
 def disallow_draft3(validator, disallow, instance, schema):
     for disallowed in _utils.ensure_list(disallow):
         if validator.is_valid(instance, {"type": [disallowed]}):
-            yield ValidationError(
-                "%r is disallowed for %r" % (disallowed, instance),
-            )
+            message = f"{disallowed!r} is disallowed for {instance!r}"
+            yield ValidationError(message)
 
 
 def extends_draft3(validator, extends, instance, schema):
@@ -134,9 +133,8 @@ def minimum_draft3_draft4(validator, minimum, instance, schema):
         cmp = "less than"
 
     if failed:
-        yield ValidationError(
-            "%r is %s the minimum of %r" % (instance, cmp, minimum),
-        )
+        message = f"{instance!r} is {cmp} the minimum of {minimum!r}"
+        yield ValidationError(message)
 
 
 def maximum_draft3_draft4(validator, maximum, instance, schema):
@@ -151,9 +149,8 @@ def maximum_draft3_draft4(validator, maximum, instance, schema):
         cmp = "greater than"
 
     if failed:
-        yield ValidationError(
-            "%r is %s the maximum of %r" % (instance, cmp, maximum),
-        )
+        message = f"{instance!r} is {cmp} the maximum of {maximum!r}"
+        yield ValidationError(message)
 
 
 def properties_draft3(validator, properties, instance, schema):
@@ -170,7 +167,7 @@ def properties_draft3(validator, properties, instance, schema):
             ):
                 yield error
         elif subschema.get("required", False):
-            error = ValidationError("%r is a required property" % property)
+            error = ValidationError(f"{property!r} is a required property")
             error._set(
                 validator="required",
                 validator_value=subschema["required"],
@@ -207,7 +204,7 @@ def contains_draft6_draft7(validator, contains, instance, schema):
 
     if not any(validator.is_valid(element, contains) for element in instance):
         yield ValidationError(
-            "None of %r are valid under the given schema" % (instance,),
+            f"None of {instance!r} are valid under the given schema",
         )
 
 

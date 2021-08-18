@@ -86,7 +86,7 @@ def format_as_index(indices):
 
     if not indices:
         return ""
-    return "[%s]" % "][".join(repr(index) for index in indices)
+    return f"[{']['.join(repr(index) for index in indices)}]"
 
 
 def find_additional_properties(instance, schema):
@@ -136,7 +136,7 @@ def types_msg(instance, types):
             reprs.append(repr(type["name"]))
         except Exception:
             reprs.append(repr(type))
-    return "%r is not of type %s" % (instance, ", ".join(reprs))
+    return f"{instance!r} is not of type {', '.join(reprs)}"
 
 
 def flatten(suitable_for_isinstance):

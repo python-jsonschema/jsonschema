@@ -53,16 +53,16 @@ def additionalProperties(validator, aP, instance, schema):
                 yield error
     elif not aP and extras:
         if "patternProperties" in schema:
-            patterns = sorted(schema["patternProperties"])
             if len(extras) == 1:
                 verb = "does"
             else:
                 verb = "do"
-            error = "%s %s not match any of the regexes: %s" % (
-                ", ".join(map(repr, sorted(extras))),
-                verb,
-                ", ".join(map(repr, patterns)),
+
+            joined = ", ".join(repr(each) for each in sorted(extras))
+            patterns = ", ".join(
+                repr(each) for each in sorted(schema["patternProperties"])
             )
+            error = f"{joined} {verb} not match any of the regexes: {patterns}"
             yield ValidationError(error)
         else:
             error = "Additional properties are not allowed (%s %s unexpected)"
@@ -75,10 +75,11 @@ def items(validator, items, instance, schema):
 
     if validator.is_type(items, "boolean") and "prefixItems" in schema:
         if not items:
-            if len(instance) > len(schema["prefixItems"]):
-                yield ValidationError(
-                    "%r has more items than defined in prefixItems" % instance,
-                )
+            got = len(instance)
+            maximum = len(schema["prefixItems"])
+            if got > maximum:
+                message = f"Expected at most {maximum} items, but found {got}"
+                yield ValidationError(message)
     else:
         non_prefixed_items = (
             instance[len(schema["prefixItems"]):]
@@ -112,7 +113,7 @@ def additionalItems(validator, aI, instance, schema):
 
 def const(validator, const, instance, schema):
     if not equal(instance, const):
-        yield ValidationError("%r was expected" % (const,))
+        yield ValidationError(f"{const!r} was expected")
 
 
 def contains(validator, contains, instance, schema):
@@ -133,40 +134,39 @@ def contains(validator, contains, instance, schema):
 
     matches = sum(1 for each in instance if validator.is_valid(each, contains))
 
-    # default contains behavior
     if not matches:
         yield ValidationError(
-            "None of %r are valid under the given schema" % (instance,),
+            f"{instance!r} does not contain items matching the given schema",
         )
         return
 
     if min_contains and max_contains is None:
         if matches < min_contains:
             yield ValidationError(
-                "Too few matches under the given schema. "
-                "Expected %d but there were only %d." % (
-                    min_contains, matches,
-                ),
+                "Too few items match the given schema "
+                f"(expected {min_contains} but only {matches} matched)",
             )
         return
 
     if min_contains is None and max_contains:
         if matches > max_contains:
             yield ValidationError(
-                "Too many matches under the given schema. "
-                "Expected %d but there were only %d." % (
-                    max_contains, matches,
-                ),
+                "Too many items match the given schema "
+                f"(expected at most {max_contains} but {matches} matched)",
             )
         return
 
     if min_contains and max_contains:
-        if matches < min_contains or matches > max_contains:
+        if matches < min_contains:
+            only = "only "
+        elif matches > max_contains:
+            only = ""
+        else:
+            only = None
+        if only is not None:
             yield ValidationError(
-                "Invalid number or matches under the given schema, "
-                "expected between %d and %d, got %d" % (
-                    min_contains, max_contains, matches,
-                ),
+                f"Expected between {min_contains} and {max_contains} items "
+                f"to match the given schema but {only}{matches} matched",
             )
         return
 
@@ -177,9 +177,8 @@ def exclusiveMinimum(validator, minimum, instance, schema):
 
     if instance <= minimum:
         yield ValidationError(
-            "%r is less than or equal to the minimum of %r" % (
-                instance, minimum,
-            ),
+            f"{instance!r} is less than or equal to "
+            f"the minimum of {minimum!r}",
         )
 
 
@@ -189,9 +188,8 @@ def exclusiveMaximum(validator, maximum, instance, schema):
 
     if instance >= maximum:
         yield ValidationError(
-            "%r is greater than or equal to the maximum of %r" % (
-                instance, maximum,
-            ),
+            f"{instance!r} is greater than or equal "
+            f"to the maximum of {maximum!r}",
         )
 
 
@@ -200,9 +198,8 @@ def minimum(validator, minimum, instance, schema):
         return
 
     if instance < minimum:
-        yield ValidationError(
-            "%r is less than the minimum of %r" % (instance, minimum),
-        )
+        message = f"{instance!r} is less than the minimum of {minimum!r}"
+        yield ValidationError(message)
 
 
 def maximum(validator, maximum, instance, schema):
@@ -210,9 +207,8 @@ def maximum(validator, maximum, instance, schema):
         return
 
     if instance > maximum:
-        yield ValidationError(
-            "%r is greater than the maximum of %r" % (instance, maximum),
-        )
+        message = f"{instance!r} is greater than the maximum of {maximum!r}"
+        yield ValidationError(message)
 
 
 def multipleOf(validator, dB, instance, schema):
@@ -239,17 +235,17 @@ def multipleOf(validator, dB, instance, schema):
         failed = instance % dB
 
     if failed:
-        yield ValidationError("%r is not a multiple of %r" % (instance, dB))
+        yield ValidationError(f"{instance!r} is not a multiple of {dB}")
 
 
 def minItems(validator, mI, instance, schema):
     if validator.is_type(instance, "array") and len(instance) < mI:
-        yield ValidationError("%r is too short" % (instance,))
+        yield ValidationError(f"{instance!r} is too short")
 
 
 def maxItems(validator, mI, instance, schema):
     if validator.is_type(instance, "array") and len(instance) > mI:
-        yield ValidationError("%r is too long" % (instance,))
+        yield ValidationError(f"{instance!r} is too long")
 
 
 def uniqueItems(validator, uI, instance, schema):
@@ -258,7 +254,7 @@ def uniqueItems(validator, uI, instance, schema):
         validator.is_type(instance, "array") and
         not uniq(instance)
     ):
-        yield ValidationError("%r has non-unique elements" % (instance,))
+        yield ValidationError(f"{instance!r} has non-unique elements")
 
 
 def pattern(validator, patrn, instance, schema):
@@ -266,7 +262,7 @@ def pattern(validator, patrn, instance, schema):
         validator.is_type(instance, "string") and
         not re.search(patrn, instance)
     ):
-        yield ValidationError("%r does not match %r" % (instance, patrn))
+        yield ValidationError(f"{instance!r} does not match {patrn!r}")
 
 
 def format(validator, format, instance, schema):
@@ -279,12 +275,12 @@ def format(validator, format, instance, schema):
 
 def minLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) < mL:
-        yield ValidationError("%r is too short" % (instance,))
+        yield ValidationError(f"{instance!r} is too short")
 
 
 def maxLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) > mL:
-        yield ValidationError("%r is too long" % (instance,))
+        yield ValidationError(f"{instance!r} is too long")
 
 
 def dependentRequired(validator, dependentRequired, instance, schema):
@@ -297,8 +293,8 @@ def dependentRequired(validator, dependentRequired, instance, schema):
 
         for each in dependency:
             if each not in instance:
-                message = "%r is a dependency of %r"
-                yield ValidationError(message % (each, property))
+                message = f"{each!r} is a dependency of {property!r}"
+                yield ValidationError(message)
 
 
 def dependentSchemas(validator, dependentSchemas, instance, schema):
@@ -307,7 +303,7 @@ def dependentSchemas(validator, dependentSchemas, instance, schema):
             continue
 
         for error in validator.descend(
-                instance, dependency, schema_path=property,
+            instance, dependency, schema_path=property,
         ):
             yield error
 
@@ -316,9 +312,9 @@ def enum(validator, enums, instance, schema):
     if instance == 0 or instance == 1:
         unbooled = unbool(instance)
         if all(unbooled != unbool(each) for each in enums):
-            yield ValidationError("%r is not one of %r" % (instance, enums))
+            yield ValidationError(f"{instance!r} is not one of {enums!r}")
     elif instance not in enums:
-        yield ValidationError("%r is not one of %r" % (instance, enums))
+        yield ValidationError(f"{instance!r} is not one of {enums!r}")
 
 
 def ref(validator, ref, instance, schema):
@@ -383,21 +379,19 @@ def required(validator, required, instance, schema):
         return
     for property in required:
         if property not in instance:
-            yield ValidationError("%r is a required property" % property)
+            yield ValidationError(f"{property!r} is a required property")
 
 
 def minProperties(validator, mP, instance, schema):
     if validator.is_type(instance, "object") and len(instance) < mP:
-        yield ValidationError(
-            "%r does not have enough properties" % (instance,),
-        )
+        yield ValidationError(f"{instance!r} does not have enough properties")
 
 
 def maxProperties(validator, mP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     if validator.is_type(instance, "object") and len(instance) > mP:
-        yield ValidationError("%r has too many properties" % (instance,))
+        yield ValidationError(f"{instance!r} has too many properties")
 
 
 def allOf(validator, allOf, instance, schema):
@@ -415,7 +409,7 @@ def anyOf(validator, anyOf, instance, schema):
         all_errors.extend(errs)
     else:
         yield ValidationError(
-            "%r is not valid under any of the given schemas" % (instance,),
+            f"{instance!r} is not valid under any of the given schemas",
             context=all_errors,
         )
 
@@ -431,7 +425,7 @@ def oneOf(validator, oneOf, instance, schema):
         all_errors.extend(errs)
     else:
         yield ValidationError(
-            "%r is not valid under any of the given schemas" % (instance,),
+            f"{instance!r} is not valid under any of the given schemas",
             context=all_errors,
         )
 
@@ -439,15 +433,13 @@ def oneOf(validator, oneOf, instance, schema):
     if more_valid:
         more_valid.append(first_valid)
         reprs = ", ".join(repr(schema) for schema in more_valid)
-        yield ValidationError(
-            "%r is valid under each of %s" % (instance, reprs),
-        )
+        yield ValidationError(f"{instance!r} is valid under each of {reprs}")
 
 
 def not_(validator, not_schema, instance, schema):
     if validator.is_valid(instance, not_schema):
         yield ValidationError(
-            "%r is not allowed for %r" % (not_schema, instance),
+            f"{not_schema!r} is not allowed for {instance!r}",
         )
 
 

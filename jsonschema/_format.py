@@ -97,9 +97,7 @@ class FormatChecker(object):
         except raises as e:
             cause = e
         if not result:
-            raise FormatError(
-                "%r is not a %r" % (instance, format), cause=cause,
-            )
+            raise FormatError(f"{instance!r} is not a {format!r}", cause=cause)
 
     def conforms(self, instance, format):
         """

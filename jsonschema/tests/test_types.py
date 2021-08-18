@@ -54,7 +54,10 @@ class TestTypeChecker(TestCase):
     def test_is_unknown_type(self):
         with self.assertRaises(UndefinedTypeCheck) as context:
             TypeChecker().is_type(4, "foobar")
-        self.assertIn("foobar", str(context.exception))
+        self.assertIn(
+            "'foobar' is unknown to this type checker",
+            str(context.exception),
+        )
 
     def test_checks_can_be_added_at_init(self):
         checker = TypeChecker({"two": equals_2})
