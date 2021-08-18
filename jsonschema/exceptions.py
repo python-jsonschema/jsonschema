@@ -112,12 +112,12 @@ class _Error(Exception):
 
     @property
     def json_path(self):
-        path = '$'
+        path = "$"
         for elem in self.absolute_path:
             if isinstance(elem, int):
-                path += '[' + str(elem) + ']'
+                path += "[" + str(elem) + "]"
             else:
-                path += '.' + elem
+                path += "." + elem
         return path
 
     def _set(self, **kwargs):

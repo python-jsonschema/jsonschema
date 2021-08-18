@@ -64,7 +64,7 @@ def load_vocabulary(name):
     """
     vocabulary = []
     base_path = os.path.dirname(sys.modules["jsonschema"].__file__)
-    pathlist = Path(os.path.join(base_path, 'schemas', name)).glob('*.json')
+    pathlist = Path(os.path.join(base_path, "schemas", name)).glob("*.json")
     for path in pathlist:
         with open(path) as data:
             vocabulary.append(json.load(data))

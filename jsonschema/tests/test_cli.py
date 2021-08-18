@@ -699,7 +699,7 @@ class TestCLI(TestCase):
         schema = f'{{"$ref": "{ref_path.name}#definitions/num"}}'
 
         self.assertOutputs(
-            files=dict(some_schema=schema, some_instance='1'),
+            files=dict(some_schema=schema, some_instance="1"),
             argv=[
                 "-i", "some_instance",
                 "--base-uri", ref_path.parent.as_uri() + "/",

@@ -73,15 +73,15 @@ def items(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if validator.is_type(items, "boolean") and 'prefixItems' in schema:
+    if validator.is_type(items, "boolean") and "prefixItems" in schema:
         if not items:
-            if len(instance) > len(schema['prefixItems']):
+            if len(instance) > len(schema["prefixItems"]):
                 yield ValidationError(
                     "%r has more items than defined in prefixItems" % instance,
                 )
     else:
-        non_prefixed_items = instance[len(schema['prefixItems']):] \
-            if 'prefixItems' in schema else instance
+        non_prefixed_items = instance[len(schema["prefixItems"]):] \
+            if "prefixItems" in schema else instance
 
         for index, item in enumerate(non_prefixed_items):
             for error in validator.descend(item, items, path=index):
@@ -119,11 +119,11 @@ def contains(validator, contains, instance, schema):
 
     min_contains = max_contains = None
 
-    if 'minContains' in schema:
-        min_contains = schema['minContains']
+    if "minContains" in schema:
+        min_contains = schema["minContains"]
 
-    if 'maxContains' in schema:
-        max_contains = schema['maxContains']
+    if "maxContains" in schema:
+        max_contains = schema["maxContains"]
 
     # minContains set to 0 will ignore contains
     if min_contains == 0:
