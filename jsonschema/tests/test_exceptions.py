@@ -288,11 +288,11 @@ class TestErrorTree(TestCase):
 class TestErrorInitReprStr(TestCase):
     def make_error(self, **kwargs):
         defaults = dict(
-            message=u"hello",
-            validator=u"type",
-            validator_value=u"string",
+            message="hello",
+            validator="type",
+            validator_value="string",
             instance=5,
-            schema={u"type": u"string"},
+            schema={"type": "string"},
         )
         defaults.update(kwargs)
         return exceptions.ValidationError(**defaults)
@@ -367,8 +367,8 @@ class TestErrorInitReprStr(TestCase):
             On instance[0]['a']:
                 5
             """,
-            path=[0, u"a"],
-            schema_path=[u"items", 0, 1],
+            path=[0, "a"],
+            schema_path=["items", 0, 1],
         )
 
     def test_uses_pprint(self):
@@ -425,7 +425,7 @@ class TestErrorInitReprStr(TestCase):
             """,
             instance=list(range(25)),
             schema=dict(zip(range(20), range(20))),
-            validator=u"maxLength",
+            validator="maxLength",
         )
 
     def test_str_works_with_instances_having_overriden_eq_operator(self):

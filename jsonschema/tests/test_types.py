@@ -142,7 +142,7 @@ class TestCustomTypes(TestCase):
         Point = namedtuple("Point", ["x", "y"])
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
-            u"object", is_object_or_named_tuple,
+            "object", is_object_or_named_tuple,
         )
 
         CustomValidator = extend(Draft4Validator, type_checker=type_checker)
@@ -154,7 +154,7 @@ class TestCustomTypes(TestCase):
         schema = {"type": "object", "required": ["x"]}
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
-            u"object", is_object_or_named_tuple,
+            "object", is_object_or_named_tuple,
         )
 
         CustomValidator = extend(Draft4Validator, type_checker=type_checker)
@@ -173,7 +173,7 @@ class TestCustomTypes(TestCase):
         }
 
         type_checker = Draft4Validator.TYPE_CHECKER.redefine(
-            u"object", is_object_or_named_tuple,
+            "object", is_object_or_named_tuple,
         )
 
         CustomValidator = extend(

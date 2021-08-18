@@ -10,9 +10,9 @@ def ignore_ref_siblings(schema):
 
     Suitable for use with `create`'s ``applicable_validators`` argument.
     """
-    ref = schema.get(u"$ref")
+    ref = schema.get("$ref")
     if ref is not None:
-        return [(u"$ref", ref)]
+        return [("$ref", ref)]
     else:
         return schema.items()
 
