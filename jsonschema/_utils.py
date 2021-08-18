@@ -332,7 +332,7 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
 
     if "patternProperties" in schema:
         for property, value in instance.items():
-            for pattern, subschema in schema["patternProperties"].items():
+            for pattern, _ in schema["patternProperties"].items():
                 if re.search(pattern, property) and validator.is_valid(
                         {property: value}, schema["patternProperties"],
                 ):

@@ -92,8 +92,8 @@ def items(validator, items, instance, schema):
 
 def additionalItems(validator, aI, instance, schema):
     if (
-        not validator.is_type(instance, "array") or
-        validator.is_type(schema.get("items", {}), "object")
+        not validator.is_type(instance, "array")
+        or validator.is_type(schema.get("items", {}), "object")
     ):
         return
 
@@ -225,17 +225,17 @@ def maxItems(validator, mI, instance, schema):
 
 def uniqueItems(validator, uI, instance, schema):
     if (
-        uI and
-        validator.is_type(instance, "array") and
-        not uniq(instance)
+        uI
+        and validator.is_type(instance, "array")
+        and not uniq(instance)
     ):
         yield ValidationError(f"{instance!r} has non-unique elements")
 
 
 def pattern(validator, patrn, instance, schema):
     if (
-        validator.is_type(instance, "string") and
-        not re.search(patrn, instance)
+        validator.is_type(instance, "string")
+        and not re.search(patrn, instance)
     ):
         yield ValidationError(f"{instance!r} does not match {patrn!r}")
 
@@ -435,14 +435,10 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
         validator, instance, schema,
     )
-    unevaluated_items = []
-    for k, v in enumerate(instance):
-        if k not in evaluated_item_indexes:
-            for error in validator.descend(
-                v, unevaluatedItems, schema_path="unevaluatedItems",
-            ):
-                unevaluated_items.append(v)
-
+    unevaluated_items = [
+        item for index, item in enumerate(instance)
+        if index not in evaluated_item_indexes
+    ]
     if unevaluated_items:
         error = "Unevaluated items are not allowed (%s %s unexpected)"
         yield ValidationError(error % extras_msg(unevaluated_items))
@@ -453,9 +449,9 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
         validator, instance, schema,
     )
     unevaluated_property_keys = []
-    for property, subschema in instance.items():
+    for property in instance:
         if property not in evaluated_property_keys:
-            for error in validator.descend(
+            for _ in validator.descend(
                 instance[property],
                 unevaluatedProperties,
                 path=property,

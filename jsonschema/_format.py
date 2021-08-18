@@ -402,8 +402,8 @@ else:
     @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
     def is_css21_color(instance):
         if (
-            not isinstance(instance, str) or
-            instance.lower() in CSS21_NAMES_TO_HEX
+            not isinstance(instance, str)
+            or instance.lower() in CSS21_NAMES_TO_HEX
         ):
             return True
         return is_css_color_code(instance)
@@ -450,7 +450,7 @@ else:
         for i, character in enumerate(instance):
             if character.isdigit():
                 # digits with a leading "0" are not allowed
-                if i > 0 and int(instance[i-1]) == 0:
+                if i > 0 and int(instance[i - 1]) == 0:
                     return False
 
                 non_negative_integer.append(character)

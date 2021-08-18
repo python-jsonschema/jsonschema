@@ -40,7 +40,7 @@ class _Outputter(object):
     def load(self, path):
         try:
             file = open(path)
-        except (IOError, OSError) as error:
+        except OSError as error:
             if error.errno != errno.ENOENT:
                 raise
             self.filenotfound_error(path=path, exc_info=sys.exc_info())

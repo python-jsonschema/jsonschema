@@ -719,7 +719,7 @@ class RefResolver(object):
             if key in schema:
                 results.append(schema)
 
-            for k, v in schema.items():
+            for v in schema.values():
                 if isinstance(v, dict):
                     results += self._finditem(v, key)
 

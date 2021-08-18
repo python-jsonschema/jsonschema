@@ -10,6 +10,8 @@ import subprocess
 import sys
 import tempfile
 
+from pyrsistent import m
+
 from jsonschema import Draft4Validator, Draft202012Validator, __version__, cli
 from jsonschema.exceptions import (
     RefResolutionError,
@@ -59,7 +61,7 @@ def _message_for(non_json):
 
 class TestCLI(TestCase):
     def run_cli(
-        self, argv, files={}, stdin=StringIO(), exit_code=0, **override,
+        self, argv, files=m(), stdin=StringIO(), exit_code=0, **override,
     ):
         arguments = cli.parse_args(argv)
         arguments.update(override)
