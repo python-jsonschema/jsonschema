@@ -464,7 +464,7 @@ class TestValidationErrorMessages(TestCase):
         self.assertEqual(
             message,
             "Too few items match the given schema "
-            "(expected 2 but only 1 matched)",
+            "(expected at least 2 but only 1 matched)",
         )
 
     def test_contains_too_few_both_constrained(self):
@@ -478,8 +478,8 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertEqual(
             message,
-            "Expected between 2 and 4 items to match the given schema but "
-            "only 1 matched",
+            "Too few items match the given schema (expected at least 2 but "
+            "only 1 matched)",
         )
 
     def test_contains_too_many(self):
@@ -489,8 +489,7 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertEqual(
             message,
-            "Too many items match the given schema "
-            "(expected at most 2 but 4 matched)",
+            "Too many items match the given schema (expected at most 2)",
         )
 
     def test_contains_too_many_both_constrained(self):
@@ -504,8 +503,7 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertEqual(
             message,
-            "Expected between 2 and 4 items to match the given schema but "
-            "7 matched",
+            "Too many items match the given schema (expected at most 4)",
         )
 
     def test_exclusiveMinimum(self):

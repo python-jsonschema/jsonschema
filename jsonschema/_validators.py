@@ -119,55 +119,31 @@ def contains(validator, contains, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    min_contains = max_contains = None
+    matches = 0
+    min_contains = schema.get("minContains", 1)
+    max_contains = schema.get("maxContains", len(instance))
 
-    if "minContains" in schema:
-        min_contains = schema["minContains"]
+    for each in instance:
+        if validator.is_valid(each, contains):
+            matches += 1
+            if matches > max_contains:
+                yield ValidationError(
+                    "Too many items match the given schema "
+                    f"(expected at most {max_contains})",
+                )
+                return
 
-    if "maxContains" in schema:
-        max_contains = schema["maxContains"]
-
-    # minContains set to 0 will ignore contains
-    if min_contains == 0:
-        return
-
-    matches = sum(1 for each in instance if validator.is_valid(each, contains))
-
-    if not matches:
-        yield ValidationError(
-            f"{instance!r} does not contain items matching the given schema",
-        )
-        return
-
-    if min_contains and max_contains is None:
-        if matches < min_contains:
+    if matches < min_contains:
+        if not matches:
             yield ValidationError(
-                "Too few items match the given schema "
-                f"(expected {min_contains} but only {matches} matched)",
+                f"{instance!r} does not contain items "
+                "matching the given schema",
             )
-        return
-
-    if min_contains is None and max_contains:
-        if matches > max_contains:
-            yield ValidationError(
-                "Too many items match the given schema "
-                f"(expected at most {max_contains} but {matches} matched)",
-            )
-        return
-
-    if min_contains and max_contains:
-        if matches < min_contains:
-            only = "only "
-        elif matches > max_contains:
-            only = ""
         else:
-            only = None
-        if only is not None:
             yield ValidationError(
-                f"Expected between {min_contains} and {max_contains} items "
-                f"to match the given schema but {only}{matches} matched",
+                "Too few items match the given schema (expected at least "
+                f"{min_contains} but only {matches} matched)",
             )
-        return
 
 
 def exclusiveMinimum(validator, minimum, instance, schema):
