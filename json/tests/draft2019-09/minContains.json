@@ -151,7 +151,7 @@
         ]
     },
     {
-        "description": "minContains = 0",
+        "description": "minContains = 0 with no maxContains",
         "schema": {
             "contains": {"const": 1},
             "minContains": 0
@@ -166,6 +166,31 @@
                 "description": "minContains = 0 makes contains always pass",
                 "data": [ 2 ],
                 "valid": true
+            }
+        ]
+    },
+    {
+        "description": "minContains = 0 with maxContains",
+        "schema": {
+            "contains": {"const": 1},
+            "minContains": 0,
+            "maxContains": 1
+        },
+        "tests": [
+            {
+                "description": "empty data",
+                "data": [ ],
+                "valid": true
+            },
+            {
+                "description": "not more than maxContains",
+                "data": [ 1 ],
+                "valid": true
+            },
+            {
+                "description": "too many",
+                "data": [ 1, 1 ],
+                "valid": false
             }
         ]
     }
