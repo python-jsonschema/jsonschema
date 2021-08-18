@@ -80,8 +80,10 @@ def items(validator, items, instance, schema):
                     "%r has more items than defined in prefixItems" % instance,
                 )
     else:
-        non_prefixed_items = instance[len(schema["prefixItems"]):] \
+        non_prefixed_items = (
+            instance[len(schema["prefixItems"]):]
             if "prefixItems" in schema else instance
+        )
 
         for index, item in enumerate(non_prefixed_items):
             for error in validator.descend(item, items, path=index):
