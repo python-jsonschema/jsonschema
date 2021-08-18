@@ -473,7 +473,7 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
             ):
                 unevaluated_items.append(v)
 
-    if len(unevaluated_items):
+    if unevaluated_items:
         error = "Unevaluated items are not allowed (%s %s unexpected)"
         yield ValidationError(error % extras_msg(unevaluated_items))
 
@@ -493,7 +493,7 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
             ):
                 unevaluated_property_keys.append(property)
 
-    if len(unevaluated_property_keys):
+    if unevaluated_property_keys:
         error = "Unevaluated properties are not allowed (%s %s unexpected)"
         yield ValidationError(error % extras_msg(unevaluated_property_keys))
 
