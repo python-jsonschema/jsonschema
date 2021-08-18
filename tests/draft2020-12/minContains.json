@@ -168,5 +168,30 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "minContains = 0 with maxContains",
+        "schema": {
+            "contains": {"const": 1},
+            "minContains": 0,
+            "maxContains": 1
+        },
+        "tests": [
+            {
+                "description": "empty data",
+                "data": [ ],
+                "valid": true
+            },
+            {
+                "description": "not more than maxContains",
+                "data": [ 1 ],
+                "valid": true
+            },
+            {
+                "description": "too many",
+                "data": [ 1, 1 ],
+                "valid": false
+            }
+        ]
     }
 ]
