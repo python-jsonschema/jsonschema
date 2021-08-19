@@ -38,6 +38,6 @@ from jsonschema.validators import (
 
 try:
     from importlib import metadata
-except ImportError: # for Python<3.8
+except ImportError:
     import importlib_metadata as metadata
 __version__ = metadata.version("jsonschema")
