@@ -66,22 +66,24 @@ class _Error(Exception):
         if any(m is _unset for m in essential_for_verbose):
             return self.message
 
-        schema_word = self._word_for_schema_in_error_message
         schema_path = _utils.format_as_index(
-            list(self.relative_schema_path)[:-1],
+            container=self._word_for_schema_in_error_message,
+            indices=list(self.relative_schema_path)[:-1],
         )
-        instance_word = self._word_for_instance_in_error_message
-        instance_path = _utils.format_as_index(self.relative_path)
+        instance_path = _utils.format_as_index(
+            container=self._word_for_instance_in_error_message,
+            indices=self.relative_path,
+        )
         prefix = 16 * " "
 
         return dedent(
             f"""\
             {self.message}
 
-            Failed validating {self.validator!r} in {schema_word}{schema_path}:
+            Failed validating {self.validator!r} in {schema_path}:
                 {indent(pformat(self.schema, width=72), prefix).lstrip()}
 
-            On {instance_word}{instance_path}:
+            On {instance_path}:
                 {indent(pformat(self.instance, width=72), prefix).lstrip()}
             """.rstrip(),
         )

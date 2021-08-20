@@ -71,13 +71,17 @@ def load_vocabulary(name):
     return vocabulary
 
 
-def format_as_index(indices):
+def format_as_index(container, indices):
     """
     Construct a single string containing indexing operations for the indices.
 
-    For example, [1, 2, "foo"] -> [1][2]["foo"]
+    For example for a container ``bar``, [1, 2, "foo"] -> bar[1][2]["foo"]
 
     Arguments:
+
+        container (str):
+
+            A word to use for the thing being indexed
 
         indices (sequence):
 
@@ -85,8 +89,8 @@ def format_as_index(indices):
     """
 
     if not indices:
-        return ""
-    return f"[{']['.join(repr(index) for index in indices)}]"
+        return container
+    return f"{container}[{']['.join(repr(index) for index in indices)}]"
 
 
 def find_additional_properties(instance, schema):
