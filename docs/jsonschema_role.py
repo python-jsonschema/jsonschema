@@ -1,4 +1,5 @@
 from datetime import datetime
+from importlib import metadata
 from urllib.parse import urljoin
 import errno
 import os
@@ -7,8 +8,6 @@ import urllib.request
 from docutils import nodes
 from lxml import html
 import certifi
-
-import jsonschema
 
 __version__ = "1.2.0"
 
@@ -57,7 +56,8 @@ def fetch_or_load(spec_path):
 
     headers = {
         "User-Agent": "python-jsonschema v{} - documentation build v{}".format(
-            jsonschema.__version__, __version__,
+            metadata.version("jsonschema"),
+            __version__,
         ),
     }
 

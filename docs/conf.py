@@ -1,8 +1,7 @@
+from importlib import metadata
 import os
 import re
 import sys
-
-import jsonschema
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -55,7 +54,7 @@ copyright = "2013, " + author
 #
 # version: The short X.Y version
 # release: The full version, including alpha/beta/rc tags.
-release = jsonschema.__version__
+release = metadata.version("jsonschema")
 version = release.partition("-")[0]
 
 # There are two options for replacing |today|: either, you set today to some

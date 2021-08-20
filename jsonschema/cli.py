@@ -10,9 +10,13 @@ import json
 import sys
 import traceback
 
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
+
 import attr
 
-from jsonschema import __version__
 from jsonschema._reflect import namedAny
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import RefResolver, validator_for
@@ -189,7 +193,7 @@ parser.add_argument(
 parser.add_argument(
     "--version",
     action="version",
-    version=__version__,
+    version=metadata.version("jsonschema"),
 )
 parser.add_argument(
     "schema",

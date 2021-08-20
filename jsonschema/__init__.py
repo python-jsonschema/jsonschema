@@ -7,6 +7,7 @@ supported JSON Schema versions.
 Most commonly, `validate` is the quickest way to simply validate a given
 instance under a schema, and will create a validator for you.
 """
+import warnings
 
 from jsonschema._format import (
     FormatChecker,
@@ -36,8 +37,20 @@ from jsonschema.validators import (
     validate,
 )
 
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata
-__version__ = metadata.version("jsonschema")
+
+def __getattr__(name):
+    if name == "__version__":
+        warnings.warn(
+            "Accessing jsonschema.__version__ is deprecated and will be "
+            "removed in a future release. Use importlib.metadata directly "
+            "to query for jsonschema's version.",
+            DeprecationWarning,
+        )
+
+        try:
+            from importlib import metadata
+        except ImportError:
+            import importlib_metadata as metadata
+
+        return metadata.version("jsonschema")
+    raise AttributeError(f"module {__name__} has no attribute {name}")

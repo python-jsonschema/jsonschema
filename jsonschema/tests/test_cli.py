@@ -10,9 +10,14 @@ import subprocess
 import sys
 import tempfile
 
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
+
 from pyrsistent import m
 
-from jsonschema import Draft4Validator, Draft202012Validator, __version__, cli
+from jsonschema import Draft4Validator, Draft202012Validator, cli
 from jsonschema.exceptions import (
     RefResolutionError,
     SchemaError,
@@ -896,7 +901,7 @@ class TestCLIIntegration(TestCase):
             stderr=subprocess.STDOUT,
         )
         version = version.decode("utf-8").strip()
-        self.assertEqual(version, __version__)
+        self.assertEqual(version, metadata.version("jsonschema"))
 
     def test_no_arguments_shows_usage_notes(self):
         output = subprocess.check_output(
