@@ -282,26 +282,14 @@ def enum(validator, enums, instance, schema):
         yield ValidationError(f"{instance!r} is not one of {enums!r}")
 
 
-def ref(validator, ref, instance, schema):
-    resolve = getattr(validator.resolver, "resolve", None)
-    if resolve is None:
-        with validator.resolver.resolving(ref) as resolved:
-            yield from validator.descend(instance, resolved)
-    else:
-        scope, resolved = validator.resolver.resolve(ref)
-        validator.resolver.push_scope(scope)
-
-        try:
-            yield from validator.descend(instance, resolved)
-        finally:
-            validator.resolver.pop_scope()
+def ref(annotator, ref, instance, schema):
+    yield from annotator.descend_at_ref(instance=instance, ref=ref)
 
 
 def dynamicRef(validator, dynamicRef, instance, schema):
     _, fragment = urldefrag(dynamicRef)
-    scope_stack = validator.resolver.scopes_stack_copy
 
-    for url in scope_stack:
+    for url in []:
         lookup_url = urljoin(url, dynamicRef)
         with validator.resolver.resolving(lookup_url) as subschema:
             if ("$dynamicAnchor" in subschema
@@ -309,8 +297,7 @@ def dynamicRef(validator, dynamicRef, instance, schema):
                 yield from validator.descend(instance, subschema)
                 break
     else:
-        with validator.resolver.resolving(dynamicRef) as subschema:
-            yield from validator.descend(instance, subschema)
+        yield from validator.descend_at_ref(instance, dynamicRef)
 
 
 def type(validator, types, instance, schema):

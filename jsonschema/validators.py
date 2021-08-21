@@ -6,9 +6,10 @@ from functools import lru_cache
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
 from warnings import warn
-import contextlib
 import json
 import warnings
+
+import attr
 
 from jsonschema import (
     _legacy_validators,
@@ -17,6 +18,7 @@ from jsonschema import (
     _validators,
     exceptions,
 )
+from jsonschema._annotation import Annotator
 
 validators = {}
 meta_schemas = _utils.URIDict()
@@ -143,6 +145,7 @@ def create(
         a new `jsonschema.IValidator` class
     """
 
+    @attr.s
     class Validator:
 
         VALIDATORS = dict(validators)
@@ -151,22 +154,24 @@ def create(
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
-        def __init__(self, schema, resolver=None, format_checker=None):
-            if resolver is None:
-                resolver = RefResolver.from_schema(schema, id_of=id_of)
+        schema = attr.ib()
+        resolver = attr.ib(default=None)
+        format_checker = attr.ib(default=None)
 
-            self.resolver = resolver
-            self.format_checker = format_checker
-            self.schema = schema
+        def __attrs_post_init__(self):
+            if self.resolver is None:
+                self.resolver = RefResolver.from_schema(
+                    self.schema,
+                    id_of=id_of,
+                )
 
         @classmethod
         def check_schema(cls, schema):
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
 
-        def iter_errors(self, instance, _schema=None):
-            if _schema is None:
-                _schema = self.schema
+        def iter_errors(self, instance):
+            _schema = self.schema
 
             if _schema is True:
                 return
@@ -180,38 +185,25 @@ def create(
                 )
                 return
 
-            scope = id_of(_schema)
-            if scope:
-                self.resolver.push_scope(scope)
-            try:
-                for k, v in applicable_validators(_schema):
-                    validator = self.VALIDATORS.get(k)
-                    if validator is None:
-                        continue
+            annotator = Annotator(validator=self)
 
-                    errors = validator(self, v, instance, _schema) or ()
-                    for error in errors:
-                        # set details if not already set by the called fn
-                        error._set(
-                            validator=k,
-                            validator_value=v,
-                            instance=instance,
-                            schema=_schema,
-                        )
-                        if k not in {"if", "$ref"}:
-                            error.schema_path.appendleft(k)
-                        yield error
-            finally:
-                if scope:
-                    self.resolver.pop_scope()
+            for k, v in applicable_validators(_schema):
+                validator = self.VALIDATORS.get(k)
+                if validator is None:
+                    continue
 
-        def descend(self, instance, schema, path=None, schema_path=None):
-            for error in self.iter_errors(instance, schema):
-                if path is not None:
-                    error.path.appendleft(path)
-                if schema_path is not None:
-                    error.schema_path.appendleft(schema_path)
-                yield error
+                errors = validator(annotator, v, instance, _schema) or ()
+                for error in errors:
+                    # set details if not already set by the called fn
+                    error._set(
+                        validator=k,
+                        validator_value=v,
+                        instance=instance,
+                        schema=_schema,
+                    )
+                    if k not in {"if", "$ref"}:
+                        error.schema_path.appendleft(k)
+                    yield error
 
         def validate(self, *args, **kwargs):
             for error in self.iter_errors(*args, **kwargs):
@@ -608,7 +600,6 @@ class RefResolver(object):
         self.cache_remote = cache_remote
         self.handlers = dict(handlers)
 
-        self._scopes_stack = [base_uri]
         self.store = _utils.URIDict(_store_schema_list())
         self.store.update(store)
         self.store[base_uri] = referrer
@@ -634,124 +625,27 @@ class RefResolver(object):
 
         return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)
 
-    def push_scope(self, scope):
-        """
-        Enter a given sub-scope.
-
-        Treats further dereferences as being performed underneath the
-        given scope.
-        """
+    """ PUSH:
+        self._scopes_stack = [base_uri]
         self._scopes_stack.append(
             self._urljoin_cache(self.resolution_scope, scope),
         )
+        POP:
+        self._scopes_stack.pop()
 
-    def pop_scope(self):
-        """
-        Exit the most recent entered scope.
+        RESOLUTION SCOPE:
+        self._scopes_stack[-1]
 
-        Treats further dereferences as being performed underneath the
-        original scope.
-
-        Don't call this method more times than `push_scope` has been
-        called.
-        """
-        try:
-            self._scopes_stack.pop()
-        except IndexError:
-            raise exceptions.RefResolutionError(
-                "Failed to pop the scope from an empty stack. "
-                "`pop_scope()` should only be called once for every "
-                "`push_scope()`",
-            )
-
-    @property
-    def resolution_scope(self):
-        """
-        Retrieve the current resolution scope.
-        """
-        return self._scopes_stack[-1]
-
-    @property
-    def scopes_stack_copy(self):
-        """
-        Retrieve a copy of the stack of resolution scopes.
-        """
-        return self._scopes_stack.copy()
-
-    @property
-    def base_uri(self):
-        """
-        Retrieve the current base URI, not including any fragment.
-        """
+        BASE URI:
         uri, _ = urldefrag(self.resolution_scope)
         return uri
+    """
 
-    @contextlib.contextmanager
-    def in_scope(self, scope):
-        """
-        Temporarily enter the given scope for the duration of the context.
-        """
-        warnings.warn(
-            "jsonschema.RefResolver.in_scope is deprecated and will be "
-            "removed in a future release.",
-            DeprecationWarning,
-        )
-        self.push_scope(scope)
-        try:
-            yield
-        finally:
-            self.pop_scope()
-
-    @contextlib.contextmanager
-    def resolving(self, ref):
-        """
-        Resolve the given ``ref`` and enter its resolution scope.
-
-        Exits the scope on exit of this context manager.
-
-        Arguments:
-
-            ref (str):
-
-                The reference to resolve
-        """
-
-        url, resolved = self.resolve(ref)
-        self.push_scope(url)
-        try:
-            yield resolved
-        finally:
-            self.pop_scope()
-
-    def _finditem(self, schema, key):
-        results = []
-        if isinstance(schema, dict):
-            if key in schema:
-                results.append(schema)
-
-            for v in schema.values():
-                if isinstance(v, dict):
-                    results += self._finditem(v, key)
-
-        return results
-
-    def resolve(self, ref):
+    def resolve(self, ref, resolution_scope):
         """
         Resolve the given reference.
         """
-        url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
-
-        uri, fragment = urldefrag(url)
-
-        for subschema in self._finditem(self.referrer, "$id"):
-            target_uri = self._urljoin_cache(
-                self.resolution_scope, subschema["$id"],
-            )
-            if target_uri.rstrip("/") == uri.rstrip("/"):
-                if fragment:
-                    subschema = self.resolve_fragment(subschema, fragment)
-                return url, subschema
-
+        url = self._urljoin_cache(resolution_scope, ref)
         return url, self._remote_cache(url)
 
     def resolve_from_url(self, url):
@@ -784,20 +678,11 @@ class RefResolver(object):
                 a URI fragment to resolve within it
         """
 
-        fragment = fragment.lstrip("/")
+        fragment = fragment.lstrip(u"/")
+        parts = unquote(fragment).split(u"/") if fragment else []
 
-        if not fragment:
-            return document
-
-        for keyword in ["$anchor", "$dynamicAnchor"]:
-            for subschema in self._finditem(document, keyword):
-                if fragment == subschema[keyword]:
-                    return subschema
-
-        # Resolve via path
-        parts = unquote(fragment).split("/") if fragment else []
         for part in parts:
-            part = part.replace("~1", "/").replace("~0", "~")
+            part = part.replace(u"~1", u"/").replace(u"~0", u"~")
 
             if isinstance(document, Sequence):
                 # Array indexes should be turned into integers

@@ -71,6 +71,17 @@ def load_vocabulary(name):
     return vocabulary
 
 
+def __no_init_subclass__(*args, **kwargs):
+    """
+    Warn users that subclassing is not part of the public API of objects.
+    """
+    raise RuntimeError(
+        "jsonschema classes do not support subclassing. "
+        "If an API is missing which prevents extension, please "
+        "file a ticket at https://github.com/Julian/jsonschema/issues."
+    )
+
+
 def format_as_index(container, indices):
     """
     Construct a single string containing indexing operations for the indices.

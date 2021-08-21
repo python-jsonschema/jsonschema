@@ -206,14 +206,12 @@ def contains_draft6_draft7(validator, contains, instance, schema):
         )
 
 
-def recursiveRef(validator, recursiveRef, instance, schema):
-    scope_stack = validator.resolver.scopes_stack_copy
-    lookup_url, target = validator.resolver.resolution_scope, validator.schema
-
-    for each in reversed(scope_stack[1:]):
-        lookup_url, next_target = validator.resolver.resolve(each)
-        if next_target.get("$recursiveAnchor"):
-            target = next_target
+def recursiveRef(annotator, recursiveRef, instance, schema):
+    outward = (schema for _, schema in annotator.scopes_moving_outward())
+    target = next(outward)
+    for each in outward:
+        if each.get("$recursiveAnchor"):
+            target = each
         else:
             break
 
