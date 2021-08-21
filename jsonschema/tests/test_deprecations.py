@@ -8,7 +8,7 @@ class TestDeprecations(TestCase):
         """
 
         with self.assertWarns(DeprecationWarning) as w:
-            from jsonschema import __version__
+            from jsonschema import __version__  # noqa
 
         self.assertTrue(
             str(w.warning).startswith(
@@ -23,7 +23,7 @@ class TestDeprecations(TestCase):
         """
 
         with self.assertWarns(DeprecationWarning) as w:
-            from jsonschema.validators import ErrorTree
+            from jsonschema.validators import ErrorTree  # noqa
 
         self.assertTrue(
             str(w.warning).startswith(
