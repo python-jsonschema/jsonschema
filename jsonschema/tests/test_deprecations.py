@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-import jsonschema
-
 
 class TestDeprecations(TestCase):
     def test_jsonschema_version(self):
@@ -10,10 +8,25 @@ class TestDeprecations(TestCase):
         """
 
         with self.assertWarns(DeprecationWarning) as w:
-            jsonschema.__version__
+            from jsonschema import __version__
 
         self.assertTrue(
             str(w.warning).startswith(
                 "Accessing jsonschema.__version__ is deprecated",
+            ),
+        )
+
+    def test_jsonschema_validators_ErrorTree(self):
+        """
+        As of v4.0.0, importing ErrorTree from jsonschema.validators is
+        deprecated in favor of doing so from jsonschema.exceptions.
+        """
+
+        with self.assertWarns(DeprecationWarning) as w:
+            from jsonschema.validators import ErrorTree
+
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Importing ErrorTree from jsonschema.validators is deprecated",
             ),
         )

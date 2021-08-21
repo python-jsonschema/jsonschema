@@ -8,6 +8,7 @@ from urllib.request import urlopen
 from warnings import warn
 import contextlib
 import json
+import warnings
 
 from jsonschema import (
     _legacy_validators,
@@ -16,17 +17,22 @@ from jsonschema import (
     _validators,
     exceptions,
 )
-# Sigh. https://gitlab.com/pycqa/flake8/issues/280
-#       https://github.com/pyga/ebb-lint/issues/7
-# Imported for backwards compatibility.
-from jsonschema.exceptions import ErrorTree
-
-ErrorTree
-
 
 validators = {}
 meta_schemas = _utils.URIDict()
 _VOCABULARIES = _utils.URIDict()
+
+
+def __getattr__(name):
+    if name == "ErrorTree":
+        warnings.warn(
+            "Importing ErrorTree from jsonschema.validators is deprecated. "
+            "Instead import it from jsonschema.exceptions.",
+            DeprecationWarning,
+        )
+        from jsonschema.exceptions import ErrorTree
+        return ErrorTree
+    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
 def validates(version):
