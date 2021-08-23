@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 A performance benchmark using the example from issue #232.
 
