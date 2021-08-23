@@ -97,8 +97,7 @@ def additionalItems(validator, aI, instance, schema):
     elif not aI and len(instance) > len(schema.get("items", [])):
         error = "Additional items are not allowed (%s %s unexpected)"
         yield ValidationError(
-            error %
-            extras_msg(instance[len(schema.get("items", [])):]),
+            error % extras_msg(instance[len(schema.get("items", [])):]),
         )
 
 
@@ -450,7 +449,5 @@ def prefixItems(validator, prefixItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    for k, v in enumerate(instance[:min(len(prefixItems), len(instance))]):
-        yield from validator.descend(
-            v, prefixItems[k], schema_path="prefixItems",
-        )
+    for (index, each), subschema in zip(enumerate(instance), prefixItems):
+        yield from validator.descend(each, subschema, schema_path=index)

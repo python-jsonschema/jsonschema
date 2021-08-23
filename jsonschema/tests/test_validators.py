@@ -418,7 +418,7 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance=[1, 2, 3], schema={"maxItems": 2})
         self.assertEqual(message, "[1, 2, 3] is too long")
 
-    def test_prefixItems(self):
+    def test_prefixItems_with_items(self):
         message = self.message_for(
             instance=[1, 2, "foo", 5],
             schema={"items": False, "prefixItems": [{}, {}]},
@@ -1111,6 +1111,55 @@ class TestValidationErrorDetails(TestCase):
                 {"type": "integer"},
                 deque(["additionalProperties", "type"]),
                 "$.foo",
+            ),
+        )
+
+    def test_prefixItems(self):
+        schema = {"prefixItems": [{"type": "string"}, {}, {}, {"maximum": 3}]}
+        validator = validators.Draft202012Validator(schema)
+        type_error, min_error = validator.iter_errors([1, 2, "foo", 5])
+        self.assertEqual(
+            (
+                type_error.message,
+                type_error.validator,
+                type_error.validator_value,
+                type_error.instance,
+                type_error.absolute_path,
+                type_error.schema,
+                type_error.schema_path,
+                type_error.json_path,
+            ),
+            (
+                "1 is not of type 'string'",
+                "type",
+                "string",
+                1,
+                deque([]),
+                {"type": "string"},
+                deque(["prefixItems", 0, "type"]),
+                "$",
+            ),
+        )
+        self.assertEqual(
+            (
+                min_error.message,
+                min_error.validator,
+                min_error.validator_value,
+                min_error.instance,
+                min_error.absolute_path,
+                min_error.schema,
+                min_error.schema_path,
+                min_error.json_path,
+            ),
+            (
+                "5 is greater than the maximum of 3",
+                "maximum",
+                3,
+                5,
+                deque([]),
+                {"maximum": 3},
+                deque(["prefixItems", 3, "maximum"]),
+                "$",
             ),
         )
 
