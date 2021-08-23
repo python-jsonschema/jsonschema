@@ -1246,12 +1246,6 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         self.assertFalse(self.Validator({}).is_type(True, "integer"))
         self.assertFalse(self.Validator({}).is_type(True, "number"))
 
-    def test_patterns_can_be_native_strings(self):
-        """
-        See https://github.com/Julian/jsonschema/issues/611.
-        """
-        self.Validator({"pattern": "foo"}).validate("foo")
-
     def test_it_can_validate_with_decimals(self):
         schema = {"items": {"type": "number"}}
         Validator = validators.extend(
