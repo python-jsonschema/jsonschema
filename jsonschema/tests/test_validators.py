@@ -1022,7 +1022,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.validator, "not")
         self.assertEqual(
             error.message,
-            "{'const': 'foo'} is not allowed for 'foo'",
+            "'foo' should not be valid under {'const': 'foo'}",
         )
         self.assertEqual(error.path, deque([]))
         self.assertEqual(error.json_path, "$")
