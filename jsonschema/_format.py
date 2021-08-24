@@ -325,16 +325,11 @@ else:
             return True
         return rfc3987.parse(instance, rule="URI_reference")
 
-
 try:
-    from strict_rfc3339 import validate_rfc3339
+    from rfc3339_validator import validate_rfc3339
 except ImportError:
-    try:
-        from rfc3339_validator import validate_rfc3339
-    except ImportError:
-        validate_rfc3339 = None
-
-if validate_rfc3339:
+    pass
+else:
     @_checks_drafts(name="date-time")
     def is_datetime(instance):
         if not isinstance(instance, str):
