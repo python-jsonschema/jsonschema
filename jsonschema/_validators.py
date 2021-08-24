@@ -67,11 +67,12 @@ def items(validator, items, instance, schema):
         return
 
     prefix = len(schema.get("prefixItems", []))
-    if items is False and len(instance) > prefix:
-        message = f"Expected at most {prefix} items, but found {len(instance)}"
+    total = len(instance)
+    if items is False and total > prefix:
+        message = f"Expected at most {prefix} items, but found {total}"
         yield ValidationError(message)
     else:
-        for index in range(prefix, len(instance)):
+        for index in range(prefix, total):
             yield from validator.descend(
                 instance=instance[index],
                 schema=items,
