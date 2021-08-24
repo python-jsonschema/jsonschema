@@ -1,3 +1,5 @@
+file:.#egg=jsonschema
+furo
 lxml
 sphinx
 sphinxcontrib-spelling
