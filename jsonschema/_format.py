@@ -364,7 +364,7 @@ def is_regex(instance):
 def is_date(instance):
     if not isinstance(instance, str):
         return True
-    return _is_date(instance)
+    return instance.isascii() and datetime.date.fromisoformat(instance)
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
