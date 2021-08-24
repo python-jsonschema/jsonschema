@@ -110,13 +110,18 @@ else:
     def missing_date_fromisoformat(test):
         return
 
-allowed_leading_zeros = skip(
-    message="This behavior is optional (and Python allows it)",
-    subject="ipv4",
-    description=(
-        "leading zeroes should be rejected, as they are treated as octals"
-    ),
-)
+if sys.version_info < (3, 9):
+    message = "Rejecting leading zeros is 3.9+"
+    allowed_leading_zeros = skip(
+        message=message,
+        subject="ipv4",
+        description=(
+            "leading zeroes should be rejected, as they are treated as octals"
+        ),
+    )
+else:
+    def allowed_leading_zeros(test):
+        return
 
 
 def leap_second(test):
@@ -147,6 +152,9 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
+            description=(
+                "$ref resolves to /definitions/foo, data does not validate"
+            ),
             case_description=(
                 "$ref prevents a sibling id from changing the base uri"
             ),
@@ -228,7 +236,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="float-overflow"),
     DRAFT6.optional_tests_of(name="non-bmp-regex"),
-    DRAFT7.optional_tests_of(name="unicode"),
+    DRAFT6.optional_tests_of(name="unicode"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
     skip=lambda test: (
@@ -237,11 +245,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or allowed_leading_zeros(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description="Recursive references between schemas",
-        )(test)
         or skip(
             message=bug(371),
             subject="ref",
@@ -260,40 +263,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             case_description=(
                 "Location-independent identifier with "
                 "base URI change in subschema"
-            ),
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description="refs with relative uris and defs",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description="relative refs with absolute uris and defs",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description=(
-                "$ref prevents a sibling $id from changing the base uri"
-            ),
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="id",
-            description="match $ref to id",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="id",
-            description="no match on enum or $ref to id",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="unknownKeyword",
-            case_description=(
-                "$id inside an unknown keyword is not a real identifier"
             ),
         )(test)
         or skip(
@@ -323,11 +292,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
         or skip(
-            message=bug(),
-            subject="ref",
-            case_description="Recursive references between schemas",
-        )(test)
-        or skip(
             message=bug(371),
             subject="ref",
             case_description="Location-independent identifier",
@@ -345,40 +309,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             case_description=(
                 "Location-independent identifier with "
                 "base URI change in subschema"
-            ),
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description="refs with relative uris and defs",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description="relative refs with absolute uris and defs",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description=(
-                "$ref prevents a sibling $id from changing the base uri"
-            ),
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="id",
-            description="match $ref to id",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="id",
-            description="no match on enum or $ref to id",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="unknownKeyword",
-            case_description=(
-                "$id inside an unknown keyword is not a real identifier"
             ),
         )(test)
         or skip(
