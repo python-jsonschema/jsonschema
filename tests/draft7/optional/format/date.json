@@ -154,14 +154,34 @@
                 "valid": false
             },
             {
-                "description": "invalidates non-padded month dates",
+                "description": "non-padded month dates are not valid",
                 "data": "1998-1-20",
                 "valid": false
             },
             {
-                "description": "invalidates non-padded day dates",
+                "description": "non-padded day dates are not valid",
                 "data": "1998-01-1",
                 "valid": false
+            },
+            {
+                "description": "invalid month",
+                "data": "1998-13-01",
+                "valid": false
+            },
+            {
+                "description": "invalid month-day combination",
+                "data": "1998-04-31",
+                "valid": false
+            },
+            {
+                "description": "2021 is not a leap year",
+                "data": "2021-02-29",
+                "valid": false
+            },
+            {
+                "description": "2020 is a leap year",
+                "data": "2020-02-29",
+                "valid": true
             }
         ]
     }
