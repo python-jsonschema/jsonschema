@@ -2,7 +2,7 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |CI| |ReadTheDocs|
+|PyPI| |Pythons| |CI| |ReadTheDocs| |Precommit|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
@@ -20,7 +20,7 @@ jsonschema
    :alt: ReadTheDocs status
    :target: https://python-jsonschema.readthedocs.io/en/stable/
 
-.. |Pre Commit| image:: https://results.pre-commit.ci/badge/github/Julian/jsonschema/main.svg
+.. |Precommit| image:: https://results.pre-commit.ci/badge/github/Julian/jsonschema/main.svg
    :alt: pre-commit.ci status
    :target: https://results.pre-commit.ci/latest/github/Julian/jsonschema/main
 
