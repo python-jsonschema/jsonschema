@@ -43,6 +43,11 @@
                 "description": "value without leading zero is valid",
                 "data": "87.10.0.1",
                 "valid": true
+            },
+            {
+                "description": "non-ascii digits should be rejected",
+                "data": "1২7.0.0.1",
+                "valid": false
             }
         ]
     }

@@ -57,6 +57,16 @@
                 "description": "invalid non-padded day dates",
                 "data": "1963-06-1T08:30:06.283185Z",
                 "valid": false
+            },
+            {
+                "description": "non-ascii digits should be rejected in the date portion",
+                "data": "1963-06-1৪T00:00:00Z",
+                "valid": false
+            },
+            {
+                "description": "non-ascii digits should be rejected in the time portion",
+                "data": "1963-06-11T0৪:00:00Z",
+                "valid": false
             }
         ]
     }

@@ -152,6 +152,16 @@
                 "description": "only RFC3339 not all of ISO 8601 are valid",
                 "data": "01:01:01,1111",
                 "valid": false
+            },
+            {
+                "description": "no time offset",
+                "data": "12:00:00",
+                "valid": false
+            },
+            {
+                "description": "non-ascii digits should be rejected",
+                "data": "1২:00:00Z",
+                "valid": false
             }
         ]
     }
