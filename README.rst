@@ -20,6 +20,10 @@ jsonschema
    :alt: ReadTheDocs status
    :target: https://python-jsonschema.readthedocs.io/en/stable/
 
+.. |Pre Commit| image:: https://results.pre-commit.ci/badge/github/Julian/jsonschema/main.svg
+   :alt: pre-commit.ci status
+   :target: https://results.pre-commit.ci/latest/github/Julian/jsonschema/main
+
 
 ``jsonschema`` is an implementation of `JSON Schema
 <https://json-schema.org>`_ for Python.
