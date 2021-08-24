@@ -1,4 +1,5 @@
 from fractions import Fraction
+from itertools import islice
 from urllib.parse import urldefrag, urljoin
 import re
 
@@ -66,21 +67,13 @@ def items(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if validator.is_type(items, "boolean") and "prefixItems" in schema:
-        if not items:
-            got = len(instance)
-            maximum = len(schema["prefixItems"])
-            if got > maximum:
-                message = f"Expected at most {maximum} items, but found {got}"
-                yield ValidationError(message)
+    prefix = len(schema.get("prefixItems", []))
+    if items is False and len(instance) > prefix:
+        message = f"Expected at most {prefix} items, but found {len(instance)}"
+        yield ValidationError(message)
     else:
-        non_prefixed_items = (
-            instance[len(schema["prefixItems"]):]
-            if "prefixItems" in schema else instance
-        )
-
-        for index, item in enumerate(non_prefixed_items):
-            yield from validator.descend(item, items, path=index)
+        for item in islice(instance, prefix, None):
+            yield from validator.descend(instance=item, schema=items)
 
 
 def additionalItems(validator, aI, instance, schema):
@@ -448,5 +441,5 @@ def prefixItems(validator, prefixItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    for (index, each), subschema in zip(enumerate(instance), prefixItems):
-        yield from validator.descend(each, subschema, schema_path=index)
+    for (index, item), subschema in zip(enumerate(instance), prefixItems):
+        yield from validator.descend(item, subschema, schema_path=index)
