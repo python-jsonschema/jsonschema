@@ -217,5 +217,6 @@ def recursiveRef(validator, recursiveRef, instance, schema):
         else:
             break
 
-    subschema = validator.resolver.resolve_local(recursiveRef, target)
+    fragment = recursiveRef.lstrip("#")
+    subschema = validator.resolver.resolve_fragment(target, fragment)
     yield from validator.descend(instance, subschema)
