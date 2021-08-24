@@ -147,6 +147,16 @@
                 "description": "a long invalid ipv6, below length limit, second",
                 "data": "100:100:100:100:100:100:100:255.255.255.255",
                 "valid": false
+            },
+            {
+                "description": "non-ascii digits should be rejected",
+                "data": "1:2:3:4:5:6:7:৪",
+                "valid": false
+            },
+            {
+                "description": "non-ascii digits should be rejected in the ipv4 portion also",
+                "data": "1:2::192.16৪.0.1",
+                "valid": false
             }
         ]
     }

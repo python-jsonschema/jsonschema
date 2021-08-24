@@ -87,6 +87,11 @@
                 "description": "weeks cannot be combined with other units",
                 "data": "P1Y2W",
                 "valid": false
+            },
+            {
+                "description": "non-ascii digits should be rejected",
+                "data": "P২Y",
+                "valid": false
             }
         ]
     }

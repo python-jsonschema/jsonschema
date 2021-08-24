@@ -182,6 +182,11 @@
                 "description": "2020 is a leap year",
                 "data": "2020-02-29",
                 "valid": true
+            },
+            {
+                "description": "non-ascii digits should be rejected",
+                "data": "1963-06-1৪",
+                "valid": false
             }
         ]
     }
