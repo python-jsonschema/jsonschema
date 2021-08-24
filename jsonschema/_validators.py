@@ -1,5 +1,4 @@
 from fractions import Fraction
-from itertools import islice
 from urllib.parse import urldefrag, urljoin
 import re
 
@@ -72,8 +71,12 @@ def items(validator, items, instance, schema):
         message = f"Expected at most {prefix} items, but found {len(instance)}"
         yield ValidationError(message)
     else:
-        for item in islice(instance, prefix, None):
-            yield from validator.descend(instance=item, schema=items)
+        for index in range(prefix, len(instance)):
+            yield from validator.descend(
+                instance=instance[index],
+                schema=items,
+                path=index,
+            )
 
 
 def additionalItems(validator, aI, instance, schema):
