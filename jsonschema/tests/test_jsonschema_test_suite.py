@@ -93,23 +93,6 @@ else:
         return
 
 
-if sys.version_info < (3, 7):
-    message = "datetime.date.fromisoformat is new in 3.7+"
-
-    def missing_date_fromisoformat(test):
-        return skip(
-            message=message,
-            subject="date",
-            description="invalidates non-padded month dates",
-        )(test) or skip(
-            message=message,
-            subject="date",
-            description="invalidates non-padded day dates",
-        )(test)
-else:
-    def missing_date_fromisoformat(test):
-        return
-
 if sys.version_info < (3, 9):
     message = "Rejecting leading zeros is 3.9+"
     allowed_leading_zeros = skip(
@@ -171,7 +154,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     format_checker=draft3_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or missing_date_fromisoformat(test)
         or missing_format(draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -200,7 +182,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     format_checker=draft4_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or missing_date_fromisoformat(test)
         or allowed_leading_zeros(test)
         or missing_format(draft4_format_checker)(test)
         or complex_email_validation(test)
@@ -266,7 +247,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     format_checker=draft6_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or missing_date_fromisoformat(test)
         or allowed_leading_zeros(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
@@ -311,7 +291,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     format_checker=draft7_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or missing_date_fromisoformat(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(draft7_format_checker)(test)
@@ -394,7 +373,6 @@ TestDraft201909Format = DRAFT201909.to_unittest_testcase(
     format_checker=draft201909_format_checker,
     skip=lambda test: (
         complex_email_validation(test)
-        or missing_date_fromisoformat(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(draft201909_format_checker)(test)
@@ -431,7 +409,6 @@ TestDraft202012Format = DRAFT202012.to_unittest_testcase(
     format_checker=draft202012_format_checker,
     skip=lambda test: (
         complex_email_validation(test)
-        or missing_date_fromisoformat(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(draft202012_format_checker)(test)
