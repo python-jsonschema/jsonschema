@@ -124,29 +124,6 @@ def extras_msg(extras):
     return ", ".join(repr(extra) for extra in extras), verb
 
 
-def flatten(suitable_for_isinstance):
-    """
-    isinstance() can accept a bunch of really annoying different types:
-
-        * a single type
-        * a tuple of types
-        * an arbitrary nested tree of tuples
-
-    Return a flattened tuple of the given argument.
-    """
-
-    types = set()
-
-    if not isinstance(suitable_for_isinstance, tuple):
-        suitable_for_isinstance = (suitable_for_isinstance,)
-    for thing in suitable_for_isinstance:
-        if isinstance(thing, tuple):
-            types.update(flatten(thing))
-        else:
-            types.add(thing)
-    return tuple(types)
-
-
 def ensure_list(thing):
     """
     Wrap ``thing`` in a list if it's a single str.

@@ -102,12 +102,6 @@ class Version(object):
             )
         )
 
-    def tests_of(self, name):
-        return self._tests_in(
-            subject=name,
-            path=self._path / (name + ".json"),
-        )
-
     def optional_tests_of(self, name):
         return self._tests_in(
             subject=name,
