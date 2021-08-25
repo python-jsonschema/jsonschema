@@ -89,7 +89,7 @@ class TypeChecker(object):
         try:
             fn = self._type_checkers[type]
         except KeyError:
-            raise UndefinedTypeCheck(type)
+            raise UndefinedTypeCheck(type) from None
 
         return fn(self, instance)
 
