@@ -1,7 +1,7 @@
+from contextlib import suppress
 from datetime import datetime
 from importlib import metadata
 from urllib.parse import urljoin
-import errno
 import os
 import urllib.request
 
@@ -30,11 +30,7 @@ def setup(app):
 
     app.add_config_value("cache_path", "_cache", "")
 
-    try:
-        os.makedirs(app.config.cache_path)
-    except OSError as error:
-        if error.errno != errno.EEXIST:
-            raise
+    os.makedirs(app.config.cache_path, exist_ok=True)
 
     path = os.path.join(app.config.cache_path, "spec.html")
     spec = fetch_or_load(path)
@@ -61,13 +57,10 @@ def fetch_or_load(spec_path):
         ),
     }
 
-    try:
+    with suppress(FileNotFoundError):
         modified = datetime.utcfromtimestamp(os.path.getmtime(spec_path))
         date = modified.strftime("%a, %d %b %Y %I:%M:%S UTC")
         headers["If-Modified-Since"] = date
-    except OSError as error:
-        if error.errno != errno.ENOENT:
-            raise
 
     request = urllib.request.Request(VALIDATION_SPEC, headers=headers)
     response = urllib.request.urlopen(request, cafile=certifi.where())

@@ -4,7 +4,6 @@ from json import JSONDecodeError
 from pathlib import Path
 from textwrap import dedent
 from unittest import TestCase
-import errno
 import json
 import os
 import subprocess
@@ -50,7 +49,7 @@ def fake_open(all_contents):
     def open(path):
         contents = all_contents.get(path)
         if contents is None:
-            raise OSError(errno.ENOENT, os.strerror(errno.ENOENT), path)
+            raise FileNotFoundError(path)
         return StringIO(contents)
     return open
 

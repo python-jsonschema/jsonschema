@@ -5,7 +5,6 @@ The ``jsonschema`` command line.
 from json import JSONDecodeError
 from textwrap import dedent
 import argparse
-import errno
 import json
 import sys
 import traceback
@@ -44,9 +43,7 @@ class _Outputter(object):
     def load(self, path):
         try:
             file = open(path)
-        except OSError as error:
-            if error.errno != errno.ENOENT:
-                raise
+        except FileNotFoundError:
             self.filenotfound_error(path=path, exc_info=sys.exc_info())
             raise _CannotLoadFile()
 
