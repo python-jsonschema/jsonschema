@@ -1221,6 +1221,94 @@ class TestValidationErrorDetails(TestCase):
             ),
         )
 
+    def test_contains_too_many(self):
+        """
+        `contains` + `maxContains` produces only one error, even if there are
+        many more incorrectly matching elements.
+        """
+        schema = {"contains": {"type": "string"}, "maxContains": 2}
+        validator = validators.Draft202012Validator(schema)
+        error, = validator.iter_errors(["foo", 2, "bar", 4, "baz", "quux"])
+        self.assertEqual(
+            (
+                error.message,
+                error.validator,
+                error.validator_value,
+                error.instance,
+                error.absolute_path,
+                error.schema,
+                error.schema_path,
+                error.json_path,
+            ),
+            (
+                "Too many items match the given schema (expected at most 2)",
+                "maxContains",
+                2,
+                ["foo", 2, "bar", 4, "baz", "quux"],
+                deque([]),
+                {"contains": {"type": "string"}, "maxContains": 2},
+                deque(["contains"]),
+                "$",
+            ),
+        )
+
+    def test_contains_too_few(self):
+        schema = {"contains": {"type": "string"}, "minContains": 2}
+        validator = validators.Draft202012Validator(schema)
+        error, = validator.iter_errors(["foo", 2, 4])
+        self.assertEqual(
+            (
+                error.message,
+                error.validator,
+                error.validator_value,
+                error.instance,
+                error.absolute_path,
+                error.schema,
+                error.schema_path,
+                error.json_path,
+            ),
+            (
+                (
+                    "Too few items match the given schema "
+                    "(expected at least 2 but only 1 matched)"
+                ),
+                "minContains",
+                2,
+                ["foo", 2, 4],
+                deque([]),
+                {"contains": {"type": "string"}, "minContains": 2},
+                deque(["contains"]),
+                "$",
+            ),
+        )
+
+    def test_contains_none(self):
+        schema = {"contains": {"type": "string"}, "minContains": 2}
+        validator = validators.Draft202012Validator(schema)
+        error, = validator.iter_errors([2, 4])
+        self.assertEqual(
+            (
+                error.message,
+                error.validator,
+                error.validator_value,
+                error.instance,
+                error.absolute_path,
+                error.schema,
+                error.schema_path,
+                error.json_path,
+            ),
+            (
+                "[2, 4] does not contain items matching the given schema",
+                "contains",
+                {"type": "string"},
+                [2, 4],
+                deque([]),
+                {"contains": {"type": "string"}, "minContains": 2},
+                deque(["contains"]),
+                "$",
+            ),
+        )
+
 
 class MetaSchemaTestsMixin(object):
     # TODO: These all belong upstream

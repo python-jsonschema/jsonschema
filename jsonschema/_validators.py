@@ -118,6 +118,8 @@ def contains(validator, contains, instance, schema):
                 yield ValidationError(
                     "Too many items match the given schema "
                     f"(expected at most {max_contains})",
+                    validator="maxContains",
+                    validator_value=max_contains,
                 )
                 return
 
@@ -131,6 +133,8 @@ def contains(validator, contains, instance, schema):
             yield ValidationError(
                 "Too few items match the given schema (expected at least "
                 f"{min_contains} but only {matches} matched)",
+                validator="minContains",
+                validator_value=min_contains,
             )
 
 
