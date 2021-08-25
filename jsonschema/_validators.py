@@ -112,7 +112,7 @@ def contains(validator, contains, instance, schema):
     max_contains = schema.get("maxContains", len(instance))
 
     for each in instance:
-        if validator.is_valid(each, contains):
+        if validator.evolve(schema=contains).is_valid(each):
             matches += 1
             if matches > max_contains:
                 yield ValidationError(
@@ -388,7 +388,10 @@ def oneOf(validator, oneOf, instance, schema):
             context=all_errors,
         )
 
-    more_valid = [s for i, s in subschemas if validator.is_valid(instance, s)]
+    more_valid = [
+        each for _, each in subschemas
+        if validator.evolve(schema=each).is_valid(instance)
+    ]
     if more_valid:
         more_valid.append(first_valid)
         reprs = ", ".join(repr(schema) for schema in more_valid)
@@ -396,13 +399,13 @@ def oneOf(validator, oneOf, instance, schema):
 
 
 def not_(validator, not_schema, instance, schema):
-    if validator.is_valid(instance, not_schema):
+    if validator.evolve(schema=not_schema).is_valid(instance):
         message = f"{instance!r} should not be valid under {not_schema!r}"
         yield ValidationError(message)
 
 
 def if_(validator, if_schema, instance, schema):
-    if validator.is_valid(instance, if_schema):
+    if validator.evolve(schema=if_schema).is_valid(instance):
         if "then" in schema:
             then = schema["then"]
             yield from validator.descend(instance, then, schema_path="then")

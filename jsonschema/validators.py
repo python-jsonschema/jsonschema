@@ -172,8 +172,21 @@ def create(
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
 
+        def evolve(self, **kwargs):
+            return attr.evolve(self, **kwargs)
+
         def iter_errors(self, instance, _schema=None):
-            if _schema is None:
+            if _schema is not None:
+                warnings.warn(
+                    (
+                        "Passing a schema to Validator.iter_errors "
+                        "is deprecated and will be removed in a future "
+                        "release. Call validator.evolve(schema=new_schema)."
+                        "iter_errors(...) instead."
+                    ),
+                    DeprecationWarning,
+                )
+            else:
                 _schema = self.schema
 
             if _schema is True:
@@ -214,7 +227,7 @@ def create(
                     self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
-            for error in self.iter_errors(instance, schema):
+            for error in self.evolve(schema=schema).iter_errors(instance):
                 if path is not None:
                     error.path.appendleft(path)
                 if schema_path is not None:
@@ -232,7 +245,19 @@ def create(
                 raise exceptions.UnknownType(type, instance, self.schema)
 
         def is_valid(self, instance, _schema=None):
-            error = next(self.iter_errors(instance, _schema), None)
+            if _schema is not None:
+                warnings.warn(
+                    (
+                        "Passing a schema to Validator.is_valid is deprecated "
+                        "and will be removed in a future release. Call "
+                        "validator.evolve(schema=new_schema).is_valid(...) "
+                        "instead."
+                    ),
+                    DeprecationWarning,
+                )
+                self = self.evolve(schema=_schema)
+
+            error = next(self.iter_errors(instance), None)
             return error is None
 
     if version is not None:

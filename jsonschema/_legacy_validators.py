@@ -72,7 +72,7 @@ def dependencies_draft4_draft6_draft7(
 
 def disallow_draft3(validator, disallow, instance, schema):
     for disallowed in _utils.ensure_list(disallow):
-        if validator.is_valid(instance, {"type": [disallowed]}):
+        if validator.evolve(schema={"type": [disallowed]}).is_valid(instance):
             message = f"{disallowed!r} is disallowed for {instance!r}"
             yield ValidationError(message)
 
@@ -200,7 +200,10 @@ def contains_draft6_draft7(validator, contains, instance, schema):
     if not validator.is_type(instance, "array"):
         return
 
-    if not any(validator.is_valid(element, contains) for element in instance):
+    if not any(
+        validator.evolve(schema=contains).is_valid(element)
+        for element in instance
+    ):
         yield ValidationError(
             f"None of {instance!r} are valid under the given schema",
         )

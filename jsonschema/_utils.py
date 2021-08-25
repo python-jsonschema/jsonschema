@@ -240,7 +240,7 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
         evaluated_indexes += list(range(0, len(schema["prefixItems"])))
 
     if "if" in schema:
-        if validator.is_valid(instance, schema["if"]):
+        if validator.evolve(schema=schema["if"]).is_valid(instance):
             evaluated_indexes += find_evaluated_item_indexes_by_schema(
                 validator, instance, schema["if"],
             )
@@ -257,7 +257,7 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     for keyword in ["contains", "unevaluatedItems"]:
         if keyword in schema:
             for k, v in enumerate(instance):
-                if validator.is_valid(v, schema[keyword]):
+                if validator.evolve(schema=schema[keyword]).is_valid(v):
                     evaluated_indexes.append(k)
 
     for keyword in ["allOf", "oneOf", "anyOf"]:
@@ -301,22 +301,24 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
         if keyword in schema:
             if validator.is_type(schema[keyword], "boolean"):
                 for property, value in instance.items():
-                    if validator.is_valid({property: value}, schema[keyword]):
+                    if validator.evolve(schema=schema[keyword]).is_valid(
+                        {property: value},
+                    ):
                         evaluated_keys.append(property)
 
             if validator.is_type(schema[keyword], "object"):
                 for property, subschema in schema[keyword].items():
-                    if property in instance and validator.is_valid(
-                            instance[property], subschema,
-                    ):
+                    if property in instance and validator.evolve(
+                        schema=subschema,
+                    ).is_valid(instance[property]):
                         evaluated_keys.append(property)
 
     if "patternProperties" in schema:
         for property, value in instance.items():
             for pattern, _ in schema["patternProperties"].items():
-                if re.search(pattern, property) and validator.is_valid(
-                        {property: value}, schema["patternProperties"],
-                ):
+                if re.search(pattern, property) and validator.evolve(
+                    schema=schema["patternProperties"],
+                ).is_valid({property: value}):
                     evaluated_keys.append(property)
 
     if "dependentSchemas" in schema:
@@ -337,7 +339,7 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
                     )
 
     if "if" in schema:
-        if validator.is_valid(instance, schema["if"]):
+        if validator.evolve(schema=schema["if"]).is_valid(instance):
             evaluated_keys += find_evaluated_property_keys_by_schema(
                 validator, instance, schema["if"],
             )

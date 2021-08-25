@@ -151,6 +151,18 @@ classes should adhere to.
             ...
         ValidationError: [2, 3, 4] is too long
 
+    .. method:: evolve(**kwargs)
+
+        Create a new validator like this one, but with given changes.
+
+        Preserves all other attributes, so can be used to e.g. create a
+        validator with a different schema but with the same :validator:`$ref`
+        resolution behavior.
+
+        >>> validator = Draft202012Validator({})
+        >>> validator.evolve(schema={"type": "number"})
+        Draft202012Validator(schema={'type': 'number'}, format_checker=None)
+
 
 All of the `versioned validators <versioned-validators>` that are included with
 `jsonschema` adhere to the interface, and implementers of validator classes
