@@ -17,9 +17,10 @@ from jsonschema import FormatChecker, TypeChecker, exceptions, validators
 from jsonschema.tests._helpers import bug
 
 
-def startswith(validator, startswith, instance, schema):
-    if not instance.startswith(startswith):
-        yield exceptions.ValidationError("Whoops!")
+def fail(validator, errors, instance, schema):
+    for each in errors:
+        each.setdefault("message", "You told me to fail!")
+        yield exceptions.ValidationError(**each)
 
 
 class TestCreateAndExtend(SynchronousTestCase):
@@ -31,7 +32,7 @@ class TestCreateAndExtend(SynchronousTestCase):
         )
 
         self.meta_schema = {"$id": "some://meta/schema"}
-        self.validators = {"startswith": startswith}
+        self.validators = {"fail": fail}
         self.type_checker = TypeChecker()
         self.Validator = validators.create(
             meta_schema=self.meta_schema,
@@ -53,28 +54,45 @@ class TestCreateAndExtend(SynchronousTestCase):
         )
 
     def test_init(self):
-        schema = {"startswith": "foo"}
+        schema = {"fail": []}
         self.assertEqual(self.Validator(schema).schema, schema)
 
-    def test_iter_errors(self):
-        schema = {"startswith": "hel"}
-        iter_errors = self.Validator(schema).iter_errors
+    def test_iter_errors_successful(self):
+        schema = {"fail": []}
+        validator = self.Validator(schema)
 
-        errors = list(iter_errors("hello"))
+        errors = list(validator.iter_errors("hello"))
         self.assertEqual(errors, [])
+
+    def test_iter_errors_one_error(self):
+        schema = {"fail": [{"message": "Whoops!"}]}
+        validator = self.Validator(schema)
 
         expected_error = exceptions.ValidationError(
             "Whoops!",
             instance="goodbye",
             schema=schema,
-            validator="startswith",
-            validator_value="hel",
-            schema_path=deque(["startswith"]),
+            validator="fail",
+            validator_value=[{"message": "Whoops!"}],
+            schema_path=deque(["fail"]),
         )
 
-        errors = list(iter_errors("goodbye"))
+        errors = list(validator.iter_errors("goodbye"))
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0]._contents(), expected_error._contents())
+
+    def test_iter_errors_multiple_errors(self):
+        schema = {
+            "fail": [
+                {"message": "First"},
+                {"message": "Second!", "validator": "asdf"},
+                {"message": "Third"},
+            ],
+        }
+        validator = self.Validator(schema)
+
+        errors = list(validator.iter_errors("goodbye"))
+        self.assertEqual(len(errors), 3)
 
     def test_if_a_version_is_provided_it_is_registered(self):
         Validator = validators.create(
@@ -214,40 +232,6 @@ class TestCreateAndExtend(SynchronousTestCase):
 
         Derived = validators.extend(Original)
         self.assertEqual(Derived.ID_OF(Derived.META_SCHEMA), correct_id)
-
-
-class TestIterErrors(TestCase):
-    def setUp(self):
-        self.validator = validators.Draft3Validator({})
-
-    def test_iter_errors(self):
-        instance = [1, 2]
-        schema = {
-            "disallow": "array",
-            "enum": [["a", "b", "c"], ["d", "e", "f"]],
-            "minItems": 3,
-        }
-
-        got = (e.message for e in self.validator.iter_errors(instance, schema))
-        expected = [
-            f"{schema['disallow']!r} is disallowed for [1, 2]",
-            "[1, 2] is too short",
-            f"[1, 2] is not one of {schema['enum']}",
-        ]
-        self.assertEqual(sorted(got), sorted(expected))
-
-    def test_iter_errors_multiple_failures_one_validator(self):
-        instance = {"foo": 2, "bar": [1], "baz": 15, "quux": "spam"}
-        schema = {
-            "properties": {
-                "foo": {"type": "string"},
-                "bar": {"minItems": 2},
-                "baz": {"maximum": 10, "enum": [2, 4, 6, 8]},
-            },
-        }
-
-        errors = list(self.validator.iter_errors(instance, schema))
-        self.assertEqual(len(errors), 4)
 
 
 class TestValidationErrorMessages(TestCase):
