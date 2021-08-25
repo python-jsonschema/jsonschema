@@ -1,3 +1,4 @@
+from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from json import JSONDecodeError
 from pathlib import Path
@@ -23,7 +24,6 @@ from jsonschema.exceptions import (
     SchemaError,
     ValidationError,
 )
-from jsonschema.tests._helpers import captured_output
 from jsonschema.validators import _LATEST_VERSION, validate
 
 
@@ -856,35 +856,32 @@ class TestParser(TestCase):
         )
         self.assertIs(arguments["validator"], Draft4Validator)
 
-    def test_unknown_output(self):
-        # Avoid the help message on stdout
-        with captured_output() as (stdout, stderr):
+    def cli_output_for(self, *argv):
+        stdout, stderr = StringIO(), StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
             with self.assertRaises(SystemExit):
-                cli.parse_args(
-                    [
-                        "--output", "foo",
-                        "mem://some/schema",
-                    ],
-                )
-        self.assertIn("invalid choice: 'foo'", stderr.getvalue())
-        self.assertFalse(stdout.getvalue())
+                cli.parse_args(argv)
+        return stdout.getvalue(), stderr.getvalue()
+
+    def test_unknown_output(self):
+        stdout, stderr = self.cli_output_for(
+            "--output", "foo",
+            "mem://some/schema",
+        )
+        self.assertIn("invalid choice: 'foo'", stderr)
+        self.assertFalse(stdout)
 
     def test_useless_error_format(self):
-        # Avoid the help message on stdout
-        with captured_output() as (stdout, stderr):
-            with self.assertRaises(SystemExit):
-                cli.parse_args(
-                    [
-                        "--output", "pretty",
-                        "--error-format", "foo",
-                        "mem://some/schema",
-                    ],
-                )
+        stdout, stderr = self.cli_output_for(
+            "--output", "pretty",
+            "--error-format", "foo",
+            "mem://some/schema",
+        )
         self.assertIn(
             "--error-format can only be used with --output plain",
-            stderr.getvalue(),
+            stderr,
         )
-        self.assertFalse(stdout.getvalue())
+        self.assertFalse(stdout)
 
 
 class TestCLIIntegration(TestCase):
