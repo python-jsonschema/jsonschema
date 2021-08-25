@@ -1588,6 +1588,19 @@ class TestValidatorFor(SynchronousTestCase):
             validators.Draft7Validator,
         )
 
+    def test_draft_201909(self):
+        schema = {"$schema": "https://json-schema.org/draft/2019-09/schema"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft201909Validator,
+        )
+
+        schema = {"$schema": "https://json-schema.org/draft/2019-09/schema#"}
+        self.assertIs(
+            validators.validator_for(schema),
+            validators.Draft201909Validator,
+        )
+
     def test_draft_202012(self):
         schema = {"$schema": "https://json-schema.org/draft/2020-12/schema"}
         self.assertIs(
