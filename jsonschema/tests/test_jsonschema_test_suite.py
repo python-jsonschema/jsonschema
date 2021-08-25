@@ -42,7 +42,7 @@ def skip(message, **kwargs):
 
 
 def missing_format(checker):
-    def missing_format(test):
+    def missing_format(test):  # pragma: no cover
         schema = test.schema
         if (
             schema is True
@@ -93,7 +93,7 @@ else:
         return
 
 
-if sys.version_info < (3, 9):
+if sys.version_info < (3, 9):  # pragma: no cover
     message = "Rejecting leading zeros is 3.9+"
     allowed_leading_zeros = skip(
         message=message,
@@ -103,7 +103,7 @@ if sys.version_info < (3, 9):
         ),
     )
 else:
-    def allowed_leading_zeros(test):
+    def allowed_leading_zeros(test):  # pragma: no cover
         return
 
 

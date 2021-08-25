@@ -28,18 +28,6 @@ def is_object_or_named_tuple(checker, instance):
     return is_namedtuple(instance)
 
 
-def coerce_named_tuple(fn):
-    def coerced(validator, value, instance, schema):
-        if is_namedtuple(instance):
-            instance = instance._asdict()
-        return fn(validator, value, instance, schema)
-    return coerced
-
-
-required = coerce_named_tuple(_validators.required)
-properties = coerce_named_tuple(_validators.properties)
-
-
 class TestTypeChecker(TestCase):
     def test_is_type(self):
         checker = TypeChecker({"two": equals_2})
@@ -139,6 +127,9 @@ class TestCustomTypes(TestCase):
         with self.assertRaises(ValidationError):
             validator.validate(4.4)
 
+        with self.assertRaises(ValidationError):
+            validator.validate("foo")
+
     def test_object_can_be_extended(self):
         schema = {"type": "object"}
 
@@ -179,6 +170,16 @@ class TestCustomTypes(TestCase):
             "object", is_object_or_named_tuple,
         )
 
+        def coerce_named_tuple(fn):
+            def coerced(validator, value, instance, schema):
+                if is_namedtuple(instance):
+                    instance = instance._asdict()
+                return fn(validator, value, instance, schema)
+            return coerced
+
+        required = coerce_named_tuple(_validators.required)
+        properties = coerce_named_tuple(_validators.properties)
+
         CustomValidator = extend(
             Draft4Validator,
             type_checker=type_checker,
@@ -193,6 +194,12 @@ class TestCustomTypes(TestCase):
 
         with self.assertRaises(ValidationError):
             validator.validate(Point(x="not an integer", y=5))
+
+        # As well as still handle objects.
+        validator.validate({"x": 4, "y": 5})
+
+        with self.assertRaises(ValidationError):
+            validator.validate({"x": "not an integer", "y": 5})
 
     def test_unknown_type(self):
         with self.assertRaises(UnknownType) as e:

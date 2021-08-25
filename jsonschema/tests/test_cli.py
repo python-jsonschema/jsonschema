@@ -10,9 +10,9 @@ import subprocess
 import sys
 import tempfile
 
-try:
+try:  # pragma: no cover
     from importlib import metadata
-except ImportError:
+except ImportError:  # pragma: no cover
     import importlib_metadata as metadata
 
 from pyrsistent import m
@@ -36,7 +36,7 @@ def fake_validator(*errors):
         def iter_errors(self, instance):
             if errors:
                 return errors.pop()
-            return []
+            return []  # pragma: no cover
 
         @classmethod
         def check_schema(self, schema):
