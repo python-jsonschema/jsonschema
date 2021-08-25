@@ -1,3 +1,4 @@
+from contextlib import suppress
 from uuid import UUID
 import datetime
 import ipaddress
@@ -220,11 +221,9 @@ def is_ipv6(instance):
     return not getattr(address, "scope_id", "")
 
 
-try:
+with suppress(ImportError):
     from fqdn import FQDN
-except ImportError:  # pragma: no cover
-    pass
-else:
+
     @_checks_drafts(
         draft3="host-name",
         draft4="hostname",
@@ -239,12 +238,10 @@ else:
         return FQDN(instance).is_valid
 
 
-try:
+with suppress(ImportError):
     # The built-in `idna` codec only implements RFC 3890, so we go elsewhere.
     import idna
-except ImportError:  # pragma: no cover
-    pass
-else:
+
     @_checks_drafts(
         draft7="idn-hostname",
         draft201909="idn-hostname",
@@ -261,11 +258,9 @@ else:
 try:
     import rfc3987
 except ImportError:
-    try:
+    with suppress(ImportError):
         from rfc3986_validator import validate_rfc3986
-    except ImportError:  # pragma: no cover
-        pass
-    else:
+
         @_checks_drafts(name="uri")
         def is_uri(instance):
             if not isinstance(instance, str):
@@ -325,11 +320,9 @@ else:
             return True
         return rfc3987.parse(instance, rule="URI_reference")
 
-try:
+with suppress(ImportError):
     from rfc3339_validator import validate_rfc3339
-except ImportError:
-    pass
-else:
+
     @_checks_drafts(name="date-time")
     def is_datetime(instance):
         if not isinstance(instance, str):
@@ -374,16 +367,10 @@ def is_draft3_time(instance):
     return datetime.datetime.strptime(instance, "%H:%M:%S")
 
 
-try:  # webcolors>=1.11
+with suppress(ImportError):
     from webcolors import CSS21_NAMES_TO_HEX
     import webcolors
-except ImportError:
-    try:  # webcolors<1.11
-        from webcolors import css21_names_to_hex as CSS21_NAMES_TO_HEX
-        import webcolors
-    except ImportError:  # pragma: no cover
-        pass
-else:
+
     def is_css_color_code(instance):
         return webcolors.normalize_hex(instance)
 
@@ -402,11 +389,9 @@ else:
         return is_css_color_code(instance)
 
 
-try:
+with suppress(ImportError):
     import jsonpointer
-except ImportError:  # pragma: no cover
-    pass
-else:
+
     @_checks_drafts(
         draft6="json-pointer",
         draft7="json-pointer",
@@ -452,11 +437,9 @@ else:
         return (rest == "#") or jsonpointer.JsonPointer(rest)
 
 
-try:
+with suppress(ImportError):
     import uri_template
-except ImportError:  # pragma: no cover
-    pass
-else:
+
     @_checks_drafts(
         draft6="uri-template",
         draft7="uri-template",
@@ -469,11 +452,9 @@ else:
         return uri_template.validate(instance)
 
 
-try:
+with suppress(ImportError):
     import isoduration
-except ImportError:  # pragma: no cover
-    pass
-else:
+
     @_checks_drafts(
         draft201909="duration",
         draft202012="duration",
