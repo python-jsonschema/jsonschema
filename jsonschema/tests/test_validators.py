@@ -1614,11 +1614,11 @@ class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
             validator.validate("foo")
 
     def test_is_type_is_true_for_any_type(self):
-        self.assertTrue(self.Validator({}).is_valid(object(), {"type": "any"}))
+        self.assertTrue(self.Validator({"type": "any"}).is_valid(object()))
 
     def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
         self.assertTrue(self.Validator({}).is_type(True, "boolean"))
-        self.assertTrue(self.Validator({}).is_valid(True, {"type": "any"}))
+        self.assertTrue(self.Validator({"type": "any"}).is_valid(True))
 
 
 class TestDraft4Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
