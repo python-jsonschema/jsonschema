@@ -193,18 +193,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description=(
-                "Location-independent identifier with absolute URI"
-            ),
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
             case_description=(
                 "Location-independent identifier with "
                 "base URI change in subschema"
@@ -253,18 +241,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
-            case_description="Location-independent identifier",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description=(
-                "Location-independent identifier with absolute URI"
-            ),
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
             case_description=(
                 "Location-independent identifier with "
                 "base URI change in subschema"
@@ -295,18 +271,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or leap_second(test)
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description="Location-independent identifier",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description=(
-                "Location-independent identifier with absolute URI"
-            ),
-        )(test)
         or skip(
             message=bug(371),
             subject="ref",

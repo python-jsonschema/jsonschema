@@ -1,6 +1,7 @@
 """
 Creation and extension of validators, with implementations for existing drafts.
 """
+from collections import deque
 from collections.abc import Sequence
 from functools import lru_cache
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
@@ -717,16 +718,14 @@ class RefResolver(object):
             self.pop_scope()
 
     def _finditem(self, schema, key):
-        results = []
-        if isinstance(schema, dict):
-            if key in schema:
-                results.append(schema)
-
-            for v in schema.values():
-                if isinstance(v, dict):
-                    results += self._finditem(v, key)
-
-        return results
+        values = deque([schema])
+        while values:
+            each = values.pop()
+            if not isinstance(each, dict):
+                continue
+            if key in each:
+                yield each
+            values.extendleft(each.values())
 
     def resolve(self, ref):
         """
@@ -785,6 +784,10 @@ class RefResolver(object):
         for keyword in ["$anchor", "$dynamicAnchor"]:
             for subschema in self._finditem(document, keyword):
                 if fragment == subschema[keyword]:
+                    return subschema
+        for keyword in ["id", "$id"]:
+            for subschema in self._finditem(document, keyword):
+                if "#" + fragment == subschema[keyword]:
                     return subschema
 
         # Resolve via path
