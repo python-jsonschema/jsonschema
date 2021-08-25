@@ -184,8 +184,7 @@ def create(
             if scope:
                 self.resolver.push_scope(scope)
             try:
-                validators = applicable_validators(_schema)
-                for k, v in validators:
+                for k, v in applicable_validators(_schema):
                     validator = self.VALIDATORS.get(k)
                     if validator is None:
                         continue
