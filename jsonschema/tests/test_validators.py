@@ -222,9 +222,15 @@ class TestValidationErrorMessages(TestCase):
     def message_for(self, instance, schema, *args, **kwargs):
         cls = kwargs.pop("cls", validators._LATEST_VERSION)
         cls.check_schema(schema)
-        with self.assertRaises(exceptions.ValidationError) as e:
-            cls(schema, *args, **kwargs).validate(instance)
-        return e.exception.message
+        validator = cls(schema, *args, **kwargs)
+        errors = list(validator.iter_errors(instance))
+        self.assertTrue(errors, msg=f"No errors were raised for {instance!r}")
+        self.assertEqual(
+            len(errors),
+            1,
+            msg=f"Expected exactly one error, found {errors!r}",
+        )
+        return errors[0].message
 
     def test_single_type_failure(self):
         message = self.message_for(instance=1, schema={"type": "string"})
@@ -484,7 +490,7 @@ class TestValidationErrorMessages(TestCase):
 
     def test_contains_too_many(self):
         message = self.message_for(
-            instance=["foo", "bar", "baz", "quux"],
+            instance=["foo", "bar", "baz"],
             schema={"contains": {"type": "string"}, "maxContains": 2},
         )
         self.assertEqual(
@@ -494,7 +500,7 @@ class TestValidationErrorMessages(TestCase):
 
     def test_contains_too_many_both_constrained(self):
         message = self.message_for(
-            instance=["foo"] * 7,
+            instance=["foo"] * 5,
             schema={
                 "contains": {"type": "string"},
                 "minContains": 2,
