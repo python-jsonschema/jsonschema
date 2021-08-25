@@ -9,7 +9,10 @@ from urllib.request import urlopen
 from warnings import warn
 import contextlib
 import json
+import reprlib
 import warnings
+
+import attr
 
 from jsonschema import (
     _legacy_validators,
@@ -144,6 +147,7 @@ def create(
         a new `jsonschema.IValidator` class
     """
 
+    @attr.s
     class Validator:
 
         VALIDATORS = dict(validators)
@@ -152,13 +156,16 @@ def create(
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
-        def __init__(self, schema, resolver=None, format_checker=None):
-            if resolver is None:
-                resolver = RefResolver.from_schema(schema, id_of=id_of)
+        schema = attr.ib(repr=reprlib.repr)
+        resolver = attr.ib(default=None, repr=False)
+        format_checker = attr.ib(default=None)
 
-            self.resolver = resolver
-            self.format_checker = format_checker
-            self.schema = schema
+        def __attrs_post_init__(self):
+            if self.resolver is None:
+                self.resolver = RefResolver.from_schema(
+                    self.schema,
+                    id_of=id_of,
+                )
 
         @classmethod
         def check_schema(cls, schema):
@@ -229,10 +236,9 @@ def create(
             return error is None
 
     if version is not None:
+        safe = version.title().replace(" ", "").replace("-", "")
+        Validator.__name__ = Validator.__qualname__ = f"{safe}Validator"
         Validator = validates(version)(Validator)
-        Validator.__name__ = (
-            version.title().replace(" ", "").replace("-", "") + "Validator"
-        )
 
     return Validator
 
