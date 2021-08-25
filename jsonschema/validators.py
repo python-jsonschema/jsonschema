@@ -691,6 +691,11 @@ class RefResolver(object):
         """
         Temporarily enter the given scope for the duration of the context.
         """
+        warnings.warn(
+            "jsonschema.RefResolver.in_scope is deprecated and will be "
+            "removed in a future release.",
+            DeprecationWarning,
+        )
         self.push_scope(scope)
         try:
             yield
