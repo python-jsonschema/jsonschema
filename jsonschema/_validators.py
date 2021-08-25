@@ -299,9 +299,8 @@ def ref(validator, ref, instance, schema):
 
 def dynamicRef(validator, dynamicRef, instance, schema):
     _, fragment = urldefrag(dynamicRef)
-    scope_stack = validator.resolver.scopes_stack_copy
 
-    for url in scope_stack:
+    for url in validator.resolver._scopes_stack:
         lookup_url = urljoin(url, dynamicRef)
         with validator.resolver.resolving(lookup_url) as subschema:
             if ("$dynamicAnchor" in subschema

@@ -672,13 +672,6 @@ class RefResolver(object):
         return self._scopes_stack[-1]
 
     @property
-    def scopes_stack_copy(self):
-        """
-        Retrieve a copy of the stack of resolution scopes.
-        """
-        return self._scopes_stack.copy()
-
-    @property
     def base_uri(self):
         """
         Retrieve the current base URI, not including any fragment.
