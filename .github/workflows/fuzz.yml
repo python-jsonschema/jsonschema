@@ -15,8 +15,6 @@ jobs:
       with:
         oss-fuzz-project-name: 'jsonschema'
         language: python
-      # Needed until google/oss-fuzz#4996 is merged
-      continue-on-error: true
     - name: Run Fuzzers
       if: steps.build.outcome == 'success'
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
@@ -24,7 +22,7 @@ jobs:
         oss-fuzz-project-name: 'jsonschema'
         fuzz-seconds: 30
     - name: Upload Crash
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts

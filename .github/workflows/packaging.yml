@@ -23,7 +23,7 @@ jobs:
       run: python -m pip install build
     - name: Create packages
       run: python -m build .
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v2
       with:
         name: dist-${{ matrix.os }}-${{ matrix.python-version }}
         path: dist
