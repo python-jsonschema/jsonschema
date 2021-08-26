@@ -1331,10 +1331,10 @@ class TestValidationErrorDetails(TestCase):
             "properties": {
                 "aprop": {
                     "$ref": "#/$defs/foo",
-                    "required": ["baz"]
-                    },
+                    "required": ["baz"],
                 },
-            }
+            },
+        }
 
         validator = validators.Draft202012Validator(schema)
         e1, e2 = validator.iter_errors({"aprop": {}})
