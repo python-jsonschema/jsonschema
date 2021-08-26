@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from jsonschema.validators import Draft7Validator, RefResolver
+from jsonschema import validators
 
 
 class TestDeprecations(TestCase):
@@ -33,12 +33,44 @@ class TestDeprecations(TestCase):
             ),
         )
 
+    def test_validators_validators(self):
+        """
+        As of v4.0.0, accessing jsonschema.validators.validators is
+        deprecated.
+        """
+
+        with self.assertWarns(DeprecationWarning) as w:
+            value = validators.validators
+        self.assertEqual(value, validators._VALIDATORS)
+
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.validators.validators is deprecated",
+            ),
+        )
+
+    def test_validators_meta_schemas(self):
+        """
+        As of v4.0.0, accessing jsonschema.validators.meta_schemas is
+        deprecated.
+        """
+
+        with self.assertWarns(DeprecationWarning) as w:
+            value = validators.meta_schemas
+        self.assertEqual(value, validators._META_SCHEMAS)
+
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.validators.meta_schemas is deprecated",
+            ),
+        )
+
     def test_RefResolver_in_scope(self):
         """
         As of v4.0.0, RefResolver.in_scope is deprecated.
         """
 
-        resolver = RefResolver.from_schema({})
+        resolver = validators.RefResolver.from_schema({})
         with self.assertWarns(DeprecationWarning) as w:
             with resolver.in_scope("foo"):
                 pass
@@ -55,7 +87,7 @@ class TestDeprecations(TestCase):
         different schema) is deprecated.
         """
 
-        validator = Draft7Validator({})
+        validator = validators.Draft7Validator({})
         with self.assertWarns(DeprecationWarning) as w:
             result = validator.is_valid("foo", {"type": "number"})
 
@@ -72,7 +104,7 @@ class TestDeprecations(TestCase):
         different schema) is deprecated.
         """
 
-        validator = Draft7Validator({})
+        validator = validators.Draft7Validator({})
         with self.assertWarns(DeprecationWarning) as w:
             error, = validator.iter_errors("foo", {"type": "number"})
 

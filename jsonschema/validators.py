@@ -22,8 +22,8 @@ from jsonschema import (
     exceptions,
 )
 
-validators = {}
-meta_schemas = _utils.URIDict()
+_VALIDATORS = {}
+_META_SCHEMAS = _utils.URIDict()
 _VOCABULARIES = _utils.URIDict()
 
 
@@ -36,6 +36,20 @@ def __getattr__(name):
         )
         from jsonschema.exceptions import ErrorTree
         return ErrorTree
+    elif name == "validators":
+        warnings.warn(
+            "Accessing jsonschema.validators.validators is deprecated. "
+            "Use jsonschema.validators.validator_for with a given schema.",
+            DeprecationWarning,
+        )
+        return _VALIDATORS
+    elif name == "meta_schemas":
+        warnings.warn(
+            "Accessing jsonschema.validators.meta_schemas is deprecated. "
+            "Use jsonschema.validators.validator_for with a given schema.",
+            DeprecationWarning,
+        )
+        return _META_SCHEMAS
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
@@ -60,9 +74,9 @@ def validates(version):
     """
 
     def _validates(cls):
-        validators[version] = cls
+        _VALIDATORS[version] = cls
         meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
-        meta_schemas[meta_schema_id] = cls
+        _META_SCHEMAS[meta_schema_id] = cls
 
         for vocabulary in cls.VOCABULARY_SCHEMAS:
             vocabulary_id = cls.ID_OF(vocabulary)
@@ -80,7 +94,7 @@ def _id_of(schema):
 
 def _store_schema_list():
     return [
-        (id, validator.META_SCHEMA) for id, validator in meta_schemas.items()
+        (id, validator.META_SCHEMA) for id, validator in _META_SCHEMAS.items()
     ] + [
         (id, schema) for id, schema in _VOCABULARIES.items()
     ]
@@ -982,7 +996,7 @@ def validator_for(schema, default=_LATEST_VERSION):
     """
     if schema is True or schema is False or "$schema" not in schema:
         return default
-    if schema["$schema"] not in meta_schemas:
+    if schema["$schema"] not in _META_SCHEMAS:
         warn(
             (
                 "The metaschema specified by $schema was not found. "
@@ -992,4 +1006,4 @@ def validator_for(schema, default=_LATEST_VERSION):
             DeprecationWarning,
             stacklevel=2,
         )
-    return meta_schemas.get(schema["$schema"], _LATEST_VERSION)
+    return _META_SCHEMAS.get(schema["$schema"], _LATEST_VERSION)

@@ -27,8 +27,8 @@ class TestCreateAndExtend(SynchronousTestCase):
     def setUp(self):
         self.addCleanup(
             self.assertEqual,
-            validators.meta_schemas,
-            dict(validators.meta_schemas),
+            validators._META_SCHEMAS,
+            dict(validators._META_SCHEMAS),
         )
 
         self.meta_schema = {"$id": "some://meta/schema"}
@@ -99,7 +99,7 @@ class TestCreateAndExtend(SynchronousTestCase):
             meta_schema={"$id": "something"},
             version="my version",
         )
-        self.addCleanup(validators.meta_schemas.pop, "something")
+        self.addCleanup(validators._META_SCHEMAS.pop, "something")
         self.assertEqual(Validator.__name__, "MyVersionValidator")
         self.assertEqual(Validator.__qualname__, "MyVersionValidator")
 
@@ -108,7 +108,7 @@ class TestCreateAndExtend(SynchronousTestCase):
             meta_schema={"$id": "something"},
             version="my version",
         )
-        self.addCleanup(validators.meta_schemas.pop, "something")
+        self.addCleanup(validators._META_SCHEMAS.pop, "something")
         self.assertEqual(
             repr(Validator({})),
             "MyVersionValidator(schema={}, format_checker=None)",
@@ -119,7 +119,7 @@ class TestCreateAndExtend(SynchronousTestCase):
             meta_schema={"$id": "something"},
             version="my version",
         )
-        self.addCleanup(validators.meta_schemas.pop, "something")
+        self.addCleanup(validators._META_SCHEMAS.pop, "something")
         self.assertEqual(
             repr(Validator({"a": list(range(1000))})), (
                 "MyVersionValidator(schema={'a': [0, 1, 2, 3, 4, 5, ...]}, "
@@ -139,13 +139,13 @@ class TestCreateAndExtend(SynchronousTestCase):
             meta_schema={"$id": "something"},
             version="foo-bar",
         )
-        self.addCleanup(validators.meta_schemas.pop, "something")
+        self.addCleanup(validators._META_SCHEMAS.pop, "something")
         self.assertEqual(Validator.__qualname__, "FooBarValidator")
 
     def test_if_a_version_is_not_provided_it_is_not_registered(self):
-        original = dict(validators.meta_schemas)
+        original = dict(validators._META_SCHEMAS)
         validators.create(meta_schema={"id": "id"})
-        self.assertEqual(validators.meta_schemas, original)
+        self.assertEqual(validators._META_SCHEMAS, original)
 
     def test_validates_registers_meta_schema_id(self):
         meta_schema_key = "meta schema id"
@@ -156,9 +156,9 @@ class TestCreateAndExtend(SynchronousTestCase):
             version="my version",
             id_of=lambda s: s.get("id", ""),
         )
-        self.addCleanup(validators.meta_schemas.pop, meta_schema_key)
+        self.addCleanup(validators._META_SCHEMAS.pop, meta_schema_key)
 
-        self.assertIn(meta_schema_key, validators.meta_schemas)
+        self.assertIn(meta_schema_key, validators._META_SCHEMAS)
 
     def test_validates_registers_meta_schema_draft6_id(self):
         meta_schema_key = "meta schema $id"
@@ -168,9 +168,9 @@ class TestCreateAndExtend(SynchronousTestCase):
             meta_schema=my_meta_schema,
             version="my version",
         )
-        self.addCleanup(validators.meta_schemas.pop, meta_schema_key)
+        self.addCleanup(validators._META_SCHEMAS.pop, meta_schema_key)
 
-        self.assertIn(meta_schema_key, validators.meta_schemas)
+        self.assertIn(meta_schema_key, validators._META_SCHEMAS)
 
     def test_create_default_types(self):
         Validator = validators.create(meta_schema={}, validators=())

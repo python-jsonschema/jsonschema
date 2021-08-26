@@ -13,7 +13,7 @@ import unittest
 
 import attr
 
-from jsonschema.validators import validators
+from jsonschema.validators import _VALIDATORS
 import jsonschema
 
 
@@ -51,10 +51,10 @@ class Suite(object):
         }
 
     def benchmark(self, runner):  # pragma: no cover
-        for name in validators:
+        for name, Validator in _VALIDATORS.items():
             self.version(name=name).benchmark(
                 runner=runner,
-                Validator=validators[name],
+                Validator=Validator,
             )
 
     def version(self, name):
