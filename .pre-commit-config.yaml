@@ -2,7 +2,7 @@ exclude: json/
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.0.1
     hooks:
     -   id: check-ast
     -   id: check-docstring-first
@@ -15,7 +15,7 @@ repos:
     -   id: mixed-line-ending
         args: [--fix, lf]
     -   id: trailing-whitespace
--   repo: https://github.com/timothycrosley/isort
-    rev: 5.7.0
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.9.3
     hooks:
     -   id: isort
