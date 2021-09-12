@@ -3,7 +3,6 @@ Creation and extension of validators, with implementations for existing drafts.
 """
 from collections.abc import Sequence
 from functools import lru_cache
-from re import A
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
 from warnings import warn
