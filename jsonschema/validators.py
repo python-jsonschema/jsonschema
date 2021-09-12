@@ -3,6 +3,7 @@ Creation and extension of validators, with implementations for existing drafts.
 """
 from collections.abc import Sequence
 from functools import lru_cache
+from re import A
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
 from warnings import warn
@@ -810,3 +811,35 @@ def validator_for(schema, default=_LATEST_VERSION):
             stacklevel=2,
         )
     return meta_schemas.get(schema[u"$schema"], _LATEST_VERSION)
+
+
+def set_validator_for(schema, validator, meta_schema_id=None):
+    """
+    Register a validator class for the given schema.
+
+    Uses the `$schema` property of the given schema as key in the validator
+    lookup table, unless `meta_schema_id` is given to override this.
+
+    This method allows you to set a validator for a particular schema in cases
+    where automatic lookup fails, for example when a schema specificies a
+    `$schema` that is not resolvable.
+
+    Arguments:
+
+        schema (collections.abc.Mapping):
+
+            the schema to register a validator for
+
+        validator:
+
+            the validator to use for this schema
+
+        meta_schema_id:
+
+            if not `None`, the given value is used as key in the lookup table.
+    """
+    if meta_schema_id is None:
+        meta_schema_id = schema.get(u"$schema", u"")
+
+    if meta_schema_id:
+        meta_schemas[meta_schema_id] = validator
