@@ -2,4 +2,8 @@ _cache
 _static
 _templates
 
+*.egg-info/
+build
+dist
+
 TODO
