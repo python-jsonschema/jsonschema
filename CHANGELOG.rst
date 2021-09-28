@@ -1,8 +1,8 @@
-v4.0.0 (Not Yet Released)
--------------------------
+v4.0.0
+------
 
-* Support for Draft 2020-12 (as well as 2019-09). Big thanks to Thomas Schmidt
-  and Harald Nezbeda.
+* Partial support for Draft 2020-12 (as well as 2019-09).
+  Thanks to Thomas Schmidt and Harald Nezbeda.
 * ``False`` and ``0`` are now properly considered non-equal even
   recursively within a container (#686). As part of this change,
   ``uniqueItems`` validation may be *slower* in some cases. Please feel
@@ -25,6 +25,11 @@ v4.0.0 (Not Yet Released)
 * ``multipleOf`` could overflow when given sufficiently large numbers. Now,
   when an overflow occurs, ``jsonschema`` will fall back to using fraction
   division (#746).
+* ``jsonschema.__version__``, ``jsonschema.validators.validators``,
+  ``jsonschema.validators.meta_schemas`` and
+  ``jsonschema.RefResolver.in_scope`` have been deprecated, as has
+  passing a second-argument schema to ``Validator.iter_errors`` and
+  ``Validator.is_valid``.
 
 v3.2.0
 ------
