@@ -2,7 +2,7 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |CI| |ReadTheDocs| |Precommit|
+|PyPI| |Pythons| |CI| |ReadTheDocs| |Precommit| |Zenodo|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
@@ -23,6 +23,9 @@ jsonschema
 .. |Precommit| image:: https://results.pre-commit.ci/badge/github/Julian/jsonschema/main.svg
    :alt: pre-commit.ci status
    :target: https://results.pre-commit.ci/latest/github/Julian/jsonschema/main
+
+.. |Zenodo| image:: https://zenodo.org/badge/3072629.svg
+   :target: https://zenodo.org/badge/latestdoi/3072629
 
 
 ``jsonschema`` is an implementation of `JSON Schema
