@@ -24,7 +24,7 @@ from jsonschema import (
 
 _VALIDATORS = {}
 _META_SCHEMAS = _utils.URIDict()
-_VOCABULARIES = _utils.URIDict()
+_VOCABULARIES = []
 
 
 def __getattr__(name):
@@ -77,32 +77,29 @@ def validates(version):
         _VALIDATORS[version] = cls
         meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
         _META_SCHEMAS[meta_schema_id] = cls
-
-        for vocabulary in cls.VOCABULARY_SCHEMAS:
-            vocabulary_id = cls.ID_OF(vocabulary)
-            _VOCABULARIES[vocabulary_id] = vocabulary
-
         return cls
     return _validates
 
 
 def _id_of(schema):
+    """
+    Return the ID of a schema for recent JSON Schema drafts.
+    """
     if schema is True or schema is False:
         return ""
     return schema.get("$id", "")
 
 
 def _store_schema_list():
+    if not _VOCABULARIES:
+        _VOCABULARIES.extend(_utils.load_schema("vocabularies").items())
     return [
         (id, validator.META_SCHEMA) for id, validator in _META_SCHEMAS.items()
-    ] + [
-        (id, schema) for id, schema in _VOCABULARIES.items()
-    ]
+    ] + _VOCABULARIES
 
 
 def create(
     meta_schema,
-    vocabulary_schemas=(),
     validators=(),
     version=None,
     type_checker=_types.draft7_type_checker,
@@ -153,7 +150,7 @@ def create(
         applicable_validators (collections.abc.Callable):
 
             A function that given a schema, returns the list of applicable
-            validators (names and callables) which will be called on to
+            validators (names and callables) which will be called to
             validate the instance.
 
     Returns:
@@ -166,7 +163,6 @@ def create(
 
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
-        VOCABULARY_SCHEMAS = list(vocabulary_schemas)
         TYPE_CHECKER = type_checker
         ID_OF = staticmethod(id_of)
 
@@ -499,7 +495,6 @@ Draft7Validator = create(
 
 Draft201909Validator = create(
     meta_schema=_utils.load_schema("draft2019-09"),
-    vocabulary_schemas=_utils.load_vocabulary("draft2019-09"),
     validators={
         "$recursiveRef": _legacy_validators.recursiveRef,
         "$ref": _validators.ref,
@@ -544,7 +539,6 @@ Draft201909Validator = create(
 
 Draft202012Validator = create(
     meta_schema=_utils.load_schema("draft2020-12"),
-    vocabulary_schemas=_utils.load_vocabulary("draft2020-12"),
     validators={
         "$dynamicRef": _validators.dynamicRef,
         "$ref": _validators.ref,

@@ -58,19 +58,6 @@ def load_schema(name):
     return json.loads(data.decode("utf-8"))
 
 
-def load_vocabulary(name):
-    """
-    Load all schema files from ./schemas/``name`` and return them as a list.
-    """
-    vocabulary = []
-    base_path = os.path.dirname(sys.modules["jsonschema"].__file__)
-    pathlist = Path(os.path.join(base_path, "schemas", name)).glob("*.json")
-    for path in pathlist:
-        with open(path) as data:
-            vocabulary.append(json.load(data))
-    return vocabulary
-
-
 def format_as_index(container, indices):
     """
     Construct a single string containing indexing operations for the indices.
