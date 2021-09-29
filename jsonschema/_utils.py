@@ -1,12 +1,9 @@
 from collections.abc import Mapping, MutableMapping, Sequence
-from pathlib import Path
 from urllib.parse import urlsplit
 import itertools
 import json
-import os
 import pkgutil
 import re
-import sys
 
 
 class URIDict(MutableMapping):
