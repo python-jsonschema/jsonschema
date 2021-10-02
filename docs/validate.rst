@@ -373,8 +373,9 @@ Checker                    Notes
 ``color``                  requires webcolors_
 ``date``
 ``date-time``              requires rfc3339-validator_
+``duration``               requires isoduration_
 ``email``
-``hostname``
+``hostname``               requires fqdn_
 ``idn-hostname``           requires idna_
 ``ipv4``
 ``ipv6``                   OS must have `socket.inet_pton` function
@@ -386,16 +387,20 @@ Checker                    Notes
 ``time``                   requires rfc3339-validator_
 ``uri``                    requires rfc3987_ or rfc3986-validator_
 ``uri-reference``          requires rfc3987_ or rfc3986-validator_
+``uri-template``           requires uri-template_
 =========================  ====================
 
 
+.. _fqdn: https://pypi.org/pypi/fqdn/
 .. _idna: https://pypi.org/pypi/idna/
+.. _isoduration: https://pypi.org/pypi/isoduration/
 .. _jsonpointer: https://pypi.org/pypi/jsonpointer/
-.. _rfc3987: https://pypi.org/pypi/rfc3987/
-.. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
-.. _webcolors: https://pypi.org/pypi/webcolors/
 .. _rfc3339-validator: https://pypi.org/project/rfc3339-validator/
 .. _rfc3986-validator: https://pypi.org/project/rfc3986-validator/
+.. _rfc3987: https://pypi.org/pypi/rfc3987/
+.. _rfc5322: https://tools.ietf.org/html/rfc5322#section-3.4.1
+.. _uri-template: https://pypi.org/pypi/uri-template/
+.. _webcolors: https://pypi.org/pypi/webcolors/
 
 .. note::
 
