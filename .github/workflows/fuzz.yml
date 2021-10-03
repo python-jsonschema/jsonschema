@@ -15,6 +15,7 @@ jobs:
       with:
         oss-fuzz-project-name: 'jsonschema'
         language: python
+      continue-on-error: true
     - name: Run Fuzzers
       if: steps.build.outcome == 'success'
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
