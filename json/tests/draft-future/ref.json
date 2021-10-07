@@ -541,5 +541,41 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "$id must be resolved against nearest parent, not just immediate parent",
+        "schema": {
+            "$id": "http://example.com/a.json",
+            "$defs": {
+                "x": {
+                    "$id": "http://example.com/b/c.json",
+                    "not": {
+                        "$defs": {
+                            "y": {
+                                "$id": "d.json",
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "http://example.com/b/d.json"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number should pass",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number should fail",
+                "data": "a",
+                "valid": false
+            }
+        ]
     }
 ]

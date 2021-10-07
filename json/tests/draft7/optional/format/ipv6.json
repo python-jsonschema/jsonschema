@@ -1,8 +1,38 @@
 [
     {
         "description": "validation of IPv6 addresses",
-        "schema": {"format": "ipv6"},
+        "schema": { "format": "ipv6" },
         "tests": [
+            {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            },
             {
                 "description": "a valid IPv6 address",
                 "data": "::1",
@@ -11,6 +41,16 @@
             {
                 "description": "an IPv6 address with out-of-range values",
                 "data": "12345::",
+                "valid": false
+            },
+            {
+                "description": "trailing 4 hex symbols is valid",
+                "data": "::abef",
+                "valid": true
+            },
+            {
+                "description": "trailing 5 hex symbols is invalid",
+                "data": "::abcef",
                 "valid": false
             },
             {
@@ -52,6 +92,11 @@
                 "description": "missing leading octet with omitted octets later",
                 "data": ":2:3:4::8",
                 "valid": false
+            },
+            {
+                "description": "single set of double colons in the middle is valid",
+                "data": "1:d6::42",
+                "valid": true
             },
             {
                 "description": "two sets of double colons is invalid",

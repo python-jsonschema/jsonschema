@@ -1,7 +1,7 @@
 [
     {
         "description": "validation of IPv6 addresses",
-        "schema": {"format": "ipv6"},
+        "schema": { "format": "ipv6" },
         "tests": [
             {
                 "description": "a valid IPv6 address",

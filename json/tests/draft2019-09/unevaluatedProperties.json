@@ -1057,5 +1057,255 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "unevaluatedProperties + single cyclic ref",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "x": { "$ref": "#" }
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "Empty is valid",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "Single is valid",
+                "data": { "x": {} },
+                "valid": true
+            },
+            {
+                "description": "Unevaluated on 1st level is invalid",
+                "data": { "x": {}, "y": {} },
+                "valid": false
+            },
+            {
+                "description": "Nested is valid",
+                "data": { "x": { "x": {} } },
+                "valid": true
+            },
+            {
+                "description": "Unevaluated on 2nd level is invalid",
+                "data": { "x": { "x": {}, "y": {} } },
+                "valid": false
+            },
+            {
+                "description": "Deep nested is valid",
+                "data": { "x": { "x": { "x": {} } } },
+                "valid": true
+            },
+            {
+                "description": "Unevaluated on 3rd level is invalid",
+                "data": { "x": { "x": { "x": {}, "y": {} } } },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties + ref inside allOf / oneOf",
+        "schema": {
+            "$defs": {
+                "one": {
+                    "properties": { "a": true }
+                },
+                "two": {
+                    "required": ["x"],
+                    "properties": { "x": true }
+                }
+            },
+            "allOf": [
+                { "$ref": "#/$defs/one" },
+                { "properties": { "b": true } },
+                {
+                    "oneOf": [
+                        { "$ref": "#/$defs/two" },
+                        {
+                            "required": ["y"],
+                            "properties": { "y": true }
+                        }
+                    ]
+                }
+            ],
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "Empty is invalid (no x or y)",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "a and b are invalid (no x or y)",
+                "data": { "a": 1, "b": 1 },
+                "valid": false
+            },
+            {
+                "description": "x and y are invalid",
+                "data": { "x": 1, "y": 1 },
+                "valid": false
+            },
+            {
+                "description": "a and x are valid",
+                "data": { "a": 1, "x": 1 },
+                "valid": true
+            },
+            {
+                "description": "a and y are valid",
+                "data": { "a": 1, "y": 1 },
+                "valid": true
+            },
+            {
+                "description": "a and b and x are valid",
+                "data": { "a": 1, "b": 1, "x": 1 },
+                "valid": true
+            },
+            {
+                "description": "a and b and y are valid",
+                "data": { "a": 1, "b": 1, "y": 1 },
+                "valid": true
+            },
+            {
+                "description": "a and b and x and y are invalid",
+                "data": { "a": 1, "b": 1, "x": 1, "y": 1 },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "dynamic evalation inside nested refs",
+        "schema": {
+            "$defs": {
+                "one": {
+                    "oneOf": [
+                        { "$ref": "#/$defs/two" },
+                        { "required": ["b"], "properties": { "b": true } },
+                        { "required": ["xx"], "patternProperties": { "x": true } },
+                        { "required": ["all"], "unevaluatedProperties": true }
+                    ]
+                },
+                "two": {
+                    "oneOf": [
+                        { "required": ["c"], "properties": { "c": true } },
+                        { "required": ["d"], "properties": { "d": true } }
+                    ]
+                }
+            },
+            "oneOf": [
+                { "$ref": "#/$defs/one" },
+                { "required": ["a"], "properties": { "a": true } }
+            ],
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "Empty is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "a is valid",
+                "data": { "a": 1 },
+                "valid": true
+            },
+            {
+                "description": "b is valid",
+                "data": { "b": 1 },
+                "valid": true
+            },
+            {
+                "description": "c is valid",
+                "data": { "c": 1 },
+                "valid": true
+            },
+            {
+                "description": "d is valid",
+                "data": { "d": 1 },
+                "valid": true
+            },
+            {
+                "description": "a + b is invalid",
+                "data": { "a": 1, "b": 1 },
+                "valid": false
+            },
+            {
+                "description": "a + c is invalid",
+                "data": { "a": 1, "c": 1 },
+                "valid": false
+            },
+            {
+                "description": "a + d is invalid",
+                "data": { "a": 1, "d": 1 },
+                "valid": false
+            },
+            {
+                "description": "b + c is invalid",
+                "data": { "b": 1, "c": 1 },
+                "valid": false
+            },
+            {
+                "description": "b + d is invalid",
+                "data": { "b": 1, "d": 1 },
+                "valid": false
+            },
+            {
+                "description": "c + d is invalid",
+                "data": { "c": 1, "d": 1 },
+                "valid": false
+            },
+            {
+                "description": "xx is valid",
+                "data": { "xx": 1 },
+                "valid": true
+            },
+            {
+                "description": "xx + foox is valid",
+                "data": { "xx": 1, "foox": 1 },
+                "valid": true
+            },
+            {
+                "description": "xx + foo is invalid",
+                "data": { "xx": 1, "foo": 1 },
+                "valid": false
+            },
+            {
+                "description": "xx + a is invalid",
+                "data": { "xx": 1, "a": 1 },
+                "valid": false
+            },
+            {
+                "description": "xx + b is invalid",
+                "data": { "xx": 1, "b": 1 },
+                "valid": false
+            },
+            {
+                "description": "xx + c is invalid",
+                "data": { "xx": 1, "c": 1 },
+                "valid": false
+            },
+            {
+                "description": "xx + d is invalid",
+                "data": { "xx": 1, "d": 1 },
+                "valid": false
+            },
+            {
+                "description": "all is valid",
+                "data": { "all": 1 },
+                "valid": true
+            },
+            {
+                "description": "all + foo is valid",
+                "data": { "all": 1, "foo": 1 },
+                "valid": true
+            },
+            {
+                "description": "all + a is invalid",
+                "data": { "all": 1, "a": 1 },
+                "valid": false
+            }
+        ]
     }
 ]
