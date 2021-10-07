@@ -1,7 +1,7 @@
 [
     {
         "description": "validation of date-time strings",
-        "schema": {"format": "date-time"},
+        "schema": { "format": "date-time" },
         "tests": [
             {
                 "description": "a valid date-time string",

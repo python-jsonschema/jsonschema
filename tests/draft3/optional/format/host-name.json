@@ -1,7 +1,7 @@
 [
     {
         "description": "validation of host names",
-        "schema": {"format": "host-name"},
+        "schema": { "format": "host-name" },
         "tests": [
             {
                 "description": "a valid host name",

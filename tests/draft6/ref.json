@@ -182,17 +182,17 @@
             "definitions": {
                 "foo": {
                     "$id": "http://localhost:1234/sibling_id/foo.json",
-                    "minimum": 2
+                    "type": "string"
                 },
                 "base_foo": {
                     "$comment": "this canonical uri is http://localhost:1234/sibling_id/base/foo.json",
                     "$id": "foo.json",
-                    "minimum": 5
+                    "type": "number"
                 }
             },
             "allOf": [
                 {
-                    "$comment": "$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not ttp://localhost:1234/sibling_id/foo.json",
+                    "$comment": "$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not http://localhost:1234/sibling_id/foo.json",
                     "$id": "http://localhost:1234/sibling_id/",
                     "$ref": "foo.json"
                 }
@@ -200,14 +200,14 @@
         },
         "tests": [
             {
-                "description": "$ref resolves to /definitions/foo, data validates",
-                "data": 10,
-                "valid": true
+                "description": "$ref resolves to /definitions/base_foo, data does not validate",
+                "data": "a",
+                "valid": false
             },
             {
-                "description": "$ref resolves to /definitions/foo, data does not validate",
+                "description": "$ref resolves to /definitions/base_foo, data validates",
                 "data": 1,
-                "valid": false
+                "valid": true
             }
         ]
     },

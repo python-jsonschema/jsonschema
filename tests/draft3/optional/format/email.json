@@ -1,7 +1,7 @@
 [
     {
         "description": "validation of e-mail addresses",
-        "schema": {"format": "email"},
+        "schema": { "format": "email" },
         "tests": [
             {
                 "description": "a valid e-mail address",

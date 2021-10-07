@@ -1,7 +1,7 @@
 [
     {
         "description": "validation of CSS colors",
-        "schema": {"format": "color"},
+        "schema": { "format": "color" },
         "tests": [
             {
                 "description": "a valid CSS color name",
