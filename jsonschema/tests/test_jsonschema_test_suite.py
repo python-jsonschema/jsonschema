@@ -159,9 +159,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
-            description=(
-                "$ref resolves to /definitions/foo, data does not validate"
-            ),
             case_description=(
                 "$ref prevents a sibling id from changing the base uri"
             ),
@@ -176,7 +173,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.optional_tests_of(name="bignum"),
     DRAFT4.optional_tests_of(name="float-overflow"),
     DRAFT4.optional_tests_of(name="non-bmp-regex"),
-    DRAFT4.optional_tests_of(name="unicode"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft4Validator,
     format_checker=draft4_format_checker,
@@ -220,6 +216,14 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
         )(test)
+        or skip(
+            message=bug(),
+            subject="ref",
+            case_description=(
+                "id must be resolved against nearest parent, "
+                "not just immediate parent"
+            ),
+        )(test)
     ),
 )
 
@@ -230,7 +234,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="float-overflow"),
     DRAFT6.optional_tests_of(name="non-bmp-regex"),
-    DRAFT6.optional_tests_of(name="unicode"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
     skip=lambda test: (
@@ -251,6 +254,13 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
         )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description=(
+                "$ref prevents a sibling $id from changing the base uri"
+            ),
+        )(test)
     ),
 )
 
@@ -262,7 +272,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.optional_tests_of(name="content"),
     DRAFT7.optional_tests_of(name="float-overflow"),
     DRAFT7.optional_tests_of(name="non-bmp-regex"),
-    DRAFT7.optional_tests_of(name="unicode"),
     Validator=Draft7Validator,
     format_checker=draft7_format_checker,
     skip=lambda test: (
@@ -283,6 +292,21 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
+        )(test)
+        or skip(
+            message=bug(371),
+            subject="ref",
+            case_description=(
+                "$ref prevents a sibling $id from changing the base uri"
+            ),
+        )(test)
+        or skip(
+            message=bug(),
+            subject="ref",
+            case_description=(
+                "$id must be resolved against nearest parent, "
+                "not just immediate parent"
+            ),
         )(test)
         or skip(
             message=bug(593),
@@ -316,7 +340,6 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
     DRAFT201909.optional_tests_of(name="float-overflow"),
     DRAFT201909.optional_tests_of(name="non-bmp-regex"),
     DRAFT201909.optional_tests_of(name="refOfUnknownKeyword"),
-    DRAFT201909.optional_tests_of(name="unicode"),
     Validator=Draft201909Validator,
     skip=lambda test: (
         skip(
@@ -326,6 +349,19 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
         or skip(
             message="dynamicRef support isn't working yet.",
             subject="recursiveRef",
+        )(test)
+        or skip(
+            message="These tests depends on dynamicRef working.",
+            subject="anchor",
+            case_description="same $anchor with different base uri",
+        )(test)
+        or skip(
+            message=bug(),
+            subject="ref",
+            case_description=(
+                "$id must be resolved against nearest parent, "
+                "not just immediate parent"
+            ),
         )(test)
     ),
 )
@@ -351,7 +387,6 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.optional_tests_of(name="float-overflow"),
     DRAFT202012.optional_tests_of(name="non-bmp-regex"),
     DRAFT202012.optional_tests_of(name="refOfUnknownKeyword"),
-    DRAFT202012.optional_tests_of(name="unicode"),
     Validator=Draft202012Validator,
     skip=lambda test: (
         narrow_unicode_build(test)
@@ -362,6 +397,19 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
         or skip(
             message="These tests depends on dynamicRef working.",
             subject="defs",
+        )(test)
+        or skip(
+            message="These tests depends on dynamicRef working.",
+            subject="anchor",
+            case_description="same $anchor with different base uri",
+        )(test)
+        or skip(
+            message=bug(),
+            subject="ref",
+            case_description=(
+                "$id must be resolved against nearest parent, "
+                "not just immediate parent"
+            ),
         )(test)
     ),
 )
