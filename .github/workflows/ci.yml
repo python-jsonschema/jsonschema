@@ -139,6 +139,18 @@ jobs:
             python-version:
               name: pypy-3.7
               toxenv: pypy3-format_nongpl-tests
+          - os: windows-latest
+            python-version:
+              name: "3.10"
+              toxenv: py310-noextra-tests
+          - os: windows-latest
+            python-version:
+              name: "3.10"
+              toxenv: py310-format-tests
+          - os: windows-latest
+            python-version:
+              name: "3.10"
+              toxenv: py310-format_nongpl-tests
 
     steps:
     - uses: actions/checkout@v2
