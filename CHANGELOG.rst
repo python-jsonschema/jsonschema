@@ -1,3 +1,13 @@
+v4.1.0
+------
+
+* Add Python 3.10 to the list of supported Python versions
+
+v4.0.1
+------
+
+* Fix the declaration of minimum supported Python version (#846)
+
 v4.0.0
 ------
 
