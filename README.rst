@@ -28,8 +28,8 @@ jsonschema
    :target: https://zenodo.org/badge/latestdoi/3072629
 
 
-``jsonschema`` is an implementation of `JSON Schema
-<https://json-schema.org>`_ for Python.
+``jsonschema`` is an implementation of the `JSON Schema
+<https://json-schema.org>`_ specification for Python.
 
 .. code-block:: python
 
