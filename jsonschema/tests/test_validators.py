@@ -608,6 +608,17 @@ class TestValidationErrorMessages(TestCase):
 class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
+    def test_required(self):
+        instance = {'a': 1}
+        schema = {
+            'required': ['b', 'c'],
+        }
+
+        validator = validators.Draft4Validator(schema)
+        e1, e2 = validator.iter_errors(instance)
+        self.assertEqual(e1.extra_info, {'missing_key': 'b'})
+        self.assertEqual(e2.extra_info, {'missing_key': 'c'})
+
     def test_anyOf(self):
         instance = 5
         schema = {

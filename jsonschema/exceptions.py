@@ -29,6 +29,7 @@ class _Error(Exception):
         schema=_unset,
         schema_path=(),
         parent=None,
+        extra_info=None,
     ):
         super(_Error, self).__init__(
             message,
@@ -41,6 +42,7 @@ class _Error(Exception):
             schema,
             schema_path,
             parent,
+            extra_info,
         )
         self.message = message
         self.path = self.relative_path = deque(path)
@@ -52,6 +54,7 @@ class _Error(Exception):
         self.instance = instance
         self.schema = schema
         self.parent = parent
+        self.extra_info = extra_info
 
         for error in context:
             error.parent = self
@@ -130,7 +133,7 @@ class _Error(Exception):
     def _contents(self):
         attrs = (
             "message", "cause", "context", "validator", "validator_value",
-            "path", "schema_path", "instance", "schema", "parent",
+            "path", "schema_path", "instance", "schema", "parent", "extra_info",
         )
         return dict((attr, getattr(self, attr)) for attr in attrs)
 
