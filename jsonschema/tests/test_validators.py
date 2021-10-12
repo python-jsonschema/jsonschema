@@ -616,8 +616,8 @@ class TestValidationErrorDetails(TestCase):
 
         validator = validators.Draft4Validator(schema)
         e1, e2 = validator.iter_errors(instance)
-        self.assertEqual(e1.extra_info, {'missing_key': 'b'})
-        self.assertEqual(e2.extra_info, {'missing_key': 'c'})
+        self.assertEqual(e1.extra_info, {'property': 'b'})
+        self.assertEqual(e2.extra_info, {'property': 'c'})
 
     def test_anyOf(self):
         instance = 5

@@ -339,7 +339,7 @@ def required(validator, required, instance, schema):
         return
     for property in required:
         if property not in instance:
-            yield ValidationError(f"{property!r} is a required property", extra_info={'missing_key': property})
+            yield ValidationError(f"{property!r} is a required property", extra_info={'property': property})
 
 
 def minProperties(validator, mP, instance, schema):
