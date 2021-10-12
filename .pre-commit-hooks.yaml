@@ -4,3 +4,10 @@
   language: python
   pass_filenames: false
   entry: jsonschema
+
+- id: validate
+  name: jsonschema validate
+  description: json schema validation
+  entry: python -m jsonschema._pre_commit_cli
+  language: python
+  files: ^$
