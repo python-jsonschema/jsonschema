@@ -619,6 +619,39 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.extra_info, {'property': 'b'})
         self.assertEqual(e2.extra_info, {'property': 'c'})
 
+    def test_extra_info_additionalProperties_single(self):
+        instance = {'a': 1}
+        schema = {"additionalProperties": False}
+
+        validator = validators.Draft4Validator(schema)
+        e1, = validator.iter_errors(instance)
+        self.assertEqual(e1.extra_info, {'properties': ['a']})
+
+    def test_extra_info_additionalProperties_multiple(self):
+        instance = {'a': 1,'b': 2}
+        schema = {"additionalProperties": False}
+
+        validator = validators.Draft4Validator(schema)
+        e1, = validator.iter_errors(instance)
+        self.assertEqual(e1.extra_info, {'properties': ['a', 'b']})
+
+    def test_extra_info_dependentRequired(self):
+        instance = {"a": {}}
+        schema = {"dependentRequired": {"a": ["bar"]}}
+        validator = validators.Draft202012Validator(schema)
+        e1, = validator.iter_errors(instance)
+        self.assertEqual(e1.extra_info, {'property': 'a'})
+
+    def test_extra_info_additionalItems(self):
+        instance = ["a", "b"]
+        schema = {
+            "items": [],
+            "additionalItems": False,
+        }
+        validator = validators.Draft7Validator(schema)
+        e1, = validator.iter_errors(instance)
+        self.assertEqual(e1.extra_info, {"additionalItems": ["a", "b"]})
+
     def test_anyOf(self):
         instance = 5
         schema = {
@@ -632,7 +665,6 @@ class TestValidationErrorDetails(TestCase):
         errors = list(validator.iter_errors(instance))
         self.assertEqual(len(errors), 1)
         e = errors[0]
-
         self.assertEqual(e.validator, "anyOf")
         self.assertEqual(e.validator_value, schema["anyOf"])
         self.assertEqual(e.instance, instance)
@@ -983,6 +1015,8 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.validator, "type")
         self.assertEqual(e2.validator, "minimum")
 
+        self.assertEqual(e1.extra_info, {"property" : "bar"})
+
     def test_patternProperties(self):
         instance = {"bar": 1, "foo": 2}
         schema = {
@@ -1051,7 +1085,6 @@ class TestValidationErrorDetails(TestCase):
 
         validator = validators.Draft7Validator(schema)
         error, = validator.iter_errors(instance)
-
         self.assertEqual(error.validator, "not")
         self.assertEqual(
             error.message,
@@ -1060,6 +1093,8 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.path, deque([]))
         self.assertEqual(error.json_path, "$")
         self.assertEqual(error.schema_path, deque(["propertyNames", "not"]))
+
+        self.assertEqual(error.extra_info, {'property': 'foo'})
 
     def test_if_then(self):
         schema = {

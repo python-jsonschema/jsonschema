@@ -32,8 +32,7 @@ def propertyNames(validator, propertyNames, instance, schema):
         return
 
     for property in instance:
-        yield from validator.descend(instance=property, schema=propertyNames)
-
+        yield from add_extra_info_property(validator.descend(instance=property, schema=propertyNames), property)
 
 def additionalProperties(validator, aP, instance, schema):
     if not validator.is_type(instance, "object"):
@@ -43,8 +42,9 @@ def additionalProperties(validator, aP, instance, schema):
 
     if validator.is_type(aP, "object"):
         for extra in extras:
-            yield from validator.descend(instance[extra], aP, path=extra)
+            yield from add_extra_info_property(validator.descend(instance[extra], aP, path=extra), extra)
     elif not aP and extras:
+        extra_info_properties = [extra for extra in sorted(extras)]
         if "patternProperties" in schema:
             if len(extras) == 1:
                 verb = "does"
@@ -56,11 +56,18 @@ def additionalProperties(validator, aP, instance, schema):
                 repr(each) for each in sorted(schema["patternProperties"])
             )
             error = f"{joined} {verb} not match any of the regexes: {patterns}"
-            yield ValidationError(error)
+            yield ValidationError(error, extra_info={"properties": extra_info_properties})
         else:
             error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % extras_msg(extras))
+            yield ValidationError(
+                error % extras_msg(extras),
+                extra_info={"properties": extra_info_properties}
+            )
 
+def add_extra_info_property(errors, property_name):
+    for error in errors:
+        error.extra_info = {"property": property_name}
+        yield error
 
 def items(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
@@ -95,6 +102,7 @@ def additionalItems(validator, aI, instance, schema):
         error = "Additional items are not allowed (%s %s unexpected)"
         yield ValidationError(
             error % extras_msg(instance[len(schema.get("items", [])):]),
+            extra_info={"additionalItems": instance[len(schema.get("items", [])):]}
         )
 
 
@@ -261,7 +269,7 @@ def dependentRequired(validator, dependentRequired, instance, schema):
         for each in dependency:
             if each not in instance:
                 message = f"{each!r} is a dependency of {property!r}"
-                yield ValidationError(message)
+                yield ValidationError(message, extra_info={'property': property})
 
 
 def dependentSchemas(validator, dependentSchemas, instance, schema):
