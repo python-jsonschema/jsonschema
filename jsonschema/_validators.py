@@ -4,8 +4,8 @@ import re
 
 from jsonschema._utils import (
     ensure_list,
-    errors_with_property_name,
     equal,
+    errors_with_property_name,
     extras_msg,
     find_additional_properties,
     find_evaluated_item_indexes_by_schema,
