@@ -608,49 +608,39 @@ class TestValidationErrorMessages(TestCase):
 class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual validator, rather
     #       than just these higher level tests.
-    def test_required(self):
-        instance = {'a': 1}
+    def test_extra_info_required(self):
+        instance = {"a": 1}
         schema = {
-            'required': ['b', 'c'],
+            "required": ["b", "c"],
         }
 
         validator = validators.Draft4Validator(schema)
         e1, e2 = validator.iter_errors(instance)
-        self.assertEqual(e1.extra_info, {'property': 'b'})
-        self.assertEqual(e2.extra_info, {'property': 'c'})
+        self.assertEqual(e1.extra_info, {"property": "b"})
+        self.assertEqual(e2.extra_info, {"property": "c"})
 
     def test_extra_info_additionalProperties_single(self):
-        instance = {'a': 1}
+        instance = {"a": 1}
         schema = {"additionalProperties": False}
 
         validator = validators.Draft4Validator(schema)
         e1, = validator.iter_errors(instance)
-        self.assertEqual(e1.extra_info, {'properties': ['a']})
+        self.assertEqual(e1.extra_info, {"properties": ["a"]})
 
     def test_extra_info_additionalProperties_multiple(self):
-        instance = {'a': 1,'b': 2}
+        instance = {"a": 1,"b": 2}
         schema = {"additionalProperties": False}
 
         validator = validators.Draft4Validator(schema)
         e1, = validator.iter_errors(instance)
-        self.assertEqual(e1.extra_info, {'properties': ['a', 'b']})
+        self.assertEqual(e1.extra_info, {"properties": ["a", "b"]})
 
     def test_extra_info_dependentRequired(self):
         instance = {"a": {}}
         schema = {"dependentRequired": {"a": ["bar"]}}
         validator = validators.Draft202012Validator(schema)
         e1, = validator.iter_errors(instance)
-        self.assertEqual(e1.extra_info, {'property': 'a'})
-
-    def test_extra_info_additionalItems(self):
-        instance = ["a", "b"]
-        schema = {
-            "items": [],
-            "additionalItems": False,
-        }
-        validator = validators.Draft7Validator(schema)
-        e1, = validator.iter_errors(instance)
-        self.assertEqual(e1.extra_info, {"additionalItems": ["a", "b"]})
+        self.assertEqual(e1.extra_info, {"property": "a"})
 
     def test_anyOf(self):
         instance = 5
@@ -1094,7 +1084,7 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(error.json_path, "$")
         self.assertEqual(error.schema_path, deque(["propertyNames", "not"]))
 
-        self.assertEqual(error.extra_info, {'property': 'foo'})
+        self.assertEqual(error.extra_info, {"property": "foo"})
 
     def test_if_then(self):
         schema = {

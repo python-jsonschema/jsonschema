@@ -338,3 +338,9 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
                 )
 
     return evaluated_keys
+
+
+def errors_with_property_name(errors, property_name):
+    for error in errors:
+        error.extra_info = {"property": property_name}
+        yield error

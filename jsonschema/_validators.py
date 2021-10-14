@@ -4,6 +4,7 @@ import re
 
 from jsonschema._utils import (
     ensure_list,
+    errors_with_property_name,
     equal,
     extras_msg,
     find_additional_properties,
@@ -32,7 +33,7 @@ def propertyNames(validator, propertyNames, instance, schema):
         return
 
     for property in instance:
-        yield from add_extra_info_property(validator.descend(instance=property, schema=propertyNames), property)
+        yield from errors_with_property_name(validator.descend(instance=property, schema=propertyNames), property)
 
 def additionalProperties(validator, aP, instance, schema):
     if not validator.is_type(instance, "object"):
@@ -42,7 +43,7 @@ def additionalProperties(validator, aP, instance, schema):
 
     if validator.is_type(aP, "object"):
         for extra in extras:
-            yield from add_extra_info_property(validator.descend(instance[extra], aP, path=extra), extra)
+            yield from errors_with_property_name(validator.descend(instance[extra], aP, path=extra), extra)
     elif not aP and extras:
         extra_info_properties = [extra for extra in sorted(extras)]
         if "patternProperties" in schema:
@@ -63,11 +64,6 @@ def additionalProperties(validator, aP, instance, schema):
                 error % extras_msg(extras),
                 extra_info={"properties": extra_info_properties}
             )
-
-def add_extra_info_property(errors, property_name):
-    for error in errors:
-        error.extra_info = {"property": property_name}
-        yield error
 
 def items(validator, items, instance, schema):
     if not validator.is_type(instance, "array"):
@@ -102,7 +98,6 @@ def additionalItems(validator, aI, instance, schema):
         error = "Additional items are not allowed (%s %s unexpected)"
         yield ValidationError(
             error % extras_msg(instance[len(schema.get("items", [])):]),
-            extra_info={"additionalItems": instance[len(schema.get("items", [])):]}
         )
 
 
