@@ -655,6 +655,7 @@ class TestValidationErrorDetails(TestCase):
         errors = list(validator.iter_errors(instance))
         self.assertEqual(len(errors), 1)
         e = errors[0]
+
         self.assertEqual(e.validator, "anyOf")
         self.assertEqual(e.validator_value, schema["anyOf"])
         self.assertEqual(e.instance, instance)
@@ -1075,6 +1076,7 @@ class TestValidationErrorDetails(TestCase):
 
         validator = validators.Draft7Validator(schema)
         error, = validator.iter_errors(instance)
+
         self.assertEqual(error.validator, "not")
         self.assertEqual(
             error.message,

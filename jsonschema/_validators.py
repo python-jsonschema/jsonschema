@@ -264,7 +264,7 @@ def dependentRequired(validator, dependentRequired, instance, schema):
         for each in dependency:
             if each not in instance:
                 message = f"{each!r} is a dependency of {property!r}"
-                yield ValidationError(message, extra_info={'property': property})
+                yield ValidationError(message, extra_info={"property": property})
 
 
 def dependentSchemas(validator, dependentSchemas, instance, schema):
@@ -342,7 +342,7 @@ def required(validator, required, instance, schema):
         return
     for property in required:
         if property not in instance:
-            yield ValidationError(f"{property!r} is a required property", extra_info={'property': property})
+            yield ValidationError(f"{property!r} is a required property", extra_info={"property": property})
 
 
 def minProperties(validator, mP, instance, schema):
