@@ -98,8 +98,6 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr):
         )
         return 1
 
-    load, instances = outputter.load, arguments["files"]
-
     resolver = RefResolver(
         base_uri=arguments["base_uri"],
         referrer=schema,
@@ -107,9 +105,9 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr):
 
     validator = arguments["validator"](schema, resolver=resolver)
     exit_code = 0
-    for each in instances:
+    for each in arguments["files"]:
         try:
-            instance = load(each)
+            instance = outputter.load(each)
         except _CannotLoadFile:
             exit_code = 1
         else:
