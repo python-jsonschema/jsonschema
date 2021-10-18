@@ -1156,10 +1156,10 @@ class TestValidationErrorDetails(TestCase):
                 "type",
                 "string",
                 1,
-                deque([]),
+                deque([0]),
                 {"type": "string"},
                 deque(["prefixItems", 0, "type"]),
-                "$",
+                "$[0]",
             ),
         )
         self.assertEqual(
@@ -1178,10 +1178,10 @@ class TestValidationErrorDetails(TestCase):
                 "maximum",
                 3,
                 5,
-                deque([]),
+                deque([3]),
                 {"maximum": 3},
                 deque(["prefixItems", 3, "maximum"]),
-                "$",
+                "$[3]",
             ),
         )
 
