@@ -1,0 +1,11 @@
+{
+    "$id": "http://localhost:1234/draft2020-12/metaschema-no-validation.json",
+    "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/core": true
+    },
+    "allOf": [
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/applicator" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/core" }
+    ]
+}

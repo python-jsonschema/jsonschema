@@ -2,7 +2,7 @@
     {
         "description": "Invalid use of fragments in location-independent $id",
         "schema": {
-            "$ref": "https://json-schema.org/draft/future/schema"
+            "$ref": "https://json-schema.org/draft/next/schema"
         },
         "tests": [
             {
@@ -110,7 +110,7 @@
         "description": "Valid use of empty fragments in location-independent $id",
         "comment": "These are allowed but discouraged",
         "schema": {
-            "$ref": "https://json-schema.org/draft/future/schema"
+            "$ref": "https://json-schema.org/draft/next/schema"
         },
         "tests": [
             {
@@ -150,7 +150,7 @@
     {
         "description": "Unnormalized $ids are allowed but discouraged",
         "schema": {
-            "$ref": "https://json-schema.org/draft/future/schema"
+            "$ref": "https://json-schema.org/draft/next/schema"
         },
         "tests": [
             {

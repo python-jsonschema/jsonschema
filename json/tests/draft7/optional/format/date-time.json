@@ -54,13 +54,38 @@
                 "valid": true
             },
             {
-                "description": "a invalid day in date-time string",
-                "data": "1990-02-31T15:59:60.123-08:00",
+                "description": "a valid date-time with a leap second, UTC",
+                "data": "1998-12-31T23:59:60Z",
+                "valid": true
+            },
+            {
+                "description": "a valid date-time with a leap second, with minus offset",
+                "data": "1998-12-31T15:59:60.123-08:00",
+                "valid": true
+            },
+            {
+                "description": "an invalid date-time past leap second, UTC",
+                "data": "1998-12-31T23:59:61Z",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time with leap second on a wrong minute, UTC",
+                "data": "1998-12-31T23:58:60Z",
+                "valid": false
+            },
+            {
+                "description": "an invalid date-time with leap second on a wrong hour, UTC",
+                "data": "1998-12-31T22:59:60Z",
+                "valid": false
+            },
+            {
+                "description": "an invalid day in date-time string",
+                "data": "1990-02-31T15:59:59.123-08:00",
                 "valid": false
             },
             {
                 "description": "an invalid offset in date-time string",
-                "data": "1990-12-31T15:59:60-24:00",
+                "data": "1990-12-31T15:59:59-24:00",
                 "valid": false
             },
             {
