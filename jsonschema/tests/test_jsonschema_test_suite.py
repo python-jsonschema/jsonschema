@@ -141,6 +141,14 @@ def leap_second(test):
         message=message,
         subject="time",
         description="valid leap second, zero time-offset",
+    )(test) or skip(
+        message=message,
+        subject="date-time",
+        description="a valid date-time with a leap second, UTC",
+    )(test) or skip(
+        message=message,
+        subject="date-time",
+        description="a valid date-time with a leap second, with minus offset",
     )(test)
 
 
@@ -179,6 +187,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or allowed_leading_zeros(test)
+        or leap_second(test)
         or missing_format(draft4_format_checker)(test)
         or complex_email_validation(test)
         or skip(
@@ -239,6 +248,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or allowed_leading_zeros(test)
+        or leap_second(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
         or skip(
