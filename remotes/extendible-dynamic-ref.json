@@ -1,0 +1,20 @@
+{
+    "description": "extendible array",
+    "$id": "http://localhost:1234/extendible-dynamic-ref.json",
+    "type": "object",
+    "properties": {
+        "elements": {
+            "type": "array",
+            "items": {
+                "$dynamicRef": "#elements"
+            }
+        }
+    },
+    "required": ["elements"],
+    "additionalProperties": false,
+    "$defs": {
+        "elements": {
+            "$dynamicAnchor": "elements"
+        }
+    }
+}
