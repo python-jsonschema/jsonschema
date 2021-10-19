@@ -1,3 +1,9 @@
+v4.1.1
+------
+
+* Fix ``prefixItems`` not indicating which item was invalid within the instance
+  path (#862)
+
 v4.1.0
 ------
 
