@@ -36,6 +36,21 @@
                 "description": "wrong type both",
                 "data": {"foo": "quux", "bar": "quux"},
                 "valid": false
+            },
+            {
+                "description": "ignores arrays",
+                "data": ["bar"],
+                "valid": true
+            },
+            {
+                "description": "ignores strings",
+                "data": "foobar",
+                "valid": true
+            },
+            {
+                "description": "ignores other non-objects",
+                "data": 12,
+                "valid": true
             }
         ]
     },
