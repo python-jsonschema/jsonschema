@@ -60,9 +60,13 @@ directory. This is:
 
 ## Coverage
 
-Drafts 07, 06, 04, and 03 should have full coverage, with tests for drafts 06,
-07, 2019-09 and 2020-12 being considered current and actively supported.
-Drafts 2019-09 and 2020-12 are almost fully covered.
+All JSON Schema specification releases should be well covered by this suite,
+including drafts 2020-12, 2019-09, 07, 06, 04 and 03. Additional coverage is
+always welcome, particularly for bugs encountered in real-world
+implementations.
+
+Drafts 04 and 03 are considered "frozen" in that less effort is put in to
+backport new tests to these versions.
 
 Contributions are very welcome, especially from implementers as they add support
 to their own implementations.
