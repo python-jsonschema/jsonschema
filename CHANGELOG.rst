@@ -1,3 +1,9 @@
+v4.1.2
+------
+
+* Fix ``dependentSchemas`` to properly consider non-object instances to be
+  valid (#850)
+
 v4.1.1
 ------
 
