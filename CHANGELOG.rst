@@ -42,8 +42,8 @@ v4.0.0
 * Validation errors now have a ``json_path`` attribute, describing their
   location in JSON path format
 * Support for the IP address and domain name formats has been improved
-* Support for Python 2 has been dropped, with ``python_requires`` properly
-  set.
+* Support for Python 2 and 3.6 has been dropped, with ``python_requires``
+  properly set.
 * ``multipleOf`` could overflow when given sufficiently large numbers. Now,
   when an overflow occurs, ``jsonschema`` will fall back to using fraction
   division (#746).
