@@ -2,15 +2,15 @@ from collections import deque, namedtuple
 from contextlib import contextmanager
 from decimal import Decimal
 from io import BytesIO
-from unittest import TestCase
+from unittest import TestCase, mock
 from urllib.request import pathname2url
 import json
 import os
 import sys
 import tempfile
 import unittest
+import warnings
 
-from twisted.trial.unittest import SynchronousTestCase
 import attr
 
 from jsonschema import FormatChecker, TypeChecker, exceptions, validators
@@ -23,7 +23,7 @@ def fail(validator, errors, instance, schema):
         yield exceptions.ValidationError(**each)
 
 
-class TestCreateAndExtend(SynchronousTestCase):
+class TestCreateAndExtend(TestCase):
     def setUp(self):
         self.addCleanup(
             self.assertEqual,
@@ -1707,7 +1707,7 @@ class TestDraft202012Validator(ValidatorTestMixin, TestCase):
     invalid = {"type": "integer"}, "foo"
 
 
-class TestValidatorFor(SynchronousTestCase):
+class TestValidatorFor(TestCase):
     def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}
         self.assertIs(
@@ -1828,31 +1828,29 @@ class TestValidatorFor(SynchronousTestCase):
         self.assertIs(validators.validator_for({}, default=None), None)
 
     def test_warns_if_meta_schema_specified_was_not_found(self):
-        self.assertWarns(
-            category=DeprecationWarning,
-            message=(
-                "The metaschema specified by $schema was not found. "
-                "Using the latest draft to validate, but this will raise "
-                "an error in the future."
-            ),
-            # https://tm.tl/9363 :'(
-            filename=sys.modules[self.assertWarns.__module__].__file__,
+        with self.assertWarns(DeprecationWarning) as cm:
+            validators.validator_for(schema={"$schema": "unknownSchema"})
 
-            f=validators.validator_for,
-            schema={"$schema": "unknownSchema"},
-            default={},
+        self.assertEqual(cm.filename, __file__)
+        self.assertEqual(
+            str(cm.warning),
+            "The metaschema specified by $schema was not found. "
+            "Using the latest draft to validate, but this will raise "
+            "an error in the future.",
         )
 
     def test_does_not_warn_if_meta_schema_is_unspecified(self):
-        validators.validator_for(schema={}, default={})
-        self.assertFalse(self.flushWarnings())
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validators.validator_for(schema={}, default={})
+        self.assertFalse(w)
 
 
-class TestValidate(SynchronousTestCase):
+class TestValidate(TestCase):
     def assertUses(self, schema, Validator):
         result = []
-        self.patch(Validator, "check_schema", result.append)
-        validators.validate({}, schema)
+        with mock.patch.object(Validator, "check_schema", result.append):
+            validators.validate({}, schema)
         self.assertEqual(result, [schema])
 
     def test_draft3_validator_is_chosen(self):
@@ -1941,7 +1939,7 @@ class TestValidate(SynchronousTestCase):
         self.assertIn("12 is not of type", str(e.exception))
 
 
-class TestRefResolver(SynchronousTestCase):
+class TestRefResolver(TestCase):
 
     base_uri = ""
     stored_uri = "foo://stored"
@@ -1956,14 +1954,11 @@ class TestRefResolver(SynchronousTestCase):
 
     def test_it_does_not_retrieve_schema_urls_from_the_network(self):
         ref = validators.Draft3Validator.META_SCHEMA["id"]
-        self.patch(
-            self.resolver,
-            "resolve_remote",
-            lambda *args, **kwargs: self.fail("Should not have been called!"),
-        )
-        with self.resolver.resolving(ref) as resolved:
-            pass
+        with mock.patch.object(self.resolver, "resolve_remote") as patched:
+            with self.resolver.resolving(ref) as resolved:
+                pass
         self.assertEqual(resolved, validators.Draft3Validator.META_SCHEMA)
+        self.assertFalse(patched.called)
 
     def test_it_resolves_local_refs(self):
         ref = "#/properties/foo"
