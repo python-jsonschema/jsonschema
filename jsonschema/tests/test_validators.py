@@ -1701,6 +1701,12 @@ class TestDraft7Validator(ValidatorTestMixin, TestCase):
     invalid = {"type": "integer"}, "foo"
 
 
+class TestDraft201909Validator(ValidatorTestMixin, TestCase):
+    Validator = validators.Draft201909Validator
+    valid = {}, {}
+    invalid = {"type": "integer"}, "foo"
+
+
 class TestDraft202012Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft202012Validator
     valid = {}, {}
