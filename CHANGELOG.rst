@@ -1,3 +1,10 @@
+v4.2.0
+------
+
+* Use ``importlib.resources`` to load schemas (#873)
+* Ensure all elements of arrays are verified for uniqueness by ``uniqueItems``
+  (#866)
+
 v4.1.2
 ------
 
