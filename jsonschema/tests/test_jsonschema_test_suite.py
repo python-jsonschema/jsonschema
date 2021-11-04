@@ -165,16 +165,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or missing_format(draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of more than two arrays is invalid",
-        )(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of strings is invalid",
-        )(test)
-        or skip(
             message=bug(371),
             subject="ref",
             case_description=(
@@ -200,16 +190,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         or leap_second(test)
         or missing_format(draft4_format_checker)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of more than two arrays is invalid",
-        )(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of strings is invalid",
-        )(test)
         or skip(
             message=bug(),
             subject="ref",
@@ -272,16 +252,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
         or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of more than two arrays is invalid",
-        )(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of strings is invalid",
-        )(test)
-        or skip(
             message=bug(371),
             subject="ref",
             case_description=(
@@ -320,16 +290,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or leap_second(test)
         or missing_format(draft7_format_checker)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of more than two arrays is invalid",
-        )(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of strings is invalid",
-        )(test)
         or skip(
             message=bug(371),
             subject="ref",
@@ -397,16 +357,6 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
             subject="unevaluatedItems",
         )(test)
         or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of more than two arrays is invalid",
-        )(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of strings is invalid",
-        )(test)
-        or skip(
             message="dynamicRef support isn't working yet.",
             subject="recursiveRef",
         )(test)
@@ -450,16 +400,6 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     Validator=Draft202012Validator,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of more than two arrays is invalid",
-        )(test)
-        or skip(
-            message=bug(866),
-            subject="uniqueItems",
-            description="non-unique array of strings is invalid",
-        )(test)
         or skip(
             message="dynamicRef support isn't working yet.",
             subject="dynamicRef",
