@@ -186,6 +186,16 @@ def multipleOf(validator, dB, instance, schema):
         quotient = instance / dB
         try:
             failed = int(quotient) != quotient
+            if failed and dB != int(dB):
+                # Checking if floats are integer multiples of non integer
+                # floats is asking for floating point errors. Use a more
+                # lenient validation that probably conforms to the users
+                # expectations where 101 * 0.1 == 10.1 would be true.
+                # This also conforms to behaviour in javascript jsonschema
+                # checkers
+                remainder = instance % dB
+                tolerance = float_info.epsilon * instance
+                failed = remainder > tolerance and dB - remainder > tolerance
         except OverflowError:
             # When `instance` is large and `dB` is less than one,
             # quotient can overflow to infinity; and then casting to int
