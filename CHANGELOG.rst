@@ -1,3 +1,8 @@
+v4.2.1
+------
+
+* Pin ``importlib.resources`` from below (#877)
+
 v4.2.0
 ------
 
