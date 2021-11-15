@@ -16,6 +16,6 @@ repos:
         args: [--fix, lf]
     -   id: trailing-whitespace
 -   repo: https://github.com/PyCQA/isort
-    rev: 5.10.0
+    rev: 5.10.1
     hooks:
     -   id: isort
