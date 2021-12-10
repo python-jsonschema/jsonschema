@@ -24,7 +24,7 @@ The simplest way to validate an instance under a given schema is to use the
 The Validator Interface
 -----------------------
 
-`jsonschema` defines an interface that all validator
+`jsonschema` defines a protocol that all validator
 classes should adhere to.
 
 .. autoclass:: jsonschema.protocols.IValidator
