@@ -10,6 +10,7 @@ from warnings import warn
 import contextlib
 import json
 import reprlib
+import typing
 import warnings
 
 import attr
@@ -22,9 +23,9 @@ from jsonschema import (
     exceptions,
 )
 
-_VALIDATORS = {}
+_VALIDATORS: typing.Dict[str, typing.Any] = {}
 _META_SCHEMAS = _utils.URIDict()
-_VOCABULARIES = []
+_VOCABULARIES: typing.List[typing.Tuple[str, typing.Any]] = []
 
 
 def __getattr__(name):

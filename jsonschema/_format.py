@@ -3,8 +3,12 @@ from uuid import UUID
 import datetime
 import ipaddress
 import re
+import typing
 
 from jsonschema.exceptions import FormatError
+
+_FormatCheckerFunc = typing.Callable[[typing.Any], bool]
+_CheckerRaises = typing.Union[Exception, typing.Tuple[Exception, ...]]
 
 
 class FormatChecker(object):
@@ -30,7 +34,10 @@ class FormatChecker(object):
             limit which formats will be used during validation.
     """
 
-    checkers = {}
+    checkers: typing.Dict[
+        str,
+        typing.Tuple[_FormatCheckerFunc, _CheckerRaises],
+    ] = {}
 
     def __init__(self, formats=None):
         if formats is None:

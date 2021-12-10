@@ -13,7 +13,7 @@ import tempfile
 try:  # pragma: no cover
     from importlib import metadata
 except ImportError:  # pragma: no cover
-    import importlib_metadata as metadata
+    import importlib_metadata as metadata  # type: ignore
 
 from pyrsistent import m
 

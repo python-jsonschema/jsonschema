@@ -5,13 +5,14 @@ from collections import defaultdict, deque
 from pprint import pformat
 from textwrap import dedent, indent
 import itertools
+import typing
 
 import attr
 
 from jsonschema import _utils
 
-WEAK_MATCHES = frozenset(["anyOf", "oneOf"])
-STRONG_MATCHES = frozenset()
+WEAK_MATCHES: typing.FrozenSet[str] = frozenset(["anyOf", "oneOf"])
+STRONG_MATCHES: typing.FrozenSet[str] = frozenset()
 
 _unset = _utils.Unset()
 
