@@ -28,7 +28,7 @@ jinja2==3.0.3
     # via sphinx
 file:.#egg=jsonschema
     # via -r docs/requirements.in
-lxml==4.6.4
+lxml==4.6.5
     # via -r docs/requirements.in
 markupsafe==2.0.1
     # via jinja2
