@@ -21,17 +21,17 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. _validator-protocol:
 
-The Validator Interface
+The Validator Protocol
 -----------------------
 
 `jsonschema` defines a protocol that all validator
 classes should adhere to.
 
-.. autoclass:: jsonschema.protocols.IValidator
+.. autoclass:: jsonschema.protocols.Validator
     :members:
 
 All of the `versioned validators <versioned-validators>` that are included with
-`jsonschema` adhere to the interface, and implementers of validator classes
+`jsonschema` adhere to the protocol, and implementers of validator classes
 that extend or complement the ones included should adhere to it as well. For
 more information see `creating-validators`.
 

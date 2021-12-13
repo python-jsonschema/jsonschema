@@ -90,7 +90,7 @@ but fail the second!
 
 Still, filling in defaults is a thing that is useful. `jsonschema`
 allows you to `define your own validator classes and callables
-<creating>`, so you can easily create an `jsonschema.protocols.IValidator`
+<creating>`, so you can easily create an `jsonschema.protocols.Validator`
 that does do default setting. Here's some code to get you started. (In
 this code, we add the default properties to each object *before* the
 properties are validated, so the default values themselves will need to

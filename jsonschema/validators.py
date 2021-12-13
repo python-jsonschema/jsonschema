@@ -155,7 +155,7 @@ def create(
 
     Returns:
 
-        a new `jsonschema.protocols.IValidator` class
+        a new `jsonschema.protocols.Validator` class
     """
 
     @attr.s
@@ -284,7 +284,7 @@ def extend(validator, validators=(), version=None, type_checker=None):
 
     Arguments:
 
-        validator (jsonschema.protocols.IValidator):
+        validator (jsonschema.protocols.Validator):
 
             an existing validator class
 
@@ -314,11 +314,11 @@ def extend(validator, validators=(), version=None, type_checker=None):
             a type checker, used when applying the :validator:`type` validator.
 
             If unprovided, the type checker of the extended
-            `jsonschema.protocols.IValidator` will be carried along.
+            `jsonschema.protocols.Validator` will be carried along.
 
     Returns:
 
-        a new `jsonschema.protocols.IValidator` class extending the one
+        a new `jsonschema.protocols.Validator` class extending the one
         provided
 
     .. note:: Meta Schemas

@@ -12,7 +12,8 @@ try:
 except ImportError:
     from typing_extensions import Protocol, runtime_checkable
 
-from ._format import FormatChecker
+from jsonschema._format import FormatChecker
+
 from ._types import TypeChecker
 from .exceptions import ValidationError
 from .validators import RefResolver
@@ -31,14 +32,14 @@ from .validators import RefResolver
 
 
 @runtime_checkable
-class IValidator(Protocol):
+class Validator(Protocol):
     """
     The protocol to which all validator classes should adhere.
 
     :argument dict schema: the schema that the validator object
         will validate with. It is assumed to be valid, and providing
         an invalid schema can lead to undefined behavior. See
-        `IValidator.check_schema` to validate a schema first.
+        `Validator.check_schema` to validate a schema first.
     :argument resolver: an instance of `jsonschema.RefResolver` that will be
         used to resolve :validator:`$ref` properties (JSON references). If
         unprovided, one will be created.
@@ -138,7 +139,7 @@ class IValidator(Protocol):
         ValidationError: [2, 3, 4] is too long
         """
 
-    def evolve(self, **kwargs) -> "IValidator":
+    def evolve(self, **kwargs) -> "Validator":
         """
         Create a new validator like this one, but with given changes.
 

@@ -27,7 +27,7 @@ where in the instance or schema respectively the error occurred.
 The Validator Protocol
 ----------------------
 
-``jsonschema`` defines a protocol, ``jsonschema.protocols.IValidator`` which
+``jsonschema`` defines a `protocol <typing.Protocol>`, `jsonschema.protocols.Validator` which
 can be used in type annotations to describe the type of a validator object.
 
 For full details, see `validator-protocol`.
