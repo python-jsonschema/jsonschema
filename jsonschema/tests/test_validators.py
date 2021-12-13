@@ -13,7 +13,13 @@ import warnings
 
 import attr
 
-from jsonschema import FormatChecker, TypeChecker, exceptions, validators
+from jsonschema import (
+    FormatChecker,
+    TypeChecker,
+    exceptions,
+    protocols,
+    validators,
+)
 from jsonschema.tests._helpers import bug
 
 
@@ -2126,6 +2132,21 @@ class TestRefResolver(TestCase):
         with self.assertRaises(exceptions.RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
+
+
+class TestValidatorProtocol(TestCase):
+    def test_each_validator_is_instance_of_protocol(self):
+        schema = {}
+        for validator_cls in [
+            validators.Draft3Validator,
+            validators.Draft4Validator,
+            validators.Draft6Validator,
+            validators.Draft7Validator,
+            validators.Draft201909Validator,
+            validators.Draft202012Validator,
+        ]:
+            validator = validator_cls(schema)
+            assert isinstance(validator, protocols.Validator)
 
 
 def sorted_errors(errors):

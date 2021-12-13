@@ -49,7 +49,7 @@ class TypeChecker(object):
     """
     A ``type`` property checker.
 
-    A `TypeChecker` performs type checking for an `IValidator`. Type
+    A `TypeChecker` performs type checking for a `Validator`. Type
     checks to perform are updated using `TypeChecker.redefine` or
     `TypeChecker.redefine_many` and removed via `TypeChecker.remove`.
     Each of these return a new `TypeChecker` object.
