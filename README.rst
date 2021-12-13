@@ -74,7 +74,7 @@ Features
   and
   `Draft 3 <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.Draft3Validator>`_
 
-* `Lazy validation <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.Validator.iter_errors>`_
+* `Lazy validation <https://python-jsonschema.readthedocs.io/en/latest/validate/#jsonschema.protocols.Validator.iter_errors>`_
   that can iteratively report *all* validation errors.
 
 * `Programmatic querying <https://python-jsonschema.readthedocs.io/en/latest/errors/>`_
