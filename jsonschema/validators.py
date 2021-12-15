@@ -767,15 +767,14 @@ class RefResolver(object):
                 yield each
             values.extendleft(each.values())
 
-    def resolve(self, ref):
-        """
-        Resolve the given reference.
-        """
-        url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
+    @lru_cache()
+    def _find_subschemas(self):
+        return list(self._finditem(self.referrer, "$id"))
 
+    @lru_cache()
+    def _find_in_subschemas(self, url):
         uri, fragment = urldefrag(url)
-
-        for subschema in self._finditem(self.referrer, "$id"):
+        for subschema in self._find_subschemas():
             target_uri = self._urljoin_cache(
                 self.resolution_scope, subschema["$id"],
             )
@@ -783,6 +782,17 @@ class RefResolver(object):
                 if fragment:
                     subschema = self.resolve_fragment(subschema, fragment)
                 return url, subschema
+        return None
+
+    def resolve(self, ref):
+        """
+        Resolve the given reference.
+        """
+        url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
+
+        match = self._find_in_subschemas(url)
+        if match is not None:
+            return match
 
         return url, self._remote_cache(url)
 
