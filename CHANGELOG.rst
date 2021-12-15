@@ -1,3 +1,6 @@
+
+* Fix undesired fallback to brute force container uniqueness check on certain input types
+
 v4.2.1
 ------
 
