@@ -1423,6 +1423,9 @@ class MetaSchemaTestsMixin(object):
 
 
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):
+    def test_it_implements_the_validator_protocol(self):
+        self.assertIsInstance(self.Validator({}), protocols.Validator)
+
     def test_valid_instances_are_valid(self):
         schema, instance = self.valid
         self.assertTrue(self.Validator(schema).is_valid(instance))
@@ -2132,21 +2135,6 @@ class TestRefResolver(TestCase):
         with self.assertRaises(exceptions.RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
-
-
-class TestValidatorProtocol(TestCase):
-    def test_each_validator_is_instance_of_protocol(self):
-        schema = {}
-        for validator_cls in [
-            validators.Draft3Validator,
-            validators.Draft4Validator,
-            validators.Draft6Validator,
-            validators.Draft7Validator,
-            validators.Draft201909Validator,
-            validators.Draft202012Validator,
-        ]:
-            validator = validator_cls(schema)
-            assert isinstance(validator, protocols.Validator)
 
 
 def sorted_errors(errors):
