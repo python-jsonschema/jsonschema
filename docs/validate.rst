@@ -110,7 +110,7 @@ Versioned Validators
 
 `jsonschema` ships with validator classes for various versions of
 the JSON Schema specification. For details on the methods and attributes
-that each validator class provides see the `Validator` interface,
+that each validator class provides see the `Validator` protocol,
 which each included validator class implements.
 
 .. autoclass:: Draft202012Validator
