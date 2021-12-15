@@ -188,7 +188,7 @@ def uniq(container):
         sliced = itertools.islice(sort, 1, None)
 
         for i, j in zip(sort, sliced):
-            if _sequence_equal(i, j):
+            if equal(i, j):
                 return False
 
     except (NotImplementedError, TypeError):
