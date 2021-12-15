@@ -1,5 +1,9 @@
+v4.3.0
+------
 
-* Fix undesired fallback to brute force container uniqueness check on certain input types
+* Fix undesired fallback to brute force container uniqueness check on
+  certain input types (#893)
+* Implement a PEP544 Protocol for validator classes (#890)
 
 v4.2.1
 ------
