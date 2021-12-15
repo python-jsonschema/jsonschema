@@ -757,6 +757,10 @@ class RefResolver(object):
         finally:
             self.pop_scope()
 
+    @lru_cache()
+    def _find_in_referrer(self, key):
+        return list(self._finditem(self.referrer, key))
+
     def _finditem(self, schema, key):
         values = deque([schema])
         while values:
@@ -773,8 +777,11 @@ class RefResolver(object):
 
     @lru_cache()
     def _find_in_subschemas(self, url):
+        subschemas = self._find_subschemas()
+        if not subschemas:
+            return None
         uri, fragment = urldefrag(url)
-        for subschema in self._find_subschemas():
+        for subschema in subschemas:
             target_uri = self._urljoin_cache(
                 self.resolution_scope, subschema["$id"],
             )
@@ -831,12 +838,19 @@ class RefResolver(object):
         if not fragment:
             return document
 
+        if document is self.referrer:
+            find = self._find_in_referrer
+        else:
+
+            def find(key):
+                return self._finditem(document, key)
+
         for keyword in ["$anchor", "$dynamicAnchor"]:
-            for subschema in self._finditem(document, keyword):
+            for subschema in find(keyword):
                 if fragment == subschema[keyword]:
                     return subschema
         for keyword in ["id", "$id"]:
-            for subschema in self._finditem(document, keyword):
+            for subschema in find(keyword):
                 if "#" + fragment == subschema[keyword]:
                     return subschema
 
