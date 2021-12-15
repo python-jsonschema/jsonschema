@@ -13,10 +13,9 @@ except ImportError:
     from typing_extensions import Protocol, runtime_checkable
 
 from jsonschema._format import FormatChecker
-
-from ._types import TypeChecker
-from .exceptions import ValidationError
-from .validators import RefResolver
+from jsonschema._types import TypeChecker
+from jsonschema.exceptions import ValidationError
+from jsonschema.validators import RefResolver
 
 # For code authors working on the validator protocol, these are the three
 # use-cases which should be kept in mind:
