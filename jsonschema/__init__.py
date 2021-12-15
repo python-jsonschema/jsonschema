@@ -26,6 +26,7 @@ from jsonschema.exceptions import (
     SchemaError,
     ValidationError,
 )
+from jsonschema.protocols import Validator
 from jsonschema.validators import (
     Draft3Validator,
     Draft4Validator,

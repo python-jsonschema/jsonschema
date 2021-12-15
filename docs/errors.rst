@@ -275,7 +275,7 @@ error objects.
 As you can see, `jsonschema.exceptions.ErrorTree` takes an
 iterable of `ValidationError`\s when constructing a tree so
 you can directly pass it the return value of a validator object's
-`jsonschema.IValidator.iter_errors` method.
+`jsonschema.protocols.Validator.iter_errors` method.
 
 `ErrorTree`\s support a number of useful operations. The first one we
 might want to perform is to check whether a given element in our instance

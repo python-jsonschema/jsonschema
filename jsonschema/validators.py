@@ -155,7 +155,7 @@ def create(
 
     Returns:
 
-        a new `jsonschema.IValidator` class
+        a new `jsonschema.protocols.Validator` class
     """
 
     @attr.s
@@ -284,7 +284,7 @@ def extend(validator, validators=(), version=None, type_checker=None):
 
     Arguments:
 
-        validator (jsonschema.IValidator):
+        validator (jsonschema.protocols.Validator):
 
             an existing validator class
 
@@ -314,11 +314,12 @@ def extend(validator, validators=(), version=None, type_checker=None):
             a type checker, used when applying the :validator:`type` validator.
 
             If unprovided, the type checker of the extended
-            `jsonschema.IValidator` will be carried along.
+            `jsonschema.protocols.Validator` will be carried along.
 
     Returns:
 
-        a new `jsonschema.IValidator` class extending the one provided
+        a new `jsonschema.protocols.Validator` class extending the one
+        provided
 
     .. note:: Meta Schemas
 
@@ -916,7 +917,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
     If you know you have a valid schema already, especially if you
     intend to validate multiple instances with the same schema, you
-    likely would prefer using the `IValidator.validate` method directly
+    likely would prefer using the `Validator.validate` method directly
     on a specific validator (e.g. ``Draft7Validator.validate``).
 
 
@@ -930,7 +931,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
             The schema to validate with
 
-        cls (IValidator):
+        cls (Validator):
 
             The class that will be used to validate the instance.
 

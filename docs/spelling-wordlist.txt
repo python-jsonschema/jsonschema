@@ -1,5 +1,5 @@
 # this appears to be misinterpreting Napoleon types as prose, sigh...
-IValidator
+Validator
 TypeChecker
 UnknownType
 ValidationError
