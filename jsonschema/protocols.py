@@ -5,7 +5,7 @@ typing.Protocol classes for jsonschema interfaces.
 # for reference material on Protocols, see
 #   https://www.python.org/dev/peps/pep-0544/
 
-from typing import Any, ClassVar, Iterator, Optional
+from typing import Any, ClassVar, Iterator, Optional, Union
 
 try:
     from typing import Protocol, runtime_checkable
@@ -36,7 +36,7 @@ class Validator(Protocol):
     """
     The protocol to which all validator classes should adhere.
 
-    :argument dict schema: the schema that the validator object
+    :argument schema: the schema that the validator object
         will validate with. It is assumed to be valid, and providing
         an invalid schema can lead to undefined behavior. See
         `Validator.check_schema` to validate a schema first.
@@ -66,11 +66,11 @@ class Validator(Protocol):
     TYPE_CHECKER: ClassVar[TypeChecker]
 
     #: The schema that was passed in when initializing the object.
-    schema: dict
+    schema: Union[dict, bool]
 
     def __init__(
         self,
-        schema: dict,
+        schema: Union[dict, bool],
         resolver: Optional[RefResolver] = None,
         format_checker: Optional[FormatChecker] = None,
     ) -> None:
