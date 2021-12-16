@@ -6,10 +6,18 @@ typing.Protocol classes for jsonschema interfaces.
 #   https://www.python.org/dev/peps/pep-0544/
 
 from typing import Any, ClassVar, Iterator, Optional, Union
+import sys
 
-try:
+# doing these imports with `try ... except ImportError` doesn't pass mypy
+# checking because mypy sees `typing._SpecialForm` and
+# `typing_extensions._SpecialForm` as incompatible
+#
+# see:
+# https://mypy.readthedocs.io/en/stable/runtime_troubles.html#using-new-additions-to-the-typing-module
+# https://github.com/python/mypy/issues/4427
+if sys.version_info >= (3, 8):
     from typing import Protocol, runtime_checkable
-except ImportError:
+else:
     from typing_extensions import Protocol, runtime_checkable
 
 from jsonschema._format import FormatChecker
