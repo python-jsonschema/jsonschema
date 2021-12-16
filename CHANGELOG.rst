@@ -3,9 +3,7 @@ v4.3.0
 
 * Fix undesired fallback to brute force container uniqueness check on
   certain input types (#893)
-* Cache reference lookups for subschemas (#893)
-* Use cached lookups for resolving fragments if the referent document is known (#893)
-* Replace the ``Validator.evolve`` method with an equivalent class attribute
+* Resolving refs has had performance improvements (#893)
 * Implement a PEP544 Protocol for validator classes (#890)
 
 v4.2.1
