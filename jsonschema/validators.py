@@ -169,6 +169,7 @@ def create(
         schema = attr.ib(repr=reprlib.repr)
         resolver = attr.ib(default=None, repr=False)
         format_checker = attr.ib(default=None)
+        evolve = attr.evolve
 
         def __attrs_post_init__(self):
             if self.resolver is None:
@@ -181,9 +182,6 @@ def create(
         def check_schema(cls, schema):
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
-
-        def evolve(self, **kwargs):
-            return attr.evolve(self, **kwargs)
 
         def iter_errors(self, instance, _schema=None):
             if _schema is not None:
