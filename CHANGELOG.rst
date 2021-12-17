@@ -1,9 +1,13 @@
+v4.3.1
+------
+
+* Resolving refs has had performance improvements (#893)
+
 v4.3.0
 ------
 
 * Fix undesired fallback to brute force container uniqueness check on
   certain input types (#893)
-* Resolving refs has had performance improvements (#893)
 * Implement a PEP544 Protocol for validator classes (#890)
 
 v4.2.1
