@@ -121,7 +121,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr):
     return exit_code
 
 
-def main(argv=None):
+def main(argv=None):  # pragma: no-cover
     return run(arguments=parse_args(argv))
 
 

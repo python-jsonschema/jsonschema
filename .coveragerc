@@ -3,3 +3,5 @@
 branch = True
 source = jsonschema
 omit = */jsonschema/_reflect.py,*/jsonschema/__main__.py,*/jsonschema/benchmarks/*,*/jsonschema/tests/fuzz_validate.py
+exclude_lines =
+    if __name__ == ['"]__main__['"]:$
