@@ -169,6 +169,7 @@ def create(
         schema = attr.ib(repr=reprlib.repr)
         resolver = attr.ib(default=None, repr=False)
         format_checker = attr.ib(default=None)
+        evolve = attr.evolve
 
         def __attrs_post_init__(self):
             if self.resolver is None:
@@ -181,9 +182,6 @@ def create(
         def check_schema(cls, schema):
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
-
-        def evolve(self, **kwargs):
-            return attr.evolve(self, **kwargs)
 
         def iter_errors(self, instance, _schema=None):
             if _schema is not None:
@@ -757,6 +755,10 @@ class RefResolver(object):
         finally:
             self.pop_scope()
 
+    @lru_cache()
+    def _find_in_referrer(self, key):
+        return list(self._finditem(self.referrer, key))
+
     def _finditem(self, schema, key):
         values = deque([schema])
         while values:
@@ -767,15 +769,17 @@ class RefResolver(object):
                 yield each
             values.extendleft(each.values())
 
-    def resolve(self, ref):
-        """
-        Resolve the given reference.
-        """
-        url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
+    @lru_cache()
+    def _find_subschemas(self):
+        return list(self._finditem(self.referrer, "$id"))
 
+    @lru_cache()
+    def _find_in_subschemas(self, url):
+        subschemas = self._find_subschemas()
+        if not subschemas:
+            return None
         uri, fragment = urldefrag(url)
-
-        for subschema in self._finditem(self.referrer, "$id"):
+        for subschema in subschemas:
             target_uri = self._urljoin_cache(
                 self.resolution_scope, subschema["$id"],
             )
@@ -783,6 +787,17 @@ class RefResolver(object):
                 if fragment:
                     subschema = self.resolve_fragment(subschema, fragment)
                 return url, subschema
+        return None
+
+    def resolve(self, ref):
+        """
+        Resolve the given reference.
+        """
+        url = self._urljoin_cache(self.resolution_scope, ref).rstrip("/")
+
+        match = self._find_in_subschemas(url)
+        if match is not None:
+            return match
 
         return url, self._remote_cache(url)
 
@@ -821,12 +836,19 @@ class RefResolver(object):
         if not fragment:
             return document
 
+        if document is self.referrer:
+            find = self._find_in_referrer
+        else:
+
+            def find(key):
+                return self._finditem(document, key)
+
         for keyword in ["$anchor", "$dynamicAnchor"]:
-            for subschema in self._finditem(document, keyword):
+            for subschema in find(keyword):
                 if fragment == subschema[keyword]:
                     return subschema
         for keyword in ["id", "$id"]:
-            for subschema in self._finditem(document, keyword):
+            for subschema in find(keyword):
                 if "#" + fragment == subschema[keyword]:
                     return subschema
 
