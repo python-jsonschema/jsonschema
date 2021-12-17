@@ -185,7 +185,7 @@ class TestCLI(TestCase):
             argv=[
                 "-s", "some_schema",
                 "some_first_instance",
-                "some_second_instance"
+                "some_second_instance",
             ],
 
             exit_code=1,
@@ -217,7 +217,7 @@ class TestCLI(TestCase):
                 "--output", "pretty",
                 "-s", "some_schema",
                 "some_first_instance",
-                "some_second_instance"
+                "some_second_instance",
             ],
 
             exit_code=1,
@@ -258,7 +258,7 @@ class TestCLI(TestCase):
                 "--error-format", ":{error.message}._-_.{error.instance}:",
                 "-s", "some_schema",
                 "some_first_instance",
-                "some_second_instance"
+                "some_second_instance",
             ],
 
             exit_code=1,
@@ -375,7 +375,7 @@ class TestCLI(TestCase):
             argv=[
                 "-s", "some_schema",
                 "first_instance",
-                "second_instance"
+                "second_instance",
             ],
 
             exit_code=1,
@@ -516,7 +516,7 @@ class TestCLI(TestCase):
             argv=[
                 "--output", "pretty",
                 "-s", "some_schema",
-                "nonexisting_instance"
+                "nonexisting_instance",
             ],
 
             exit_code=1,
@@ -562,7 +562,7 @@ class TestCLI(TestCase):
             argv=[
                 "--output", "pretty",
                 "-s", "nonexisting_schema",
-                "nonexisting_instance"
+                "nonexisting_instance",
             ],
 
             exit_code=1,
@@ -620,7 +620,7 @@ class TestCLI(TestCase):
             argv=[
                 "-s", "some_schema",
                 "--base-uri", ref_path.parent.as_uri() + "/",
-                "some_instance"
+                "some_instance",
             ],
             stdout="",
             stderr="",
@@ -640,7 +640,7 @@ class TestCLI(TestCase):
             argv=[
                 "-s", "some_schema",
                 "--base-uri", ref_path.parent.as_uri() + "/",
-                "some_instance"
+                "some_instance",
             ],
             exit_code=1,
             stdout="",
@@ -660,7 +660,7 @@ class TestCLI(TestCase):
                 argv=[
                     "-s", "some_schema",
                     "--base-uri", Path.cwd().as_uri(),
-                    "some_instance"
+                    "some_instance",
                 ],
             )
         error = str(e.exception)
@@ -679,7 +679,7 @@ class TestCLI(TestCase):
                 argv=[
                     "-s", "some_schema",
                     "--base-uri", "not@UR1",
-                    "some_instance"
+                    "some_instance",
                 ],
             )
         error = str(e.exception)
@@ -748,9 +748,9 @@ class TestParser(TestCase):
         arguments = _pre_commit_cli.parse_args(
             [
                 "--validator",
-                "jsonschema.tests.test_pre_commit_cli.TestParser.FakeValidator",
+                "jsonschema.tests.test_pre_commit_cli.TestParser.FakeValidator",  # noqa: E501
                 "--schema", "mem://some/schema",
-                "mem://some/instance"
+                "mem://some/instance",
             ],
         )
         self.assertIs(arguments["validator"], self.FakeValidator)
@@ -760,7 +760,7 @@ class TestParser(TestCase):
             [
                 "--validator", "Draft4Validator",
                 "--schema", "mem://some/schema",
-                "mem://some/instance"
+                "mem://some/instance",
             ],
         )
         self.assertIs(arguments["validator"], Draft4Validator)

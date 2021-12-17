@@ -125,5 +125,5 @@ def main(argv=None):
     return run(arguments=parse_args(argv))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
