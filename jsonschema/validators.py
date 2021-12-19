@@ -760,7 +760,7 @@ class RefResolver(object):
 
     @lru_cache()
     def _get_subschemas_cache(self):
-        cache = {key: [] for key in SUBSCHEMAS_KEYWORDS}
+        cache = {key: [] for key in _SUBSCHEMAS_KEYWORDS}
         for keyword, subschema in _search_schema(
             self.referrer, _match_subschema_keywords,
         ):
@@ -918,7 +918,7 @@ class RefResolver(object):
         return result
 
 
-SUBSCHEMAS_KEYWORDS = ("$id", "id", "$anchor", "$dynamicAnchor")
+_SUBSCHEMAS_KEYWORDS = ("$id", "id", "$anchor", "$dynamicAnchor")
 
 
 def _match_keyword(keyword):
@@ -931,7 +931,7 @@ def _match_keyword(keyword):
 
 
 def _match_subschema_keywords(value):
-    for keyword in SUBSCHEMAS_KEYWORDS:
+    for keyword in _SUBSCHEMAS_KEYWORDS:
         if keyword in value:
             yield keyword, value
 
