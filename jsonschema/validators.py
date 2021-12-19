@@ -755,27 +755,21 @@ class RefResolver(object):
         finally:
             self.pop_scope()
 
-    @lru_cache()
     def _find_in_referrer(self, key):
-        return list(self._finditem(self.referrer, key))
-
-    def _finditem(self, schema, key):
-        values = deque([schema])
-        while values:
-            each = values.pop()
-            if not isinstance(each, dict):
-                continue
-            if key in each:
-                yield each
-            values.extendleft(each.values())
+        return self._get_subschemas_cache()[key]
 
     @lru_cache()
-    def _find_subschemas(self):
-        return list(self._finditem(self.referrer, "$id"))
+    def _get_subschemas_cache(self):
+        cache = {key: [] for key in SUBSCHEMAS_KEYWORDS}
+        for keyword, subschema in _search_schema(
+            self.referrer, _match_subschema_keywords,
+        ):
+            cache[keyword].append(subschema)
+        return cache
 
     @lru_cache()
     def _find_in_subschemas(self, url):
-        subschemas = self._find_subschemas()
+        subschemas = self._get_subschemas_cache()["$id"]
         if not subschemas:
             return None
         uri, fragment = urldefrag(url)
@@ -841,7 +835,7 @@ class RefResolver(object):
         else:
 
             def find(key):
-                return self._finditem(document, key)
+                yield from _search_schema(document, _match_keyword(key))
 
         for keyword in ["$anchor", "$dynamicAnchor"]:
             for subschema in find(keyword):
@@ -922,6 +916,35 @@ class RefResolver(object):
         if self.cache_remote:
             self.store[uri] = result
         return result
+
+
+SUBSCHEMAS_KEYWORDS = ("$id", "id", "$anchor", "$dynamicAnchor")
+
+
+def _match_keyword(keyword):
+
+    def matcher(value):
+        if keyword in value:
+            yield value
+
+    return matcher
+
+
+def _match_subschema_keywords(value):
+    for keyword in SUBSCHEMAS_KEYWORDS:
+        if keyword in value:
+            yield keyword, value
+
+
+def _search_schema(schema, matcher):
+    """Breadth-first search routine."""
+    values = deque([schema])
+    while values:
+        value = values.pop()
+        if not isinstance(value, dict):
+            continue
+        yield from matcher(value)
+        values.extendleft(value.values())
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):
