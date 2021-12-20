@@ -1,3 +1,8 @@
+v4.3.2
+------
+
+* Additional performance improvements for resolving refs (#896)
+
 v4.3.1
 ------
 
