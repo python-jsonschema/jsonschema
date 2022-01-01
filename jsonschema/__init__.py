@@ -46,6 +46,7 @@ def __getattr__(name):
             "removed in a future release. Use importlib.metadata directly "
             "to query for jsonschema's version.",
             DeprecationWarning,
+            stacklevel=2,
         )
 
         try:
