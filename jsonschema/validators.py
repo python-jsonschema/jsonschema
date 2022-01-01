@@ -33,6 +33,7 @@ def __getattr__(name):
             "Importing ErrorTree from jsonschema.validators is deprecated. "
             "Instead import it from jsonschema.exceptions.",
             DeprecationWarning,
+            stacklevel=2,
         )
         from jsonschema.exceptions import ErrorTree
         return ErrorTree
@@ -41,6 +42,7 @@ def __getattr__(name):
             "Accessing jsonschema.validators.validators is deprecated. "
             "Use jsonschema.validators.validator_for with a given schema.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return _VALIDATORS
     elif name == "meta_schemas":
@@ -48,6 +50,7 @@ def __getattr__(name):
             "Accessing jsonschema.validators.meta_schemas is deprecated. "
             "Use jsonschema.validators.validator_for with a given schema.",
             DeprecationWarning,
+            stacklevel=2,
         )
         return _META_SCHEMAS
     raise AttributeError(f"module {__name__} has no attribute {name}")
@@ -193,6 +196,7 @@ def create(
                         "iter_errors(...) instead."
                     ),
                     DeprecationWarning,
+                    stacklevel=2,
                 )
             else:
                 _schema = self.schema
@@ -262,6 +266,7 @@ def create(
                         "instead."
                     ),
                     DeprecationWarning,
+                    stacklevel=2,
                 )
                 self = self.evolve(schema=_schema)
 
@@ -727,6 +732,7 @@ class RefResolver(object):
             "jsonschema.RefResolver.in_scope is deprecated and will be "
             "removed in a future release.",
             DeprecationWarning,
+            stacklevel=3,
         )
         self.push_scope(scope)
         try:

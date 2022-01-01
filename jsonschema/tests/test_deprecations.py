@@ -12,6 +12,7 @@ class TestDeprecations(TestCase):
         with self.assertWarns(DeprecationWarning) as w:
             from jsonschema import __version__  # noqa
 
+        self.assertEqual(w.filename, __file__)
         self.assertTrue(
             str(w.warning).startswith(
                 "Accessing jsonschema.__version__ is deprecated",
@@ -27,6 +28,7 @@ class TestDeprecations(TestCase):
         with self.assertWarns(DeprecationWarning) as w:
             from jsonschema.validators import ErrorTree  # noqa
 
+        self.assertEqual(w.filename, __file__)
         self.assertTrue(
             str(w.warning).startswith(
                 "Importing ErrorTree from jsonschema.validators is deprecated",
@@ -43,6 +45,7 @@ class TestDeprecations(TestCase):
             value = validators.validators
         self.assertEqual(value, validators._VALIDATORS)
 
+        self.assertEqual(w.filename, __file__)
         self.assertTrue(
             str(w.warning).startswith(
                 "Accessing jsonschema.validators.validators is deprecated",
@@ -59,6 +62,7 @@ class TestDeprecations(TestCase):
             value = validators.meta_schemas
         self.assertEqual(value, validators._META_SCHEMAS)
 
+        self.assertEqual(w.filename, __file__)
         self.assertTrue(
             str(w.warning).startswith(
                 "Accessing jsonschema.validators.meta_schemas is deprecated",
@@ -75,6 +79,7 @@ class TestDeprecations(TestCase):
             with resolver.in_scope("foo"):
                 pass
 
+        self.assertEqual(w.filename, __file__)
         self.assertTrue(
             str(w.warning).startswith(
                 "jsonschema.RefResolver.in_scope is deprecated ",
@@ -92,6 +97,7 @@ class TestDeprecations(TestCase):
             result = validator.is_valid("foo", {"type": "number"})
 
         self.assertFalse(result)
+        self.assertEqual(w.filename, __file__)
         self.assertTrue(
             str(w.warning).startswith(
                 "Passing a schema to Validator.is_valid is deprecated ",
@@ -109,6 +115,7 @@ class TestDeprecations(TestCase):
             error, = validator.iter_errors("foo", {"type": "number"})
 
         self.assertEqual(error.validator, "type")
+        self.assertEqual(w.filename, __file__)
         self.assertTrue(
             str(w.warning).startswith(
                 "Passing a schema to Validator.iter_errors is deprecated ",
