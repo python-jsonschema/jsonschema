@@ -1,3 +1,8 @@
+v4.3.3
+------
+
+* Properly report deprecation warnings at the right stack level (#899)
+
 v4.3.2
 ------
 
