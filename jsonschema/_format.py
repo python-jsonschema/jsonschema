@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from contextlib import suppress
 from uuid import UUID
 import datetime
@@ -34,9 +36,9 @@ class FormatChecker(object):
             limit which formats will be used during validation.
     """
 
-    checkers: typing.Dict[
+    checkers: dict[
         str,
-        typing.Tuple[_FormatCheckerFunc, _CheckerRaises],
+        tuple[_FormatCheckerFunc, _CheckerRaises],
     ] = {}
 
     def __init__(self, formats=None):

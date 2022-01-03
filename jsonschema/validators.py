@@ -1,6 +1,8 @@
 """
 Creation and extension of validators, with implementations for existing drafts.
 """
+from __future__ import annotations
+
 from collections import deque
 from collections.abc import Sequence
 from functools import lru_cache
@@ -23,9 +25,9 @@ from jsonschema import (
     exceptions,
 )
 
-_VALIDATORS: typing.Dict[str, typing.Any] = {}
+_VALIDATORS: dict[str, typing.Any] = {}
 _META_SCHEMAS = _utils.URIDict()
-_VOCABULARIES: typing.List[typing.Tuple[str, typing.Any]] = []
+_VOCABULARIES: list[tuple[str, typing.Any]] = []
 
 
 def __getattr__(name):

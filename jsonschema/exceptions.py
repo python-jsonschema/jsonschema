@@ -1,18 +1,19 @@
 """
 Validation errors, and some surrounding helpers.
 """
+from __future__ import annotations
+
 from collections import defaultdict, deque
 from pprint import pformat
 from textwrap import dedent, indent
 import itertools
-import typing
 
 import attr
 
 from jsonschema import _utils
 
-WEAK_MATCHES: typing.FrozenSet[str] = frozenset(["anyOf", "oneOf"])
-STRONG_MATCHES: typing.FrozenSet[str] = frozenset()
+WEAK_MATCHES: frozenset[str] = frozenset(["anyOf", "oneOf"])
+STRONG_MATCHES: frozenset[str] = frozenset()
 
 _unset = _utils.Unset()
 

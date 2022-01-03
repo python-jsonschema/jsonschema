@@ -5,7 +5,9 @@ typing.Protocol classes for jsonschema interfaces.
 # for reference material on Protocols, see
 #   https://www.python.org/dev/peps/pep-0544/
 
-from typing import Any, ClassVar, Iterator, Optional, Union
+from __future__ import annotations
+
+from typing import Any, ClassVar, Iterator
 import sys
 
 # doing these imports with `try ... except ImportError` doesn't pass mypy
@@ -73,13 +75,13 @@ class Validator(Protocol):
     TYPE_CHECKER: ClassVar[TypeChecker]
 
     #: The schema that was passed in when initializing the object.
-    schema: Union[dict, bool]
+    schema: dict | bool
 
     def __init__(
         self,
-        schema: Union[dict, bool],
-        resolver: Optional[RefResolver] = None,
-        format_checker: Optional[FormatChecker] = None,
+        schema: dict | bool,
+        resolver: RefResolver | None = None,
+        format_checker: FormatChecker | None = None,
     ) -> None:
         ...
 
