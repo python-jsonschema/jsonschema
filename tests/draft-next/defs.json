@@ -2,7 +2,7 @@
     {
         "description": "validate definition against metaschema",
         "schema": {
-            "$ref": "https://json-schema.org/draft/future/schema"
+            "$ref": "https://json-schema.org/draft/next/schema"
         },
         "tests": [
             {
