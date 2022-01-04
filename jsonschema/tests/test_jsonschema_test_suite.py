@@ -366,6 +366,10 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
             case_description="same $anchor with different base uri",
         )(test)
         or skip(
+            message="Vocabulary support is not yet present.",
+            subject="vocabulary",
+        )(test)
+        or skip(
             message=bug(),
             subject="ref",
             case_description=(
@@ -412,6 +416,10 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
             message="These tests depends on dynamicRef working.",
             subject="anchor",
             case_description="same $anchor with different base uri",
+        )(test)
+        or skip(
+            message="Vocabulary support is not yet present.",
+            subject="vocabulary",
         )(test)
         or skip(
             message=bug(),
