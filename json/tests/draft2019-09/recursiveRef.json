@@ -330,14 +330,14 @@
                 "title": "any type of node",
                 "$id": "recursiveRef8_anyLeafNode.json",
                 "$recursiveAnchor": true,
-                "$ref": "recursiveRef8_main.json#/$defs/inner"
+                "$ref": "recursiveRef8_inner.json"
             },
             "else": {
                 "title": "integer node",
                 "$id": "recursiveRef8_integerNode.json",
                 "$recursiveAnchor": true,
                 "type": [ "object", "integer" ],
-                "$ref": "recursiveRef8_main.json#/$defs/inner"
+                "$ref": "recursiveRef8_inner.json"
             }
         },
         "tests": [

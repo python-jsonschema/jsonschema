@@ -362,14 +362,14 @@
                 "title": "any type of node",
                 "$id": "anyLeafNode",
                 "$dynamicAnchor": "foo",
-                "$ref": "main#/$defs/inner"
+                "$ref": "inner"
             },
             "else": {
                 "title": "integer node",
                 "$id": "integerNode",
                 "$dynamicAnchor": "foo",
                 "type": [ "object", "integer" ],
-                "$ref": "main#/$defs/inner"
+                "$ref": "inner"
             }
         },
         "tests": [
