@@ -9,9 +9,6 @@ import typing
 
 from jsonschema.exceptions import FormatError
 
-_FormatCheckerFunc = typing.Callable[[typing.Any], bool]
-_CheckerRaises = typing.Union[Exception, typing.Tuple[Exception, ...]]
-
 
 class FormatChecker(object):
     """
@@ -38,7 +35,10 @@ class FormatChecker(object):
 
     checkers: dict[
         str,
-        tuple[_FormatCheckerFunc, _CheckerRaises],
+        tuple[
+            typing.Callable[[typing.Any], bool],
+            Exception | tuple[Exception, ...],
+        ],
     ] = {}
 
     def __init__(self, formats=None):
