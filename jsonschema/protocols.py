@@ -7,7 +7,7 @@ typing.Protocol classes for jsonschema interfaces.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Iterator
+from typing import TYPE_CHECKING, Any, ClassVar, Iterator
 import sys
 
 # doing these imports with `try ... except ImportError` doesn't pass mypy
@@ -22,8 +22,13 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Protocol, runtime_checkable
 
-from jsonschema._format import FormatChecker
-from jsonschema._types import TypeChecker
+# in order for Sphinx to resolve references accurately from type annotations,
+# it needs to see names like `jsonschema.TypeChecker`
+# therefore, only import at type-checking time (to avoid circular references),
+# but use `jsonschema` for any types which will otherwise not be resolvable
+if TYPE_CHECKING:
+    import jsonschema
+
 from jsonschema.exceptions import ValidationError
 from jsonschema.validators import RefResolver
 
@@ -72,7 +77,7 @@ class Validator(Protocol):
 
     #: A `jsonschema.TypeChecker` that will be used when validating
     #: :validator:`type` properties in JSON schemas.
-    TYPE_CHECKER: ClassVar[TypeChecker]
+    TYPE_CHECKER: ClassVar[jsonschema.TypeChecker]
 
     #: The schema that was passed in when initializing the object.
     schema: dict | bool
@@ -81,7 +86,7 @@ class Validator(Protocol):
         self,
         schema: dict | bool,
         resolver: RefResolver | None = None,
-        format_checker: FormatChecker | None = None,
+        format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...
 
