@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from contextlib import suppress
 from uuid import UUID
 import datetime
 import ipaddress
 import re
+import typing
 
 from jsonschema.exceptions import FormatError
 
@@ -30,7 +33,13 @@ class FormatChecker(object):
             limit which formats will be used during validation.
     """
 
-    checkers = {}
+    checkers: dict[
+        str,
+        tuple[
+            typing.Callable[[typing.Any], bool],
+            Exception | tuple[Exception, ...],
+        ],
+    ] = {}
 
     def __init__(self, formats=None):
         if formats is None:

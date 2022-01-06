@@ -1,9 +1,31 @@
+from __future__ import annotations
+
 import numbers
+import typing
 
 from pyrsistent import pmap
 import attr
 
 from jsonschema.exceptions import UndefinedTypeCheck
+
+
+# unfortunately, the type of pmap is generic, and if used as the attr.ib
+# converter, the generic type is presented to mypy, which then fails to match
+# the concrete type of a type checker mapping
+# this "do nothing" wrapper presents the correct information to mypy
+def _typed_pmap_converter(
+    init_val: typing.Mapping[
+        str,
+        typing.Callable[["TypeChecker", typing.Any], bool],
+    ],
+) -> typing.Mapping[str, typing.Callable[["TypeChecker", typing.Any], bool]]:
+    return typing.cast(
+        typing.Mapping[
+            str,
+            typing.Callable[["TypeChecker", typing.Any], bool],
+        ],
+        pmap(init_val),
+    )
 
 
 def is_array(checker, instance):
@@ -60,7 +82,13 @@ class TypeChecker(object):
 
             The initial mapping of types to their checking functions.
     """
-    _type_checkers = attr.ib(default=pmap(), converter=pmap)
+
+    _type_checkers: typing.Mapping[
+        str, typing.Callable[["TypeChecker", typing.Any], bool],
+    ] = attr.ib(
+        default=pmap(),
+        converter=_typed_pmap_converter,
+    )
 
     def is_type(self, instance, type):
         """

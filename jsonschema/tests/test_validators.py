@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import deque, namedtuple
 from contextlib import contextmanager
 from decimal import Decimal
@@ -1662,7 +1664,7 @@ class AntiDraft6LeakMixin(object):
 
 class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     Validator = validators.Draft3Validator
-    valid = {}, {}
+    valid: tuple[dict, dict] = ({}, {})
     invalid = {"type": "integer"}, "foo"
 
     def test_any_type_is_valid_for_type_any(self):
@@ -1694,31 +1696,31 @@ class TestDraft3Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
 
 class TestDraft4Validator(AntiDraft6LeakMixin, ValidatorTestMixin, TestCase):
     Validator = validators.Draft4Validator
-    valid = {}, {}
+    valid: tuple[dict, dict] = ({}, {})
     invalid = {"type": "integer"}, "foo"
 
 
 class TestDraft6Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft6Validator
-    valid = {}, {}
+    valid: tuple[dict, dict] = ({}, {})
     invalid = {"type": "integer"}, "foo"
 
 
 class TestDraft7Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft7Validator
-    valid = {}, {}
+    valid: tuple[dict, dict] = ({}, {})
     invalid = {"type": "integer"}, "foo"
 
 
 class TestDraft201909Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft201909Validator
-    valid = {}, {}
+    valid: tuple[dict, dict] = ({}, {})
     invalid = {"type": "integer"}, "foo"
 
 
 class TestDraft202012Validator(ValidatorTestMixin, TestCase):
     Validator = validators.Draft202012Validator
-    valid = {}, {}
+    valid: tuple[dict, dict] = ({}, {})
     invalid = {"type": "integer"}, "foo"
 
 

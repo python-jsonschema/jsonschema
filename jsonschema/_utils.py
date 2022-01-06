@@ -9,7 +9,7 @@ import sys
 if sys.version_info >= (3, 9):  # pragma: no cover
     from importlib import resources
 else:  # pragma: no cover
-    import importlib_resources as resources
+    import importlib_resources as resources  # type: ignore
 
 
 class URIDict(MutableMapping):
