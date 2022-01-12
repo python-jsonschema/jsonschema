@@ -1,3 +1,9 @@
+v4.4.0
+------
+
+* Add ``mypy`` support (#892)
+* Add support for Python 3.11
+
 v4.3.3
 ------
 
