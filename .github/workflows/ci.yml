@@ -119,18 +119,6 @@ jobs:
         exclude:
           - os: windows-latest
             python-version:
-              name: 3.9
-              toxenv: readme
-          - os: windows-latest
-            python-version:
-              name: 3.9
-              toxenv: docs-linkcheck
-          - os: windows-latest
-            python-version:
-              name: 3.9
-              toxenv: docs-style
-          - os: windows-latest
-            python-version:
               name: pypy-3.8
               toxenv: pypy3-noextra-build
           - os: windows-latest
@@ -165,6 +153,18 @@ jobs:
             python-version:
               name: "3.10"
               toxenv: py310-format_nongpl-tests
+          - os: windows-latest
+            python-version:
+              name: "3.10"
+              toxenv: readme
+          - os: windows-latest
+            python-version:
+              name: "3.10"
+              toxenv: docs-linkcheck
+          - os: windows-latest
+            python-version:
+              name: "3.10"
+              toxenv: docs-style
 
     steps:
     - uses: actions/checkout@v2
