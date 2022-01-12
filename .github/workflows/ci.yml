@@ -24,17 +24,17 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python-version:
-          - name: pypy-3.7
+          - name: pypy-3.8
             toxenv: pypy3-noextra-build
-          - name: pypy-3.7
+          - name: pypy-3.8
             toxenv: pypy3-noextra-tests
-          - name: pypy-3.7
+          - name: pypy-3.8
             toxenv: pypy3-format-build
-          - name: pypy-3.7
+          - name: pypy-3.8
             toxenv: pypy3-format-tests
-          - name: pypy-3.7
+          - name: pypy-3.8
             toxenv: pypy3-format_nongpl-build
-          - name: pypy-3.7
+          - name: pypy-3.8
             toxenv: pypy3-format_nongpl-tests
           - name: 3.7
             toxenv: py37-noextra-build
@@ -119,27 +119,27 @@ jobs:
               toxenv: docs-style
           - os: windows-latest
             python-version:
-              name: pypy-3.7
+              name: pypy-3.8
               toxenv: pypy3-noextra-build
           - os: windows-latest
             python-version:
-              name: pypy-3.7
+              name: pypy-3.8
               toxenv: pypy3-noextra-tests
           - os: windows-latest
             python-version:
-              name: pypy-3.7
+              name: pypy-3.8
               toxenv: pypy3-format-build
           - os: windows-latest
             python-version:
-              name: pypy-3.7
+              name: pypy-3.8
               toxenv: pypy3-format-tests
           - os: windows-latest
             python-version:
-              name: pypy-3.7
+              name: pypy-3.8
               toxenv: pypy3-format_nongpl-build
           - os: windows-latest
             python-version:
-              name: pypy-3.7
+              name: pypy-3.8
               toxenv: pypy3-format_nongpl-tests
           - os: windows-latest
             python-version:
