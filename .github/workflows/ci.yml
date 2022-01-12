@@ -84,25 +84,25 @@ jobs:
             toxenv: py310-format_nongpl-build
           - name: "3.10"
             toxenv: py310-format_nongpl-tests
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-dirhtml
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-doctest
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-linkcheck
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-spelling
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-style
-          - name: 3.9
+          - name: "3.10"
             toxenv: readme
-          - name: 3.9
+          - name: "3.10"
             toxenv: safety
-          - name: 3.9
+          - name: "3.10"
             toxenv: secrets
-          - name: 3.9
+          - name: "3.10"
             toxenv: style
-          - name: 3.9
+          - name: "3.10"
             toxenv: typing
         exclude:
           - os: windows-latest
