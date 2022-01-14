@@ -3,7 +3,6 @@ Creation and extension of validators, with implementations for existing drafts.
 """
 from __future__ import annotations
 
-from collections import deque
 from collections.abc import Sequence
 from functools import lru_cache
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
@@ -770,7 +769,7 @@ class RefResolver(object):
     @lru_cache()
     def _get_subschemas_cache(self):
         cache = {key: [] for key in _SUBSCHEMAS_KEYWORDS}
-        for keyword, subschema in _search_schema(
+        for keyword, subschema in _utils.search_schema(
             self.referrer, _match_subschema_keywords,
         ):
             cache[keyword].append(subschema)
@@ -844,7 +843,10 @@ class RefResolver(object):
         else:
 
             def find(key):
-                yield from _search_schema(document, _match_keyword(key))
+                yield from _utils.search_schema(
+                    document,
+                    _utils.match_keyword(key),
+                )
 
         for keyword in ["$anchor", "$dynamicAnchor"]:
             for subschema in find(keyword):
@@ -930,30 +932,10 @@ class RefResolver(object):
 _SUBSCHEMAS_KEYWORDS = ("$id", "id", "$anchor", "$dynamicAnchor")
 
 
-def _match_keyword(keyword):
-
-    def matcher(value):
-        if keyword in value:
-            yield value
-
-    return matcher
-
-
 def _match_subschema_keywords(value):
     for keyword in _SUBSCHEMAS_KEYWORDS:
         if keyword in value:
             yield keyword, value
-
-
-def _search_schema(schema, matcher):
-    """Breadth-first search routine."""
-    values = deque([schema])
-    while values:
-        value = values.pop()
-        if not isinstance(value, dict):
-            continue
-        yield from matcher(value)
-        values.extendleft(value.values())
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):

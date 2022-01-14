@@ -3,6 +3,7 @@ from urllib.parse import urldefrag, urljoin
 import re
 
 from jsonschema._utils import (
+    dynamic_anchor_extender,
     ensure_list,
     equal,
     extras_msg,
@@ -302,14 +303,21 @@ def ref(validator, ref, instance, schema):
 
 def dynamicRef(validator, dynamicRef, instance, schema):
     _, fragment = urldefrag(dynamicRef)
-
     for url in validator.resolver._scopes_stack:
         lookup_url = urljoin(url, dynamicRef)
         with validator.resolver.resolving(lookup_url) as subschema:
             if ("$dynamicAnchor" in subschema
                     and fragment == subschema["$dynamicAnchor"]):
+                scope_stack = list(validator.resolver._scopes_stack)
+                scope_stack.reverse()
+                extended_schema = dynamic_anchor_extender(
+                    validator, scope_stack, fragment, schema, subschema,
+                )
+                if extended_schema:
+                    yield from validator.descend(instance, extended_schema)
+                    break
+
                 yield from validator.descend(instance, subschema)
-                break
     else:
         with validator.resolver.resolving(dynamicRef) as subschema:
             yield from validator.descend(instance, subschema)
