@@ -353,8 +353,11 @@ def _schema_is_referenced(schema, parent_schema):
     """
     Checks if a schema is referenced by another schema
     """
-    return ("$id" in schema and "$ref" in parent_schema
-            and parent_schema["$ref"] == schema["$id"])
+    return (
+        "$id" in schema
+        and "$ref" in parent_schema
+        and parent_schema["$ref"] == schema["$id"]
+    )
 
 
 def _find_dynamic_anchor_extender(validator, scopes, fragment, schema):
@@ -408,11 +411,9 @@ def dynamic_anchor_extender(validator, scopes, fragment, schema, subschema):
 
 
 def match_keyword(keyword):
-
     def matcher(value):
         if keyword in value:
             yield value
-
     return matcher
 
 
