@@ -79,6 +79,10 @@ class Validator(Protocol):
     #: :validator:`type` properties in JSON schemas.
     TYPE_CHECKER: ClassVar[jsonschema.TypeChecker]
 
+    #: A `jsonschema.FormatChecker` that will be used when validating
+    #: :validator:`format` properties in JSON schemas.
+    FORMAT_CHECKER: ClassVar[jsonschema.FormatChecker]
+
     #: The schema that was passed in when initializing the object.
     schema: dict | bool
 

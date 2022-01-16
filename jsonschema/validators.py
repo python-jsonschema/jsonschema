@@ -19,6 +19,7 @@ import attr
 from jsonschema import (
     _legacy_validators,
     _types,
+    _format,
     _utils,
     _validators,
     exceptions,
@@ -108,6 +109,7 @@ def create(
     validators=(),
     version=None,
     type_checker=_types.draft7_type_checker,
+    format_checker=_format.draft7_format_checker,
     id_of=_id_of,
     applicable_validators=lambda schema: schema.items(),
 ):
@@ -148,6 +150,13 @@ def create(
             If unprovided, a `jsonschema.TypeChecker` will be created
             with a set of default types typical of JSON Schema drafts.
 
+        format_checker (jsonschema.FormatChecker):
+
+            a format checker, used when applying the :validator:`format` validator.
+
+            If unprovided, a `jsonschema.FormatChecker` will be created
+            with a set of default formats typical of JSON Schema drafts.
+
         id_of (collections.abc.Callable):
 
             A function that given a schema, returns its ID.
@@ -162,6 +171,8 @@ def create(
 
         a new `jsonschema.protocols.Validator` class
     """
+    # rename to not clash with "format_checker" argument of `Validator.__init__()`
+    fmt_checker = format_checker
 
     @attr.s
     class Validator:
@@ -169,6 +180,7 @@ def create(
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
         TYPE_CHECKER = type_checker
+        FORMAT_CHECKER = fmt_checker
         ID_OF = staticmethod(id_of)
 
         schema = attr.ib(repr=reprlib.repr)
@@ -283,7 +295,7 @@ def create(
     return Validator
 
 
-def extend(validator, validators=(), version=None, type_checker=None):
+def extend(validator, validators=(), version=None, type_checker=None, format_checker=None):
     """
     Create a new validator class by extending an existing one.
 
@@ -321,6 +333,13 @@ def extend(validator, validators=(), version=None, type_checker=None):
             If unprovided, the type checker of the extended
             `jsonschema.protocols.Validator` will be carried along.
 
+        format_checker (jsonschema.FormatChecker):
+
+            a format checker, used when applying the :validator:`format` validator.
+
+            If unprovided, the format checker of the extended
+            `jsonschema.protocols.Validator` will be carried along.
+
     Returns:
 
         a new `jsonschema.protocols.Validator` class extending the one
@@ -342,11 +361,14 @@ def extend(validator, validators=(), version=None, type_checker=None):
 
     if type_checker is None:
         type_checker = validator.TYPE_CHECKER
+    if format_checker is None:
+        format_checker = validator.FORMAT_CHECKER
     return create(
         meta_schema=validator.META_SCHEMA,
         validators=all_validators,
         version=version,
         type_checker=type_checker,
+        format_checker=format_checker,
         id_of=validator.ID_OF,
     )
 
@@ -377,6 +399,7 @@ Draft3Validator = create(
         "uniqueItems": _validators.uniqueItems,
     },
     type_checker=_types.draft3_type_checker,
+    format_checker=_format.draft3_format_checker,
     version="draft3",
     id_of=lambda schema: schema.get("id", ""),
     applicable_validators=_legacy_validators.ignore_ref_siblings,
@@ -413,6 +436,7 @@ Draft4Validator = create(
         "uniqueItems": _validators.uniqueItems,
     },
     type_checker=_types.draft4_type_checker,
+    format_checker=_format.draft4_format_checker,
     version="draft4",
     id_of=lambda schema: schema.get("id", ""),
     applicable_validators=_legacy_validators.ignore_ref_siblings,
@@ -454,6 +478,7 @@ Draft6Validator = create(
         "uniqueItems": _validators.uniqueItems,
     },
     type_checker=_types.draft6_type_checker,
+    format_checker=_format.draft6_format_checker,
     version="draft6",
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
@@ -495,6 +520,7 @@ Draft7Validator = create(
         "uniqueItems": _validators.uniqueItems,
     },
     type_checker=_types.draft7_type_checker,
+    format_checker=_format.draft7_format_checker,
     version="draft7",
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
@@ -540,6 +566,7 @@ Draft201909Validator = create(
         "uniqueItems": _validators.uniqueItems,
     },
     type_checker=_types.draft201909_type_checker,
+    format_checker=_format.draft201909_format_checker,
     version="draft2019-09",
 )
 
@@ -585,6 +612,7 @@ Draft202012Validator = create(
         "uniqueItems": _validators.uniqueItems,
     },
     type_checker=_types.draft202012_type_checker,
+    format_checker=_format.draft202012_format_checker,
     version="draft2020-12",
 )
 
