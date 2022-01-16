@@ -17,9 +17,9 @@ import warnings
 import attr
 
 from jsonschema import (
+    _format,
     _legacy_validators,
     _types,
-    _format,
     _utils,
     _validators,
     exceptions,
