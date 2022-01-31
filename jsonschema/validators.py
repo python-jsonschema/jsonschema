@@ -108,8 +108,8 @@ def create(
     meta_schema,
     validators=(),
     version=None,
-    type_checker=_types.draft7_type_checker,
-    format_checker=_format.draft7_format_checker,
+    type_checker=_types.draft202012_type_checker,
+    format_checker=_format.draft202012_format_checker,
     id_of=_id_of,
     applicable_validators=lambda schema: schema.items(),
 ):
