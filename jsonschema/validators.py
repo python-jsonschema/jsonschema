@@ -152,7 +152,8 @@ def create(
 
         format_checker (jsonschema.FormatChecker):
 
-            a format checker, used when applying the :validator:`format` validator.
+            a format checker, used when applying the :validator:`format`
+            validator.
 
             If unprovided, a `jsonschema.FormatChecker` will be created
             with a set of default formats typical of JSON Schema drafts.
@@ -171,8 +172,8 @@ def create(
 
         a new `jsonschema.protocols.Validator` class
     """
-    # rename to not clash with "format_checker" argument of `Validator.__init__()`
-    fmt_checker = format_checker
+    # preemptively don't shadow the `Validator.format_checker` local
+    format_checker_arg = format_checker
 
     @attr.s
     class Validator:
@@ -180,7 +181,7 @@ def create(
         VALIDATORS = dict(validators)
         META_SCHEMA = dict(meta_schema)
         TYPE_CHECKER = type_checker
-        FORMAT_CHECKER = fmt_checker
+        FORMAT_CHECKER = format_checker_arg
         ID_OF = staticmethod(id_of)
 
         schema = attr.ib(repr=reprlib.repr)
@@ -295,7 +296,13 @@ def create(
     return Validator
 
 
-def extend(validator, validators=(), version=None, type_checker=None, format_checker=None):
+def extend(
+    validator,
+    validators=(),
+    version=None,
+    type_checker=None,
+    format_checker=None,
+):
     """
     Create a new validator class by extending an existing one.
 
@@ -335,7 +342,8 @@ def extend(validator, validators=(), version=None, type_checker=None, format_che
 
         format_checker (jsonschema.FormatChecker):
 
-            a format checker, used when applying the :validator:`format` validator.
+            a format checker, used when applying the :validator:`format`
+            validator.
 
             If unprovided, the format checker of the extended
             `jsonschema.protocols.Validator` will be carried along.
