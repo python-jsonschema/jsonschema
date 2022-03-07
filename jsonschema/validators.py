@@ -9,11 +9,11 @@ from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
 from warnings import warn
 import contextlib
+import gzip
 import json
 import reprlib
 import typing
 import warnings
-import gzip
 
 import attr
 
