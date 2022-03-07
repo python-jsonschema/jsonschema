@@ -957,7 +957,7 @@ class RefResolver(object):
             # json over http
             result = requests.get(uri).json()
         else:
-            # Otherwise, pass off to urllib
+            # Otherwise, pass off to urllib, check encoding and assume utf-8
             with urlopen(uri) as response:
                 result = _load_content(response)
 
@@ -977,10 +977,16 @@ def _match_subschema_keywords(value):
 
 def _load_content(response):
     content_encoding = response.getheader("Content-Encoding")
-    if content_encoding == "gzip":
+
+    if content_encoding is None:
+        content = response.read()
+    elif content_encoding == "gzip":
         content = gzip.decompress(response.read())
     else:
-        content = response.read()
+        raise TypeError(
+            f"Cannot handle remote uri with Content-Encoding: {content_encoding}. "
+            "Installing 'requests' might help with this (pip install requests)."
+        )
 
     return json.loads(content.decode("utf-8"))
 
