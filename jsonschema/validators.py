@@ -13,6 +13,7 @@ import json
 import reprlib
 import typing
 import warnings
+import gzip
 
 import attr
 
@@ -957,8 +958,8 @@ class RefResolver(object):
             result = requests.get(uri).json()
         else:
             # Otherwise, pass off to urllib and assume utf-8
-            with urlopen(uri) as url:
-                result = json.loads(url.read().decode("utf-8"))
+            with urlopen(uri) as response:
+                result = _load_content(response)
 
         if self.cache_remote:
             self.store[uri] = result
@@ -972,6 +973,16 @@ def _match_subschema_keywords(value):
     for keyword in _SUBSCHEMAS_KEYWORDS:
         if keyword in value:
             yield keyword, value
+
+
+def _load_content(response):
+    content_encoding = response.getheader("Content-Encoding")
+    if content_encoding == "gzip":
+        content = gzip.decompress(response.read())
+    else:
+        content = response.read()
+
+    return json.loads(content.decode("utf-8"))
 
 
 def validate(instance, schema, cls=None, *args, **kwargs):
