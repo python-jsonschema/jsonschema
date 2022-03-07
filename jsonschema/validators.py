@@ -957,7 +957,7 @@ class RefResolver(object):
             # json over http
             result = requests.get(uri).json()
         else:
-            # Otherwise, pass off to urllib and assume utf-8
+            # Otherwise, pass off to urllib
             with urlopen(uri) as response:
                 result = _load_content(response)
 
