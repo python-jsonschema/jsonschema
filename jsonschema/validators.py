@@ -59,6 +59,129 @@ def __getattr__(name):
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
+def draft_2019_09_vocab_core():
+    return {
+        "$recursiveRef": _legacy_validators.recursiveRef,
+        "$ref": _validators.ref,
+    }
+
+
+def draft_2019_09_vocab_applicator():
+    return {
+        "additionalItems": _validators.additionalItems,
+        "unevaluatedItems": _validators.unevaluatedItems,
+        "items": _legacy_validators.items_draft6_draft7_draft201909,
+        "contains": _validators.contains,
+        "additionalProperties": _validators.additionalProperties,
+        "unevaluatedProperties": _validators.unevaluatedProperties,
+        "properties": _validators.properties,
+        "patternProperties": _validators.patternProperties,
+        "dependentSchemas": _validators.dependentSchemas,
+        "propertyNames": _validators.propertyNames,
+        "if": _validators.if_,
+        "allOf": _validators.allOf,
+        "anyOf": _validators.anyOf,
+        "oneOf": _validators.oneOf,
+        "not": _validators.not_,
+    }
+
+
+def draft_2019_09_vocab_validation():
+    return {
+        "multipleOf": _validators.multipleOf,
+        "maximum": _validators.maximum,
+        "exclusiveMaximum": _validators.exclusiveMaximum,
+        "minimum": _validators.minimum,
+        "exclusiveMinimum": _validators.exclusiveMinimum,
+        "maxLength": _validators.maxLength,
+        "minLength": _validators.minLength,
+        "pattern": _validators.pattern,
+        "maxItems": _validators.maxItems,
+        "minItems": _validators.minItems,
+        "uniqueItems": _validators.uniqueItems,
+        "maxProperties": _validators.maxProperties,
+        "minProperties": _validators.minProperties,
+        "required": _validators.required,
+        "dependentRequired": _validators.dependentRequired,
+        "const": _validators.const,
+        "enum": _validators.enum,
+        "type": _validators.type,
+    }
+
+
+def draft_2019_09_vocab_format():
+    return {
+        "format": _validators.format,
+    }
+
+
+def draft_2020_12_vocab_core():
+    return {
+        "$dynamicRef": _validators.dynamicRef,
+        "$ref": _validators.ref,
+    }
+
+
+def draft_2020_12_vocab_applicator():
+    return {
+        "prefixItems": _validators.prefixItems,
+        "items": _validators.items,
+        "contains": _validators.contains,
+        "additionalProperties": _validators.additionalProperties,
+        "properties": _validators.properties,
+        "patternProperties": _validators.patternProperties,
+        "dependentSchemas": _validators.dependentSchemas,
+        "propertyNames": _validators.propertyNames,
+        "if": _validators.if_,
+        "allOf": _validators.allOf,
+        "anyOf": _validators.anyOf,
+        "oneOf": _validators.oneOf,
+        "not": _validators.not_,
+    }
+
+
+def draft_2020_12_vocab_validation():
+    return {
+        "type": _validators.type,
+        "const": _validators.const,
+        "enum": _validators.enum,
+        "multipleOf": _validators.multipleOf,
+        "maximum": _validators.maximum,
+        "exclusiveMaximum": _validators.exclusiveMaximum,
+        "minimum": _validators.minimum,
+        "exclusiveMinimum": _validators.exclusiveMinimum,
+        "maxLength": _validators.maxLength,
+        "minLength": _validators.minLength,
+        "pattern": _validators.pattern,
+        "maxItems": _validators.maxItems,
+        "minItems": _validators.minItems,
+        "uniqueItems": _validators.uniqueItems,
+        "maxProperties": _validators.maxProperties,
+        "minProperties": _validators.minProperties,
+        "required": _validators.required,
+        "dependentRequired": _validators.dependentRequired,
+    }
+
+
+def draft_2020_12_vocab_format():
+    return {
+        "format": _validators.format,
+    }
+
+
+def draft_2020_12_vocab_unevaluated():
+    return {
+        "unevaluatedItems": _validators.unevaluatedItems,
+        "unevaluatedProperties": _validators.unevaluatedProperties,
+    }
+
+
+def assert_vocabulary(path, draft, vocab):
+    return path == "https://json-schema.org/draft/{}/vocab/{}".format(
+        draft, vocab,
+    )
+
+
 def validates(version):
     """
     Register the decorated validator for a ``version`` of the specification.
@@ -195,6 +318,75 @@ def create(
                     self.schema,
                     id_of=id_of,
                 )
+            self.set_meta_schema()
+            self.load_vocabulary()
+
+        def set_meta_schema(self):
+            """
+            Replaces the default meta schema if $schema is provided in the
+            schema
+            """
+            if type(self.schema) is dict and "$schema" in self.schema:
+                url, self.META_SCHEMA = self.resolver.resolve(
+                    self.schema["$schema"],
+                )
+
+        def load_vocabulary(self):
+            """
+            Loads the vocabulary based on the $vocabulary definition provided
+            in the meta schema. Validator overrides are applied afterwards.
+            """
+            if (type(self.META_SCHEMA) is dict
+                    and "$vocabulary" in self.META_SCHEMA):
+                vocabulary_validators = {}
+                for path in self.META_SCHEMA["$vocabulary"]:
+                    if assert_vocabulary(path, "2019-09", "core"):
+                        vocabulary_validators.update(
+                            draft_2019_09_vocab_core(),
+                        )
+                    if assert_vocabulary(path, "2020-12", "core"):
+                        vocabulary_validators.update(
+                            draft_2020_12_vocab_core(),
+                        )
+
+                    if assert_vocabulary(path, "2019-09", "format"):
+                        vocabulary_validators.update(
+                            draft_2019_09_vocab_format(),
+                        )
+
+                    if assert_vocabulary(path, "2020-12", "format-annotation"):
+                        vocabulary_validators.update(
+                            draft_2020_12_vocab_format(),
+                        )
+
+                    if assert_vocabulary(path, "2019-09", "applicator"):
+                        vocabulary_validators.update(
+                            draft_2019_09_vocab_applicator(),
+                        )
+                    if assert_vocabulary(path, "2020-12", "applicator"):
+                        vocabulary_validators.update(
+                            draft_2020_12_vocab_applicator(),
+                        )
+
+                    if assert_vocabulary(path, "2019-09", "validation"):
+                        vocabulary_validators.update(
+                            draft_2019_09_vocab_validation(),
+                        )
+                    if assert_vocabulary(path, "2020-12", "validation"):
+                        vocabulary_validators.update(
+                            draft_2020_12_vocab_validation(),
+                        )
+
+                    if assert_vocabulary(path, "2020-12", "unevaluated"):
+                        vocabulary_validators.update(
+                            draft_2020_12_vocab_unevaluated(),
+                        )
+
+                # Apply validator overrides
+                vocabulary_validators.update(self.VALIDATORS)
+
+                # Update validators
+                self.VALIDATORS = vocabulary_validators
 
         @classmethod
         def check_schema(cls, schema):
@@ -254,7 +446,9 @@ def create(
                     self.resolver.pop_scope()
 
         def descend(self, instance, schema, path=None, schema_path=None):
-            for error in self.evolve(schema=schema).iter_errors(instance):
+            child = self.evolve()
+            child.schema = schema
+            for error in child.iter_errors(instance):
                 if path is not None:
                     error.path.appendleft(path)
                 if schema_path is not None:
@@ -535,44 +729,6 @@ Draft7Validator = create(
 
 Draft201909Validator = create(
     meta_schema=_utils.load_schema("draft2019-09"),
-    validators={
-        "$recursiveRef": _legacy_validators.recursiveRef,
-        "$ref": _validators.ref,
-        "additionalItems": _validators.additionalItems,
-        "additionalProperties": _validators.additionalProperties,
-        "allOf": _validators.allOf,
-        "anyOf": _validators.anyOf,
-        "const": _validators.const,
-        "contains": _validators.contains,
-        "dependentRequired": _validators.dependentRequired,
-        "dependentSchemas": _validators.dependentSchemas,
-        "enum": _validators.enum,
-        "exclusiveMaximum": _validators.exclusiveMaximum,
-        "exclusiveMinimum": _validators.exclusiveMinimum,
-        "format": _validators.format,
-        "if": _validators.if_,
-        "items": _legacy_validators.items_draft6_draft7_draft201909,
-        "maxItems": _validators.maxItems,
-        "maxLength": _validators.maxLength,
-        "maxProperties": _validators.maxProperties,
-        "maximum": _validators.maximum,
-        "minItems": _validators.minItems,
-        "minLength": _validators.minLength,
-        "minProperties": _validators.minProperties,
-        "minimum": _validators.minimum,
-        "multipleOf": _validators.multipleOf,
-        "not": _validators.not_,
-        "oneOf": _validators.oneOf,
-        "pattern": _validators.pattern,
-        "patternProperties": _validators.patternProperties,
-        "properties": _validators.properties,
-        "propertyNames": _validators.propertyNames,
-        "required": _validators.required,
-        "type": _validators.type,
-        "unevaluatedItems": _validators.unevaluatedItems,
-        "unevaluatedProperties": _validators.unevaluatedProperties,
-        "uniqueItems": _validators.uniqueItems,
-    },
     type_checker=_types.draft201909_type_checker,
     format_checker=_format.draft201909_format_checker,
     version="draft2019-09",
@@ -580,45 +736,6 @@ Draft201909Validator = create(
 
 Draft202012Validator = create(
     meta_schema=_utils.load_schema("draft2020-12"),
-    validators={
-        "$dynamicRef": _validators.dynamicRef,
-        "$ref": _validators.ref,
-        "additionalItems": _validators.additionalItems,
-        "additionalProperties": _validators.additionalProperties,
-        "allOf": _validators.allOf,
-        "anyOf": _validators.anyOf,
-        "const": _validators.const,
-        "contains": _validators.contains,
-        "dependentRequired": _validators.dependentRequired,
-        "dependentSchemas": _validators.dependentSchemas,
-        "enum": _validators.enum,
-        "exclusiveMaximum": _validators.exclusiveMaximum,
-        "exclusiveMinimum": _validators.exclusiveMinimum,
-        "format": _validators.format,
-        "if": _validators.if_,
-        "items": _validators.items,
-        "maxItems": _validators.maxItems,
-        "maxLength": _validators.maxLength,
-        "maxProperties": _validators.maxProperties,
-        "maximum": _validators.maximum,
-        "minItems": _validators.minItems,
-        "minLength": _validators.minLength,
-        "minProperties": _validators.minProperties,
-        "minimum": _validators.minimum,
-        "multipleOf": _validators.multipleOf,
-        "not": _validators.not_,
-        "oneOf": _validators.oneOf,
-        "pattern": _validators.pattern,
-        "patternProperties": _validators.patternProperties,
-        "prefixItems": _validators.prefixItems,
-        "properties": _validators.properties,
-        "propertyNames": _validators.propertyNames,
-        "required": _validators.required,
-        "type": _validators.type,
-        "unevaluatedItems": _validators.unevaluatedItems,
-        "unevaluatedProperties": _validators.unevaluatedProperties,
-        "uniqueItems": _validators.uniqueItems,
-    },
     type_checker=_types.draft202012_type_checker,
     format_checker=_format.draft202012_format_checker,
     version="draft2020-12",

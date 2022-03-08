@@ -357,17 +357,13 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
             subject="unevaluatedItems",
         )(test)
         or skip(
-            message="dynamicRef support isn't working yet.",
+            message="recursiveRef support isn't working yet.",
             subject="recursiveRef",
         )(test)
         or skip(
-            message="These tests depends on dynamicRef working.",
+            message="These tests require an extension or the url resolver.",
             subject="anchor",
             case_description="same $anchor with different base uri",
-        )(test)
-        or skip(
-            message="Vocabulary support is not yet present.",
-            subject="vocabulary",
         )(test)
         or skip(
             message=bug(),
@@ -408,10 +404,6 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
             message="These tests require an extension or the url resolver.",
             subject="anchor",
             case_description="same $anchor with different base uri",
-        )(test)
-        or skip(
-            message="Vocabulary support is not yet present.",
-            subject="vocabulary",
         )(test)
         or skip(
             message=bug(),
