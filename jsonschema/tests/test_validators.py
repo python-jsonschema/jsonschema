@@ -1271,7 +1271,7 @@ class TestValidationErrorDetails(TestCase):
                 ["foo", 2, "bar", 4, "baz", "quux"],
                 deque([]),
                 {"contains": {"type": "string"}, "maxContains": 2},
-                deque(["contains"]),
+                deque(["maxContains"]),
                 "$",
             ),
         )
@@ -1301,13 +1301,13 @@ class TestValidationErrorDetails(TestCase):
                 ["foo", 2, 4],
                 deque([]),
                 {"contains": {"type": "string"}, "minContains": 2},
-                deque(["contains"]),
+                deque(["minContains"]),
                 "$",
             ),
         )
 
     def test_contains_none(self):
-        schema = {"contains": {"type": "string"}, "minContains": 2}
+        schema = {"contains": {"type": "string"}}
         validator = validators.Draft202012Validator(schema)
         error, = validator.iter_errors([2, 4])
         self.assertEqual(
@@ -1327,7 +1327,7 @@ class TestValidationErrorDetails(TestCase):
                 {"type": "string"},
                 [2, 4],
                 deque([]),
-                {"contains": {"type": "string"}, "minContains": 2},
+                {"contains": {"type": "string"}},
                 deque(["contains"]),
                 "$",
             ),

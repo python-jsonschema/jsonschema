@@ -109,33 +109,55 @@ def contains(validator, contains, instance, schema):
         return
 
     matches = 0
-    min_contains = schema.get("minContains", 1)
-    max_contains = schema.get("maxContains", len(instance))
-
     for each in instance:
         if validator.evolve(schema=contains).is_valid(each):
             matches += 1
-            if matches > max_contains:
-                yield ValidationError(
-                    "Too many items match the given schema "
-                    f"(expected at most {max_contains})",
-                    validator="maxContains",
-                    validator_value=max_contains,
-                )
-                return
 
-    if matches < min_contains:
-        if not matches:
+    if not matches and schema.get("minContains", 1) != 0:
+        yield ValidationError(
+            f"{instance!r} does not contain items "
+            "matching the given schema",
+        )
+
+
+def maxContains(validator, mC, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    matches = 0
+    contains = schema.get("contains", None)
+    if contains:
+        for each in instance:
+            if validator.evolve(schema=contains).is_valid(each):
+                matches += 1
+
+        if matches > mC:
             yield ValidationError(
-                f"{instance!r} does not contain items "
-                "matching the given schema",
+                "Too many items match the given schema "
+                f"(expected at most {mC})",
+                validator="maxContains",
+                validator_value=mC,
             )
-        else:
+            return
+
+
+def minContains(validator, mC, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+
+    matches = 0
+    contains = schema.get("contains", None)
+    if contains:
+        for each in instance:
+            if validator.evolve(schema=contains).is_valid(each):
+                matches += 1
+
+        if matches < mC:
             yield ValidationError(
                 "Too few items match the given schema (expected at least "
-                f"{min_contains} but only {matches} matched)",
+                f"{mC} but only {matches} matched)",
                 validator="minContains",
-                validator_value=min_contains,
+                validator_value=mC,
             )
 
 
