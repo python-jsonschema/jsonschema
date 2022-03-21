@@ -12,17 +12,17 @@ jsonschema
    :alt: Supported Python versions
    :target: https://pypi.org/project/jsonschema/
 
-.. |CI| image:: https://github.com/Julian/jsonschema/workflows/CI/badge.svg
+.. |CI| image:: https://github.com/python-jsonschema/jsonschema/workflows/CI/badge.svg
   :alt: Build status
-  :target: https://github.com/Julian/jsonschema/actions?query=workflow%3ACI
+  :target: https://github.com/python-jsonschema/jsonschema/actions?query=workflow%3ACI
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/python-jsonschema/badge/?version=stable&style=flat
    :alt: ReadTheDocs status
    :target: https://python-jsonschema.readthedocs.io/en/stable/
 
-.. |Precommit| image:: https://results.pre-commit.ci/badge/github/Julian/jsonschema/main.svg
+.. |Precommit| image:: https://results.pre-commit.ci/badge/github/python-jsonschema/jsonschema/main.svg
    :alt: pre-commit.ci status
-   :target: https://results.pre-commit.ci/latest/github/Julian/jsonschema/main
+   :target: https://results.pre-commit.ci/latest/github/python-jsonschema/jsonschema/main
 
 .. |Zenodo| image:: https://zenodo.org/badge/3072629.svg
    :target: https://zenodo.org/badge/latestdoi/3072629
@@ -130,7 +130,7 @@ Contributing
 
 I'm Julian Berman.
 
-``jsonschema`` is on `GitHub <https://github.com/Julian/jsonschema>`_.
+``jsonschema`` is on `GitHub <https://github.com/python-jsonschema/jsonschema>`_.
 
 Get in touch, via GitHub or otherwise, if you've got something to contribute,
 it'd be most welcome!

@@ -1,7 +1,7 @@
 """
 A performance benchmark using the example from issue #232.
 
-See https://github.com/Julian/jsonschema/pull/232.
+See https://github.com/python-jsonschema/jsonschema/pull/232.
 """
 from pathlib import Path
 

@@ -239,8 +239,8 @@ def entire_domain(host):
 
 
 linkcheck_ignore = [
-    "https://github.com/Julian/jsonschema/actions",
-    "https://github.com/Julian/jsonschema/workflows/CI/badge.svg",
+    "https://github.com/python-jsonschema/jsonschema/actions",
+    "https://github.com/python-jsonschema/jsonschema/workflows/CI/badge.svg",
 ]
 
 # -- Options for sphinxcontrib-autosectionlabel ---------------------------

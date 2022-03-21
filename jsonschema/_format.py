@@ -189,8 +189,7 @@ def _checks_drafts(
             )
 
         # Oy. This is bad global state, but relied upon for now, until
-        # deprecation. See https://github.com/Julian/jsonschema/issues/519
-        # and test_format_checkers_come_with_defaults
+        # deprecation. See #519 and test_format_checkers_come_with_defaults
         FormatChecker.cls_checks(
             draft202012 or draft201909 or draft7 or draft6 or draft4 or draft3,
             raises,

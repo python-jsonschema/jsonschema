@@ -1411,7 +1411,7 @@ class MetaSchemaTestsMixin(object):
         """
         Technically, all the spec says is they SHOULD have elements, not MUST.
 
-        See https://github.com/Julian/jsonschema/issues/529.
+        See #529.
         """
         self.Validator.check_schema({"enum": []})
 
@@ -1419,7 +1419,7 @@ class MetaSchemaTestsMixin(object):
         """
         Technically, all the spec says is they SHOULD be unique, not MUST.
 
-        See https://github.com/Julian/jsonschema/issues/529.
+        See #529.
         """
         self.Validator.check_schema({"enum": [12, 12]})
 
@@ -1552,7 +1552,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         """
         A tuple instance properly formats validation errors for uniqueItems.
 
-        See https://github.com/Julian/jsonschema/pull/224
+        See #224
         """
         TupleValidator = validators.extend(
             self.Validator,

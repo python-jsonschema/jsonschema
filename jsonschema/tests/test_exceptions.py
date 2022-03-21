@@ -209,7 +209,7 @@ class TestByRelevance(TestCase):
 
 class TestErrorTree(TestCase):
     def test_it_knows_how_many_total_errors_it_contains(self):
-        # FIXME: https://github.com/Julian/jsonschema/issues/442
+        # FIXME: #442
         errors = [
             exceptions.ValidationError("Something", validator=i)
             for i in range(8)
@@ -446,9 +446,9 @@ class TestErrorInitReprStr(TestCase):
 
     def test_str_works_with_instances_having_overriden_eq_operator(self):
         """
-        Check for https://github.com/Julian/jsonschema/issues/164 which
-        rendered exceptions unusable when a `ValidationError` involved
-        instances with an `__eq__` method that returned truthy values.
+        Check for #164 which rendered exceptions unusable when a
+        `ValidationError` involved instances with an `__eq__` method
+        that returned truthy values.
         """
 
         class DontEQMeBro(object):
