@@ -155,6 +155,18 @@ jobs:
               toxenv: py310-format_nongpl-tests
           - os: windows-latest
             python-version:
+              name: "3.11.0-alpha - 3.11.0"
+              toxenv: py311-noextra-tests
+          - os: windows-latest
+            python-version:
+              name: "3.11.0-alpha - 3.11.0"
+              toxenv: py311-format-tests
+          - os: windows-latest
+            python-version:
+              name: "3.11.0-alpha - 3.11.0"
+              toxenv: py311-format_nongpl-tests
+          - os: windows-latest
+            python-version:
               name: "3.10"
               toxenv: readme
           - os: windows-latest
