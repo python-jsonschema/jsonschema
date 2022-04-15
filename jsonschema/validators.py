@@ -802,7 +802,7 @@ class RefResolver(object):
     def _find_in_referrer(self, key):
         return self._get_subschemas_cache()[key]
 
-    @lru_cache()
+    @lru_cache()  # noqa: B019
     def _get_subschemas_cache(self):
         cache = {key: [] for key in _SUBSCHEMAS_KEYWORDS}
         for keyword, subschema in _utils.search_schema(
@@ -811,7 +811,7 @@ class RefResolver(object):
             cache[keyword].append(subschema)
         return cache
 
-    @lru_cache()
+    @lru_cache()  # noqa: B019
     def _find_in_subschemas(self, url):
         subschemas = self._get_subschemas_cache()["$id"]
         if not subschemas:
