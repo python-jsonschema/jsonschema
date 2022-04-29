@@ -26,32 +26,6 @@
         ]
     },
     {
-        "description": "A $dynamicRef to an $anchor in the same schema resource should behave like a normal $ref to an $anchor",
-        "schema": {
-            "$id": "https://test.json-schema.org/dynamicRef-anchor-same-schema/root",
-            "type": "array",
-            "items": { "$dynamicRef": "#items" },
-            "$defs": {
-                "foo": {
-                    "$anchor": "items",
-                    "type": "string"
-                }
-            }
-        },
-        "tests": [
-            {
-                "description": "An array of strings is valid",
-                "data": ["foo", "bar"],
-                "valid": true
-            },
-            {
-                "description": "An array containing non-strings is invalid",
-                "data": ["foo", 42],
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "A $ref to a $dynamicAnchor in the same schema resource should behave like a normal $ref to an $anchor",
         "schema": {
             "$id": "https://test.json-schema.org/ref-dynamicAnchor-same-schema/root",
@@ -90,13 +64,7 @@
                 "list": {
                     "$id": "list",
                     "type": "array",
-                    "items": { "$dynamicRef": "#items" },
-                    "$defs": {
-                      "items": {
-                          "$comment": "This is only needed to satisfy the bookending requirement",
-                          "$dynamicAnchor": "items"
-                      }
-                    }
+                    "items": { "$dynamicRef": "#items" }
                 }
             }
         },
@@ -130,13 +98,7 @@
                 "list": {
                     "$id": "list",
                     "type": "array",
-                    "items": { "$dynamicRef": "#items" },
-                    "$defs": {
-                      "items": {
-                          "$comment": "This is only needed to satisfy the bookending requirement",
-                          "$dynamicAnchor": "items"
-                      }
-                    }
+                    "items": { "$dynamicRef": "#items" }
                 }
             }
         },
@@ -169,72 +131,8 @@
                     "items": { "$dynamicRef": "#items" },
                     "$defs": {
                       "items": {
-                          "$comment": "This is only needed to satisfy the bookending requirement",
                           "$dynamicAnchor": "items"
                       }
-                    }
-                }
-            }
-        },
-        "tests": [
-            {
-                "description": "Any array is valid",
-                "data": ["foo", 42],
-                "valid": true
-            }
-        ]
-    },
-    {
-        "description": "A $dynamicRef without a matching $dynamicAnchor in the same schema resource should behave like a normal $ref to $anchor",
-        "schema": {
-            "$id": "https://test.json-schema.org/dynamic-resolution-without-bookend/root",
-            "$ref": "list",
-            "$defs": {
-                "foo": {
-                    "$dynamicAnchor": "items",
-                    "type": "string"
-                },
-                "list": {
-                    "$id": "list",
-                    "type": "array",
-                    "items": { "$dynamicRef": "#items" },
-                    "$defs": {
-                        "items": {
-                            "$comment": "This is only needed to give the reference somewhere to resolve to when it behaves like $ref",
-                            "$anchor": "items"
-                        }
-                    }
-                }
-            }
-        },
-        "tests": [
-            {
-                "description": "Any array is valid",
-                "data": ["foo", 42],
-                "valid": true
-            }
-        ]
-    },
-    {
-        "description": "A $dynamicRef with a non-matching $dynamicAnchor in the same schema resource should behave like a normal $ref to $anchor",
-        "schema": {
-            "$id": "https://test.json-schema.org/unmatched-dynamic-anchor/root",
-            "$ref": "list",
-            "$defs": {
-                "foo": {
-                    "$dynamicAnchor": "items",
-                    "type": "string"
-                },
-                "list": {
-                    "$id": "list",
-                    "type": "array",
-                    "items": { "$dynamicRef": "#items" },
-                    "$defs": {
-                        "items": {
-                            "$comment": "This is only needed to give the reference somewhere to resolve to when it behaves like $ref",
-                            "$anchor": "items",
-                            "$dynamicAnchor": "foo"
-                        }
                     }
                 }
             }
@@ -295,47 +193,6 @@
                     }
                 },
                 "valid": false
-            }
-        ]
-    },
-    {
-        "description": "A $dynamicRef that initially resolves to a schema without a matching $dynamicAnchor should behave like a normal $ref to $anchor",
-        "schema": {
-            "$id": "https://test.json-schema.org/relative-dynamic-reference-without-bookend/root",
-            "$dynamicAnchor": "meta",
-            "type": "object",
-            "properties": {
-                "foo": { "const": "pass" }
-            },
-            "$ref": "extended",
-            "$defs": {
-                "extended": {
-                    "$id": "extended",
-                    "$anchor": "meta",
-                    "type": "object",
-                    "properties": {
-                        "bar": { "$ref": "bar" }
-                    }
-                },
-                "bar": {
-                    "$id": "bar",
-                    "type": "object",
-                    "properties": {
-                        "baz": { "$dynamicRef": "extended#meta" }
-                    }
-                }
-            }
-        },
-        "tests": [
-            {
-                "description": "The recursive part doesn't need to validate against the root",
-                "data": {
-                    "foo": "pass",
-                    "bar": {
-                        "baz": { "foo": "fail" }
-                    }
-                },
-                "valid": true
             }
         ]
     },

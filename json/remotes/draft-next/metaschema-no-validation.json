@@ -1,0 +1,11 @@
+{
+    "$id": "http://localhost:1234/draft-next/metaschema-no-validation.json",
+    "$vocabulary": {
+        "https://json-schema.org/draft/next/vocab/applicator": true,
+        "https://json-schema.org/draft/next/vocab/core": true
+    },
+    "allOf": [
+        { "$ref": "https://json-schema.org/draft/next/meta/applicator" },
+        { "$ref": "https://json-schema.org/draft/next/meta/core" }
+    ]
+}

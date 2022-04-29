@@ -199,6 +199,10 @@ which also welcomes your contributions!
 * [jsonschema](https://github.com/Stranger6667/jsonschema-rs)
 * [valico](https://github.com/rustless/valico)
 
+### Scala
+
+* [typed-json](https://github.com/frawa/typed-json)
+
 ### Swift
 
 * [JSONSchema](https://github.com/kylef/JSONSchema.swift)
