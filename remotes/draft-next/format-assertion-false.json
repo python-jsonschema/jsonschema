@@ -1,0 +1,12 @@
+{
+    "$id": "http://localhost:1234/draft-next/format-assertion-false.json",
+    "$schema": "https://json-schema.org/draft/next/schema",
+    "$vocabulary": {
+        "https://json-schema.org/draft/next/vocab/core": true,
+        "https://json-schema.org/draft/next/vocab/format-assertion": false
+    },
+    "allOf": [
+        { "$ref": "https://json-schema.org/draft/next/schema/meta/core" },
+        { "$ref": "https://json-schema.org/draft/next/schema/meta/format-assertion" }
+    ]
+}

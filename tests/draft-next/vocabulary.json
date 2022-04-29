@@ -3,7 +3,7 @@
         "description": "schema that uses custom metaschema with with no validation vocabulary",
         "schema": {
             "$id": "https://schema/using/no/validation",
-            "$schema": "http://localhost:1234/draft2020-12/metaschema-no-validation.json",
+            "$schema": "http://localhost:1234/draft-next/metaschema-no-validation.json",
             "properties": {
                 "badProperty": false,
                 "numberProperty": {
