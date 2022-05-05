@@ -594,7 +594,7 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance=["foo", "bar"], schema=schema)
         self.assertIn(
             message,
-            "Unevaluated items are not allowed ('foo', 'bar' were unexpected)",
+            "Unevaluated items are not allowed ('bar', 'foo' were unexpected)",
         )
 
     def test_unevaluated_properties(self):
@@ -609,7 +609,7 @@ class TestValidationErrorMessages(TestCase):
         self.assertEqual(
             message,
             "Unevaluated properties are not allowed "
-            "('foo', 'bar' were unexpected)",
+            "('bar', 'foo' were unexpected)",
         )
 
 
