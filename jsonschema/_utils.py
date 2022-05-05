@@ -113,7 +113,7 @@ def extras_msg(extras):
         verb = "was"
     else:
         verb = "were"
-    return ", ".join(repr(extra) for extra in extras), verb
+    return ", ".join(repr(extra) for extra in sorted(extras)), verb
 
 
 def ensure_list(thing):
