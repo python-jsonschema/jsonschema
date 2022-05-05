@@ -3,7 +3,6 @@ v4.5.0
 
 * Validator classes for each version now maintain references to the correct
   corresponding format checker (#905)
-* Support for ``$dynamicRef`` has been improved (#886)
 * Development has moved to a `GitHub organization
   <https://github.com/python-jsonschema/>`_.
   No functional behavior changes are expected from the change.

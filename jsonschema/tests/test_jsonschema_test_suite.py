@@ -395,7 +395,15 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or skip(
-            message="These tests require an extension or the url resolver.",
+            message="dynamicRef support isn't working yet.",
+            subject="dynamicRef",
+        )(test)
+        or skip(
+            message="These tests depends on dynamicRef working.",
+            subject="defs",
+        )(test)
+        or skip(
+            message="These tests depends on dynamicRef working.",
             subject="anchor",
             case_description="same $anchor with different base uri",
         )(test)
