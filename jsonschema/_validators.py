@@ -21,7 +21,7 @@ def patternProperties(validator, patternProperties, instance, schema):
 
     for pattern, subschema in patternProperties.items():
         for k, v in instance.items():
-            if re.search(pattern, k):
+            if re.search(str(pattern), str(k)):
                 yield from validator.descend(
                     v, subschema, path=k, schema_path=pattern,
                 )

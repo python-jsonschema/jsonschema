@@ -98,9 +98,9 @@ def find_additional_properties(instance, schema):
     patterns = "|".join(schema.get("patternProperties", {}))
     for property in instance:
         if property not in properties:
-            if patterns and re.search(patterns, property):
+            if patterns and re.search(patterns, str(property)):
                 continue
-            yield property
+            yield str(property)
 
 
 def extras_msg(extras):
