@@ -485,5 +485,41 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "non-array instances are valid",
+        "schema": {"unevaluatedItems": false},
+        "tests": [
+            {
+                "description": "ignores booleans",
+                "data": true,
+                "valid": true
+            },
+            {
+                "description": "ignores integers",
+                "data": 123,
+                "valid": true
+            },
+            {
+                "description": "ignores floats",
+                "data": 1.0,
+                "valid": true
+            },
+            {
+                "description": "ignores objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "ignores strings",
+                "data": "foo",
+                "valid": true
+            },
+            {
+                "description": "ignores null",
+                "data": null,
+                "valid": true
+            }
+        ]
     }
 ]
