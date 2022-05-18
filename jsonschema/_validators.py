@@ -418,6 +418,8 @@ def if_(validator, if_schema, instance, schema):
 
 
 def unevaluatedItems(validator, unevaluatedItems, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
     evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
         validator, instance, schema,
     )
@@ -431,6 +433,8 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
 
 
 def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
+    if not validator.is_type(instance, "object"):
+        return
     evaluated_property_keys = find_evaluated_property_keys_by_schema(
         validator, instance, schema,
     )
