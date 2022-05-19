@@ -347,6 +347,11 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
             subject="unevaluatedItems",
         )(test)
         or skip(
+            message=bug(949),
+            subject="unevaluatedProperties",
+            case_description="non-object instances are valid",
+        )(test)
+        or skip(
             message="dynamicRef support isn't working yet.",
             subject="recursiveRef",
         )(test)
@@ -410,6 +415,16 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
         or skip(
             message="Vocabulary support is not yet present.",
             subject="vocabulary",
+        )(test)
+        or skip(
+            message=bug(949),
+            subject="unevaluatedItems",
+            case_description="non-array instances are valid",
+        )(test)
+        or skip(
+            message=bug(949),
+            subject="unevaluatedProperties",
+            case_description="non-object instances are valid",
         )(test)
         or skip(
             message=bug(),

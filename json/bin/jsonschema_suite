@@ -195,7 +195,10 @@ def main(arguments):
 parser = argparse.ArgumentParser(
     description="JSON Schema Test Suite utilities",
 )
-subparsers = parser.add_subparsers(help="utility commands", dest="command")
+subparsers = parser.add_subparsers(
+    help="utility commands", dest="command", metavar="COMMAND"
+)
+subparsers.required = True
 
 check = subparsers.add_parser("check", help="Sanity check the test suite.")
 
