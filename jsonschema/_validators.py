@@ -1,4 +1,5 @@
 from fractions import Fraction
+from math import isclose
 from urllib.parse import urldefrag, urljoin
 import re
 
@@ -185,7 +186,7 @@ def multipleOf(validator, dB, instance, schema):
     if isinstance(dB, float):
         quotient = instance / dB
         try:
-            failed = int(quotient) != quotient
+            failed = math.isclose(round(quotient), quotient)
         except OverflowError:
             # When `instance` is large and `dB` is less than one,
             # quotient can overflow to infinity; and then casting to int
