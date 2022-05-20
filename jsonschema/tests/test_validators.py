@@ -597,6 +597,11 @@ class TestValidationErrorMessages(TestCase):
             "Unevaluated items are not allowed ('bar', 'foo' were unexpected)",
         )
 
+    def test_unevaluated_items_on_invalid_type(self):
+        schema = {"type": "array", "unevaluatedItems": False}
+        message = self.message_for(instance="foo", schema=schema)
+        self.assertEqual(message, "'foo' is not of type 'array'")
+
     def test_unevaluated_properties(self):
         schema = {"type": "object", "unevaluatedProperties": False}
         message = self.message_for(
@@ -611,6 +616,11 @@ class TestValidationErrorMessages(TestCase):
             "Unevaluated properties are not allowed "
             "('bar', 'foo' were unexpected)",
         )
+
+    def test_unevaluated_properties_on_invalid_type(self):
+        schema = {"type": "object", "unevaluatedProperties": False}
+        message = self.message_for(instance="foo", schema=schema)
+        self.assertEqual(message, "'foo' is not of type 'object'")
 
 
 class TestValidationErrorDetails(TestCase):
