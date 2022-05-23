@@ -95,3 +95,6 @@ add-ignore = [
   "D412",  # Trailing whitespace plz
   "D413",  # No trailing whitespace plz
 ]
+
+[tool.setuptools.package-data]
+jsonschema = ["py.typed", "*.pyi", "schemas/*.json", "schemas/*/*.json"]
