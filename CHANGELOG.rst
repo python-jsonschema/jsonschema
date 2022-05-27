@@ -1,3 +1,9 @@
+v4.5.1
+------
+
+* Revert changes to ``$dynamicRef`` which caused a performance regression
+  in v4.5.0
+
 v4.5.0
 ------
 
