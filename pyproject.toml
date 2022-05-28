@@ -68,7 +68,7 @@ jsonschema = "jsonschema.cli:main"
 
 [project.urls]
 homepage = "github.com/python-jsonschema/jsonschema"
-documentation = "python-jsonschema.readthedocs.io/en/latest/"
+documentation = "python-jsonschema.readthedocs.io/"
 issues = "github.com/python-jsonschema/jsonschema/issues/"
 funding = "github.com/sponsors/Julian"
 tidelift = "tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-jsonschema&utm_medium=referral&utm_campaign=pypi-link"
