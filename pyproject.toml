@@ -67,13 +67,13 @@ format_nongpl = [
 jsonschema = "jsonschema.cli:main"
 
 [project.urls]
-homepage = "github.com/python-jsonschema/jsonschema"
-documentation = "python-jsonschema.readthedocs.io/"
-issues = "github.com/python-jsonschema/jsonschema/issues/"
-funding = "github.com/sponsors/Julian"
-tidelift = "tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-jsonschema&utm_medium=referral&utm_campaign=pypi-link"
-changelog = "github.com/python-jsonschema/jsonschema/blob/main/CHANGELOG.rst"
-source = "github.com/python-jsonschema/jsonschema"
+homepage = "https://github.com/python-jsonschema/jsonschema"
+documentation = "https://python-jsonschema.readthedocs.io/"
+issues = "https://github.com/python-jsonschema/jsonschema/issues/"
+funding = "https://github.com/sponsors/Julian"
+tidelift = "https://tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-jsonschema&utm_medium=referral&utm_campaign=pypi-link"
+changelog = "https://github.com/python-jsonschema/jsonschema/blob/main/CHANGELOG.rst"
+source = "https://github.com/python-jsonschema/jsonschema"
 
 [tool.isort]
 from_first = true
