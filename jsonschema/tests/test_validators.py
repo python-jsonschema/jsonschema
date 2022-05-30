@@ -13,7 +13,7 @@ import tempfile
 import unittest
 import warnings
 
-import attr
+from dry_attr import attr
 
 from jsonschema import (
     FormatChecker,

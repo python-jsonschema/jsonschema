@@ -11,7 +11,7 @@ import subprocess
 import sys
 import unittest
 
-import attr
+from dry_attr import attr
 
 from jsonschema.validators import _VALIDATORS
 import jsonschema

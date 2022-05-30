@@ -8,7 +8,7 @@ from pprint import pformat
 from textwrap import dedent, indent
 import itertools
 
-import attr
+from dry_attr import attr
 
 from jsonschema import _utils
 

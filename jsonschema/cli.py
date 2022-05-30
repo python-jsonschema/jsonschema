@@ -14,7 +14,7 @@ try:
 except ImportError:
     import importlib_metadata as metadata  # type: ignore
 
-import attr
+from dry_attr import attr
 
 from jsonschema._reflect import namedAny
 from jsonschema.exceptions import SchemaError

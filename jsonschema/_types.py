@@ -4,7 +4,7 @@ import numbers
 import typing
 
 from pyrsistent import pmap
-import attr
+from dry_attr import attr
 
 from jsonschema.exceptions import UndefinedTypeCheck
 

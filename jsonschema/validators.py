@@ -15,7 +15,7 @@ import reprlib
 import typing
 import warnings
 
-import attr
+from dry_attr import attr
 
 from jsonschema import (
     _format,
