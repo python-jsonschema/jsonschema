@@ -196,3 +196,39 @@ jobs:
       run: python -m pip install tox
     - name: Run tox
       run: python -m tox -e "${{ matrix.python-version.toxenv }}"
+
+  packaging:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: python -m pip install build
+    - name: Create packages
+      run: python -m build .
+    - uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist
+    - name: Publish package
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}
+    - name: Create Release Notes
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.request(`POST /repos/${{ github.repository }}/releases`, {
+            tag_name: "${{ github.ref }}",
+            generate_release_notes: true
+          });
