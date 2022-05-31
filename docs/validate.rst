@@ -205,7 +205,7 @@ to validate. Their names can be viewed by inspecting the
 `FormatChecker.checkers` attribute. Certain checkers will only be
 available if an appropriate package is available for use. The easiest way to
 ensure you have what is needed is to install ``jsonschema`` using the
-``format`` or ``format_nongpl`` setuptools extra -- i.e.
+``format`` or ``format_nongpl`` collection of optional dependencies -- e.g.
 
 .. code-block:: sh
 
