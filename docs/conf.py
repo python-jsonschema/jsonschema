@@ -239,6 +239,7 @@ def entire_domain(host):
 
 
 linkcheck_ignore = [
+    entire_domain("img.shields.io"),
     "https://github.com/python-jsonschema/jsonschema/actions",
     "https://github.com/python-jsonschema/jsonschema/workflows/CI/badge.svg",
 ]
