@@ -1,3 +1,12 @@
+v4.6.0
+------
+
+* Fix ``unevaluatedProperties`` and ``unevaluatedItems`` for types they should
+  ignore (#949)
+* ``jsonschema`` now uses `hatch <https://hatch.pypa.io/>`_ for its build
+  process. This should be completely transparent to end-users (and only matters
+  to contributors).
+
 v4.5.1
 ------
 
