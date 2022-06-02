@@ -23,7 +23,7 @@ jobs:
         oss-fuzz-project-name: 'jsonschema'
         fuzz-seconds: 30
     - name: Upload Crash
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts

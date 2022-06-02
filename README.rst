@@ -125,8 +125,9 @@ schemas can be found there.
 Otherwise, asking questions on Stack Overflow is another means of
 getting help if you're stuck.
 
-Contributing
-------------
+
+About
+-----
 
 I'm Julian Berman.
 

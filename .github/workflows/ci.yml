@@ -13,9 +13,9 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-    - uses: pre-commit/action@v2.0.0
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+    - uses: pre-commit/action@v2.0.3
 
   ci:
     runs-on: ${{ matrix.os }}
@@ -84,19 +84,18 @@ jobs:
             toxenv: py310-format_nongpl-build
           - name: "3.10"
             toxenv: py310-format_nongpl-tests
-          # Temporarily disabled due to pypa/setuptools#3274
-          # - name: "3.11.0-alpha - 3.11.0"
-          #   toxenv: py311-noextra-build
-          # - name: "3.11.0-alpha - 3.11.0"
-          #   toxenv: py311-noextra-tests
-          # - name: "3.11.0-alpha - 3.11.0"
-          #   toxenv: py311-format-build
-          # - name: "3.11.0-alpha - 3.11.0"
-          #   toxenv: py311-format-tests
-          # - name: "3.11.0-alpha - 3.11.0"
-          #   toxenv: py311-format_nongpl-build
-          # - name: "3.11.0-alpha - 3.11.0"
-          #   toxenv: py311-format_nongpl-tests
+          - name: "3.11.0-beta - 3.11.0"
+            toxenv: py311-noextra-build
+          - name: "3.11.0-beta - 3.11.0"
+            toxenv: py311-noextra-tests
+          - name: "3.11.0-beta - 3.11.0"
+            toxenv: py311-format-build
+          - name: "3.11.0-beta - 3.11.0"
+            toxenv: py311-format-tests
+          - name: "3.11.0-beta - 3.11.0"
+            toxenv: py311-format_nongpl-build
+          - name: "3.11.0-beta - 3.11.0"
+            toxenv: py311-format_nongpl-tests
           - name: "3.10"
             toxenv: docs-dirhtml
           - name: "3.10"
@@ -180,13 +179,11 @@ jobs:
               toxenv: docs-style
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version.name }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version.name }}
-    - name: Ensure we have new enough versions to respect python_version
-      run: python -m pip install -U pip setuptools
     - name: Install dependencies
       run: >
         sudo apt-get update &&
@@ -199,3 +196,39 @@ jobs:
       run: python -m pip install tox
     - name: Run tox
       run: python -m tox -e "${{ matrix.python-version.toxenv }}"
+
+  packaging:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: python -m pip install build
+    - name: Create packages
+      run: python -m build .
+    - uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist
+    - name: Publish package
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}
+    - name: Create Release Notes
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.request(`POST /repos/${{ github.repository }}/releases`, {
+            tag_name: "${{ github.ref }}",
+            generate_release_notes: true
+          });
