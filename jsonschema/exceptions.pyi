@@ -1,7 +1,8 @@
-from _typeshed import Self, SupportsRichComparison
 from collections import deque
 from collections.abc import Callable, Container, Iterable, Sequence
 from typing import Any
+
+from _typeshed import Self, SupportsRichComparison
 from typing_extensions import TypeAlias
 
 from jsonschema import _utils, protocols

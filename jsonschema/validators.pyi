@@ -1,6 +1,7 @@
-from _typeshed import SupportsKeysAndGetItem
 from collections.abc import Callable, Generator, Iterable, Mapping
 from typing import Any, ClassVar
+
+from _typeshed import SupportsKeysAndGetItem
 from typing_extensions import TypeAlias
 
 from ._utils import URIDict
