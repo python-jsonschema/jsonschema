@@ -36,6 +36,7 @@ def test_schemas(obj1, obj2):
 
 
 def main():
+    atheris.instrument_all()
     atheris.Setup(
         sys.argv,
         test_schemas.hypothesis.fuzz_one_input,
