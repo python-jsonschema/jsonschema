@@ -384,6 +384,17 @@
         ]
     },
     {
+        "description": "\\a is not an ECMA 262 control escape",
+        "schema": { "$ref": "https://json-schema.org/draft/next/schema" },
+        "tests": [
+            {
+                "description": "when used as a pattern",
+                "data": { "pattern": "\\a" },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unicode digits are more than 0 through 9",
         "schema": { "pattern": "^\\p{digit}+$" },
         "tests": [
