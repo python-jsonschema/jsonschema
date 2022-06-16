@@ -1,0 +1,80 @@
+[
+    {
+        "description": "$dynamicRef without $dynamicAnchor works like $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "properties": {
+                "foo": {"$dynamicRef": "#"}
+            },
+            "additionalProperties": false
+        },
+        "tests": [
+            {
+                "description": "match",
+                "data": {"foo": false},
+                "valid": true
+            },
+            {
+                "description": "recursive match",
+                "data": {"foo": {"foo": false}},
+                "valid": true
+            },
+            {
+                "description": "mismatch",
+                "data": {"bar": false},
+                "valid": false
+            },
+            {
+                "description": "recursive mismatch (but $dynamicRef is ignored)",
+                "data": {"foo": {"bar": false}},
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "prefixItems: an array of schemas for items",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "prefixItems": [
+                {"type": "integer"},
+                {"type": "string"}
+            ]
+        },
+        "tests": [
+            {
+                "description": "correct types",
+                "data": [ 1, "foo" ],
+                "valid": true
+            },
+            {
+                "description": "wrong types",
+                "data": [ "foo", 1 ],
+                "valid": true
+            },
+            {
+                "description": "incomplete array of items",
+                "data": [ 1 ],
+                "valid": true
+            },
+            {
+                "description": "array with additional items",
+                "data": [ 1, "foo", true ],
+                "valid": true
+            },
+            {
+                "description": "empty array",
+                "data": [ ],
+                "valid": true
+            },
+            {
+                "description": "JavaScript pseudo-array is valid",
+                "data": {
+                    "0": "invalid",
+                    "1": "valid",
+                    "length": 2
+                },
+                "valid": true
+            }
+        ]
+    }
+]
