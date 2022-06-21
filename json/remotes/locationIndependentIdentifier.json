@@ -1,0 +1,11 @@
+{
+    "definitions": {
+        "refToInteger": {
+            "$ref": "#foo"
+        },
+        "A": {
+            "$anchor": "foo",
+            "type": "integer"
+        }
+    }
+}
