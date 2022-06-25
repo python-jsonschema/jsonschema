@@ -1,5 +1,5 @@
 {
-    "definitions": {
+    "$defs": {
         "refToInteger": {
             "$ref": "#foo"
         },

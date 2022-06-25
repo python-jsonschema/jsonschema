@@ -1,7 +1,9 @@
 [
     {
         "description": "Invalid use of fragments in location-independent $id",
-        "schema": {"$ref": "https://json-schema.org/draft/2019-09/schema"},
+        "schema": {
+            "$ref": "https://json-schema.org/draft/2019-09/schema"
+        },
         "tests": [
             {
                 "description": "Identifier name",
@@ -248,6 +250,37 @@
             },
             {
                 "description": "no match on enum or $ref to $id",
+                "data": 1,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "non-schema object containing an $id property",
+        "schema": {
+            "$defs": {
+                "const_not_id": {
+                    "const": {
+                        "$id": "not_a_real_id"
+                    }
+                }
+            },
+            "if": {
+                "const": "skip not_a_real_id"
+            },
+            "then": true,
+            "else" : {
+                "$ref": "#/$defs/const_not_id"
+            }
+        },
+        "tests": [
+            {
+                "description": "skip traversing definition for a valid result",
+                "data": "skip not_a_real_id",
+                "valid": true
+            },
+            {
+                "description": "const at const_not_id does not match",
                 "data": 1,
                 "valid": false
             }

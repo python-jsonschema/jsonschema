@@ -24,5 +24,21 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "maxItems validation with a decimal",
+        "schema": {"maxItems": 2.0},
+        "tests": [
+            {
+                "description": "shorter is valid",
+                "data": [1],
+                "valid": true
+            },
+            {
+                "description": "too long is invalid",
+                "data": [1, 2, 3],
+                "valid": false
+            }
+        ]
     }
 ]
