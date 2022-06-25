@@ -177,7 +177,9 @@
     },
     {
         "description": "remote ref, containing refs itself",
-        "schema": {"$ref": "https://json-schema.org/draft/2019-09/schema"},
+        "schema": {
+            "$ref": "https://json-schema.org/draft/2019-09/schema"
+        },
         "tests": [
             {
                 "description": "remote ref valid",
@@ -298,7 +300,7 @@
         "tests": [
             {
                 "description": "valid tree",
-                "data": { 
+                "data": {
                     "meta": "root",
                     "nodes": [
                         {
@@ -327,7 +329,7 @@
             },
             {
                 "description": "invalid tree",
-                "data": { 
+                "data": {
                     "meta": "root",
                     "nodes": [
                         {
@@ -572,6 +574,71 @@
             {
                 "description": "non-number should fail",
                 "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "order of evaluation: $id and $ref",
+        "schema": {
+            "$comment": "$id must be evaluated before $ref to get the proper $ref destination",
+            "$id": "/ref-and-id1/base.json",
+            "$ref": "int.json",
+            "$defs": {
+                "bigint": {
+                    "$comment": "canonical uri: /ref-and-id1/int.json",
+                    "$id": "int.json",
+                    "maximum": 10
+                },
+                "smallint": {
+                    "$comment": "canonical uri: /ref-and-id1-int.json",
+                    "$id": "/ref-and-id1-int.json",
+                    "maximum": 2
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "data is valid against first definition",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "data is invalid against first definition",
+                "data": 50,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "order of evaluation: $id and $anchor and $ref",
+        "schema": {
+            "$comment": "$id must be evaluated before $ref to get the proper $ref destination",
+            "$id": "/ref-and-id2/base.json",
+            "$ref": "#bigint",
+            "$defs": {
+                "bigint": {
+                    "$comment": "canonical uri: /ref-and-id2/base.json/$defs/bigint; another valid uri for this location: /ref-and-id2/base.json#bigint",
+                    "$anchor": "bigint",
+                    "maximum": 10
+                },
+                "smallint": {
+                    "$comment": "canonical uri: /ref-and-id2#/$defs/smallint; another valid uri for this location: /ref-and-id2/#bigint",
+                    "$id": "/ref-and-id2/",
+                    "$anchor": "bigint",
+                    "maximum": 2
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "data is valid against first definition",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "data is invalid against first definition",
+                "data": 50,
                 "valid": false
             }
         ]

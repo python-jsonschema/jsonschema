@@ -29,5 +29,21 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "maxLength validation with a decimal",
+        "schema": {"maxLength": 2.0},
+        "tests": [
+            {
+                "description": "shorter is valid",
+                "data": "f",
+                "valid": true
+            },
+            {
+                "description": "too long is invalid",
+                "data": "foo",
+                "valid": false
+            }
+        ]
     }
 ]
