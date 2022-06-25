@@ -186,6 +186,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.format_tests(),
     DRAFT4.optional_tests_of(name="bignum"),
     DRAFT4.optional_tests_of(name="float-overflow"),
+    DRAFT4.optional_tests_of(name="future-keywords"),
     DRAFT4.optional_tests_of(name="non-bmp-regex"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
     Validator=Draft4Validator,
@@ -249,6 +250,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="float-overflow"),
     DRAFT6.optional_tests_of(name="non-bmp-regex"),
+    DRAFT6.optional_tests_of(name="future-keywords"),
     Validator=Draft6Validator,
     format_checker=draft6_format_checker,
     skip=lambda test: (
@@ -257,6 +259,16 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or leap_second(test)
         or missing_format(draft6_format_checker)(test)
         or complex_email_validation(test)
+        or skip(
+            message="id is incorrectly finding non-ids",
+            subject="id",
+            description="const at const_not_anchor does not match",
+        )(test)
+        or skip(
+            message="id is incorrectly finding non-ids",
+            subject="id",
+            description="const at const_not_id does not match",
+        )(test)
         or skip(
             message=bug(),
             subject="refRemote",
@@ -279,6 +291,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.optional_tests_of(name="bignum"),
     DRAFT7.optional_tests_of(name="content"),
     DRAFT7.optional_tests_of(name="float-overflow"),
+    DRAFT7.optional_tests_of(name="future-keywords"),
     DRAFT7.optional_tests_of(name="non-bmp-regex"),
     Validator=Draft7Validator,
     format_checker=draft7_format_checker,
@@ -338,6 +351,7 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
     DRAFT201909.tests(),
     DRAFT201909.optional_tests_of(name="bignum"),
     DRAFT201909.optional_tests_of(name="float-overflow"),
+    DRAFT201909.optional_tests_of(name="future-keywords"),
     DRAFT201909.optional_tests_of(name="non-bmp-regex"),
     DRAFT201909.optional_tests_of(name="refOfUnknownKeyword"),
     Validator=Draft201909Validator,
