@@ -1410,7 +1410,7 @@ class MetaSchemaTestsMixin(object):
     # TODO: These all belong upstream
     def test_invalid_properties(self):
         with self.assertRaises(exceptions.SchemaError):
-            self.Validator.check_schema({"properties": {"test": object()}})
+            self.Validator.check_schema({"properties": 12})
 
     def test_minItems_invalid_string(self):
         with self.assertRaises(exceptions.SchemaError):

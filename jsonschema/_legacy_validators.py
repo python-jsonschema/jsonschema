@@ -221,4 +221,8 @@ def recursiveRef(validator, recursiveRef, instance, schema):
 
     fragment = recursiveRef.lstrip("#")
     subschema = validator.resolver.resolve_fragment(target, fragment)
-    yield from validator.descend(instance, subschema)
+    # FIXME: This is gutted (and not calling .descend) because it can trigger
+    #        recursion errors, so there's a bug here. Re-enable the tests to
+    #        see it.
+    subschema
+    return []

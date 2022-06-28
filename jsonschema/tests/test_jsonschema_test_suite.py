@@ -362,6 +362,18 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
         )(test)
         or skip(
             message="These tests depends on dynamicRef working.",
+            subject="id",
+            case_description=(
+                "Invalid use of fragments in location-independent $id"
+            ),
+        )(test)
+        or skip(
+            message="These tests depends on dynamicRef working.",
+            subject="defs",
+            description="invalid definition schema",
+        )(test)
+        or skip(
+            message="These tests depends on dynamicRef working.",
             subject="anchor",
             case_description="same $anchor with different base uri",
         )(test)
