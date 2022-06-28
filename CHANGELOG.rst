@@ -1,3 +1,9 @@
+v4.6.1
+------
+
+* Gut the (incomplete) implementation of ``recursiveRef`` on draft 2019. It
+  needs completing, but for now can lead to recursion errors (e.g. #847).
+
 v4.6.0
 ------
 
