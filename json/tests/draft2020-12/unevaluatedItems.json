@@ -1,10 +1,7 @@
 [
     {
         "description": "unevaluatedItems true",
-        "schema": {
-            "type": "array",
-            "unevaluatedItems": true
-        },
+        "schema": { "unevaluatedItems": true },
         "tests": [
             {
                 "description": "with no unevaluated items",
@@ -20,10 +17,7 @@
     },
     {
         "description": "unevaluatedItems false",
-        "schema": {
-            "type": "array",
-            "unevaluatedItems": false
-        },
+        "schema": { "unevaluatedItems": false },
         "tests": [
             {
                 "description": "with no unevaluated items",
@@ -39,10 +33,7 @@
     },
     {
         "description": "unevaluatedItems as schema",
-        "schema": {
-            "type": "array",
-            "unevaluatedItems": { "type": "string" }
-        },
+        "schema": { "unevaluatedItems": { "type": "string" } },
         "tests": [
             {
                 "description": "with no unevaluated items",
@@ -64,7 +55,6 @@
     {
         "description": "unevaluatedItems with uniform items",
         "schema": {
-            "type": "array",
             "items": { "type": "string" },
             "unevaluatedItems": false
         },
@@ -79,7 +69,6 @@
     {
         "description": "unevaluatedItems with tuple",
         "schema": {
-            "type": "array",
             "prefixItems": [
                 { "type": "string" }
             ],
@@ -101,7 +90,6 @@
     {
         "description": "unevaluatedItems with items",
         "schema": {
-            "type": "array",
             "prefixItems": [
                 { "type": "string" }
             ],
@@ -119,7 +107,6 @@
     {
         "description": "unevaluatedItems with nested tuple",
         "schema": {
-            "type": "array",
             "prefixItems": [
                 { "type": "string" }
             ],
@@ -202,16 +189,13 @@
     {
         "description": "unevaluatedItems with nested unevaluatedItems",
         "schema": {
-            "type": "array",
             "allOf": [
                 {
                     "prefixItems": [
                         { "type": "string" }
                     ]
                 },
-                {
-                    "unevaluatedItems": true
-                }
+                { "unevaluatedItems": true }
             ],
             "unevaluatedItems": false
         },
@@ -231,7 +215,6 @@
     {
         "description": "unevaluatedItems with anyOf",
         "schema": {
-            "type": "array",
             "prefixItems": [
                 { "const": "foo" }
             ],
@@ -278,7 +261,6 @@
     {
         "description": "unevaluatedItems with oneOf",
         "schema": {
-            "type": "array",
             "prefixItems": [
                 { "const": "foo" }
             ],
@@ -314,7 +296,6 @@
     {
         "description": "unevaluatedItems with not",
         "schema": {
-            "type": "array",
             "prefixItems": [
                 { "const": "foo" }
             ],
@@ -339,7 +320,6 @@
     {
         "description": "unevaluatedItems with if/then/else",
         "schema": {
-            "type": "array",
             "prefixItems": [
                 { "const": "foo" }
             ],
@@ -392,7 +372,6 @@
     {
         "description": "unevaluatedItems with boolean schemas",
         "schema": {
-            "type": "array",
             "allOf": [true],
             "unevaluatedItems": false
         },
@@ -412,7 +391,6 @@
     {
         "description": "unevaluatedItems with $ref",
         "schema": {
-            "type": "array",
             "$ref": "#/$defs/bar",
             "prefixItems": [
                 { "type": "string" }
@@ -447,9 +425,7 @@
                 {
                     "prefixItems": [ true ]
                 },
-                {
-                    "unevaluatedItems": false
-                }
+                { "unevaluatedItems": false }
             ]
         },
         "tests": [
@@ -463,14 +439,10 @@
     {
         "description": "item is evaluated in an uncle schema to unevaluatedItems",
         "schema": {
-            "type": "object",
             "properties": {
                 "foo": {
-                    "type": "array",
                     "prefixItems": [
-                        {
-                            "type": "string"
-                        }
+                        { "type": "string" }
                     ],
                     "unevaluatedItems": false
                   }
@@ -481,9 +453,7 @@
                         "foo": {
                             "prefixItems": [
                                 true,
-                                {
-                                    "type": "string"
-                                }
+                                { "type": "string" }
                             ]
                         }
                     }

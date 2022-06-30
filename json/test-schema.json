@@ -1,70 +1,45 @@
 {
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "description": "Schema for tests",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "A schema for files contained within this suite",
+
     "type": "array",
+    "minItems": 1,
     "items": {
+        "description": "An individual test case, containing multiple tests of a single schema's behavior",
+
         "type": "object",
         "required": [ "description", "schema", "tests" ],
         "properties": {
-            "id": {
-                "description": "Uniquely identifies a set of tests",
-                "type": "string",
-                "format": "uri"
-            },
             "description": {
-                "description": "The test set description",
+                "description": "The test case description",
                 "type": "string"
             },
             "comment": {
-                "description": "Any additional comments about the test set",
+                "description": "Any additional comments about the test case",
                 "type": "string"
             },
             "schema": {
-                "description": "This should be a valid schema. This should be a ref to a meta-schema if schema keywords need testing."
+                "description": "A valid JSON Schema (one written for the corresponding version directory that the file sits within)."
             },
             "tests": {
                 "description": "A set of related tests all using the same schema",
                 "type": "array",
-                "items": { "$ref": "#/definitions/test" },
+                "items": { "$ref": "#/$defs/test" },
                 "minItems": 1
             }
         },
-        "additionalProperties": false,
-        "minItems": 1
+        "additionalProperties": false
     },
-    "definitions": {
-        "outputItem": {
-            "type": "object",
-            "properties": {
-                "valid": { "type": "boolean" },
-                "keywordLocation": { "type": "string" },
-                "absoluteKeywordLocation": {
-                    "type": "string",
-                    "format": "uri"
-                },
-                "instanceLocation": { "type": "string" },
-                "annotations": {
-                    "type": "array",
-                    "items": { "$ref": "#/definitions/outputItem" }
-                },
-                "errors": {
-                    "type": "array",
-                    "items": { "$ref": "#/definitions/outputItem" }
-                }
-            }
-        },
+
+    "$defs": {
         "test": {
             "description": "A single test",
+
             "type": "object",
             "required": [ "description", "data", "valid" ],
             "properties": {
-                "id": {
-                    "description": "Uniquely identifies a single test",
-                    "type": "string",
-                    "format": "uri"
-                },
                 "description": {
-                    "description": "The test description",
+                    "description": "The test description, briefly explaining which behavior it exercises",
                     "type": "string"
                 },
                 "comment": {
@@ -72,17 +47,11 @@
                     "type": "string"
                 },
                 "data": {
-                    "description": "This is the instance to be validated against the schema in \"schema\"."
+                    "description": "The instance which should be validated against the schema in \"schema\"."
                 },
-                "valid": { "type": "boolean" },
-                "output": {
-                    "type": "object",
-                    "required": [ "basic", "detailed", "verbose" ],
-                    "properties": {
-                        "basic": { "$ref": "#/definitions/outputItem" },
-                        "detailed": { "$ref": "#/definitions/outputItem" },
-                        "verbose": { "$ref": "#/definitions/outputItem" }
-                    }
+                "valid": {
+                    "description": "Whether the validation process of this instance should consider the instance valid or not",
+                    "type": "boolean"
                 }
             },
             "additionalProperties": false
