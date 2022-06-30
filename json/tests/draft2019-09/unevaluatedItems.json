@@ -147,7 +147,34 @@
         ]
     },
     {
-        "description": "unevaluatedItems with nested additionalItems",
+        "description": "unevaluatedItems with nested items",
+        "schema": {
+            "unevaluatedItems": {"type": "boolean"},
+            "anyOf": [
+                { "items": {"type": "string"} },
+                true
+            ]
+        },
+        "tests": [
+            {
+                "description": "with only (valid) additional items",
+                "data": [true, false],
+                "valid": true
+            },
+            {
+                "description": "with no additional items",
+                "data": ["yes", "no"],
+                "valid": true
+            },
+            {
+                "description": "with invalid additional item",
+                "data": ["yes", false],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with nested items and additionalItems",
         "schema": {
             "type": "array",
             "allOf": [

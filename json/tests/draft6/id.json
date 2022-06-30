@@ -59,13 +59,23 @@
                     }
                 }
             },
-            "if": {
-                "const": "skip not_a_real_anchor"
-            },
-            "then": true,
-            "else" : {
-                "$ref": "#/$defs/const_not_anchor"
-            }
+            "oneOf": [
+                {
+                    "const": "skip not_a_real_anchor"
+                },
+                {
+                    "allOf": [
+                        {
+                            "not": {
+                                "const": "skip not_a_real_anchor"
+                            }
+                        },
+                        {
+                            "$ref": "#/$defs/const_not_anchor"
+                        }
+                    ]
+                }
+            ]
         },
         "tests": [
             {
@@ -90,13 +100,23 @@
                     }
                 }
             },
-            "if": {
-                "const": "skip not_a_real_id"
-            },
-            "then": true,
-            "else" : {
-                "$ref": "#/$defs/const_not_id"
-            }
+            "oneOf": [
+                {
+                    "const":"skip not_a_real_id"
+                },
+                {
+                    "allOf": [
+                        {
+                            "not": {
+                                "const": "skip not_a_real_id"
+                            }
+                        },
+                        {
+                            "$ref": "#/$defs/const_not_id"
+                        }
+                    ]
+                }
+            ]
         },
         "tests": [
             {
