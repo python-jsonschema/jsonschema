@@ -15,6 +15,17 @@ try:
     import jsonschema.validators
 except ImportError:
     jsonschema = None
+    VALIDATORS = {}
+else:
+    VALIDATORS = {
+        "draft3": jsonschema.validators.Draft3Validator,
+        "draft4": jsonschema.validators.Draft4Validator,
+        "draft6": jsonschema.validators.Draft6Validator,
+        "draft7": jsonschema.validators.Draft7Validator,
+        "draft2019-09": jsonschema.validators.Draft201909Validator,
+        "draft2020-12": jsonschema.validators.Draft202012Validator,
+        "latest": jsonschema.validators.Draft202012Validator,
+    }
 
 
 ROOT_DIR = os.path.abspath(
@@ -22,6 +33,7 @@ ROOT_DIR = os.path.abspath(
 )
 SUITE_ROOT_DIR = os.path.join(ROOT_DIR, "tests")
 REMOTES_DIR = os.path.join(ROOT_DIR, "remotes")
+
 
 with open(os.path.join(ROOT_DIR, "test-schema.json")) as schema:
     TESTSUITE_SCHEMA = json.load(schema)
@@ -114,13 +126,13 @@ class SanityTests(unittest.TestCase):
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_all_schemas_are_valid(self):
-        for schema in os.listdir(SUITE_ROOT_DIR):
-            schema_validator = jsonschema.validators.validators.get(schema)
-            if schema_validator is not None:
-                test_files = collect(os.path.join(SUITE_ROOT_DIR, schema))
+        for version in os.listdir(SUITE_ROOT_DIR):
+            Validator = VALIDATORS.get(version)
+            if Validator is not None:
+                test_files = collect(os.path.join(SUITE_ROOT_DIR, version))
                 for case in cases(test_files):
                     try:
-                        schema_validator.check_schema(case["schema"])
+                        Validator.check_schema(case["schema"])
                     except jsonschema.SchemaError as error:
                         self.fail("%s contains an invalid schema (%s)" %
                                   (case, error))
