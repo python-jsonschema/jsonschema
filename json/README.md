@@ -265,9 +265,9 @@ Node-specific support is maintained in a [separate repository](https://github.co
 
 ### Perl
 
-* [JSON::Schema::Draft201909](https://github.com/karenetheridge/JSON-Schema-Draft201909)
+* [Test::JSON::Schema::Acceptance](https://github.com/karenetheridge/Test-JSON-Schema-Acceptance) (a wrapper of this test suite)
+* [JSON::Schema::Modern](https://github.com/karenetheridge/JSON-Schema-Modern)
 * [JSON::Schema::Tiny](https://github.com/karenetheridge/JSON-Schema-Tiny)
-* [Test::JSON::Schema::Acceptance](https://github.com/karenetheridge/Test-JSON-Schema-Acceptance)
 
 ### PHP
 
