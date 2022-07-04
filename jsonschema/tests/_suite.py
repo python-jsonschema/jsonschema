@@ -217,7 +217,7 @@ def _someone_save_us_the_module_of_the_caller():
     """
     The FQON of the module 2nd stack frames up from here.
 
-    This is intended to allow us to dynamicallly return test case classes that
+    This is intended to allow us to dynamically return test case classes that
     are indistinguishable from being defined in the module that wants them.
 
     Otherwise, trial will mis-print the FQON, and copy pasting it won't re-run
