@@ -1,33 +1,32 @@
 from unittest import TestCase
 import textwrap
 
-from jsonschema import Draft4Validator, exceptions
+from jsonschema import exceptions
+from jsonschema.validators import _LATEST_VERSION
 
 
 class TestBestMatch(TestCase):
-    def best_match(self, errors):
-        errors = list(errors)
-        best = exceptions.best_match(errors)
+    def best_match_of(self, instance, schema):
+        errors = list(_LATEST_VERSION(schema).iter_errors(instance))
+        best = exceptions.best_match(iter(errors))
         reversed_best = exceptions.best_match(reversed(errors))
-        msg = "Didn't return a consistent best match!\nGot: {0}\n\nThen: {1}"
         self.assertEqual(
-            best._contents(), reversed_best._contents(),
-            msg=msg.format(best, reversed_best),
+            best._contents(),
+            reversed_best._contents(),
+            f"No consistent best match!\nGot: {best}\n\nThen: {reversed_best}",
         )
         return best
 
     def test_shallower_errors_are_better_matches(self):
-        validator = Draft4Validator(
-            {
-                "properties": {
-                    "foo": {
-                        "minProperties": 2,
-                        "properties": {"bar": {"type": "object"}},
-                    },
+        schema = {
+            "properties": {
+                "foo": {
+                    "minProperties": 2,
+                    "properties": {"bar": {"type": "object"}},
                 },
             },
-        )
-        best = self.best_match(validator.iter_errors({"foo": {"bar": []}}))
+        }
+        best = self.best_match_of(instance={"foo": {"bar": []}}, schema=schema)
         self.assertEqual(best.validator, "minProperties")
 
     def test_oneOf_and_anyOf_are_weak_matches(self):
@@ -36,14 +35,12 @@ class TestBestMatch(TestCase):
         match a part of.
         """
 
-        validator = Draft4Validator(
-            {
-                "minProperties": 2,
-                "anyOf": [{"type": "string"}, {"type": "number"}],
-                "oneOf": [{"type": "string"}, {"type": "number"}],
-            },
-        )
-        best = self.best_match(validator.iter_errors({}))
+        schema = {
+            "minProperties": 2,
+            "anyOf": [{"type": "string"}, {"type": "number"}],
+            "oneOf": [{"type": "string"}, {"type": "number"}],
+        }
+        best = self.best_match_of(instance={}, schema=schema)
         self.assertEqual(best.validator, "minProperties")
 
     def test_if_the_most_relevant_error_is_anyOf_it_is_traversed(self):
@@ -56,19 +53,17 @@ class TestBestMatch(TestCase):
         relevant one.
         """
 
-        validator = Draft4Validator(
-            {
-                "properties": {
-                    "foo": {
-                        "anyOf": [
-                            {"type": "string"},
-                            {"properties": {"bar": {"type": "array"}}},
-                        ],
-                    },
+        schema = {
+            "properties": {
+                "foo": {
+                    "anyOf": [
+                        {"type": "string"},
+                        {"properties": {"bar": {"type": "array"}}},
+                    ],
                 },
             },
-        )
-        best = self.best_match(validator.iter_errors({"foo": {"bar": 12}}))
+        }
+        best = self.best_match_of(instance={"foo": {"bar": 12}}, schema=schema)
         self.assertEqual(best.validator_value, "array")
 
     def test_if_the_most_relevant_error_is_oneOf_it_is_traversed(self):
@@ -81,19 +76,17 @@ class TestBestMatch(TestCase):
         relevant one.
         """
 
-        validator = Draft4Validator(
-            {
-                "properties": {
-                    "foo": {
-                        "oneOf": [
-                            {"type": "string"},
-                            {"properties": {"bar": {"type": "array"}}},
-                        ],
-                    },
+        schema = {
+            "properties": {
+                "foo": {
+                    "oneOf": [
+                        {"type": "string"},
+                        {"properties": {"bar": {"type": "array"}}},
+                    ],
                 },
             },
-        )
-        best = self.best_match(validator.iter_errors({"foo": {"bar": 12}}))
+        }
+        best = self.best_match_of(instance={"foo": {"bar": 12}}, schema=schema)
         self.assertEqual(best.validator_value, "array")
 
     def test_if_the_most_relevant_error_is_allOf_it_is_traversed(self):
@@ -102,48 +95,44 @@ class TestBestMatch(TestCase):
         error from the context, because all schemas here must match anyways.
         """
 
-        validator = Draft4Validator(
-            {
-                "properties": {
-                    "foo": {
-                        "allOf": [
-                            {"type": "string"},
-                            {"properties": {"bar": {"type": "array"}}},
-                        ],
-                    },
+        schema = {
+            "properties": {
+                "foo": {
+                    "allOf": [
+                        {"type": "string"},
+                        {"properties": {"bar": {"type": "array"}}},
+                    ],
                 },
             },
-        )
-        best = self.best_match(validator.iter_errors({"foo": {"bar": 12}}))
+        }
+        best = self.best_match_of(instance={"foo": {"bar": 12}}, schema=schema)
         self.assertEqual(best.validator_value, "string")
 
     def test_nested_context_for_oneOf(self):
-        validator = Draft4Validator(
-            {
-                "properties": {
-                    "foo": {
-                        "oneOf": [
-                            {"type": "string"},
-                            {
-                                "oneOf": [
-                                    {"type": "string"},
-                                    {
-                                        "properties": {
-                                            "bar": {"type": "array"},
-                                        },
+        schema = {
+            "properties": {
+                "foo": {
+                    "oneOf": [
+                        {"type": "string"},
+                        {
+                            "oneOf": [
+                                {"type": "string"},
+                                {
+                                    "properties": {
+                                        "bar": {"type": "array"},
                                     },
-                                ],
-                            },
-                        ],
-                    },
+                                },
+                            ],
+                        },
+                    ],
                 },
             },
-        )
-        best = self.best_match(validator.iter_errors({"foo": {"bar": 12}}))
+        }
+        best = self.best_match_of(instance={"foo": {"bar": 12}}, schema=schema)
         self.assertEqual(best.validator_value, "array")
 
     def test_one_error(self):
-        validator = Draft4Validator({"minProperties": 2})
+        validator = _LATEST_VERSION({"minProperties": 2})
         error, = validator.iter_errors({})
         self.assertEqual(
             exceptions.best_match(validator.iter_errors({})).validator,
@@ -151,7 +140,7 @@ class TestBestMatch(TestCase):
         )
 
     def test_no_errors(self):
-        validator = Draft4Validator({})
+        validator = _LATEST_VERSION({})
         self.assertIsNone(exceptions.best_match(validator.iter_errors({})))
 
 
