@@ -1,3 +1,8 @@
+v4.6.2
+------
+
+* Fix a number of minor typos in docstrings, mostly private ones (#969)
+
 v4.6.1
 ------
 
