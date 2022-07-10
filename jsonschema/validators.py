@@ -246,6 +246,7 @@ def create(
                             validator_value=v,
                             instance=instance,
                             schema=_schema,
+                            type_checker=self.TYPE_CHECKER,
                         )
                         if k not in {"if", "$ref"}:
                             error.schema_path.appendleft(k)
