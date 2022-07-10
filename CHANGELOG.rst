@@ -1,3 +1,9 @@
+v4.7.0
+------
+
+* Enhance ``best_match`` to prefer errors from branches of the schema which
+  match the instance's type (#728)
+
 v4.6.2
 ------
 

@@ -31,6 +31,7 @@ class _Error(Exception):
         schema=_unset,
         schema_path=(),
         parent=None,
+        type_checker=_unset,
     ):
         super(_Error, self).__init__(
             message,
@@ -54,6 +55,7 @@ class _Error(Exception):
         self.instance = instance
         self.schema = schema
         self.parent = parent
+        self._type_checker = type_checker
 
         for error in context:
             error.parent = self
@@ -124,7 +126,10 @@ class _Error(Exception):
                 path += "." + elem
         return path
 
-    def _set(self, **kwargs):
+    def _set(self, type_checker=None, **kwargs):
+        if type_checker is not None and self._type_checker is _unset:
+            self._type_checker = type_checker
+
         for k, v in kwargs.items():
             if getattr(self, k) is _unset:
                 setattr(self, k, v)
@@ -135,6 +140,14 @@ class _Error(Exception):
             "path", "schema_path", "instance", "schema", "parent",
         )
         return dict((attr, getattr(self, attr)) for attr in attrs)
+
+    def _matches_type(self):
+        try:
+            expected_type = self.schema["type"]
+        except (KeyError, TypeError):
+            return False
+        else:
+            return self._type_checker.is_type(self.instance, expected_type)
 
 
 class ValidationError(_Error):
@@ -307,7 +320,12 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
     """
     def relevance(error):
         validator = error.validator
-        return -len(error.path), validator not in weak, validator in strong
+        return (
+            -len(error.path),
+            validator not in weak,
+            validator in strong,
+            not error._matches_type(),
+        )
     return relevance
 
 
