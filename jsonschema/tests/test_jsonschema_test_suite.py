@@ -8,22 +8,9 @@ See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 
 import sys
 
-from jsonschema import (
-    Draft3Validator,
-    Draft4Validator,
-    Draft6Validator,
-    Draft7Validator,
-    Draft201909Validator,
-    Draft202012Validator,
-    draft3_format_checker,
-    draft4_format_checker,
-    draft6_format_checker,
-    draft7_format_checker,
-    draft201909_format_checker,
-    draft202012_format_checker,
-)
 from jsonschema.tests._helpers import bug
 from jsonschema.tests._suite import Suite
+import jsonschema
 
 SUITE = Suite()
 DRAFT3 = SUITE.version(name="draft3")
@@ -164,11 +151,11 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     DRAFT3.optional_tests_of(name="bignum"),
     DRAFT3.optional_tests_of(name="non-bmp-regex"),
     DRAFT3.optional_tests_of(name="zeroTerminatedFloats"),
-    Validator=Draft3Validator,
-    format_checker=draft3_format_checker,
+    Validator=jsonschema.Draft3Validator,
+    format_checker=jsonschema.draft3_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
-        or missing_format(draft3_format_checker)(test)
+        or missing_format(jsonschema.draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
             message=bug(371),
@@ -188,13 +175,13 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.optional_tests_of(name="float-overflow"),
     DRAFT4.optional_tests_of(name="non-bmp-regex"),
     DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
-    Validator=Draft4Validator,
-    format_checker=draft4_format_checker,
+    Validator=jsonschema.Draft4Validator,
+    format_checker=jsonschema.draft4_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
-        or missing_format(draft4_format_checker)(test)
+        or missing_format(jsonschema.draft4_format_checker)(test)
         or complex_email_validation(test)
         or skip(
             message=bug(),
@@ -249,13 +236,13 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.optional_tests_of(name="bignum"),
     DRAFT6.optional_tests_of(name="float-overflow"),
     DRAFT6.optional_tests_of(name="non-bmp-regex"),
-    Validator=Draft6Validator,
-    format_checker=draft6_format_checker,
+    Validator=jsonschema.Draft6Validator,
+    format_checker=jsonschema.draft6_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
-        or missing_format(draft6_format_checker)(test)
+        or missing_format(jsonschema.draft6_format_checker)(test)
         or complex_email_validation(test)
         or skip(
             message="id is incorrectly finding non-ids",
@@ -290,13 +277,13 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.optional_tests_of(name="content"),
     DRAFT7.optional_tests_of(name="float-overflow"),
     DRAFT7.optional_tests_of(name="non-bmp-regex"),
-    Validator=Draft7Validator,
-    format_checker=draft7_format_checker,
+    Validator=jsonschema.Draft7Validator,
+    format_checker=jsonschema.draft7_format_checker,
     skip=lambda test: (
         narrow_unicode_build(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
-        or missing_format(draft7_format_checker)(test)
+        or missing_format(jsonschema.draft7_format_checker)(test)
         or complex_email_validation(test)
         or skip(
             message=bug(),
@@ -350,7 +337,7 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
     DRAFT201909.optional_tests_of(name="float-overflow"),
     DRAFT201909.optional_tests_of(name="non-bmp-regex"),
     DRAFT201909.optional_tests_of(name="refOfUnknownKeyword"),
-    Validator=Draft201909Validator,
+    Validator=jsonschema.Draft201909Validator,
     skip=lambda test: (
         skip(
             message="unevaluatedItems is different in 2019-09 (needs work).",
@@ -395,13 +382,13 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
 
 TestDraft201909Format = DRAFT201909.to_unittest_testcase(
     DRAFT201909.format_tests(),
-    Validator=Draft201909Validator,
-    format_checker=draft201909_format_checker,
+    Validator=jsonschema.Draft201909Validator,
+    format_checker=jsonschema.draft201909_format_checker,
     skip=lambda test: (
         complex_email_validation(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
-        or missing_format(draft201909_format_checker)(test)
+        or missing_format(jsonschema.draft201909_format_checker)(test)
         or complex_email_validation(test)
     ),
 )
@@ -413,7 +400,7 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.optional_tests_of(name="float-overflow"),
     DRAFT202012.optional_tests_of(name="non-bmp-regex"),
     DRAFT202012.optional_tests_of(name="refOfUnknownKeyword"),
-    Validator=Draft202012Validator,
+    Validator=jsonschema.Draft202012Validator,
     skip=lambda test: (
         narrow_unicode_build(test)
         or skip(
@@ -447,13 +434,13 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
 
 TestDraft202012Format = DRAFT202012.to_unittest_testcase(
     DRAFT202012.format_tests(),
-    Validator=Draft202012Validator,
-    format_checker=draft202012_format_checker,
+    Validator=jsonschema.Draft202012Validator,
+    format_checker=jsonschema.draft202012_format_checker,
     skip=lambda test: (
         complex_email_validation(test)
         or allowed_leading_zeros(test)
         or leap_second(test)
-        or missing_format(draft202012_format_checker)(test)
+        or missing_format(jsonschema.draft202012_format_checker)(test)
         or complex_email_validation(test)
     ),
 )
