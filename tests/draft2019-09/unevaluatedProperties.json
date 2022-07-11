@@ -1343,5 +1343,20 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "unevaluatedProperties should properly handle null data",
+        "schema": {
+            "unevaluatedProperties": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "null properties allowed",
+                "data": {"foo": null},
+                "valid": true
+            }
+        ]
     }
 ]

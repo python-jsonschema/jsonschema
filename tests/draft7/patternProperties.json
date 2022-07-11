@@ -152,5 +152,20 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "patternProperties should properly handle null data",
+        "schema": {
+            "patternProperties": {
+                "^.*bar$": {"type": "null"}
+            }
+        },
+        "tests": [
+            {
+                "description": "null properties allowed",
+                "data": {"foobar": null},
+                "valid": true
+            }
+        ]
     }
 ]

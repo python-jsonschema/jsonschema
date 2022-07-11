@@ -191,5 +191,37 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "single-form items should properly handle null data",
+        "schema": {
+            "items": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "null properties allowed",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "array-form items should properly handle null data",
+        "schema": {
+            "items": [
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "null items allowed",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
     }
 ]

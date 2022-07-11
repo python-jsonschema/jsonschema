@@ -109,5 +109,20 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "additionalItems should properly handle null data",
+        "schema": {
+            "additionalItems": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "null items allowed",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
     }
 ]

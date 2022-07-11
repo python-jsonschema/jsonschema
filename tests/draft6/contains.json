@@ -125,5 +125,20 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "contains should properly handle null data",
+        "schema": {
+            "contains": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "null items allowed",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
     }
 ]
