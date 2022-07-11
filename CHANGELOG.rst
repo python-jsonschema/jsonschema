@@ -1,3 +1,8 @@
+v4.7.1
+------
+
+* Minor tweak of the PyPI hyperlink names
+
 v4.7.0
 ------
 
