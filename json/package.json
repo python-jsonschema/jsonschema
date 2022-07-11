@@ -1,0 +1,12 @@
+{
+  "name": "json-schema-test-suite",
+  "version": "0.1.0",
+  "description": "A language agnostic test suite for the JSON Schema specifications",
+  "repository": "github:json-schema-org/JSON-Schema-Test-Suite",
+  "keywords": [
+    "json-schema",
+    "tests"
+  ],
+  "author": "http://json-schema.org",
+  "license": "MIT"
+}

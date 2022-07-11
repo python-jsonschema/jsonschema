@@ -93,5 +93,20 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "properties should properly handle null data",
+        "schema": {
+            "properties": {
+                "foo": {"type": "null"}
+            }
+        },
+        "tests": [
+            {
+                "description": "null properties allowed",
+                "data": {"foo": null},
+                "valid": true
+            }
+        ]
     }
 ]

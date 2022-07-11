@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
+from pathlib import Path
 import argparse
 import errno
-import fnmatch
 import json
 import os
 import random
@@ -28,42 +28,36 @@ else:
     }
 
 
-ROOT_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir).rstrip("__pycache__"),
-)
-SUITE_ROOT_DIR = os.path.join(ROOT_DIR, "tests")
-REMOTES_DIR = os.path.join(ROOT_DIR, "remotes")
+ROOT_DIR = Path(__file__).parent.parent
+SUITE_ROOT_DIR = ROOT_DIR / "tests"
+REMOTES_DIR = ROOT_DIR / "remotes"
 
-
-with open(os.path.join(ROOT_DIR, "test-schema.json")) as schema:
-    TESTSUITE_SCHEMA = json.load(schema)
+TESTSUITE_SCHEMA = json.loads((ROOT_DIR / "test-schema.json").read_text())
 
 
 def files(paths):
     """
-    Each test file in the provided paths.
+    Each test file in the provided paths, as an array of test cases.
     """
     for path in paths:
-        with open(path) as test_file:
-            yield json.load(test_file)
-
-
-def groups(paths):
-    """
-    Each test group within each file in the provided paths.
-    """
-    for test_file in files(paths):
-        for group in test_file:
-            yield group
+        yield json.loads(path.read_text())
 
 
 def cases(paths):
     """
-    Each individual test case within all groups within the provided paths.
+    Each test case within each file in the provided paths.
     """
-    for test_group in groups(paths):
-        for test in test_group["tests"]:
-            test["schema"] = test_group["schema"]
+    for test_file in files(paths):
+        yield from test_file
+
+
+def tests(paths):
+    """
+    Each individual test within all cases within the provided paths.
+    """
+    for case in cases(paths):
+        for test in case["tests"]:
+            test["schema"] = case["schema"]
             yield test
 
 
@@ -71,76 +65,96 @@ def collect(root_dir):
     """
     All of the test file paths within the given root directory, recursively.
     """
-    for root, _, files in os.walk(root_dir):
-        for filename in fnmatch.filter(files, "*.json"):
-            yield os.path.join(root, filename)
+    return root_dir.glob("**/*.json")
 
 
 class SanityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        print("Looking for tests in %s" % SUITE_ROOT_DIR)
-        print("Looking for remotes in %s" % REMOTES_DIR)
+        print(f"Looking for tests in {SUITE_ROOT_DIR}")
+        print(f"Looking for remotes in {REMOTES_DIR}")
+
         cls.test_files = list(collect(SUITE_ROOT_DIR))
-        cls.remote_files = list(collect(REMOTES_DIR))
-        print("Found %s test files" % len(cls.test_files))
-        print("Found %s remote files" % len(cls.remote_files))
         assert cls.test_files, "Didn't find the test files!"
+        print(f"Found {len(cls.test_files)} test files")
+
+        cls.remote_files = list(collect(REMOTES_DIR))
         assert cls.remote_files, "Didn't find the remote files!"
+        print(f"Found {len(cls.remote_files)} remote files")
 
     def test_all_test_files_are_valid_json(self):
+        """
+        All test files contain valid JSON.
+        """
         for path in self.test_files:
-            with open(path) as test_file:
-                try:
-                    json.load(test_file)
-                except ValueError as error:
-                    self.fail("%s contains invalid JSON (%s)" % (path, error))
+            try:
+                json.loads(path.read_text())
+            except ValueError as error:
+                self.fail(f"{path} contains invalid JSON ({error})")
 
     def test_all_remote_files_are_valid_json(self):
+        """
+        All remote files contain valid JSON.
+        """
         for path in self.remote_files:
-            with open(path) as remote_file:
-                try:
-                    json.load(remote_file)
-                except ValueError as error:
-                    self.fail("%s contains invalid JSON (%s)" % (path, error))
+            try:
+                json.loads(path.read_text())
+            except ValueError as error:
+                self.fail(f"{path} contains invalid JSON ({error})")
 
     def test_all_descriptions_have_reasonable_length(self):
-        for case in cases(self.test_files):
-            description = case["description"]
+        """
+        All tests have reasonably long descriptions.
+        """
+        for count, test in enumerate(tests(self.test_files)):
+            description = test["description"]
             self.assertLess(
                 len(description),
                 70,
-                "%r is too long! (keep it to less than 70 chars)" % (
-                    description,
-                ),
+                f"{description!r} is too long! (keep it to less than 70 chars)"
             )
+        print(f"Found {count} tests.")
 
     def test_all_descriptions_are_unique(self):
-        for group in groups(self.test_files):
-            descriptions = set(test["description"] for test in group["tests"])
+        """
+        All test cases have unique test descriptions in their tests.
+        """
+        for count, case in enumerate(cases(self.test_files)):
+            descriptions = set(test["description"] for test in case["tests"])
             self.assertEqual(
                 len(descriptions),
-                len(group["tests"]),
-                "%r contains a duplicate description" % (group,)
+                len(case["tests"]),
+                f"{case!r} contains a duplicate description",
             )
+        print(f"Found {count} test cases.")
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_all_schemas_are_valid(self):
-        for version in os.listdir(SUITE_ROOT_DIR):
-            Validator = VALIDATORS.get(version)
+        """
+        All schemas are valid under their metaschemas.
+        """
+        for version in SUITE_ROOT_DIR.iterdir():
+            if not version.is_dir():
+                continue
+
+            Validator = VALIDATORS.get(version.name)
             if Validator is not None:
-                test_files = collect(os.path.join(SUITE_ROOT_DIR, version))
+                test_files = collect(version)
                 for case in cases(test_files):
                     try:
                         Validator.check_schema(case["schema"])
                     except jsonschema.SchemaError as error:
-                        self.fail("%s contains an invalid schema (%s)" %
-                                  (case, error))
+                        self.fail(
+                            f"{case} contains an invalid schema ({error})",
+                        )
             else:
-                warnings.warn("No schema validator for %s" % schema)
+                warnings.warn(f"No schema validator for {version.name}")
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_suites_are_valid(self):
+        """
+        All test files are valid under test-schema.json.
+        """
         Validator = jsonschema.validators.validator_for(TESTSUITE_SCHEMA)
         validator = Validator(TESTSUITE_SCHEMA)
         for tests in files(self.test_files):
@@ -153,7 +167,7 @@ class SanityTests(unittest.TestCase):
 def main(arguments):
     if arguments.command == "check":
         suite = unittest.TestLoader().loadTestsFromTestCase(SanityTests)
-        result = unittest.TextTestRunner(verbosity=2).run(suite)
+        result = unittest.TextTestRunner().run(suite)
         sys.exit(not result.wasSuccessful())
     elif arguments.command == "flatten":
         selected_cases = [case for case in cases(collect(arguments.version))]
@@ -166,8 +180,7 @@ def main(arguments):
         remotes = {}
         for path in collect(REMOTES_DIR):
             relative_path = os.path.relpath(path, REMOTES_DIR)
-            with open(path) as schema_file:
-                remotes[relative_path] = json.load(schema_file)
+            remotes[relative_path] = json.loads(path.read_text())
         json.dump(remotes, sys.stdout, indent=4, sort_keys=True)
     elif arguments.command == "dump_remotes":
         if arguments.update:
@@ -175,11 +188,9 @@ def main(arguments):
 
         try:
             shutil.copytree(REMOTES_DIR, arguments.out_dir)
-        except OSError as e:
-            if e.errno == errno.EEXIST:
-                print("%s already exists. Aborting." % arguments.out_dir)
-                sys.exit(1)
-            raise
+        except FileExistsError:
+            print(f"{arguments.out_dir} already exists. Aborting.")
+            sys.exit(1)
     elif arguments.command == "serve":
         try:
             import flask

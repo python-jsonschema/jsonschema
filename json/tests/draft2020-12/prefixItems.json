@@ -77,5 +77,22 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "prefixItems should properly handle null data",
+        "schema": {
+            "prefixItems": [
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "null items allowed",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
     }
 ]

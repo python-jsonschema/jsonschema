@@ -129,5 +129,20 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "additionalProperties should properly handle null data",
+        "schema": {
+            "additionalProperties": {
+                "type": "null"
+            }
+        },
+        "tests": [
+            {
+                "description": "null properties allowed",
+                "data": {"foo": null},
+                "valid": true
+            }
+        ]
     }
 ]
