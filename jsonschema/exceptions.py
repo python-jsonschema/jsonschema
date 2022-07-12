@@ -143,11 +143,17 @@ class _Error(Exception):
 
     def _matches_type(self):
         try:
-            expected_type = self.schema["type"]
+            expected = self.schema["type"]
         except (KeyError, TypeError):
             return False
-        else:
-            return self._type_checker.is_type(self.instance, expected_type)
+
+        if isinstance(expected, str):
+            return self._type_checker.is_type(self.instance, expected)
+
+        return any(
+            self._type_checker.is_type(self.instance, expected_type)
+            for expected_type in expected
+        )
 
 
 class ValidationError(_Error):

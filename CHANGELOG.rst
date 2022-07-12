@@ -1,3 +1,9 @@
+v4.7.2
+------
+
+* Also have ``best_match`` handle cases where the ``type`` validator is an
+  array.
+
 v4.7.1
 ------
 
