@@ -210,5 +210,30 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "retrieved nested refs resolve relative to their URI not $id",
+        "schema": {
+            "$id": "http://localhost:1234/some-id",
+            "properties": {
+                "name": {"$ref": "nested/foo-ref-string.json"}
+            }
+        },
+        "tests": [
+            {
+                "description": "number is invalid",
+                "data": {
+                    "name": {"foo":  1}
+                },
+                "valid": false
+            },
+            {
+                "description": "string is valid",
+                "data": {
+                    "name": {"foo":  "a"}
+                },
+                "valid": true
+            }
+        ]
     }
 ]
