@@ -1959,11 +1959,15 @@ class TestValidate(TestCase):
         )
 
     def test_it_uses_best_match(self):
-        # This is a schema that best_match will recurse into
-        schema = {"oneOf": [{"type": "string"}, {"type": "array"}]}
+        schema = {
+            "oneOf": [
+                {"type": "number", "minimum": 20},
+                {"type": "array"},
+            ],
+        }
         with self.assertRaises(exceptions.ValidationError) as e:
             validators.validate(12, schema)
-        self.assertIn("12 is not of type", str(e.exception))
+        self.assertIn("12 is less than the minimum of 20", str(e.exception))
 
 
 class TestRefResolver(TestCase):
