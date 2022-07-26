@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections import deque
 from collections.abc import Sequence
 from functools import lru_cache
+from operator import methodcaller
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
 from warnings import warn
@@ -112,7 +113,7 @@ def create(
     type_checker=_types.draft202012_type_checker,
     format_checker=_format.draft202012_format_checker,
     id_of=_id_of,
-    applicable_validators=lambda schema: schema.items(),
+    applicable_validators=methodcaller("items"),
 ):
     """
     Create a new validator class.
