@@ -1,3 +1,10 @@
+v4.8.0
+------
+
+* ``best_match`` no longer traverses into ``anyOf`` and ``oneOf`` when all of
+  the errors within them seem equally applicable. This should lead to clearer
+  error messages in some cases where no branches were matched.
+
 v4.7.2
 ------
 
