@@ -6,4 +6,5 @@ omit = */jsonschema/_reflect.py,*/jsonschema/__main__.py,*/jsonschema/benchmarks
 
 [report]
 exclude_lines =
+    pragma: no cover
     if TYPE_CHECKING:
