@@ -74,6 +74,60 @@ implemented here, across any other implementation they encounter.
         the object which implements format validation
 
 
+How do I configure a base URI for ``$ref`` resolution using local files?
+------------------------------------------------------------------------
+
+`jsonschema` supports loading schemas from the filesystem.
+
+The most common mistake when configuring a :class:`~jsonschema.RefResolver`
+to retrieve schemas from the local filesystem is to give it a base URI
+which points to a directory, but forget to add a trailing slash.
+
+For example, given a directory ``/tmp/foo/`` with ``bar/schema.json``
+within it, you should use something like:
+
+.. code-block:: python
+
+    from pathlib import Path
+
+    import jsonschema.validators
+
+    path = Path("/tmp/foo")
+    resolver = jsonschema.validators.RefResolver(
+        base_uri=f"{path.as_uri()}/",
+        referrer=True,
+    )
+    jsonschema.validate(
+        instance={},
+        schema={"$ref": "bar/schema.json"},
+        resolver=resolver,
+    )
+
+where note:
+
+    * the base URI has a trailing slash, even though
+      `pathlib.PurePath.as_uri` does not add it!
+    * any relative refs are now given relative to the provided directory
+
+If you forget the trailing slash, you'll find references are resolved a
+directory too high.
+
+You're likely familiar with this behavior from your browser. If you
+visit a page at ``https://example.com/foo``, then links on it like
+``<a href="./bar">`` take you to ``https://example.com/bar``, not
+``https://example.com/foo/bar``. For this reason many sites will
+redirect ``https://example.com/foo`` to ``https://example.com/foo/``,
+i.e. add the trailing slash, so that relative links on the page will keep the
+last path component.
+
+There are, in summary, 2 ways to do this properly:
+
+* Remember to include a trailing slash, so your base URI is
+  ``file:///foo/bar/`` rather than ``file:///foo/bar``, as shown above
+* Use a file within the directory as your base URI rather than the
+  directory itself, i.e. ``file://foo/bar/baz.json``, which will of course
+  cause ``baz.json`` to be removed while resolving relative URIs
+
 Why doesn't my schema's default property set the default on my instance?
 ------------------------------------------------------------------------
 
