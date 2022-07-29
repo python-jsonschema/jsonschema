@@ -6,7 +6,7 @@
 #
 alabaster==0.7.12
     # via sphinx
-attrs==21.4.0
+attrs==22.1.0
     # via jsonschema
 babel==2.10.3
     # via sphinx
@@ -16,7 +16,7 @@ certifi==2022.6.15
     # via requests
 charset-normalizer==2.1.0
     # via requests
-docutils==0.18.1
+docutils==0.19
     # via sphinx
 furo==2022.6.21
     # via -r docs/requirements.in
@@ -52,14 +52,14 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.3.2.post1
     # via beautifulsoup4
-sphinx==5.0.2
+sphinx==5.1.1
     # via
     #   -r docs/requirements.in
     #   furo
     #   sphinx-autodoc-typehints
     #   sphinx-basic-ng
     #   sphinxcontrib-spelling
-sphinx-autodoc-typehints==1.18.3
+sphinx-autodoc-typehints==1.19.0
     # via -r docs/requirements.in
 sphinx-basic-ng==0.0.1a12
     # via furo
@@ -77,5 +77,5 @@ sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 sphinxcontrib-spelling==7.6.0
     # via -r docs/requirements.in
-urllib3==1.26.9
+urllib3==1.26.11
     # via requests
