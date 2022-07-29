@@ -1,7 +1,11 @@
 from importlib import metadata
+from pathlib import Path
 import os
 import re
 import sys
+
+ROOT = Path(__file__).parent.parent
+PACKAGE_SRC = ROOT / "jsonschema"
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -25,6 +29,8 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+
+    "autoapi.extension",
     "sphinx_autodoc_typehints",
     "sphinx_json_schema_spec",
     "sphinxcontrib.spelling",
@@ -252,3 +258,27 @@ autosectionlabel_prefix_document = True
 # -- Options for sphinxcontrib-spelling -----------------------------------
 
 spelling_word_list_filename = "spelling-wordlist.txt"
+
+# -- Options for autoapi --------------------------------------------------
+
+suppress_warnings = [
+    "autoapi.python_import_resolution",
+    "autoapi.toc_reference",
+]
+autoapi_root = "api"
+autoapi_ignore = [
+    "*/_[a-z]*.py",
+    "*/__main__.py",
+    "*/benchmarks/*",
+    "*/cli.py",
+    "*/tests/*",
+]
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-module-summary",
+    "imported-members",
+]
+
+autoapi_type = "python"
+autoapi_dirs = [PACKAGE_SRC]

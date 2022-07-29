@@ -7,12 +7,16 @@ Creating or Extending Validator Classes
 =======================================
 
 .. autofunction:: create
+    :noindex:
 
 .. autofunction:: extend
+    :noindex:
 
 .. autofunction:: validator_for
+    :noindex:
 
 .. autofunction:: validates
+    :noindex:
 
 
 Creating Validation Errors

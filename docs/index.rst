@@ -1,4 +1,6 @@
 .. module:: jsonschema
+   :noindex:
+
 .. include:: ../README.rst
 
 
@@ -13,6 +15,7 @@ Contents
     references
     creating
     faq
+    api/index
 
 
 Indices and tables
