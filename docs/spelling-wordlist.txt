@@ -7,6 +7,8 @@ ValidationError
 # 0th, sigh...
 th
 callables
+# non-codeblocked cls from autoapi
+cls
 deque
 dereferences
 filesystem
@@ -28,6 +30,8 @@ recurses
 regex
 repr
 sensical
+submodule
+submodules
 subschema
 subschemas
 subscopes

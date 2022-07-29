@@ -30,7 +30,6 @@ if TYPE_CHECKING:
     import jsonschema
 
 from jsonschema.exceptions import ValidationError
-from jsonschema.validators import RefResolver
 
 # For code authors working on the validator protocol, these are the three
 # use-cases which should be kept in mind:
@@ -89,7 +88,7 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: dict | bool,
-        resolver: RefResolver | None = None,
+        resolver: jsonschema.RefResolver | None = None,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...
