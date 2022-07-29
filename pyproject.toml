@@ -52,7 +52,7 @@ format = [
   "uri_template",
   "webcolors>=1.11",
 ]
-format_nongpl = [
+format-nongpl = [
   "fqdn",
   "idna",
   "isoduration",
