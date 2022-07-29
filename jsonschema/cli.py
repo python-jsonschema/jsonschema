@@ -14,9 +14,13 @@ try:
 except ImportError:
     import importlib_metadata as metadata  # type: ignore
 
+try:
+    from pkgutil import resolve_name
+except ImportError:
+    from pkgutil_resolve_name import resolve_name  # type: ignore
+
 import attr
 
-from jsonschema._reflect import namedAny
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import RefResolver, validator_for
 
@@ -130,10 +134,10 @@ class _PlainFormatter(object):
         return ""
 
 
-def _namedAnyWithDefault(name):
+def _resolve_name_with_default(name):
     if "." not in name:
         name = "jsonschema." + name
-    return namedAny(name)
+    return resolve_name(name)
 
 
 parser = argparse.ArgumentParser(
@@ -172,7 +176,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "-V", "--validator",
-    type=_namedAnyWithDefault,
+    type=_resolve_name_with_default,
     help="""
         the fully qualified object name of a validator to use, or, for
         validators that are registered with jsonschema, simply the name
