@@ -33,9 +33,9 @@ jobs:
           - name: pypy-3.8
             toxenv: pypy3-format-tests
           - name: pypy-3.8
-            toxenv: pypy3-format_nongpl-build
+            toxenv: pypy3-formatnongpl-build
           - name: pypy-3.8
-            toxenv: pypy3-format_nongpl-tests
+            toxenv: pypy3-formatnongpl-tests
           - name: 3.7
             toxenv: py37-noextra-build
           - name: 3.7
@@ -45,9 +45,9 @@ jobs:
           - name: 3.7
             toxenv: py37-format-tests
           - name: 3.7
-            toxenv: py37-format_nongpl-build
+            toxenv: py37-formatnongpl-build
           - name: 3.7
-            toxenv: py37-format_nongpl-tests
+            toxenv: py37-formatnongpl-tests
           - name: 3.8
             toxenv: py38-noextra-build
           - name: 3.8
@@ -57,9 +57,9 @@ jobs:
           - name: 3.8
             toxenv: py38-format-tests
           - name: 3.8
-            toxenv: py38-format_nongpl-build
+            toxenv: py38-formatnongpl-build
           - name: 3.8
-            toxenv: py38-format_nongpl-tests
+            toxenv: py38-formatnongpl-tests
           - name: 3.9
             toxenv: py39-noextra-build
           - name: 3.9
@@ -69,9 +69,9 @@ jobs:
           - name: 3.9
             toxenv: py39-format-tests
           - name: 3.9
-            toxenv: py39-format_nongpl-build
+            toxenv: py39-formatnongpl-build
           - name: 3.9
-            toxenv: py39-format_nongpl-tests
+            toxenv: py39-formatnongpl-tests
           - name: "3.10"
             toxenv: py310-noextra-build
           - name: "3.10"
@@ -81,9 +81,9 @@ jobs:
           - name: "3.10"
             toxenv: py310-format-tests
           - name: "3.10"
-            toxenv: py310-format_nongpl-build
+            toxenv: py310-formatnongpl-build
           - name: "3.10"
-            toxenv: py310-format_nongpl-tests
+            toxenv: py310-formatnongpl-tests
           - name: "3.11.0-beta - 3.11.0"
             toxenv: py311-noextra-build
           - name: "3.11.0-beta - 3.11.0"
@@ -93,9 +93,9 @@ jobs:
           - name: "3.11.0-beta - 3.11.0"
             toxenv: py311-format-tests
           - name: "3.11.0-beta - 3.11.0"
-            toxenv: py311-format_nongpl-build
+            toxenv: py311-formatnongpl-build
           - name: "3.11.0-beta - 3.11.0"
-            toxenv: py311-format_nongpl-tests
+            toxenv: py311-formatnongpl-tests
           - name: "3.10"
             toxenv: docs-dirhtml
           - name: "3.10"
@@ -136,11 +136,11 @@ jobs:
           - os: windows-latest
             python-version:
               name: pypy-3.8
-              toxenv: pypy3-format_nongpl-build
+              toxenv: pypy3-formatnongpl-build
           - os: windows-latest
             python-version:
               name: pypy-3.8
-              toxenv: pypy3-format_nongpl-tests
+              toxenv: pypy3-formatnongpl-tests
           - os: windows-latest
             python-version:
               name: "3.10"
@@ -152,7 +152,7 @@ jobs:
           - os: windows-latest
             python-version:
               name: "3.10"
-              toxenv: py310-format_nongpl-tests
+              toxenv: py310-formatnongpl-tests
           - os: windows-latest
             python-version:
               name: "3.11.0-alpha - 3.11.0"
@@ -164,7 +164,7 @@ jobs:
           - os: windows-latest
             python-version:
               name: "3.11.0-alpha - 3.11.0"
-              toxenv: py311-format_nongpl-tests
+              toxenv: py311-formatnongpl-tests
           - os: windows-latest
             python-version:
               name: "3.10"
