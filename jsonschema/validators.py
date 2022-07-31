@@ -844,16 +844,19 @@ class RefResolver(object):
 
     def resolve_from_url(self, url):
         """
-        Resolve the given remote URL.
+        Resolve the given URL.
         """
         url, fragment = urldefrag(url)
-        try:
-            document = self.store[url]
-        except KeyError:
+        if url:
             try:
-                document = self.resolve_remote(url)
-            except Exception as exc:
-                raise exceptions.RefResolutionError(exc)
+                document = self.store[url]
+            except KeyError:
+                try:
+                    document = self.resolve_remote(url)
+                except Exception as exc:
+                    raise exceptions.RefResolutionError(exc)
+        else:
+            document = self.referrer
 
         return self.resolve_fragment(document, fragment)
 
