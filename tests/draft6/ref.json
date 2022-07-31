@@ -608,5 +608,179 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "simple URN base URI with $ref via the URN",
+        "schema": {
+            "$comment": "URIs do not have to have HTTP(s) schemes",
+            "$id": "urn:uuid:deadbeef-1234-ffff-ffff-4321feebdaed",
+            "minimum": 30,
+            "properties": {
+                "foo": {"$ref": "urn:uuid:deadbeef-1234-ffff-ffff-4321feebdaed"}
+            }
+        },
+        "tests": [
+            {
+                "description": "valid under the URN IDed schema",
+                "data": {"foo": 37},
+                "valid": true
+            },
+            {
+                "description": "invalid under the URN IDed schema",
+                "data": {"foo": 12},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "simple URN base URI with JSON pointer",
+        "schema": {
+            "$comment": "URIs do not have to have HTTP(s) schemes",
+            "$id": "urn:uuid:deadbeef-1234-00ff-ff00-4321feebdaed",
+            "properties": {
+                "foo": {"$ref": "#/definitions/bar"}
+            },
+            "definitions": {
+                "bar": {"type": "string"}
+            }
+        },
+        "tests": [
+            {
+                "description": "a string is valid",
+                "data": {"foo": "bar"},
+                "valid": true
+            },
+            {
+                "description": "a non-string is invalid",
+                "data": {"foo": 12},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "URN base URI with NSS",
+        "schema": {
+            "$comment": "RFC 8141 §2.2",
+            "$id": "urn:example:1/406/47452/2",
+            "properties": {
+                "foo": {"$ref": "#/definitions/bar"}
+            },
+            "definitions": {
+                "bar": {"type": "string"}
+            }
+        },
+        "tests": [
+            {
+                "description": "a string is valid",
+                "data": {"foo": "bar"},
+                "valid": true
+            },
+            {
+                "description": "a non-string is invalid",
+                "data": {"foo": 12},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "URN base URI with r-component",
+        "schema": {
+            "$comment": "RFC 8141 §2.3.1",
+            "$id": "urn:example:foo-bar-baz-qux?+CCResolve:cc=uk",
+            "properties": {
+                "foo": {"$ref": "#/definitions/bar"}
+            },
+            "definitions": {
+                "bar": {"type": "string"}
+            }
+        },
+        "tests": [
+            {
+                "description": "a string is valid",
+                "data": {"foo": "bar"},
+                "valid": true
+            },
+            {
+                "description": "a non-string is invalid",
+                "data": {"foo": 12},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "URN base URI with q-component",
+        "schema": {
+            "$comment": "RFC 8141 §2.3.2",
+            "$id": "urn:example:weather?=op=map&lat=39.56&lon=-104.85&datetime=1969-07-21T02:56:15Z",
+            "properties": {
+                "foo": {"$ref": "#/definitions/bar"}
+            },
+            "definitions": {
+                "bar": {"type": "string"}
+            }
+        },
+        "tests": [
+            {
+                "description": "a string is valid",
+                "data": {"foo": "bar"},
+                "valid": true
+            },
+            {
+                "description": "a non-string is invalid",
+                "data": {"foo": 12},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "URN base URI with URN and JSON pointer ref",
+        "schema": {
+            "$id": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed",
+            "properties": {
+                "foo": {"$ref": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed#/$defs/bar"}
+            },
+            "$defs": {
+                "bar": {"type": "string"}
+            }
+        },
+        "tests": [
+            {
+                "description": "a string is valid",
+                "data": {"foo": "bar"},
+                "valid": true
+            },
+            {
+                "description": "a non-string is invalid",
+                "data": {"foo": 12},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "URN base URI with URN and anchor ref",
+        "schema": {
+            "$id": "urn:uuid:deadbeef-1234-ff00-00ff-4321feebdaed",
+            "properties": {
+                "foo": {"$ref": "urn:uuid:deadbeef-1234-ff00-00ff-4321feebdaed#something"}
+            },
+            "$defs": {
+                "bar": {
+                    "$id": "#something",
+                    "type": "string"
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "a string is valid",
+                "data": {"foo": "bar"},
+                "valid": true
+            },
+            {
+                "description": "a non-string is invalid",
+                "data": {"foo": 12},
+                "valid": false
+            }
+        ]
     }
 ]
