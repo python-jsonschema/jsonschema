@@ -1,6 +1,8 @@
 v4.9.0
 ------
 
+* Fix relative ``$ref`` resolution when the base URI is a URN or other scheme
+  (#544).
 * ``pkgutil.resolve_name`` is now used to retrieve validators
   provided on the command line. This function is only available on
   3.9+, so 3.7 and 3.8 (which are still supported) now rely on the
