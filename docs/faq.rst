@@ -152,7 +152,7 @@ be valid under the schema.)
 
     .. testcode::
 
-        from jsonschema import Draft7Validator, validators
+        from jsonschema import Draft202012Validator, validators
 
 
         def extend_with_default(validator_class):
@@ -173,21 +173,21 @@ be valid under the schema.)
             )
 
 
-        DefaultValidatingDraft7Validator = extend_with_default(Draft7Validator)
+        DefaultValidatingValidator = extend_with_default(Draft202012Validator)
 
 
         # Example usage:
         obj = {}
         schema = {'properties': {'foo': {'default': 'bar'}}}
-        # Note jsonschem.validate(obj, schema, cls=DefaultValidatingDraft7Validator)
+        # Note jsonschem.validate(obj, schema, cls=DefaultValidatingValidator)
         # will not work because the metaschema contains `default` directives.
-        DefaultValidatingDraft7Validator(schema).validate(obj)
+        DefaultValidatingValidator(schema).validate(obj)
         assert obj == {'foo': 'bar'}
 
 
 See the above-linked document for more info on how this works, but
 basically, it just extends the :validator:`properties` validator on
-a `jsonschema.Draft7Validator` to then go ahead and update all the
+a `jsonschema.Draft202012Validator` to then go ahead and update all the
 defaults.
 
 .. note::
@@ -224,7 +224,7 @@ defaults.
         }
 
         obj = {}
-        DefaultValidatingDraft7Validator(schema).validate(obj)
+        DefaultValidatingValidator(schema).validate(obj)
         assert obj == {'outer-object': {'inner-object': 'INNER-DEFAULT'}}
 
     ...but if you don't provide a default value for your object, then
@@ -235,7 +235,7 @@ defaults.
 
         del schema["properties"]["outer-object"]["default"]
         obj2 = {}
-        DefaultValidatingDraft7Validator(schema).validate(obj2)
+        DefaultValidatingValidator(schema).validate(obj2)
         assert obj2 == {} # whoops
 
 

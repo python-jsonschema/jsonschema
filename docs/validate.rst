@@ -93,14 +93,16 @@ existing `TypeChecker` or create a new one. You may then create a new
 
     def is_my_int(checker, instance):
         return (
-            Draft3Validator.TYPE_CHECKER.is_type(instance, "number") or
+            Draft202012Validator.TYPE_CHECKER.is_type(instance, "number") or
             isinstance(instance, MyInteger)
         )
 
-    type_checker = Draft3Validator.TYPE_CHECKER.redefine("number", is_my_int)
+    type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
+        "number", is_my_int,
+    )
 
     CustomValidator = validators.extend(
-        Draft3Validator,
+        Draft202012Validator,
         type_checker=type_checker,
     )
     validator = CustomValidator(schema={"type" : "number"})
@@ -132,14 +134,14 @@ which each included validator class implements.
 
 
 For example, if you wanted to validate a schema you created against the
-Draft 7 meta-schema, you could use:
+Draft 2020-12 meta-schema, you could use:
 
 .. testcode::
 
-    from jsonschema import Draft7Validator
+    from jsonschema import Draft202012Validator
 
     schema = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$schema": Draft202012Validator.META_SCHEMA["$id"],
 
         "type": "object",
         "properties": {
@@ -148,7 +150,7 @@ Draft 7 meta-schema, you could use:
         },
         "required": ["email"]
     }
-    Draft7Validator.check_schema(schema)
+    Draft202012Validator.check_schema(schema)
 
 
 .. _validating formats:
@@ -168,7 +170,7 @@ validation can be enabled by hooking in a format-checking object into an
     >>> validate(
     ...     instance="-12",
     ...     schema={"format" : "ipv4"},
-    ...     format_checker=draft7_format_checker,
+    ...     format_checker=draft202012_format_checker,
     ... )
     Traceback (most recent call last):
         ...

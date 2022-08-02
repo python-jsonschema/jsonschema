@@ -37,7 +37,7 @@ raised or returned, depending on which method or function is used.
     .. attribute:: validator
 
         The name of the failed `validator
-        <https://json-schema.org/draft-04/json-schema-validation.html#rfc.section.5>`_.
+        <https://json-schema.org/draft/2020-12/json-schema-validation.html#name-a-vocabulary-for-structural>`_.
 
     .. attribute:: validator_value
 
@@ -140,7 +140,7 @@ These attributes can be clarified with a short example:
         }
     }
     instance = [{}, 3, "foo"]
-    v = Draft7Validator(schema)
+    v = Draft202012Validator(schema)
     errors = sorted(v.iter_errors(instance), key=lambda e: e.path)
 
 The error messages in this situation are not very helpful on their own.
@@ -254,7 +254,7 @@ For clarity's sake, the given instance has three errors under this schema:
 
 .. testcode::
 
-    v = Draft3Validator(schema)
+    v = Draft202012Validator(schema)
     for error in sorted(v.iter_errors(["spam", 2]), key=str):
         print(error.message)
 
@@ -350,14 +350,14 @@ to guess the most relevant error in a given bunch.
 
 .. doctest::
 
-        >>> from jsonschema import Draft7Validator
+        >>> from jsonschema import Draft202012Validator
         >>> from jsonschema.exceptions import best_match
 
         >>> schema = {
         ...     "type": "array",
         ...     "minItems": 3,
         ... }
-        >>> print(best_match(Draft7Validator(schema).iter_errors(11)).message)
+        >>> print(best_match(Draft202012Validator(schema).iter_errors(11)).message)
         11 is not of type 'array'
 
 
@@ -395,7 +395,7 @@ to guess the most relevant error in a given bunch.
     ...     },
     ... }
     >>> instance = {"name": 123, "phones": {"home": [123]}}
-    >>> errors = Draft7Validator(schema).iter_errors(instance)
+    >>> errors = Draft202012Validator(schema).iter_errors(instance)
     >>> [
     ...     e.path[-1]
     ...     for e in sorted(errors, key=exceptions.relevance)
