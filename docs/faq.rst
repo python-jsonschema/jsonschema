@@ -150,7 +150,7 @@ this code, we add the default properties to each object *before* the
 properties are validated, so the default values themselves will need to
 be valid under the schema.)
 
-    .. code-block:: python
+    .. testcode::
 
         from jsonschema import Draft7Validator, validators
 
@@ -205,7 +205,7 @@ defaults.
     all of its properties, but only if your schema provides a default
     value for the object itself, like so:
 
-    .. code-block:: python
+    .. testcode::
 
         schema = {
             "type": "object",
@@ -231,7 +231,7 @@ defaults.
     it won't be instantiated at all, much less populated with default
     properties.
 
-    .. code-block:: python
+    .. testcode::
 
         del schema["properties"]["outer-object"]["default"]
         obj2 = {}

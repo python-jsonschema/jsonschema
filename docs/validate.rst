@@ -84,7 +84,9 @@ types as being acceptable for a validator object, then you should update an
 existing `TypeChecker` or create a new one. You may then create a new
 `Validator` via `jsonschema.validators.extend`.
 
-.. code-block:: python
+.. testcode::
+
+    from jsonschema import validators
 
     class MyInteger(object):
         pass
@@ -97,7 +99,10 @@ existing `TypeChecker` or create a new one. You may then create a new
 
     type_checker = Draft3Validator.TYPE_CHECKER.redefine("number", is_my_int)
 
-    CustomValidator = extend(Draft3Validator, type_checker=type_checker)
+    CustomValidator = validators.extend(
+        Draft3Validator,
+        type_checker=type_checker,
+    )
     validator = CustomValidator(schema={"type" : "number"})
 
 
@@ -129,7 +134,7 @@ which each included validator class implements.
 For example, if you wanted to validate a schema you created against the
 Draft 7 meta-schema, you could use:
 
-.. code-block:: python
+.. testcode::
 
     from jsonschema import Draft7Validator
 
