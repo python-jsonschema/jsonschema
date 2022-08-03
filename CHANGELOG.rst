@@ -1,3 +1,9 @@
+v4.9.1
+------
+
+* Update some documentation examples to use newer validator releases in their
+  sample code.
+
 v4.9.0
 ------
 
