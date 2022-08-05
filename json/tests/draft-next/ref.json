@@ -670,7 +670,7 @@
         "description": "simple URN base URI with JSON pointer",
         "schema": {
             "$comment": "URIs do not have to have HTTP(s) schemes",
-            "$id": "urn:uuid:deadbeef-1234-ffff-ffff-4321feebdaed",
+            "$id": "urn:uuid:deadbeef-1234-00ff-ff00-4321feebdaed",
             "properties": {
                 "foo": {"$ref": "#/$defs/bar"}
             },
@@ -807,9 +807,9 @@
     {
         "description": "URN base URI with URN and anchor ref",
         "schema": {
-            "$id": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed",
+            "$id": "urn:uuid:deadbeef-1234-ff00-00ff-4321feebdaed",
             "properties": {
-                "foo": {"$ref": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed#something"}
+                "foo": {"$ref": "urn:uuid:deadbeef-1234-ff00-00ff-4321feebdaed#something"}
             },
             "$defs": {
                 "bar": {
