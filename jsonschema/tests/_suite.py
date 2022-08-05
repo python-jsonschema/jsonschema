@@ -208,6 +208,14 @@ class _Test(object):
             store=self._remotes,
             id_of=Validator.ID_OF,
         )
+
+        # XXX: #693 asks to improve the public API for this, since yeah, it's
+        #      bad. Figures that since it's hard for end-users, we experience
+        #      the pain internally here too.
+        def prevent_network_access(*args, **kwargs):
+            raise RuntimeError("Tried to access the network!")
+        resolver.resolve_remote = prevent_network_access
+
         validator = Validator(schema=self.schema, resolver=resolver, **kwargs)
         if os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
             breakpoint()
