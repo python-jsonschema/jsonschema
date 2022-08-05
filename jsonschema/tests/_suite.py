@@ -194,7 +194,12 @@ class _Test(object):
 
         fn.__name__ = self.method_name
         reason = skip(self)
-        return unittest.skipIf(reason is not None, reason)(fn)
+        if reason is None:
+            return fn
+        elif os.environ.get("JSON_SCHEMA_EXPECTED_FAILURES", "0") != "0":
+            return unittest.expectedFailure(fn)
+        else:
+            return unittest.skip(reason)(fn)
 
     def validate(self, Validator, **kwargs):
         Validator.check_schema(self.schema)

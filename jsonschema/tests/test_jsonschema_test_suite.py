@@ -8,7 +8,7 @@ See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 
 import sys
 
-from jsonschema.tests._helpers import bug
+from jsonschema.tests._helpers import bug, test_suite_bug
 from jsonschema.tests._suite import Suite
 import jsonschema
 
@@ -160,6 +160,7 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or skip(
             message=bug(371),
             subject="ref",
+            valid=False,
             case_description=(
                 "$ref prevents a sibling id from changing the base uri"
             ),
@@ -244,16 +245,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or leap_second(test)
         or missing_format(jsonschema.draft6_format_checker)(test)
         or complex_email_validation(test)
-        or skip(
-            message="id is incorrectly finding non-ids",
-            subject="id",
-            description="const at const_not_anchor does not match",
-        )(test)
-        or skip(
-            message="id is incorrectly finding non-ids",
-            subject="id",
-            description="const at const_not_id does not match",
-        )(test)
         or skip(
             message=bug(),
             subject="refRemote",
@@ -342,31 +333,152 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
         skip(
             message="unevaluatedItems is different in 2019-09 (needs work).",
             subject="unevaluatedItems",
+            description="uncle keyword evaluation is not significant",
         )(test)
         or skip(
-            message="dynamicRef support isn't working yet.",
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            description="when one schema matches and has unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            description="when two schemas match and has unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            description="when if matches and it has unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            case_description="unevaluatedItems with nested tuple",
+            description="with unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            case_description="unevaluatedItems with not",
+            description="with unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            case_description="unevaluatedItems with oneOf",
+            description="with unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            case_description="unevaluatedItems with $ref",
+            description="with unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            case_description="unevaluatedItems with tuple",
+            description="with unevaluated items",
+        )(test)
+        or skip(
+            message="unevaluatedItems is different in 2019-09 (needs work).",
+            subject="unevaluatedItems",
+            description="when if doesn't match and it has unevaluated items",
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
             subject="recursiveRef",
+            case_description=(
+                "$recursiveRef with no $recursiveAnchor in "
+                "the initial target schema resource"
+            ),
+            description=(
+                "leaf node does not match: recursion uses the inner schema"
+            ),
         )(test)
         or skip(
-            message="These tests depends on dynamicRef working.",
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            description="leaf node matches: recursion uses the inner schema",
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            case_description=(
+                "dynamic $recursiveRef destination (not predictable "
+                "at schema compile time)"
+            ),
+            description="integer node",
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            case_description=(
+                "multiple dynamic paths to the $recursiveRef keyword"
+            ),
+            description="recurse to integerNode - floats are not allowed",
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            description="integer does not match as a property value",
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            description=(
+                "leaf node does not match: "
+                "recursion only uses inner schema"
+            ),
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            description=(
+                "leaf node matches: "
+                "recursion only uses inner schema"
+            ),
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            description=(
+                "two levels, integer does not match as a property value"
+            ),
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            description="recursive mismatch",
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
+            subject="recursiveRef",
+            description="two levels, no match",
+        )(test)
+        or skip(
+            message="recursiveRef support isn't working yet.",
             subject="id",
             case_description=(
                 "Invalid use of fragments in location-independent $id"
             ),
         )(test)
         or skip(
-            message="These tests depends on dynamicRef working.",
+            message="dynamicRef support isn't fully working yet.",
             subject="defs",
             description="invalid definition schema",
         )(test)
         or skip(
-            message="These tests depends on dynamicRef working.",
+            message="dynamicRef support isn't fully working yet.",
             subject="anchor",
             case_description="same $anchor with different base uri",
         )(test)
         or skip(
-            message="Vocabulary support is not yet present.",
+            message=test_suite_bug(574),
             subject="vocabulary",
+            description=(
+                "no validation: invalid number, but it still validates"
+            ),
         )(test)
         or skip(
             message=bug(),
@@ -404,21 +516,72 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     skip=lambda test: (
         narrow_unicode_build(test)
         or skip(
-            message="dynamicRef support isn't working yet.",
+            message="dynamicRef support isn't fully working yet.",
             subject="dynamicRef",
+            description="The recursive part is not valid against the root",
         )(test)
         or skip(
-            message="These tests depends on dynamicRef working.",
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="correct extended schema",
+            case_description=(
+                "Tests for implementation dynamic anchor and reference link. "
+                "Reference should be independent of any possible ordering."
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="incorrect extended schema",
+            case_description=(
+                "Tests for implementation dynamic anchor and reference link. "
+                "Reference should be independent of any possible ordering."
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description=(
+                "/then/$defs/thingy is the final stop for the $dynamicRef"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description=(
+                "string matches /$defs/thingy, but the $dynamicRef "
+                "does not stop here"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description=(
+                "string matches /$defs/thingy, but the $dynamicRef "
+                "does not stop here"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="recurse to integerNode - floats are not allowed",
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
             subject="defs",
+            description="invalid definition schema",
         )(test)
         or skip(
-            message="These tests depends on dynamicRef working.",
+            message="dynamicRef support isn't fully working yet.",
             subject="anchor",
             case_description="same $anchor with different base uri",
         )(test)
         or skip(
-            message="Vocabulary support is not yet present.",
+            message=test_suite_bug(574),
             subject="vocabulary",
+            description=(
+                "no validation: invalid number, but it still validates"
+            ),
         )(test)
         or skip(
             message=bug(),
