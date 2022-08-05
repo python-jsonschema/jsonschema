@@ -204,6 +204,8 @@ class _Test(object):
             id_of=Validator.ID_OF,
         )
         validator = Validator(schema=self.schema, resolver=resolver, **kwargs)
+        if os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
+            breakpoint()
         validator.validate(instance=self.data)
 
     def validate_ignoring_errors(self, Validator):  # pragma: no cover
