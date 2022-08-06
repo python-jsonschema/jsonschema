@@ -91,9 +91,7 @@ if sys.version_info < (3, 9):  # pragma: no cover
     allowed_leading_zeros = skip(
         message=message,
         subject="ipv4",
-        description=(
-            "leading zeroes are rejected, as they are treated as octals"
-        ),
+        description="invalid leading zeroes, as they are treated as octals",
     )
 else:
     def allowed_leading_zeros(test):  # pragma: no cover
