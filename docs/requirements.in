@@ -1,6 +1,0 @@
-file:.#egg=jsonschema
-furo
-lxml
-sphinx
-sphinx-autodoc-typehints
-sphinxcontrib-spelling
