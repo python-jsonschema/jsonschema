@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 
 def issues_url(organization, repository):
     return urljoin(
-        "https://github.com/", f"{organization}/{repository}/issues",
+        "https://github.com/", f"{organization}/{repository}/issues/",
     )
 
 
