@@ -52,7 +52,7 @@
     {
         "description": "non-schema object containing a plain-name $id property",
         "schema": {
-            "$defs": {
+            "definitions": {
                 "const_not_anchor": {
                     "const": {
                         "$id": "#not_a_real_anchor"
@@ -64,7 +64,7 @@
             },
             "then": true,
             "else" : {
-                "$ref": "#/$defs/const_not_anchor"
+                "$ref": "#/definitions/const_not_anchor"
             }
         },
         "tests": [
@@ -83,7 +83,7 @@
     {
         "description": "non-schema object containing an $id property",
         "schema": {
-            "$defs": {
+            "definitions": {
                 "const_not_id": {
                     "const": {
                         "$id": "not_a_real_id"
@@ -95,7 +95,7 @@
             },
             "then": true,
             "else" : {
-                "$ref": "#/$defs/const_not_id"
+                "$ref": "#/definitions/const_not_id"
             }
         },
         "tests": [
