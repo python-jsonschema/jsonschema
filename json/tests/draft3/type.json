@@ -435,8 +435,7 @@
         ]
     },
     {
-        "description": 
-            "when types includes a schema it should fully validate the schema",
+        "description": "applies a nested schema",
         "schema": {
             "type": [
                 "integer",

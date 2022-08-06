@@ -1,6 +1,6 @@
 [
     {
-        "description": "A $dynamicRef to a $dynamicAnchor in the same schema resource should behave like a normal $ref to an $anchor",
+        "description": "A $dynamicRef to a $dynamicAnchor in the same schema resource behaves like a normal $ref to an $anchor",
         "schema": {
             "$id": "https://test.json-schema.org/dynamicRef-dynamicAnchor-same-schema/root",
             "type": "array",
@@ -26,7 +26,7 @@
         ]
     },
     {
-        "description": "A $dynamicRef to an $anchor in the same schema resource should behave like a normal $ref to an $anchor",
+        "description": "A $dynamicRef to an $anchor in the same schema resource behaves like a normal $ref to an $anchor",
         "schema": {
             "$id": "https://test.json-schema.org/dynamicRef-anchor-same-schema/root",
             "type": "array",
@@ -52,7 +52,7 @@
         ]
     },
     {
-        "description": "A $ref to a $dynamicAnchor in the same schema resource should behave like a normal $ref to an $anchor",
+        "description": "A $ref to a $dynamicAnchor in the same schema resource behaves like a normal $ref to an $anchor",
         "schema": {
             "$id": "https://test.json-schema.org/ref-dynamicAnchor-same-schema/root",
             "type": "array",
@@ -78,7 +78,7 @@
         ]
     },
     {
-        "description": "A $dynamicRef should resolve to the first $dynamicAnchor still in scope that is encountered when the schema is evaluated",
+        "description": "A $dynamicRef resolves to the first $dynamicAnchor still in scope that is encountered when the schema is evaluated",
         "schema": {
             "$id": "https://test.json-schema.org/typical-dynamic-resolution/root",
             "$ref": "list",
@@ -114,7 +114,7 @@
         ]
     },
     {
-        "description": "A $dynamicRef with intermediate scopes that don't include a matching $dynamicAnchor should not affect dynamic scope resolution",
+        "description": "A $dynamicRef with intermediate scopes that don't include a matching $dynamicAnchor does not affect dynamic scope resolution",
         "schema": {
             "$id": "https://test.json-schema.org/dynamic-resolution-with-intermediate-scopes/root",
             "$ref": "intermediate-scope",
@@ -154,7 +154,7 @@
         ]
     },
     {
-        "description": "An $anchor with the same name as a $dynamicAnchor should not be used for dynamic scope resolution",
+        "description": "An $anchor with the same name as a $dynamicAnchor is not used for dynamic scope resolution",
         "schema": {
             "$id": "https://test.json-schema.org/dynamic-resolution-ignores-anchors/root",
             "$ref": "list",
@@ -185,7 +185,7 @@
         ]
     },
     {
-        "description": "A $dynamicRef without a matching $dynamicAnchor in the same schema resource should behave like a normal $ref to $anchor",
+        "description": "A $dynamicRef without a matching $dynamicAnchor in the same schema resource behaves like a normal $ref to $anchor",
         "schema": {
             "$id": "https://test.json-schema.org/dynamic-resolution-without-bookend/root",
             "$ref": "list",
@@ -216,7 +216,7 @@
         ]
     },
     {
-        "description": "A $dynamicRef with a non-matching $dynamicAnchor in the same schema resource should behave like a normal $ref to $anchor",
+        "description": "A $dynamicRef with a non-matching $dynamicAnchor in the same schema resource behaves like a normal $ref to $anchor",
         "schema": {
             "$id": "https://test.json-schema.org/unmatched-dynamic-anchor/root",
             "$ref": "list",
@@ -248,7 +248,7 @@
         ]
     },
     {
-        "description": "A $dynamicRef that initially resolves to a schema with a matching $dynamicAnchor should resolve to the first $dynamicAnchor in the dynamic scope",
+        "description": "A $dynamicRef that initially resolves to a schema with a matching $dynamicAnchor resolves to the first $dynamicAnchor in the dynamic scope",
         "schema": {
             "$id": "https://test.json-schema.org/relative-dynamic-reference/root",
             "$dynamicAnchor": "meta",
@@ -299,7 +299,7 @@
         ]
     },
     {
-        "description": "A $dynamicRef that initially resolves to a schema without a matching $dynamicAnchor should behave like a normal $ref to $anchor",
+        "description": "A $dynamicRef that initially resolves to a schema without a matching $dynamicAnchor behaves like a normal $ref to $anchor",
         "schema": {
             "$id": "https://test.json-schema.org/relative-dynamic-reference-without-bookend/root",
             "$dynamicAnchor": "meta",
@@ -386,7 +386,7 @@
         ]
     },
     {
-        "description": "after leaving a dynamic scope, it should not be used by a $dynamicRef",
+        "description": "after leaving a dynamic scope, it is not used by a $dynamicRef",
         "schema": {
             "$id": "https://test.json-schema.org/dynamic-ref-leaving-dynamic-scope/main",
             "if": {

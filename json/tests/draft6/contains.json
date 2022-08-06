@@ -127,7 +127,7 @@
         ]
     },
     {
-        "description": "contains should properly handle null data",
+        "description": "contains with null instance elements",
         "schema": {
             "contains": {
                 "type": "null"
@@ -135,7 +135,7 @@
         },
         "tests": [
             {
-                "description": "null items allowed",
+                "description": "allows null items",
                 "data": [ null ],
                 "valid": true
             }

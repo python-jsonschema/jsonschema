@@ -254,7 +254,7 @@
         ]
     },
     {
-        "description": "items with null",
+        "description": "items with null instance elements",
         "schema": {
             "items": {
                 "type": "null"

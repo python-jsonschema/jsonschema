@@ -95,7 +95,7 @@
         ]
     },
     {
-        "description": "additionalItems should not look in applicators, valid case",
+        "description": "additionalItems does not look in applicators, valid case",
         "schema": {
             "allOf": [
                 { "items": [ { "type": "integer" } ] }
@@ -111,7 +111,7 @@
         ]
     },
     {
-        "description": "additionalItems should not look in applicators, invalid case",
+        "description": "additionalItems does not look in applicators, invalid case",
         "schema": {
             "allOf": [
                 { "items": [ { "type": "integer" }, { "type": "string" } ] }
@@ -147,7 +147,7 @@
         ]
     },
     {
-        "description": "additionalItems should properly handle null data",
+        "description": "additionalItems with null instance elements",
         "schema": {
             "additionalItems": {
                 "type": "null"
@@ -155,7 +155,7 @@
         },
         "tests": [
             {
-                "description": "null items allowed",
+                "description": "allows null elements",
                 "data": [ null ],
                 "valid": true
             }

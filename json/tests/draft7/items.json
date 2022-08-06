@@ -248,7 +248,7 @@
         ]
     },
     {
-        "description": "single-form items should properly handle null data",
+        "description": "single-form items with null instance elements",
         "schema": {
             "items": {
                 "type": "null"
@@ -256,14 +256,14 @@
         },
         "tests": [
             {
-                "description": "null properties allowed",
+                "description": "allows null elements",
                 "data": [ null ],
                 "valid": true
             }
         ]
     },
     {
-        "description": "array-form items should properly handle null data",
+        "description": "array-form items with null instance elements",
         "schema": {
             "items": [
                 {
@@ -273,7 +273,7 @@
         },
         "tests": [
             {
-                "description": "null items allowed",
+                "description": "allows null elements",
                 "data": [ null ],
                 "valid": true
             }

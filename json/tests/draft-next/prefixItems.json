@@ -79,7 +79,7 @@
         ]
     },
     {
-        "description": "prefixItems properly handles null data",
+        "description": "prefixItems with null instance elements",
         "schema": {
             "prefixItems": [
                 {
@@ -89,7 +89,7 @@
         },
         "tests": [
             {
-                "description": "null items allowed",
+                "description": "allows null elements",
                 "data": [ null ],
                 "valid": true
             }
