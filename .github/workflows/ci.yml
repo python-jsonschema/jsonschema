@@ -119,54 +119,6 @@ jobs:
         exclude:
           - os: windows-latest
             python-version:
-              name: pypy-3.8
-              toxenv: pypy3-noextra-build
-          - os: windows-latest
-            python-version:
-              name: pypy-3.8
-              toxenv: pypy3-noextra-tests
-          - os: windows-latest
-            python-version:
-              name: pypy-3.8
-              toxenv: pypy3-format-build
-          - os: windows-latest
-            python-version:
-              name: pypy-3.8
-              toxenv: pypy3-format-tests
-          - os: windows-latest
-            python-version:
-              name: pypy-3.8
-              toxenv: pypy3-formatnongpl-build
-          - os: windows-latest
-            python-version:
-              name: pypy-3.8
-              toxenv: pypy3-formatnongpl-tests
-          - os: windows-latest
-            python-version:
-              name: "3.10"
-              toxenv: py310-noextra-tests
-          - os: windows-latest
-            python-version:
-              name: "3.10"
-              toxenv: py310-format-tests
-          - os: windows-latest
-            python-version:
-              name: "3.10"
-              toxenv: py310-formatnongpl-tests
-          - os: windows-latest
-            python-version:
-              name: "3.11.0-alpha - 3.11.0"
-              toxenv: py311-noextra-tests
-          - os: windows-latest
-            python-version:
-              name: "3.11.0-alpha - 3.11.0"
-              toxenv: py311-format-tests
-          - os: windows-latest
-            python-version:
-              name: "3.11.0-alpha - 3.11.0"
-              toxenv: py311-formatnongpl-tests
-          - os: windows-latest
-            python-version:
               name: "3.10"
               toxenv: readme
           - os: windows-latest
@@ -194,6 +146,9 @@ jobs:
       if: runner.os == 'macOS' && startsWith(matrix.python-version.toxenv, 'docs-')
     - name: Install tox
       run: python -m pip install tox
+    - name: Enable UTF-8 on Windows
+      run: echo "PYTHONUTF8=1" >> $env:GITHUB_ENV
+      if: runner.os == 'Windows' && startsWith(matrix.python-version.toxenv, 'py')
     - name: Run tox
       run: python -m tox -e "${{ matrix.python-version.toxenv }}"
 
