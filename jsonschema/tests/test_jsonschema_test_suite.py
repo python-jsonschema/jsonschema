@@ -92,7 +92,7 @@ if sys.version_info < (3, 9):  # pragma: no cover
         message=message,
         subject="ipv4",
         description=(
-            "leading zeroes should be rejected, as they are treated as octals"
+            "leading zeroes are rejected, as they are treated as octals"
         ),
     )
 else:
@@ -523,10 +523,27 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
         or skip(
             message="dynamicRef support isn't fully working yet.",
             subject="dynamicRef",
+            description="incorrect extended schema",
+            case_description=(
+                "$ref and $dynamicAnchor are independent of order - "
+                "$defs first"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
             description="correct extended schema",
             case_description=(
-                "Tests for implementation dynamic anchor and reference link. "
-                "Reference should be independent of any possible ordering."
+                "$ref and $dynamicAnchor are independent of order - "
+                "$defs first"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="correct extended schema",
+            case_description=(
+                "$ref and $dynamicAnchor are independent of order - $ref first"
             ),
         )(test)
         or skip(
@@ -534,8 +551,7 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
             subject="dynamicRef",
             description="incorrect extended schema",
             case_description=(
-                "Tests for implementation dynamic anchor and reference link. "
-                "Reference should be independent of any possible ordering."
+                "$ref and $dynamicAnchor are independent of order - $ref first"
             ),
         )(test)
         or skip(
