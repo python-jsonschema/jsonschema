@@ -43,7 +43,7 @@
         ]
     },
     {
-        "description": "integer comparison",
+        "description": "maximum integer comparison",
         "schema": { "maximum": 18446744073709551615 },
         "tests": [
             {
@@ -68,7 +68,7 @@
         ]
     },
     {
-        "description": "integer comparison",
+        "description": "minimum integer comparison",
         "schema": { "minimum": -18446744073709551615 },
         "tests": [
             {

@@ -119,12 +119,12 @@
                 "valid": false
             },
             {
-                "description": "non-ascii digits should be rejected in the date portion",
+                "description": "invalid non-ASCII '৪' (a Bengali 4) in date portion",
                 "data": "1963-06-1৪T00:00:00Z",
                 "valid": false
             },
             {
-                "description": "non-ascii digits should be rejected in the time portion",
+                "description": "invalid non-ASCII '৪' (a Bengali 4) in time portion",
                 "data": "1963-06-11T0৪:00:00Z",
                 "valid": false
             }

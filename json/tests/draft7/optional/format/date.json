@@ -214,7 +214,7 @@
                 "valid": true
             },
             {
-                "description": "non-ascii digits should be rejected",
+                "description": "invalid non-ASCII '৪' (a Bengali 4)",
                 "data": "1963-06-1৪",
                 "valid": false
             }

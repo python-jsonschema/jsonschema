@@ -79,7 +79,7 @@
         ]
     },
     {
-        "description": "prefixItems should properly handle null data",
+        "description": "prefixItems properly handles null data",
         "schema": {
             "prefixItems": [
                 {

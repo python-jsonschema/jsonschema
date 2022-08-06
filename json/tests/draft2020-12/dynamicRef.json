@@ -517,7 +517,7 @@
         ]
     },
     {
-        "description": "Tests for implementation dynamic anchor and reference link. Reference should be independent of any possible ordering.",
+        "description": "$ref and $dynamicAnchor are independent of order - $defs first",
         "schema": {
             "$id": "http://localhost:1234/strict-extendible-allof-defs-first.json",
             "allOf": [
@@ -567,7 +567,7 @@
         ]
     },
     {
-        "description": "Tests for implementation dynamic anchor and reference link. Reference should be independent of any possible ordering.",
+        "description": "$ref and $dynamicAnchor are independent of order - $ref first",
         "schema": {
             "$id": "http://localhost:1234/strict-extendible-allof-ref-first.json",
             "allOf": [

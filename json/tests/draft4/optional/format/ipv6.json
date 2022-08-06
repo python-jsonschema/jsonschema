@@ -194,12 +194,12 @@
                 "valid": false
             },
             {
-                "description": "non-ascii digits should be rejected",
+                "description": "invalid non-ASCII '৪' (a Bengali 4)",
                 "data": "1:2:3:4:5:6:7:৪",
                 "valid": false
             },
             {
-                "description": "non-ascii digits should be rejected in the ipv4 portion also",
+                "description": "invalid non-ASCII '৪' (a Bengali 4) in the IPv4 portion",
                 "data": "1:2::192.16৪.0.1",
                 "valid": false
             }

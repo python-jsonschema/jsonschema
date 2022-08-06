@@ -64,7 +64,7 @@
                 "valid": false
             },
             {
-                "description": "leading zeroes should be rejected, as they are treated as octals",
+                "description": "invalid leading zeroes, as they are treated as octals",
                 "comment": "see https://sick.codes/universal-netmask-npm-package-used-by-270000-projects-vulnerable-to-octal-input-data-server-side-request-forgery-remote-file-inclusion-local-file-inclusion-and-more-cve-2021-28918/",
                 "data": "087.10.0.1",
                 "valid": false
@@ -75,7 +75,7 @@
                 "valid": true
             },
             {
-                "description": "non-ascii digits should be rejected",
+                "description": "invalid non-ASCII '২' (a Bengali 2)",
                 "data": "1২7.0.0.1",
                 "valid": false
             }

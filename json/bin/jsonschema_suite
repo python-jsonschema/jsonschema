@@ -40,14 +40,14 @@ def files(paths):
     Each test file in the provided paths, as an array of test cases.
     """
     for path in paths:
-        yield json.loads(path.read_text())
+        yield path, json.loads(path.read_text())
 
 
 def cases(paths):
     """
     Each test case within each file in the provided paths.
     """
-    for test_file in files(paths):
+    for _, test_file in files(paths):
         yield from test_file
 
 
@@ -82,51 +82,114 @@ class SanityTests(unittest.TestCase):
         assert cls.remote_files, "Didn't find the remote files!"
         print(f"Found {len(cls.remote_files)} remote files")
 
+    def assertUnique(self, iterable):
+        """
+        Assert that the elements of an iterable are unique.
+        """
+
+        seen, duplicated = set(), set()
+        for each in iterable:
+            if each in seen:
+                duplicated.add(each)
+            seen.add(each)
+        self.assertFalse(duplicated, "Elements are not unique.")
+
     def test_all_test_files_are_valid_json(self):
         """
         All test files contain valid JSON.
         """
         for path in self.test_files:
-            try:
-                json.loads(path.read_text())
-            except ValueError as error:
-                self.fail(f"{path} contains invalid JSON ({error})")
+            with self.subTest(path=path):
+                try:
+                    json.loads(path.read_text())
+                except ValueError as error:
+                    self.fail(f"{path} contains invalid JSON ({error})")
 
     def test_all_remote_files_are_valid_json(self):
         """
         All remote files contain valid JSON.
         """
         for path in self.remote_files:
-            try:
-                json.loads(path.read_text())
-            except ValueError as error:
-                self.fail(f"{path} contains invalid JSON ({error})")
+            with self.subTest(path=path):
+                try:
+                    json.loads(path.read_text())
+                except ValueError as error:
+                    self.fail(f"{path} contains invalid JSON ({error})")
 
-    def test_all_descriptions_have_reasonable_length(self):
+    def test_all_case_descriptions_have_reasonable_length(self):
+        """
+        All cases have reasonably long descriptions.
+        """
+        for case in cases(self.test_files):
+            with self.subTest(description=case["description"]):
+                self.assertLess(
+                    len(case["description"]),
+                    150,
+                    "Description is too long (keep it to less than 150 chars)."
+                )
+
+    def test_all_test_descriptions_have_reasonable_length(self):
         """
         All tests have reasonably long descriptions.
         """
         for count, test in enumerate(tests(self.test_files)):
-            description = test["description"]
-            self.assertLess(
-                len(description),
-                70,
-                f"{description!r} is too long! (keep it to less than 70 chars)"
-            )
+            with self.subTest(description=test["description"]):
+                self.assertLess(
+                    len(test["description"]),
+                    70,
+                    "Description is too long (keep it to less than 70 chars)."
+                )
         print(f"Found {count} tests.")
 
-    def test_all_descriptions_are_unique(self):
+    def test_all_case_descriptions_are_unique(self):
+        """
+        All cases have unique descriptions in their files.
+        """
+        for path, cases in files(self.test_files):
+            with self.subTest(path=path):
+                self.assertUnique(case["description"] for case in cases)
+
+    def test_all_test_descriptions_are_unique(self):
         """
         All test cases have unique test descriptions in their tests.
         """
         for count, case in enumerate(cases(self.test_files)):
-            descriptions = set(test["description"] for test in case["tests"])
-            self.assertEqual(
-                len(descriptions),
-                len(case["tests"]),
-                f"{case!r} contains a duplicate description",
-            )
+            with self.subTest(description=case["description"]):
+                self.assertUnique(
+                    test["description"] for test in case["tests"]
+                )
         print(f"Found {count} test cases.")
+
+    def test_descriptions_do_not_use_modal_verbs(self):
+        """
+        Instead of saying "test that X frobs" or "X should frob" use "X frobs".
+
+        See e.g. https://jml.io/pages/test-docstrings.html
+
+        This test isn't comprehensive (it doesn't catch all the extra
+        verbiage there), but it's just to catch whatever it manages to
+        cover.
+        """
+
+        message = (
+            "In descriptions, don't say 'Test that X frobs' or 'X should "
+            "frob' or 'X should be valid'. Just say 'X frobs' or 'X is "
+            "valid'. It's shorter, and the test suite is entirely about "
+            "what *should* be already. "
+            "See https://jml.io/pages/test-docstrings.html for help."
+        )
+        for test in tests(self.test_files):
+            with self.subTest(description=test["description"]):
+                self.assertNotRegex(
+                    test["description"],
+                    r"\bshould\b",
+                    message,
+                )
+                self.assertNotRegex(
+                    test["description"],
+                    r"(?i)\btest(s)? that\b",
+                    message,
+                )
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_all_schemas_are_valid(self):
@@ -141,12 +204,14 @@ class SanityTests(unittest.TestCase):
             if Validator is not None:
                 test_files = collect(version)
                 for case in cases(test_files):
-                    try:
-                        Validator.check_schema(case["schema"])
-                    except jsonschema.SchemaError as error:
-                        self.fail(
-                            f"{case} contains an invalid schema ({error})",
-                        )
+                    with self.subTest(case=case):
+                        try:
+                            Validator.check_schema(case["schema"])
+                        except jsonschema.SchemaError:
+                            self.fail(
+                                "Found an invalid schema."
+                                "See the traceback for details on why."
+                            )
             else:
                 warnings.warn(f"No schema validator for {version.name}")
 
@@ -157,11 +222,12 @@ class SanityTests(unittest.TestCase):
         """
         Validator = jsonschema.validators.validator_for(TESTSUITE_SCHEMA)
         validator = Validator(TESTSUITE_SCHEMA)
-        for tests in files(self.test_files):
-            try:
-                validator.validate(tests)
-            except jsonschema.ValidationError as error:
-                self.fail(str(error))
+        for path, cases in files(self.test_files):
+            with self.subTest(path=path):
+                try:
+                    validator.validate(cases)
+                except jsonschema.ValidationError as error:
+                    self.fail(str(error))
 
 
 def main(arguments):

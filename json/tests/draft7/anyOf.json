@@ -185,31 +185,5 @@
                 "valid": false
             }
         ]
-    },
-    {
-        "description": "nested anyOf, to check validation semantics",
-        "schema": {
-            "anyOf": [
-                {
-                    "anyOf": [
-                        {
-                            "type": "null"
-                        }
-                    ]
-                }
-            ]
-        },
-        "tests": [
-            {
-                "description": "null is valid",
-                "data": null,
-                "valid": true
-            },
-            {
-                "description": "anything non-null is invalid",
-                "data": 123,
-                "valid": false
-            }
-        ]
     }
 ]

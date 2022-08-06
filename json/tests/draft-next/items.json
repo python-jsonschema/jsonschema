@@ -214,7 +214,7 @@
         ]
     },
     {
-        "description": "items should not look in applicators, valid case",
+        "description": "items does not look in applicators, valid case",
         "schema": {
             "allOf": [
                 { "prefixItems": [ { "minimum": 3 } ] }
@@ -223,12 +223,12 @@
         },
         "tests": [
             {
-                "description": "prefixItems in allOf should not constrain items, invalid case",
+                "description": "prefixItems in allOf does not constrain items, invalid case",
                 "data": [ 3, 5 ],
                 "valid": false
             },
             {
-                "description": "prefixItems in allOf should not constrain items, valid case",
+                "description": "prefixItems in allOf does not constrain items, valid case",
                 "data": [ 5, 5 ],
                 "valid": true
             }
@@ -254,7 +254,7 @@
         ]
     },
     {
-        "description": "items should properly handle null data",
+        "description": "items with null",
         "schema": {
             "items": {
                 "type": "null"
@@ -262,7 +262,7 @@
         },
         "tests": [
             {
-                "description": "null items allowed",
+                "description": "allows null elements",
                 "data": [ null ],
                 "valid": true
             }
