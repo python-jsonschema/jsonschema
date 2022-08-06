@@ -94,6 +94,27 @@ class SanityTests(unittest.TestCase):
             seen.add(each)
         self.assertFalse(duplicated, "Elements are not unique.")
 
+    def assertFollowsDescriptionStyle(self, description):
+        """
+        Instead of saying "test that X frobs" or "X should frob" use "X frobs".
+
+        See e.g. https://jml.io/pages/test-docstrings.html
+
+        This test isn't comprehensive (it doesn't catch all the extra
+        verbiage there), but it's just to catch whatever it manages to
+        cover.
+        """
+
+        message = (
+            "In descriptions, don't say 'Test that X frobs' or 'X should "
+            "frob' or 'X should be valid'. Just say 'X frobs' or 'X is "
+            "valid'. It's shorter, and the test suite is entirely about "
+            "what *should* be already. "
+            "See https://jml.io/pages/test-docstrings.html for help."
+        )
+        self.assertNotRegex(description, r"\bshould\b", message)
+        self.assertNotRegex(description, r"(?i)\btest(s)? that\b", message)
+
     def test_all_test_files_are_valid_json(self):
         """
         All test files contain valid JSON.
@@ -160,36 +181,15 @@ class SanityTests(unittest.TestCase):
                 )
         print(f"Found {count} test cases.")
 
-    def test_descriptions_do_not_use_modal_verbs(self):
-        """
-        Instead of saying "test that X frobs" or "X should frob" use "X frobs".
+    def test_case_descriptions_do_not_use_modal_verbs(self):
+        for case in cases(self.test_files):
+            with self.subTest(description=case["description"]):
+                self.assertFollowsDescriptionStyle(case["description"])
 
-        See e.g. https://jml.io/pages/test-docstrings.html
-
-        This test isn't comprehensive (it doesn't catch all the extra
-        verbiage there), but it's just to catch whatever it manages to
-        cover.
-        """
-
-        message = (
-            "In descriptions, don't say 'Test that X frobs' or 'X should "
-            "frob' or 'X should be valid'. Just say 'X frobs' or 'X is "
-            "valid'. It's shorter, and the test suite is entirely about "
-            "what *should* be already. "
-            "See https://jml.io/pages/test-docstrings.html for help."
-        )
+    def test_test_descriptions_do_not_use_modal_verbs(self):
         for test in tests(self.test_files):
             with self.subTest(description=test["description"]):
-                self.assertNotRegex(
-                    test["description"],
-                    r"\bshould\b",
-                    message,
-                )
-                self.assertNotRegex(
-                    test["description"],
-                    r"(?i)\btest(s)? that\b",
-                    message,
-                )
+                self.assertFollowsDescriptionStyle(test["description"])
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_all_schemas_are_valid(self):

@@ -95,7 +95,7 @@
         ]
     },
     {
-        "description": "additionalItems should not look in applicators",
+        "description": "additionalItems does not look in applicators",
         "schema": {
             "extends": [
                 { "items": [ { "type": "integer" } ] }
@@ -111,7 +111,7 @@
         ]
     },
     {
-        "description": "additionalItems should properly handle null data",
+        "description": "additionalItems with null instance elements",
         "schema": {
             "additionalItems": {
                 "type": "null"
@@ -119,7 +119,7 @@
         },
         "tests": [
             {
-                "description": "null items allowed",
+                "description": "allows null elements",
                 "data": [ null ],
                 "valid": true
             }

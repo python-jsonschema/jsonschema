@@ -154,7 +154,7 @@
         ]
     },
     {
-        "description": "patternProperties should properly handle null data",
+        "description": "patternProperties with null valued instance properties",
         "schema": {
             "patternProperties": {
                 "^.*bar$": {"type": "null"}
@@ -162,7 +162,7 @@
         },
         "tests": [
             {
-                "description": "null properties allowed",
+                "description": "allows null values",
                 "data": {"foobar": null},
                 "valid": true
             }

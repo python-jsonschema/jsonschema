@@ -290,7 +290,7 @@
         ]
     },
     {
-        "description": "unicode semantics should be used for all pattern matching",
+        "description": "patterns always use unicode semantics with pattern",
         "schema": { "pattern": "\\p{Letter}cole" },
         "tests": [
             {
@@ -416,7 +416,7 @@
         ]
     },
     {
-        "description": "unicode semantics should be used for all patternProperties matching",
+        "description": "patterns always use unicode semantics with patternProperties",
         "schema": {
             "type": "object",
             "patternProperties": {

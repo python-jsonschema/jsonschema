@@ -517,7 +517,7 @@
         ]
     },
     {
-        "description": "unevaluatedItems should properly handle null data",
+        "description": "unevaluatedItems with null instance elements",
         "schema": {
             "unevaluatedItems": {
                 "type": "null"
@@ -525,7 +525,7 @@
         },
         "tests": [
             {
-                "description": "null items allowed",
+                "description": "allows null elements",
                 "data": [ null ],
                 "valid": true
             }

@@ -165,7 +165,7 @@
         ]
     },
     {
-        "description": "properties should properly handle null data",
+        "description": "properties with null valued instance properties",
         "schema": {
             "properties": {
                 "foo": {"type": "null"}
@@ -173,7 +173,7 @@
         },
         "tests": [
             {
-                "description": "null properties allowed",
+                "description": "allows null values",
                 "data": {"foo": null},
                 "valid": true
             }

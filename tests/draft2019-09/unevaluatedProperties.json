@@ -1345,7 +1345,7 @@
         ]
     },
     {
-        "description": "unevaluatedProperties should properly handle null data",
+        "description": "unevaluatedProperties with null valued instance properties",
         "schema": {
             "unevaluatedProperties": {
                 "type": "null"
@@ -1353,7 +1353,7 @@
         },
         "tests": [
             {
-                "description": "null properties allowed",
+                "description": "allows null valued properties",
                 "data": {"foo": null},
                 "valid": true
             }

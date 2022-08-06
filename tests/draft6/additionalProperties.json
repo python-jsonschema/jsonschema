@@ -60,8 +60,7 @@
         ]
     },
     {
-        "description":
-            "additionalProperties allows a schema which should validate",
+        "description": "additionalProperties with schema",
         "schema": {
             "properties": {"foo": {}, "bar": {}},
             "additionalProperties": {"type": "boolean"}
@@ -115,7 +114,7 @@
         ]
     },
     {
-        "description": "additionalProperties should not look in applicators",
+        "description": "additionalProperties does not look in applicators",
         "schema": {
             "allOf": [
                 {"properties": {"foo": {}}}
@@ -131,7 +130,7 @@
         ]
     },
     {
-        "description": "additionalProperties should properly handle null data",
+        "description": "additionalProperties with null valued instance properties",
         "schema": {
             "additionalProperties": {
                 "type": "null"
@@ -139,7 +138,7 @@
         },
         "tests": [
             {
-                "description": "null properties allowed",
+                "description": "allows null values",
                 "data": {"foo": null},
                 "valid": true
             }
