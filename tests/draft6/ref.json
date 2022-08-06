@@ -737,9 +737,9 @@
         "schema": {
             "$id": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed",
             "properties": {
-                "foo": {"$ref": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed#/$defs/bar"}
+                "foo": {"$ref": "urn:uuid:deadbeef-1234-0000-0000-4321feebdaed#/definitions/bar"}
             },
-            "$defs": {
+            "definitions": {
                 "bar": {"type": "string"}
             }
         },
@@ -763,7 +763,7 @@
             "properties": {
                 "foo": {"$ref": "urn:uuid:deadbeef-1234-ff00-00ff-4321feebdaed#something"}
             },
-            "$defs": {
+            "definitions": {
                 "bar": {
                     "$id": "#something",
                     "type": "string"
