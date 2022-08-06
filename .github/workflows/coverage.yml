@@ -20,6 +20,6 @@ jobs:
     - name: Collect & Upload Coverage
       # codecov.io is too flaky to fail for this right now
       continue-on-error: true
-      run: python -m tox -e py39-format-codecov
+      run: python -m tox -e py310-format-codecov
       env:
         CODECOV_TOKEN: 2b38dae1-41c4-4435-a29d-79a1299e5617
