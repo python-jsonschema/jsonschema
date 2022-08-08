@@ -178,5 +178,59 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "properties whose names are Javascript object property names",
+        "comment": "Ensure JS implementations don't universally consider e.g. __proto__ to always be present in an object.",
+        "schema": {
+            "properties": {
+                "__proto__": {"type": "number"},
+                "toString": {
+                    "properties": { "length": { "type": "string" } }
+                },
+                "constructor": {"type": "number"}
+            }
+        },
+        "tests": [
+            {
+                "description": "ignores arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "ignores other non-objects",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "none of the properties mentioned",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "__proto__ not valid",
+                "data": { "__proto__": "foo" },
+                "valid": false
+            },
+            {
+                "description": "toString not valid",
+                "data": { "toString": { "length": 37 } },
+                "valid": false
+            },
+            {
+                "description": "constructor not valid",
+                "data": { "constructor": { "length": 37 } },
+                "valid": false
+            },
+            {
+                "description": "all present and valid",
+                "data": { 
+                    "__proto__": 12,
+                    "toString": { "length": "foo" },
+                    "constructor": 37
+                },
+                "valid": true
+            }
+        ]
     }
 ]
