@@ -120,7 +120,7 @@ class Validator(Protocol):
         :rtype: bool
 
         >>> schema = {"maxItems" : 2}
-        >>> Draft3Validator(schema).is_valid([2, 3, 4])
+        >>> Draft202012Validator(schema).is_valid([2, 3, 4])
         False
         """
 
@@ -136,7 +136,7 @@ class Validator(Protocol):
         ...     "items" : {"enum" : [1, 2, 3]},
         ...     "maxItems" : 2,
         ... }
-        >>> v = Draft3Validator(schema)
+        >>> v = Draft202012Validator(schema)
         >>> for error in sorted(v.iter_errors([2, 3, 4]), key=str):
         ...     print(error.message)
         4 is not one of [1, 2, 3]
@@ -151,7 +151,7 @@ class Validator(Protocol):
             instance is invalid
 
         >>> schema = {"maxItems" : 2}
-        >>> Draft3Validator(schema).validate([2, 3, 4])
+        >>> Draft202012Validator(schema).validate([2, 3, 4])
         Traceback (most recent call last):
             ...
         ValidationError: [2, 3, 4] is too long

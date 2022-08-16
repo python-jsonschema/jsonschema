@@ -269,18 +269,6 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance=1, schema={"type": list(types)})
         self.assertEqual(message, "1 is not of type 'string', 'object'")
 
-    def test_object_without_title_type_failure(self):
-        type = {"type": [{"minimum": 3}]}
-        message = self.message_for(
-            instance=1,
-            schema={"type": [type]},
-            cls=validators.Draft3Validator,
-        )
-        self.assertEqual(
-            message,
-            "1 is not of type {'type': [{'minimum': 3}]}",
-        )
-
     def test_object_with_named_type_failure(self):
         schema = {"type": [{"name": "Foo", "minimum": 3}]}
         message = self.message_for(
@@ -307,6 +295,18 @@ class TestValidationErrorMessages(TestCase):
             cls=validators.Draft3Validator,
         )
         self.assertEqual(message, "'foo' is a dependency of 'bar'")
+
+    def test_object_without_title_type_failure_draft3(self):
+        type = {"type": [{"minimum": 3}]}
+        message = self.message_for(
+            instance=1,
+            schema={"type": [type]},
+            cls=validators.Draft3Validator,
+        )
+        self.assertEqual(
+            message,
+            "1 is not of type {'type': [{'minimum': 3}]}",
+        )
 
     def test_dependencies_list_draft3(self):
         depend, on = "bar", "foo"
