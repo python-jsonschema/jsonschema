@@ -1,20 +1,26 @@
 from contextlib import suppress
 from datetime import datetime
 from importlib import metadata
+from pathlib import Path
 from urllib.parse import urljoin
-import os
 import urllib.request
 
 from docutils import nodes
 from lxml import html
 import certifi
 
-__version__ = "1.2.0"
+__version__ = "2.0.0"
 
-BASE_URL = "https://json-schema.org/draft-07/"
-VALIDATION_SPEC = urljoin(BASE_URL, "json-schema-validation.html")
-REF_URL = urljoin(BASE_URL, "json-schema-core.html#rfc.section.8.3")
-SCHEMA_URL = urljoin(BASE_URL, "json-schema-core.html#rfc.section.7")
+BASE_URL = "https://json-schema.org/draft/2020-12/"
+VOCABULARIES = {
+    "core": urljoin(BASE_URL, "json-schema-core.html"),
+    "validation": urljoin(BASE_URL, "json-schema-validation.html"),
+}
+HARDCODED = {
+    "$ref": "https://json-schema.org/draft/2020-12/json-schema-core.html#ref",
+    "$schema": "https://json-schema.org/draft/2020-12/json-schema-core.html#name-the-schema-keyword",                # noqa: E501
+    "format": "https://json-schema.org/draft/2020-12/json-schema-validation.html#name-implementation-requirements",  # noqa: E501
+}
 
 
 def setup(app):
@@ -30,24 +36,31 @@ def setup(app):
 
     app.add_config_value("cache_path", "_cache", "")
 
-    os.makedirs(app.config.cache_path, exist_ok=True)
+    CACHE = Path(app.config.cache_path)
+    CACHE.mkdir(exist_ok=True)
 
-    path = os.path.join(app.config.cache_path, "spec.html")
-    spec = fetch_or_load(path)
-    app.add_role("kw", docutils_does_not_allow_using_classes(spec))
+    documents = {
+        url: fetch_or_load(vocabulary_path=CACHE / f"{name}.html", url=url)
+        for name, url in VOCABULARIES.items()
+    }
+    app.add_role("kw", docutils_does_not_allow_using_classes(documents))
 
     return dict(version=__version__, parallel_read_safe=True)
 
 
-def fetch_or_load(spec_path):
+def fetch_or_load(vocabulary_path, url):
     """
     Fetch a new specification or use the cache if it's current.
 
     Arguments:
 
-        cache_path:
+        vocabulary_path:
 
-            the path to a cached specification
+            the local path to a cached vocabulary document
+
+        url:
+
+            the URL of the vocabulary document
     """
 
     headers = {
@@ -58,24 +71,23 @@ def fetch_or_load(spec_path):
     }
 
     with suppress(FileNotFoundError):
-        modified = datetime.utcfromtimestamp(os.path.getmtime(spec_path))
+        modified = datetime.utcfromtimestamp(vocabulary_path.stat().st_mtime)
         date = modified.strftime("%a, %d %b %Y %I:%M:%S UTC")
         headers["If-Modified-Since"] = date
 
-    request = urllib.request.Request(VALIDATION_SPEC, headers=headers)
+    request = urllib.request.Request(url, headers=headers)
     response = urllib.request.urlopen(request, cafile=certifi.where())
 
     if response.code == 200:
-        with open(spec_path, "w+b") as spec:
+        with vocabulary_path.open("w+b") as spec:
             spec.writelines(response)
             spec.seek(0)
-            return html.parse(spec)
+            return html.parse(spec).getroot()
 
-    with open(spec_path) as spec:
-        return html.parse(spec)
+    return html.parse(vocabulary_path.read_bytes()).getroot()
 
 
-def docutils_does_not_allow_using_classes(spec):
+def docutils_does_not_allow_using_classes(vocabularies):
     """
     Yeah.
 
@@ -118,27 +130,22 @@ def docutils_does_not_allow_using_classes(spec):
                 iterable of system messages, both possibly empty
         """
 
-        if text == "$ref":
-            return [nodes.reference(raw_text, text, refuri=REF_URL)], []
-        elif text == "$schema":
-            return [nodes.reference(raw_text, text, refuri=SCHEMA_URL)], []
+        hardcoded = HARDCODED.get(text)
+        if hardcoded is not None:
+            return [nodes.reference(raw_text, text, refuri=hardcoded)], []
 
         # find the header in the validation spec containing matching text
-        header = spec.xpath("//h1[contains(text(), '{0}')]".format(text))
+        for vocabulary_url, spec in vocabularies.items():
+            header = spec.get_element_by_id(f"name-{text.lower()}", None)
 
-        if len(header) == 0:
+            if header is not None:
+                uri = urljoin(vocabulary_url, header.find("a").attrib["href"])
+                break
+        else:
             inliner.reporter.warning(
                 "Didn't find a target for {0}".format(text),
             )
-            uri = VALIDATION_SPEC
-        else:
-            if len(header) > 1:
-                inliner.reporter.info(
-                    "Found multiple targets for {0}".format(text),
-                )
-
-            # get the href from link in the header
-            uri = urljoin(VALIDATION_SPEC, header[0].find("a").attrib["href"])
+            uri = BASE_URL
 
         reference = nodes.reference(raw_text, text, refuri=uri)
         return [reference], []
