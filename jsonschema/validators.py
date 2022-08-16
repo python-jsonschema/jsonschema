@@ -189,7 +189,6 @@ def create(
         schema = attr.ib(repr=reprlib.repr)
         resolver = attr.ib(default=None, repr=False)
         format_checker = attr.ib(default=None)
-        evolve = attr.evolve
 
         def __attrs_post_init__(self):
             if self.resolver is None:
@@ -202,6 +201,22 @@ def create(
         def check_schema(cls, schema):
             for error in cls(cls.META_SCHEMA).iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
+
+        def evolve(self, **changes):
+            schema = changes.setdefault("schema", self.schema)
+            NewValidator = validator_for(schema, default=Validator)
+
+            # Essentially reproduces attr.evolve, but may involve instantiating
+            # a different class than this one.
+            for field in attr.fields(Validator):
+                if not field.init:
+                    continue
+                attr_name = field.name  # To deal with private attributes.
+                init_name = attr_name if attr_name[0] != "_" else attr_name[1:]
+                if init_name not in changes:
+                    changes[init_name] = getattr(self, attr_name)
+
+            return NewValidator(**changes)
 
         def iter_errors(self, instance, _schema=None):
             if _schema is not None:

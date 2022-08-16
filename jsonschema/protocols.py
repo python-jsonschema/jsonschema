@@ -168,4 +168,14 @@ class Validator(Protocol):
         >>> validator = Draft202012Validator({})
         >>> validator.evolve(schema={"type": "number"})
         Draft202012Validator(schema={'type': 'number'}, format_checker=None)
+
+        The returned object satisfies the validator protocol, but may not
+        be of the same concrete class! In particular this occurs
+        when a :validator:`$ref` occurs to a schema with a different
+        :validator:`$schema` than this one (i.e. for a different draft).
+
+        >>> validator.evolve(
+        ...     schema={"$schema": Draft7Validator.META_SCHEMA["$id"]}
+        ... )
+        Draft7Validator(schema=..., format_checker=None)
         """

@@ -264,6 +264,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.format_tests(),
     DRAFT7.optional_tests_of(name="bignum"),
     DRAFT7.optional_tests_of(name="content"),
+    DRAFT7.optional_tests_of(name="cross-draft"),
     DRAFT7.optional_tests_of(name="float-overflow"),
     DRAFT7.optional_tests_of(name="non-bmp-regex"),
     Validator=jsonschema.Draft7Validator,
@@ -323,6 +324,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
 TestDraft201909 = DRAFT201909.to_unittest_testcase(
     DRAFT201909.tests(),
     DRAFT201909.optional_tests_of(name="bignum"),
+    DRAFT201909.optional_tests_of(name="cross-draft"),
     DRAFT201909.optional_tests_of(name="float-overflow"),
     DRAFT201909.optional_tests_of(name="non-bmp-regex"),
     DRAFT201909.optional_tests_of(name="refOfUnknownKeyword"),
@@ -507,6 +509,7 @@ TestDraft201909Format = DRAFT201909.to_unittest_testcase(
 TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.tests(),
     DRAFT202012.optional_tests_of(name="bignum"),
+    DRAFT202012.optional_tests_of(name="cross-draft"),
     DRAFT202012.optional_tests_of(name="float-overflow"),
     DRAFT202012.optional_tests_of(name="non-bmp-regex"),
     DRAFT202012.optional_tests_of(name="refOfUnknownKeyword"),

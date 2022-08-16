@@ -1,3 +1,9 @@
+v4.10.0
+-------
+
+* Add support for referencing schemas with ``$ref`` across different versions
+  of the specification than the referrer's
+
 v4.9.1
 ------
 
