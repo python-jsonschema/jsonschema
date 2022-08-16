@@ -315,15 +315,16 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
 
     Arguments:
         weak (set):
-            a collection of validator names to consider to be "weak".
-            If there are two errors at the same level of the instance
-            and one is in the set of weak validator names, the other
-            error will take priority. By default, :validator:`anyOf` and
-            :validator:`oneOf` are considered weak validators and will
-            be superseded by other same-level validation errors.
+            a collection of validation keywords to consider to be
+            "weak".  If there are two errors at the same level of the
+            instance and one is in the set of weak validation keywords,
+            the other error will take priority. By default, :kw:`anyOf`
+            and :kw:`oneOf` are considered weak keywords and will be
+            superseded by other same-level validation errors.
 
         strong (set):
-            a collection of validator names to consider to be "strong"
+            a collection of validation keywords to consider to be
+            "strong"
     """
     def relevance(error):
         validator = error.validator
@@ -347,10 +348,10 @@ def best_match(errors, key=relevance):
     `ValidationError.path` is shorter) are considered better matches,
     since they indicate "more" is wrong with the instance.
 
-    If the resulting match is either :validator:`oneOf` or :validator:`anyOf`,
-    the *opposite* assumption is made -- i.e. the deepest error is picked,
-    since these validators only need to match once, and any other errors may
-    not be relevant.
+    If the resulting match is either :kw:`oneOf` or :kw:`anyOf`, the
+    *opposite* assumption is made -- i.e. the deepest error is picked,
+    since these keywords only need to match once, and any other errors
+    may not be relevant.
 
     Arguments:
         errors (collections.abc.Iterable):

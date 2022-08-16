@@ -34,7 +34,7 @@ def setup(app):
 
     path = os.path.join(app.config.cache_path, "spec.html")
     spec = fetch_or_load(path)
-    app.add_role("validator", docutils_does_not_allow_using_classes(spec))
+    app.add_role("kw", docutils_does_not_allow_using_classes(spec))
 
     return dict(version=__version__, parallel_read_safe=True)
 
@@ -84,9 +84,9 @@ def docutils_does_not_allow_using_classes(spec):
     keeping a dict.
     """
 
-    def validator(name, raw_text, text, lineno, inliner):
+    def keyword(name, raw_text, text, lineno, inliner):
         """
-        Link to the JSON Schema documentation for a validator.
+        Link to the JSON Schema documentation for a keyword.
 
         Arguments:
 
@@ -143,4 +143,4 @@ def docutils_does_not_allow_using_classes(spec):
         reference = nodes.reference(raw_text, text, refuri=uri)
         return [reference], []
 
-    return validator
+    return keyword

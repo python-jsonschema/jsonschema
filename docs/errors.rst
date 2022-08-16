@@ -36,29 +36,29 @@ raised or returned, depending on which method or function is used.
 
     .. attribute:: validator
 
-        The name of the failed `validator
+        The name of the failed `keyword
         <https://json-schema.org/draft/2020-12/json-schema-validation.html#name-a-vocabulary-for-structural>`_.
 
     .. attribute:: validator_value
 
-        The value for the failed validator in the schema.
+        The associated value for the failed keyword in the schema.
 
     .. attribute:: schema
 
         The full schema that this error came from. This is potentially a
         subschema from within the schema that was passed in originally,
-        or even an entirely different schema if a :validator:`$ref` was
+        or even an entirely different schema if a :kw:`$ref` was
         followed.
 
     .. attribute:: relative_schema_path
 
-        A `collections.deque` containing the path to the failed
-        validator within the schema.
+        A `collections.deque` containing the path to the failed keyword
+        within the schema.
 
     .. attribute:: absolute_schema_path
 
         A `collections.deque` containing the path to the failed
-        validator within the schema, but always relative to the
+        keyword within the schema, but always relative to the
         *original* schema as opposed to any subschema (i.e. the one
         originally passed into a validator class, *not* `schema`\).
 
@@ -179,7 +179,7 @@ the specific part of the instance and subschema that caused each of the errors.
 This can be seen with the `ValidationError.instance` and
 `ValidationError.schema` attributes.
 
-With validators like :validator:`anyOf`, the `ValidationError.context`
+With keywords like :kw:`anyOf`, the `ValidationError.context`
 attribute can be used to see the sub-errors which caused the failure. Since
 these errors actually came from two separate subschemas, it can be helpful to
 look at the `ValidationError.schema_path` attribute as well to see where
@@ -224,8 +224,8 @@ easier debugging.
 ErrorTrees
 ----------
 
-If you want to programmatically be able to query which properties or validators
-failed when validating a given instance, you probably will want to do so using
+If you want to programmatically query which validation keywords
+failed when validating a given instance, you may want to do so using
 `jsonschema.exceptions.ErrorTree` objects.
 
 .. autoclass:: jsonschema.exceptions.ErrorTree
@@ -235,7 +235,7 @@ failed when validating a given instance, you probably will want to do so using
 
     .. attribute:: errors
 
-        The mapping of validator names to the error objects (usually
+        The mapping of validator keywords to the error objects (usually
         `jsonschema.exceptions.ValidationError`\s) at this level
         of the tree.
 
@@ -301,18 +301,17 @@ the `ErrorTree.errors` attribute.
     >>> sorted(tree[0].errors)
     ['enum', 'type']
 
-Here we see that the :validator:`enum` and :validator:`type` validators failed
-for index ``0``. In fact `ErrorTree.errors` is a dict, whose values are
-the `ValidationError`\s, so we can get at those directly if we want
-them.
+Here we see that the :kw:`enum` and :kw:`type` keywords failed for
+index ``0``. In fact `ErrorTree.errors` is a dict, whose values are the
+`ValidationError`\s, so we can get at those directly if we want them.
 
 .. doctest::
 
     >>> print(tree[0].errors["type"].message)
     'spam' is not of type 'number'
 
-Of course this means that if we want to know if a given named
-validator failed for a given index, we check for its presence in
+Of course this means that if we want to know if a given validation
+keyword failed for a given index, we check for its presence in
 `ErrorTree.errors`:
 
 .. doctest::
@@ -323,9 +322,9 @@ validator failed for a given index, we check for its presence in
     >>> "minimum" in tree[0].errors
     False
 
-Finally, if you were paying close enough attention, you'll notice that we
-haven't seen our :validator:`minItems` error appear anywhere yet. This is
-because :validator:`minItems` is an error that applies globally to the instance
+Finally, if you were paying close enough attention, you'll notice that
+we haven't seen our :kw:`minItems` error appear anywhere yet. This is
+because :kw:`minItems` is an error that applies globally to the instance
 itself. So it appears in the root node of the tree.
 
 .. doctest::
@@ -336,9 +335,9 @@ itself. So it appears in the root node of the tree.
 That's all you need to know to use error trees.
 
 To summarize, each tree contains child trees that can be accessed by
-indexing the tree to get the corresponding child tree for a given index
-into the instance. Each tree and child has a `ErrorTree.errors`
-attribute, a dict, that maps the failed validator name to the
+indexing the tree to get the corresponding child tree for a given
+index into the instance. Each tree and child has a `ErrorTree.errors`
+attribute, a dict, that maps the failed validation keyword to the
 corresponding validation error.
 
 
@@ -373,14 +372,14 @@ to guess the most relevant error in a given bunch.
     `sorted` or `max` will cause more relevant errors to be
     considered greater than less relevant ones.
 
-    Within the different validators that can fail, this function
-    considers :validator:`anyOf` and :validator:`oneOf` to be *weak*
-    validation errors, and will sort them lower than other validators at
-    the same level in the instance.
+    Within the different validation keywords that can fail, this
+    function considers :kw:`anyOf` and :kw:`oneOf` to be *weak*
+    validation errors, and will sort them lower than other errors at the
+    same level in the instance.
 
-    If you want to change the set of weak [or strong] validators you can create
-    a custom version of this function with `by_relevance` and provide a
-    different set of each.
+    If you want to change the set of weak [or strong] validation
+    keywords you can create a custom version of this function with
+    `by_relevance` and provide a different set of each.
 
 .. doctest::
 

@@ -224,7 +224,8 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
 
         try:
             evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                validator, instance, resolved)
+                validator, instance, resolved,
+            )
         finally:
             validator.resolver.pop_scope()
 

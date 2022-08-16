@@ -55,13 +55,13 @@ class Validator(Protocol):
         an invalid schema can lead to undefined behavior. See
         `Validator.check_schema` to validate a schema first.
     :argument resolver: an instance of `jsonschema.RefResolver` that will be
-        used to resolve :validator:`$ref` properties (JSON references). If
+        used to resolve :kw:`$ref` properties (JSON references). If
         unprovided, one will be created.
     :argument format_checker: an instance of `jsonschema.FormatChecker`
         whose `jsonschema.FormatChecker.conforms` method will be called to
-        check and see if instances conform to each :validator:`format`
+        check and see if instances conform to each :kw:`format`
         property present in the schema. If unprovided, no validation
-        will be done for :validator:`format`. Certain formats require
+        will be done for :kw:`format`. Certain formats require
         additional packages to be installed (ipv5, uri, color, date-time).
         The required packages can be found at the bottom of this page.
     """
@@ -70,17 +70,17 @@ class Validator(Protocol):
     #: describes valid schemas in the given version).
     META_SCHEMA: ClassVar[dict]
 
-    #: A mapping of validator names (`str`\s) to functions
-    #: that validate the validator property with that name. For more
-    #: information see `creating-validators`.
+    #: A mapping of validation keywords (`str`\s) to functions that
+    #: validate the keyword with that name. For more information see
+    #: `creating-validators`.
     VALIDATORS: ClassVar[dict]
 
     #: A `jsonschema.TypeChecker` that will be used when validating
-    #: :validator:`type` properties in JSON schemas.
+    #: :kw:`type` keywords in JSON schemas.
     TYPE_CHECKER: ClassVar[jsonschema.TypeChecker]
 
     #: A `jsonschema.FormatChecker` that will be used when validating
-    #: :validator:`format` properties in JSON schemas.
+    #: :kw:`format` properties in JSON schemas.
     FORMAT_CHECKER: ClassVar[jsonschema.FormatChecker]
 
     #: The schema that was passed in when initializing the object.
@@ -162,7 +162,7 @@ class Validator(Protocol):
         Create a new validator like this one, but with given changes.
 
         Preserves all other attributes, so can be used to e.g. create a
-        validator with a different schema but with the same :validator:`$ref`
+        validator with a different schema but with the same :kw:`$ref`
         resolution behavior.
 
         >>> validator = Draft202012Validator({})
@@ -171,8 +171,8 @@ class Validator(Protocol):
 
         The returned object satisfies the validator protocol, but may not
         be of the same concrete class! In particular this occurs
-        when a :validator:`$ref` occurs to a schema with a different
-        :validator:`$schema` than this one (i.e. for a different draft).
+        when a :kw:`$ref` occurs to a schema with a different
+        :kw:`$schema` than this one (i.e. for a different draft).
 
         >>> validator.evolve(
         ...     schema={"$schema": Draft7Validator.META_SCHEMA["$id"]}

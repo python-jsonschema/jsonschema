@@ -66,7 +66,7 @@ def validates(version):
     Register the decorated validator for a ``version`` of the specification.
 
     Registered validators and their meta schemas will be considered when
-    parsing ``$schema`` properties' URIs.
+    parsing :kw:`$schema` keywords' URIs.
 
     Arguments:
 
@@ -147,15 +147,14 @@ def create(
 
         type_checker (jsonschema.TypeChecker):
 
-            a type checker, used when applying the :validator:`type` validator.
+            a type checker, used when applying the :kw:`type` keyword.
 
             If unprovided, a `jsonschema.TypeChecker` will be created
             with a set of default types typical of JSON Schema drafts.
 
         format_checker (jsonschema.FormatChecker):
 
-            a format checker, used when applying the :validator:`format`
-            validator.
+            a format checker, used when applying the :kw:`format` keyword.
 
             If unprovided, a `jsonschema.FormatChecker` will be created
             with a set of default formats typical of JSON Schema drafts.
@@ -166,9 +165,9 @@ def create(
 
         applicable_validators (collections.abc.Callable):
 
-            A function that given a schema, returns the list of applicable
-            validators (names and callables) which will be called to
-            validate the instance.
+            A function that given a schema, returns the list of
+            applicable validators (validation keywords and callables)
+            which will be used to validate the instance.
 
     Returns:
 
@@ -345,7 +344,7 @@ def extend(
                 If you wish to instead extend the behavior of a parent's
                 validator callable, delegate and call it directly in
                 the new validator function by retrieving it using
-                ``OldValidator.VALIDATORS["validator_name"]``.
+                ``OldValidator.VALIDATORS["validation_keyword_name"]``.
 
         version (str):
 
@@ -353,15 +352,14 @@ def extend(
 
         type_checker (jsonschema.TypeChecker):
 
-            a type checker, used when applying the :validator:`type` validator.
+            a type checker, used when applying the :kw:`type` keyword.
 
             If unprovided, the type checker of the extended
             `jsonschema.protocols.Validator` will be carried along.
 
         format_checker (jsonschema.FormatChecker):
 
-            a format checker, used when applying the :validator:`format`
-            validator.
+            a format checker, used when applying the :kw:`format` keyword.
 
             If unprovided, the format checker of the extended
             `jsonschema.protocols.Validator` will be carried along.
@@ -1047,11 +1045,11 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
     If the ``cls`` argument is not provided, two things will happen
     in accordance with the specification. First, if the schema has a
-    :validator:`$schema` property containing a known meta-schema [#]_
-    then the proper validator will be used. The specification recommends
-    that all schemas contain :validator:`$schema` properties for this
-    reason. If no :validator:`$schema` property is found, the default
-    validator class is the latest released draft.
+    :kw:`$schema` keyword containing a known meta-schema [#]_ then the
+    proper validator will be used. The specification recommends that
+    all schemas contain :kw:`$schema` properties for this reason. If no
+    :kw:`$schema` property is found, the default validator class is the
+    latest released draft.
 
     Any other provided positional and keyword arguments will be passed
     on when instantiating the ``cls``.
@@ -1082,8 +1080,8 @@ def validator_for(schema, default=_LATEST_VERSION):
     """
     Retrieve the validator class appropriate for validating the given schema.
 
-    Uses the :validator:`$schema` property that should be present in the
-    given schema to look up the appropriate validator class.
+    Uses the :kw:`$schema` keyword that should be present in the given
+    schema to look up the appropriate validator class.
 
     Arguments:
 

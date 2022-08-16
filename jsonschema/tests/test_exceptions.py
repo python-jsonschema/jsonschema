@@ -294,7 +294,7 @@ class TestByRelevance(TestCase):
             [["foo"], []],
         )
 
-    def test_weak_validators_are_lower_priority(self):
+    def test_weak_keywords_are_lower_priority(self):
         weak = exceptions.ValidationError("Oh no!", path=[], validator="a")
         normal = exceptions.ValidationError("Oh yes!", path=[], validator="b")
 
@@ -306,7 +306,7 @@ class TestByRelevance(TestCase):
         match = max([normal, weak], key=best_match)
         self.assertIs(match, normal)
 
-    def test_strong_validators_are_higher_priority(self):
+    def test_strong_keywords_are_higher_priority(self):
         weak = exceptions.ValidationError("Oh no!", path=[], validator="a")
         normal = exceptions.ValidationError("Oh yes!", path=[], validator="b")
         strong = exceptions.ValidationError("Oh fine!", path=[], validator="c")
@@ -340,7 +340,7 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree(errors)
         self.assertNotIn("foo", tree)
 
-    def test_validators_that_failed_appear_in_errors_dict(self):
+    def test_keywords_that_failed_appear_in_errors_dict(self):
         error = exceptions.ValidationError("a message", validator="foo")
         tree = exceptions.ErrorTree([error])
         self.assertEqual(tree.errors, {"foo": error})
@@ -386,9 +386,8 @@ class TestErrorTree(TestCase):
 
     def test_if_its_in_the_tree_anyhow_it_does_not_raise_an_error(self):
         """
-        If a validator is dumb (like :validator:`required` in draft 3) and
-        refers to a path that isn't in the instance, the tree still properly
-        returns a subtree for that path.
+        If a keyword refers to a path that isn't in the instance, the
+        tree still properly returns a subtree for that path.
         """
 
         error = exceptions.ValidationError(

@@ -24,8 +24,8 @@ The simplest way to validate an instance under a given schema is to use the
 The Validator Protocol
 -----------------------
 
-`jsonschema` defines a protocol that all validator
-classes should adhere to.
+`jsonschema` defines a protocol that all validator classes should adhere
+to.
 
 .. autoclass:: jsonschema.protocols.Validator
     :members:
@@ -38,7 +38,7 @@ more information see `creating-validators`.
 Type Checking
 -------------
 
-To handle JSON Schema's :validator:`type` property, a `Validator` uses
+To handle JSON Schema's :kw:`type` keyword, a `Validator` uses
 an associated `TypeChecker`. The type checker provides an immutable
 mapping between names of types and functions that can test if an instance is
 of that type. The defaults are suitable for most users - each of the
@@ -65,7 +65,7 @@ Validating With Additional Types
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Occasionally it can be useful to provide additional or alternate types when
-validating the JSON Schema's :validator:`type` property.
+validating JSON Schema's :kw:`type` keyword.
 
 `jsonschema` tries to strike a balance between performance in the common
 case and generality. For instance, JSON Schema defines a ``number`` type, which
@@ -158,7 +158,7 @@ Draft 2020-12 meta-schema, you could use:
 Validating Formats
 ------------------
 
-JSON Schema defines the :validator:`format` property which can be used to check
+JSON Schema defines the :kw:`format` keyword which can be used to check
 if primitive types (``string``\s, ``number``\s, ``boolean``\s) conform to
 well-defined formats. By default, no validation is enforced, but optionally,
 validation can be enabled by hooking in a format-checking object into an
@@ -282,7 +282,7 @@ Checker                    Notes
     and that that recipient is the correct one the email is intended
     for, and since many valid email addresses are in many places
     incorrectly rejected, and many invalid email addresses are in many
-    places incorrectly accepted, the ``email`` format validator only
+    places incorrectly accepted, the ``email`` format keyword only
     provides a sanity check, not full rfc5322_ validation.
 
     The same applies to the ``idn-email`` format.

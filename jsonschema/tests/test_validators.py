@@ -624,7 +624,7 @@ class TestValidationErrorMessages(TestCase):
 
 
 class TestValidationErrorDetails(TestCase):
-    # TODO: These really need unit tests for each individual validator, rather
+    # TODO: These really need unit tests for each individual keyword, rather
     #       than just these higher level tests.
     def test_anyOf(self):
         instance = 5

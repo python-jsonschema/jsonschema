@@ -6,7 +6,7 @@ def ignore_ref_siblings(schema):
     """
     Ignore siblings of ``$ref`` if it is present.
 
-    Otherwise, return all validators.
+    Otherwise, return all keywords.
 
     Suitable for use with `create`'s ``applicable_validators`` argument.
     """
@@ -47,9 +47,9 @@ def dependencies_draft4_draft6_draft7(
     schema,
 ):
     """
-    Support for the ``dependencies`` validator from pre-draft 2019-09.
+    Support for the ``dependencies`` keyword from pre-draft 2019-09.
 
-    In later drafts, the validator was split into separate
+    In later drafts, the keyword was split into separate
     ``dependentRequired`` and ``dependentSchemas`` validators.
     """
     if not validator.is_type(instance, "object"):
