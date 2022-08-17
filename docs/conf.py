@@ -26,8 +26,8 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
+    "sphinx_json_schema_spec",
     "sphinxcontrib.spelling",
-    "jsonschema_role",
 ]
 
 cache_path = "_cache"

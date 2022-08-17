@@ -3,4 +3,5 @@ furo
 lxml
 sphinx
 sphinx-autodoc-typehints
+sphinx-json-schema-spec
 sphinxcontrib-spelling
