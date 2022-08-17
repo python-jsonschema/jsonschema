@@ -203,7 +203,7 @@ def create(
 
         def evolve(self, **changes):
             schema = changes.setdefault("schema", self.schema)
-            NewValidator = validator_for(schema, default=Validator)
+            NewValidator = validator_for(schema, default=self.__class__)
 
             # Essentially reproduces attr.evolve, but may involve instantiating
             # a different class than this one.

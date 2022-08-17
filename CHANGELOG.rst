@@ -1,3 +1,14 @@
+v4.10.1
+-------
+
+* Fix Validator.evolve (and APIs like ``iter_errors`` which call it) for cases
+  where the validator class has been subclassed. Doing so wasn't intended to be
+  public API, but given it didn't warn or raise an error it's of course
+  understandable. The next release however will make it warn (and a future one
+  will make it error). If you need help migrating usage of inheriting from a
+  validator class feel free to open a discussion and I'll try to give some
+  guidance (#982).
+
 v4.10.0
 -------
 

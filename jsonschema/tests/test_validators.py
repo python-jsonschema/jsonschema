@@ -1463,6 +1463,38 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         with self.assertRaises(exceptions.ValidationError):
             validator.validate(None)
 
+    def test_evolve(self):
+        ref, schema = "someCoolRef", {"type": "integer"}
+        resolver = validators.RefResolver("", {}, store={ref: schema})
+
+        validator = self.Validator(schema, resolver=resolver)
+        new = validator.evolve(schema={"type": "string"})
+
+        expected = self.Validator({"type": "string"}, resolver=resolver)
+
+        self.assertEqual(new, expected)
+        self.assertNotEqual(new, validator)
+
+    def test_evolve_with_subclass(self):
+        """
+        Subclassing validators isn't supported public API, but some users have
+        done it, because we don't actually error entirely when it's done :/
+
+        We need to deprecate doing so first to help as many of these users
+        ensure they can move to supported APIs, but this test ensures that in
+        the interim, we haven't broken those users.
+        """
+
+        @attr.s
+        class OhNo(self.Validator):
+            foo = attr.ib(factory=lambda: [1, 2, 3])
+
+        validator = OhNo({})
+        self.assertEqual(validator.foo, [1, 2, 3])
+
+        new = validator.evolve(schema={"type": "integer"})
+        self.assertEqual(new.foo, [1, 2, 3])
+
     def test_it_delegates_to_a_legacy_ref_resolver(self):
         """
         Legacy RefResolvers support only the context manager form of
