@@ -45,10 +45,7 @@ class Suite(object):
         remotes = subprocess.check_output(
             [sys.executable, str(jsonschema_suite), "remotes"],
         )
-        return {
-            "http://localhost:1234/" + name.replace("\\", "/"): schema
-            for name, schema in json.loads(remotes.decode("utf-8")).items()
-        }
+        return json.loads(remotes.decode("utf-8"))
 
     def benchmark(self, runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
