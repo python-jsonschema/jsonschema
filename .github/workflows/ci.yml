@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
-    - uses: pre-commit/action@v2.0.3
+    - uses: actions/setup-python@v4
+    - uses: pre-commit/action@v3.0.0
 
   ci:
     runs-on: ${{ matrix.os }}
@@ -133,7 +133,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version.name }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version.name }}
     - name: Install dependencies
