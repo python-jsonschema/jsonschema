@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 from pathlib import Path
+from urllib.parse import urljoin
 import argparse
-import errno
 import json
 import os
 import random
@@ -30,7 +30,9 @@ else:
 
 ROOT_DIR = Path(__file__).parent.parent
 SUITE_ROOT_DIR = ROOT_DIR / "tests"
+
 REMOTES_DIR = ROOT_DIR / "remotes"
+REMOTES_BASE_URL = "http://localhost:1234/"
 
 TESTSUITE_SCHEMA = json.loads((ROOT_DIR / "test-schema.json").read_text())
 
@@ -66,6 +68,16 @@ def collect(root_dir):
     All of the test file paths within the given root directory, recursively.
     """
     return root_dir.glob("**/*.json")
+
+
+def url_for_path(path):
+    """
+    Return the assumed remote URL for a file in the remotes/ directory.
+
+    Tests in the refRemote.json file reference this URL, and assume the
+    corresponding contents are available at the URL.
+    """
+    return urljoin(REMOTES_BASE_URL, str(path.relative_to(REMOTES_DIR)))
 
 
 class SanityTests(unittest.TestCase):
@@ -243,10 +255,10 @@ def main(arguments):
 
         json.dump(selected_cases, sys.stdout, indent=4, sort_keys=True)
     elif arguments.command == "remotes":
-        remotes = {}
-        for path in collect(REMOTES_DIR):
-            relative_path = os.path.relpath(path, REMOTES_DIR)
-            remotes[relative_path] = json.loads(path.read_text())
+        remotes = {
+            url_for_path(path): json.loads(path.read_text())
+            for path in collect(REMOTES_DIR)
+        }
         json.dump(remotes, sys.stdout, indent=4, sort_keys=True)
     elif arguments.command == "dump_remotes":
         if arguments.update:
