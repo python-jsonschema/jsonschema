@@ -1,3 +1,8 @@
+v4.10.2
+-------
+
+* Fix a second place where subclasses may have added attrs attributes (#982).
+
 v4.10.1
 -------
 

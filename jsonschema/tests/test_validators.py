@@ -1488,12 +1488,14 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         @attr.s
         class OhNo(self.Validator):
             foo = attr.ib(factory=lambda: [1, 2, 3])
+            _bar = attr.ib(default=37)
 
-        validator = OhNo({})
+        validator = OhNo({}, bar=12)
         self.assertEqual(validator.foo, [1, 2, 3])
 
         new = validator.evolve(schema={"type": "integer"})
         self.assertEqual(new.foo, [1, 2, 3])
+        self.assertEqual(new._bar, 12)
 
     def test_it_delegates_to_a_legacy_ref_resolver(self):
         """

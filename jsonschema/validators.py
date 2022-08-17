@@ -202,12 +202,14 @@ def create(
                 raise exceptions.SchemaError.create_from(error)
 
         def evolve(self, **changes):
-            schema = changes.setdefault("schema", self.schema)
-            NewValidator = validator_for(schema, default=self.__class__)
-
             # Essentially reproduces attr.evolve, but may involve instantiating
             # a different class than this one.
-            for field in attr.fields(Validator):
+            cls = self.__class__
+
+            schema = changes.setdefault("schema", self.schema)
+            NewValidator = validator_for(schema, default=cls)
+
+            for field in attr.fields(cls):
                 if not field.init:
                     continue
                 attr_name = field.name  # To deal with private attributes.
