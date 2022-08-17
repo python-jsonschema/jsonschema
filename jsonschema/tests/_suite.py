@@ -209,8 +209,8 @@ class _Test(object):
         # XXX: #693 asks to improve the public API for this, since yeah, it's
         #      bad. Figures that since it's hard for end-users, we experience
         #      the pain internally here too.
-        def prevent_network_access(*args, **kwargs):
-            raise RuntimeError("Tried to access the network!")
+        def prevent_network_access(uri):
+            raise RuntimeError(f"Tried to access the network: {uri}")
         resolver.resolve_remote = prevent_network_access
 
         validator = Validator(schema=self.schema, resolver=resolver, **kwargs)
