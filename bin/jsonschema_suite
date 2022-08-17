@@ -77,7 +77,11 @@ def url_for_path(path):
     Tests in the refRemote.json file reference this URL, and assume the
     corresponding contents are available at the URL.
     """
-    return urljoin(REMOTES_BASE_URL, str(path.relative_to(REMOTES_DIR)))
+
+    return urljoin(
+        REMOTES_BASE_URL,
+        str(path.relative_to(REMOTES_DIR)).replace("\\", "/")  # Windows...
+    )
 
 
 class SanityTests(unittest.TestCase):
