@@ -1,3 +1,9 @@
+v4.10.3
+-------
+
+* ``jsonschema.validators.validator_for`` now properly uses the explicitly
+  provided default validator even if the ``$schema`` URI is not found.
+
 v4.10.2
 -------
 

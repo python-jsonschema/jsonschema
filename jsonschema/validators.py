@@ -27,6 +27,8 @@ from jsonschema import (
     exceptions,
 )
 
+_UNSET = _utils.Unset()
+
 _VALIDATORS: dict[str, typing.Any] = {}
 _META_SCHEMAS = _utils.URIDict()
 _VOCABULARIES: list[tuple[str, typing.Any]] = []
@@ -1078,7 +1080,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
         raise error
 
 
-def validator_for(schema, default=_LATEST_VERSION):
+def validator_for(schema, default=_UNSET):
     """
     Retrieve the validator class appropriate for validating the given schema.
 
@@ -1099,16 +1101,20 @@ def validator_for(schema, default=_LATEST_VERSION):
             If unprovided, the default is to return the latest supported
             draft.
     """
+
+    DefaultValidator = _LATEST_VERSION if default is _UNSET else default
+
     if schema is True or schema is False or "$schema" not in schema:
-        return default
+        return DefaultValidator
     if schema["$schema"] not in _META_SCHEMAS:
-        warn(
-            (
-                "The metaschema specified by $schema was not found. "
-                "Using the latest draft to validate, but this will raise "
-                "an error in the future."
-            ),
-            DeprecationWarning,
-            stacklevel=2,
-        )
-    return _META_SCHEMAS.get(schema["$schema"], _LATEST_VERSION)
+        if default is _UNSET:
+            warn(
+                (
+                    "The metaschema specified by $schema was not found. "
+                    "Using the latest draft to validate, but this will raise "
+                    "an error in the future."
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
+    return _META_SCHEMAS.get(schema["$schema"], DefaultValidator)

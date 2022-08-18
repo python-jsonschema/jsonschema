@@ -1906,6 +1906,10 @@ class TestValidatorFor(TestCase):
             validators.validator_for(schema={}, default={})
         self.assertFalse(w)
 
+    def test_validator_for_custom_default_with_schema(self):
+        schema, default = {"$schema": "mailto:foo@example.com"}, object()
+        self.assertIs(validators.validator_for(schema, default), default)
+
 
 class TestValidate(TestCase):
     def assertUses(self, schema, Validator):
