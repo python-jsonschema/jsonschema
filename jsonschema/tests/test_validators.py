@@ -1406,7 +1406,7 @@ class TestValidationErrorDetails(TestCase):
         )
 
 
-class MetaSchemaTestsMixin(object):
+class MetaSchemaTestsMixin:
     # TODO: These all belong upstream
     def test_invalid_properties(self):
         with self.assertRaises(exceptions.SchemaError):
@@ -1504,7 +1504,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         resolution.
         """
 
-        class LegacyRefResolver(object):
+        class LegacyRefResolver:
             @contextmanager
             def resolving(this, ref):
                 self.assertEqual(ref, "the ref")
@@ -1677,7 +1677,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
                 validator.validate(instance)
 
 
-class AntiDraft6LeakMixin(object):
+class AntiDraft6LeakMixin:
     """
     Make sure functionality from draft 6 doesn't leak backwards in time.
     """
@@ -2202,7 +2202,7 @@ def sorted_errors(errors):
 
 
 @attr.s
-class ReallyFakeRequests(object):
+class ReallyFakeRequests:
 
     _responses = attr.ib()
 
@@ -2214,7 +2214,7 @@ class ReallyFakeRequests(object):
 
 
 @attr.s
-class _ReallyFakeJSONResponse(object):
+class _ReallyFakeJSONResponse:
 
     _response = attr.ib()
 

@@ -237,7 +237,7 @@ class FormatError(Exception):
         return self.message
 
 
-class ErrorTree(object):
+class ErrorTree:
     """
     ErrorTrees make it easier to check which validations failed.
     """

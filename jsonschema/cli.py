@@ -30,7 +30,7 @@ class _CannotLoadFile(Exception):
 
 
 @attr.s
-class _Outputter(object):
+class _Outputter:
 
     _formatter = attr.ib()
     _stdout = attr.ib()
@@ -72,7 +72,7 @@ class _Outputter(object):
 
 
 @attr.s
-class _PrettyFormatter(object):
+class _PrettyFormatter:
 
     _ERROR_MSG = dedent(
         """\
@@ -114,7 +114,7 @@ class _PrettyFormatter(object):
 
 
 @attr.s
-class _PlainFormatter(object):
+class _PlainFormatter:
 
     _error_format = attr.ib()
 

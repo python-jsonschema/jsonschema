@@ -16,7 +16,7 @@ _RaisesType = typing.Union[
 ]
 
 
-class FormatChecker(object):
+class FormatChecker:
     """
     A ``format`` property checker.
 

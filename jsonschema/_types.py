@@ -67,7 +67,7 @@ def is_any(checker, instance):
 
 
 @attr.s(frozen=True)
-class TypeChecker(object):
+class TypeChecker:
     """
     A ``type`` property checker.
 

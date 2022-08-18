@@ -563,7 +563,7 @@ class TestErrorInitReprStr(TestCase):
         that returned truthy values.
         """
 
-        class DontEQMeBro(object):
+        class DontEQMeBro:
             def __eq__(this, other):  # pragma: no cover
                 self.fail("Don't!")
 

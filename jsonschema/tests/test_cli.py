@@ -29,7 +29,7 @@ from jsonschema.validators import _LATEST_VERSION, validate
 def fake_validator(*errors):
     errors = list(reversed(errors))
 
-    class FakeValidator(object):
+    class FakeValidator:
         def __init__(self, *args, **kwargs):
             pass
 

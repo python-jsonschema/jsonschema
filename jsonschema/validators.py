@@ -662,7 +662,7 @@ Draft202012Validator = create(
 _LATEST_VERSION = Draft202012Validator
 
 
-class RefResolver(object):
+class RefResolver:
     """
     Resolve JSON References.
 

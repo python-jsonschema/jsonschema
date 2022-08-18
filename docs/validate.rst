@@ -88,7 +88,7 @@ existing `TypeChecker` or create a new one. You may then create a new
 
     from jsonschema import validators
 
-    class MyInteger(object):
+    class MyInteger:
         pass
 
     def is_my_int(checker, instance):
