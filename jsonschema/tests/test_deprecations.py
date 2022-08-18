@@ -121,3 +121,28 @@ class TestDeprecations(TestCase):
                 "Passing a schema to Validator.iter_errors is deprecated ",
             ),
         )
+
+    def test_Validator_subclassing(self):
+        """
+        As of v4.12.0, subclassing a validator class produces an explicit
+        deprecation warning.
+
+        This was never intended to be public API (and some comments over the
+        years in issues said so, but obviously that's not a great way to make
+        sure it's followed).
+
+        A future version will explicitly raise an error.
+        """
+
+        with self.assertWarns(DeprecationWarning) as w:
+            class Subclass(validators.Draft202012Validator):
+                pass
+
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith("Subclassing validator classes is "),
+        )
+
+        with self.assertWarns(DeprecationWarning) as w:
+            class AnotherSubclass(validators.create(meta_schema={})):
+                pass

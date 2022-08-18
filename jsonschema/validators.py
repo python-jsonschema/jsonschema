@@ -191,6 +191,21 @@ def create(
         resolver = attr.ib(default=None, repr=False)
         format_checker = attr.ib(default=None)
 
+        def __init_subclass__(cls):
+            warnings.warn(
+                (
+                    "Subclassing validator classes is not intended to "
+                    "be part of their public API. A future version "
+                    "will make doing so an error, as the behavior of "
+                    "subclasses isn't guaranteed to stay the same "
+                    "between releases of jsonschema. Instead, prefer "
+                    "composition of validators, wrapping them in an object "
+                    "owned entirely by the downstream library."
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         def __attrs_post_init__(self):
             if self.resolver is None:
                 self.resolver = RefResolver.from_schema(

@@ -1485,10 +1485,11 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         the interim, we haven't broken those users.
         """
 
-        @attr.s
-        class OhNo(self.Validator):
-            foo = attr.ib(factory=lambda: [1, 2, 3])
-            _bar = attr.ib(default=37)
+        with self.assertWarns(DeprecationWarning):
+            @attr.s
+            class OhNo(self.Validator):
+                foo = attr.ib(factory=lambda: [1, 2, 3])
+                _bar = attr.ib(default=37)
 
         validator = OhNo({}, bar=12)
         self.assertEqual(validator.foo, [1, 2, 3])
