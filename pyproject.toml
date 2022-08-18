@@ -81,11 +81,11 @@ content-type = "text/x-rst"
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
 path = "README.rst"
-end-before = "<!-- start cut from PyPI  -->"
+end-before = ".. start cut from PyPI"
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
 path = "README.rst"
-start-after = "<!-- end cut from PyPI  -->\n\n\n"
+start-after = ".. end cut from PyPI\n\n\n"
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
 text = """
