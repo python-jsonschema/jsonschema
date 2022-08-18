@@ -91,7 +91,7 @@ Installation
     $ pip install jsonschema
 
 
-<!-- start cut from PyPI  -->
+.. start cut from PyPI
 
 Running the Test Suite
 ----------------------
@@ -127,7 +127,7 @@ schemas can be found there.
 Otherwise, asking questions on Stack Overflow is another means of
 getting help if you're stuck.
 
-<!-- end cut from PyPI  -->
+.. end cut from PyPI
 
 
 About
