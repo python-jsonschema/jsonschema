@@ -1,3 +1,18 @@
+v4.12.1
+=======
+
+* Fix some stray comments in the README.
+
+v4.12.0
+=======
+
+* Warn at runtime when subclassing validator classes. Doing so was not
+  intended to be public API, though it seems some downstream libraries
+  do so. A future version will make this an error, as it is brittle and
+  better served by composing validator objects instead. Feel free to reach
+  out if there are any cases where changing existing code seems difficult
+  and I can try to provide guidance.
+
 v4.11.0
 =======
 
