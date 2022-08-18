@@ -1,16 +1,21 @@
+v4.11.0
+=======
+
+* Make the rendered README in PyPI simpler and fancier. Thanks Hynek (#983)!
+
 v4.10.3
--------
+=======
 
 * ``jsonschema.validators.validator_for`` now properly uses the explicitly
   provided default validator even if the ``$schema`` URI is not found.
 
 v4.10.2
--------
+=======
 
 * Fix a second place where subclasses may have added attrs attributes (#982).
 
 v4.10.1
--------
+=======
 
 * Fix Validator.evolve (and APIs like ``iter_errors`` which call it) for cases
   where the validator class has been subclassed. Doing so wasn't intended to be
