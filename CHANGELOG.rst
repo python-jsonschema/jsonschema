@@ -21,19 +21,19 @@ v4.10.1
   guidance (#982).
 
 v4.10.0
--------
+=======
 
 * Add support for referencing schemas with ``$ref`` across different versions
   of the specification than the referrer's
 
 v4.9.1
-------
+======
 
 * Update some documentation examples to use newer validator releases in their
   sample code.
 
 v4.9.0
-------
+======
 
 * Fix relative ``$ref`` resolution when the base URI is a URN or other scheme
   (#544).
@@ -46,42 +46,42 @@ v4.9.0
   <https://github.com/python-jsonschema/check-jsonschema>`_.
 
 v4.8.0
-------
+======
 
 * ``best_match`` no longer traverses into ``anyOf`` and ``oneOf`` when all of
   the errors within them seem equally applicable. This should lead to clearer
   error messages in some cases where no branches were matched.
 
 v4.7.2
-------
+======
 
 * Also have ``best_match`` handle cases where the ``type`` validator is an
   array.
 
 v4.7.1
-------
+======
 
 * Minor tweak of the PyPI hyperlink names
 
 v4.7.0
-------
+======
 
 * Enhance ``best_match`` to prefer errors from branches of the schema which
   match the instance's type (#728)
 
 v4.6.2
-------
+======
 
 * Fix a number of minor typos in docstrings, mostly private ones (#969)
 
 v4.6.1
-------
+======
 
 * Gut the (incomplete) implementation of ``recursiveRef`` on draft 2019. It
   needs completing, but for now can lead to recursion errors (e.g. #847).
 
 v4.6.0
-------
+======
 
 * Fix ``unevaluatedProperties`` and ``unevaluatedItems`` for types they should
   ignore (#949)
@@ -90,13 +90,13 @@ v4.6.0
   to contributors).
 
 v4.5.1
-------
+======
 
 * Revert changes to ``$dynamicRef`` which caused a performance regression
   in v4.5.0
 
 v4.5.0
-------
+======
 
 * Validator classes for each version now maintain references to the correct
   corresponding format checker (#905)
@@ -105,69 +105,69 @@ v4.5.0
   No functional behavior changes are expected from the change.
 
 v4.4.0
-------
+======
 
 * Add ``mypy`` support (#892)
 * Add support for Python 3.11
 
 v4.3.3
-------
+======
 
 * Properly report deprecation warnings at the right stack level (#899)
 
 v4.3.2
-------
+======
 
 * Additional performance improvements for resolving refs (#896)
 
 v4.3.1
-------
+======
 
 * Resolving refs has had performance improvements (#893)
 
 v4.3.0
-------
+======
 
 * Fix undesired fallback to brute force container uniqueness check on
   certain input types (#893)
 * Implement a PEP544 Protocol for validator classes (#890)
 
 v4.2.1
-------
+======
 
 * Pin ``importlib.resources`` from below (#877)
 
 v4.2.0
-------
+======
 
 * Use ``importlib.resources`` to load schemas (#873)
 * Ensure all elements of arrays are verified for uniqueness by ``uniqueItems``
   (#866)
 
 v4.1.2
-------
+======
 
 * Fix ``dependentSchemas`` to properly consider non-object instances to be
   valid (#850)
 
 v4.1.1
-------
+======
 
 * Fix ``prefixItems`` not indicating which item was invalid within the instance
   path (#862)
 
 v4.1.0
-------
+======
 
 * Add Python 3.10 to the list of supported Python versions
 
 v4.0.1
-------
+======
 
 * Fix the declaration of minimum supported Python version (#846)
 
 v4.0.0
-------
+======
 
 * Partial support for Draft 2020-12 (as well as 2019-09).
   Thanks to Thomas Schmidt and Harald Nezbeda.
@@ -200,37 +200,37 @@ v4.0.0
   ``Validator.is_valid``.
 
 v3.2.0
-------
+======
 
 * Added a ``format_nongpl`` setuptools extra, which installs only ``format``
   dependencies that are non-GPL (#619).
 
 v3.1.1
-------
+======
 
 * Temporarily revert the switch to ``js-regex`` until #611 and #612 are
   resolved.
 
 v3.1.0
-------
+======
 
 * Regular expressions throughout schemas now respect the ECMA 262 dialect, as
   recommended by the specification (#609).
 
 v3.0.2
-------
+======
 
 * Fixed a bug where ``0`` and ``False`` were considered equal by
   ``const`` and ``enum`` (#575).
 
 v3.0.1
-------
+======
 
 * Fixed a bug where extending validators did not preserve their notion
   of which validator property contains ``$id`` information.
 
 v3.0.0
-------
+======
 
 * Support for Draft 6 and Draft 7
 * Draft 7 is now the default
@@ -239,7 +239,7 @@ v3.0.0
   attempted, in accordance with the specification
 
 v2.6.0
-------
+======
 
 * Support for Python 2.6 has been dropped.
 * Improve a few error messages for ``uniqueItems`` (#224) and
@@ -247,13 +247,13 @@ v2.6.0
 * Fixed an issue with ``ErrorTree``'s handling of multiple errors (#288)
 
 v2.5.0
-------
+======
 
 * Improved performance on CPython by adding caching around ref resolution
   (#203)
 
 v2.4.0
-------
+======
 
 * Added a CLI (#134)
 * Added absolute path and absolute schema path to errors (#120)
@@ -261,20 +261,20 @@ v2.4.0
 * Meta-schemas are now loaded via ``pkgutil``
 
 v2.3.0
-------
+======
 
 * Added ``by_relevance`` and ``best_match`` (#91)
 * Fixed ``format`` to allow adding formats for non-strings (#125)
 * Fixed the ``uri`` format to reject URI references (#131)
 
 v2.2.0
-------
+======
 
 * Compile the host name regex (#127)
 * Allow arbitrary objects to be types (#129)
 
 v2.1.0
-------
+======
 
 * Support RFC 3339 datetimes in conformance with the spec
 * Fixed error paths for additionalItems + items (#122)
@@ -282,7 +282,7 @@ v2.1.0
 
 
 v2.0.0
-------
+======
 
 * Added ``create`` and ``extend`` to ``jsonschema.validators``
 * Removed ``ValidatorMixin``
@@ -291,7 +291,7 @@ v2.0.0
 
 
 v1.3.0
-------
+======
 
 * Better error tracebacks (#83)
 * Raise exceptions in ``ErrorTree``\s for keys not in the instance (#92)
@@ -299,7 +299,7 @@ v1.3.0
 
 
 v1.2.0
-------
+======
 
 * More attributes for ValidationError (#86)
 * Added ``ValidatorMixin.descend``
@@ -307,14 +307,14 @@ v1.2.0
 
 
 v1.1.0
-------
+======
 
 * Canonicalize URIs (#70)
 * Allow attaching exceptions to ``format`` errors (#77)
 
 
 v1.0.0
-------
+======
 
 * Support for Draft 4
 * Support for format
@@ -326,7 +326,7 @@ v1.0.0
 
 
 v0.8.0
-------
+======
 
 * Full support for JSON References
 * ``validates`` for registering new validators
@@ -338,7 +338,7 @@ v0.8.0
 
 
 v0.7
-----
+====
 
 * Partial support for (JSON Pointer) ``$ref``
 * Deprecations
@@ -349,7 +349,7 @@ v0.7
 
 
 v0.6
-----
+====
 
 * Bugfixes
 
@@ -358,7 +358,7 @@ v0.6
 
 
 v0.5
-----
+====
 
 * Bugfixes
 
@@ -367,7 +367,7 @@ v0.5
 
 
 v0.4
-----
+====
 
 * Preliminary support for programmatic access to error details (Issue #5).
   There are certainly some corner cases that don't do the right thing yet, but
@@ -387,7 +387,7 @@ v0.4
 
 
 v0.3
-----
+====
 
 * Default for unknown types and properties is now to *not* error (consistent
   with the schema).
