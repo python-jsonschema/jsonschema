@@ -1045,8 +1045,8 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     If you know you have a valid schema already, especially
     if you intend to validate multiple instances with
     the same schema, you likely would prefer using the
-    `jsonschema.Validator.validate` method directly on a specific
-    validator (e.g. ``Draft20212Validator.validate``).
+    `jsonschema.protocols.Validator.validate` method directly on a
+    specific validator (e.g. ``Draft20212Validator.validate``).
 
 
     Arguments:
