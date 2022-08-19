@@ -1042,10 +1042,11 @@ def validate(instance, schema, cls=None, *args, **kwargs):
     itself valid, since not doing so can lead to less obvious error
     messages and fail in less obvious or consistent ways.
 
-    If you know you have a valid schema already, especially if you
-    intend to validate multiple instances with the same schema, you
-    likely would prefer using the `Validator.validate` method directly
-    on a specific validator (e.g. ``Draft7Validator.validate``).
+    If you know you have a valid schema already, especially
+    if you intend to validate multiple instances with
+    the same schema, you likely would prefer using the
+    `jsonschema.Validator.validate` method directly on a specific
+    validator (e.g. ``Draft20212Validator.validate``).
 
 
     Arguments:
@@ -1058,7 +1059,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
             The schema to validate with
 
-        cls (Validator):
+        cls (jsonschema.protocols.Validator):
 
             The class that will be used to validate the instance.
 
