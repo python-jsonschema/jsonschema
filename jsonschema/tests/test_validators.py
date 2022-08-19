@@ -197,6 +197,38 @@ class TestCreateAndExtend(TestCase):
             ),
         )
 
+    def test_check_schema_with_different_metaschema(self):
+        """
+        One can create a validator class whose metaschema uses a different
+        dialect than itself.
+        """
+
+        NoEmptySchemasValidator = validators.create(
+            meta_schema={
+                "$schema": validators.Draft202012Validator.META_SCHEMA["$id"],
+                "not": {"const": {}},
+            },
+        )
+        NoEmptySchemasValidator.check_schema({"foo": "bar"})
+
+        with self.assertRaises(exceptions.SchemaError):
+            NoEmptySchemasValidator.check_schema({})
+
+        NoEmptySchemasValidator({"foo": "bar"}).validate("foo")
+
+    def test_check_schema_with_different_metaschema_defaults_to_self(self):
+        """
+        A validator whose metaschema doesn't declare $schema defaults to its
+        own validation behavior, not the latest "normal" specification.
+        """
+
+        NoEmptySchemasValidator = validators.create(
+            meta_schema={"fail": [{"message": "Meta schema whoops!"}]},
+            validators={"fail": fail},
+        )
+        with self.assertRaises(exceptions.SchemaError):
+            NoEmptySchemasValidator.check_schema({})
+
     def test_extend(self):
         original = dict(self.Validator.VALIDATORS)
         new = object()

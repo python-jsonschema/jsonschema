@@ -215,7 +215,8 @@ def create(
 
         @classmethod
         def check_schema(cls, schema):
-            for error in cls(cls.META_SCHEMA).iter_errors(schema):
+            Validator = validator_for(cls.META_SCHEMA, default=cls)
+            for error in Validator(cls.META_SCHEMA).iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
 
         def evolve(self, **changes):

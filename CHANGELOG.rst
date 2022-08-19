@@ -1,3 +1,13 @@
+v4.13.0
+=======
+
+* Add support for creating validator classes whose metaschema uses a different
+  dialect than its schemas. In other words, they may use draft2020-12 to define
+  which schemas are valid, but the schemas themselves use draft7 (or a custom
+  dialect, etc.) to define which *instances* are valid. Doing this is likely
+  not something most users, even metaschema authors, may need, but occasionally
+  will be useful for advanced use cases.
+
 v4.12.1
 =======
 
