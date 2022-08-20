@@ -19,4 +19,3 @@ Indices and tables
 ==================
 
 * `genindex`
-* `search`
