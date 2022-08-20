@@ -4,6 +4,7 @@ import numbers
 import typing
 
 from pyrsistent import pmap
+from pyrsistent.typing import PMap
 import attr
 
 from jsonschema.exceptions import UndefinedTypeCheck
@@ -18,14 +19,8 @@ def _typed_pmap_converter(
         str,
         typing.Callable[["TypeChecker", typing.Any], bool],
     ],
-) -> typing.Mapping[str, typing.Callable[["TypeChecker", typing.Any], bool]]:
-    return typing.cast(
-        typing.Mapping[
-            str,
-            typing.Callable[["TypeChecker", typing.Any], bool],
-        ],
-        pmap(init_val),
-    )
+) -> PMap[str, typing.Callable[["TypeChecker", typing.Any], bool]]:
+    return pmap(init_val)
 
 
 def is_array(checker, instance):
@@ -83,7 +78,7 @@ class TypeChecker:
             The initial mapping of types to their checking functions.
     """
 
-    _type_checkers: typing.Mapping[
+    _type_checkers: PMap[
         str, typing.Callable[["TypeChecker", typing.Any], bool],
     ] = attr.ib(
         default=pmap(),
@@ -159,9 +154,8 @@ class TypeChecker:
 
             A new `TypeChecker` instance.
         """
-        return attr.evolve(
-            self, type_checkers=self._type_checkers.update(definitions),
-        )
+        type_checkers = self._type_checkers.update(definitions)
+        return attr.evolve(self, type_checkers=type_checkers)
 
     def remove(self, *types):
         """
@@ -184,13 +178,13 @@ class TypeChecker:
                 if any given type is unknown to this object
         """
 
-        checkers = self._type_checkers
+        type_checkers = self._type_checkers
         for each in types:
             try:
-                checkers = checkers.remove(each)
+                type_checkers = type_checkers.remove(each)
             except KeyError:
                 raise UndefinedTypeCheck(each)
-        return attr.evolve(self, type_checkers=checkers)
+        return attr.evolve(self, type_checkers=type_checkers)
 
 
 draft3_type_checker = TypeChecker(
