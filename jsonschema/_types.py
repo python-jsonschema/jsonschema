@@ -64,16 +64,20 @@ def is_any(checker, instance):
 @attr.s(frozen=True)
 class TypeChecker:
     """
-    A ``type`` property checker.
+    A :kw:`type` property checker.
 
-    A `TypeChecker` performs type checking for a `Validator`. Type
-    checks to perform are updated using `TypeChecker.redefine` or
-    `TypeChecker.redefine_many` and removed via `TypeChecker.remove`.
-    Each of these return a new `TypeChecker` object.
+    A `TypeChecker` performs type checking for a `Validator`, converting
+    between the defined JSON Schema types and some associated Python types or
+    objects.
+
+    Modifying the behavior just mentioned by redefining which Python objects
+    are considered to be of which JSON Schema types can be done using
+    `TypeChecker.redefine` or `TypeChecker.redefine_many`, and types can be
+    removed via `TypeChecker.remove`. Each of these return a new `TypeChecker`.
 
     Arguments:
 
-        type_checkers (dict):
+        type_checkers:
 
             The initial mapping of types to their checking functions.
     """
@@ -85,24 +89,19 @@ class TypeChecker:
         converter=_typed_pmap_converter,
     )
 
-    def is_type(self, instance, type):
+    def is_type(self, instance, type: str) -> bool:
         """
         Check if the instance is of the appropriate type.
 
         Arguments:
 
-            instance (object):
+            instance:
 
                 The instance to check
 
-            type (str):
+            type:
 
                 The name of the type that is expected.
-
-        Returns:
-
-            bool: Whether it conformed.
-
 
         Raises:
 
@@ -117,30 +116,26 @@ class TypeChecker:
 
         return fn(self, instance)
 
-    def redefine(self, type, fn):
+    def redefine(self, type: str, fn) -> "TypeChecker":
         """
         Produce a new checker with the given type redefined.
 
         Arguments:
 
-            type (str):
+            type:
 
                 The name of the type to check.
 
             fn (collections.abc.Callable):
 
-                A function taking exactly two parameters - the type
+                A callable taking exactly two parameters - the type
                 checker calling the function and the instance to check.
                 The function should return true if instance is of this
                 type and false otherwise.
-
-        Returns:
-
-            A new `TypeChecker` instance.
         """
         return self.redefine_many({type: fn})
 
-    def redefine_many(self, definitions=()):
+    def redefine_many(self, definitions=()) -> "TypeChecker":
         """
         Produce a new checker with the given types redefined.
 
@@ -149,27 +144,19 @@ class TypeChecker:
             definitions (dict):
 
                 A dictionary mapping types to their checking functions.
-
-        Returns:
-
-            A new `TypeChecker` instance.
         """
         type_checkers = self._type_checkers.update(definitions)
         return attr.evolve(self, type_checkers=type_checkers)
 
-    def remove(self, *types):
+    def remove(self, *types) -> "TypeChecker":
         """
         Produce a new checker with the given types forgotten.
 
         Arguments:
 
-            types (~collections.abc.Iterable):
+            types:
 
                 the names of the types to remove.
-
-        Returns:
-
-            A new `TypeChecker` instance
 
         Raises:
 
