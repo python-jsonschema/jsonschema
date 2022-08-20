@@ -6,6 +6,7 @@ import datetime
 import ipaddress
 import re
 import typing
+import warnings
 
 from jsonschema.exceptions import FormatError
 
@@ -83,6 +84,21 @@ class FormatChecker:
 
     @classmethod
     def cls_checks(
+        cls, format: str, raises: _RaisesType = (),
+    ) -> typing.Callable[[_F], _F]:
+        warnings.warn(
+            (
+                "FormatChecker.cls_checks is deprecated. Call "
+                "FormatChecker.checks on a specific FormatChecker instance "
+                "instead."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return cls._cls_checks(format=format, raises=raises)
+
+    @classmethod
+    def _cls_checks(
         cls, format: str, raises: _RaisesType = (),
     ) -> typing.Callable[[_F], _F]:
         def _checks(func: _F) -> _F:
@@ -205,7 +221,7 @@ def _checks_drafts(
 
         # Oy. This is bad global state, but relied upon for now, until
         # deprecation. See #519 and test_format_checkers_come_with_defaults
-        FormatChecker.cls_checks(
+        FormatChecker._cls_checks(
             draft202012 or draft201909 or draft7 or draft6 or draft4 or draft3,
             raises,
         )(func)

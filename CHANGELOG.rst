@@ -1,3 +1,9 @@
+v4.14.0
+=======
+
+* ``FormatChecker.cls_checks`` is deprecated. Use ``FormatChecker.checks`` on
+  an instance of ``FormatChecker`` instead.
+
 v4.13.0
 =======
 

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from jsonschema import validators
+from jsonschema import FormatChecker, validators
 
 
 class TestDeprecations(TestCase):
@@ -146,3 +146,19 @@ class TestDeprecations(TestCase):
         with self.assertWarns(DeprecationWarning) as w:
             class AnotherSubclass(validators.create(meta_schema={})):
                 pass
+
+    def test_FormatChecker_cls_checks(self):
+        """
+        As of v4.14.0, FormatChecker.cls_checks is deprecated without
+        replacement.
+        """
+
+        self.addCleanup(FormatChecker.checkers.pop, "boom", None)
+
+        with self.assertWarns(DeprecationWarning) as w:
+            FormatChecker.cls_checks("boom")
+
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith("FormatChecker.cls_checks "),
+        )
