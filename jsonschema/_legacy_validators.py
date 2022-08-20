@@ -226,3 +226,81 @@ def recursiveRef(validator, recursiveRef, instance, schema):
     #        see it.
     subschema
     return []
+
+
+def find_evaluated_item_indexes_by_schema(validator, instance, schema):
+    """
+    Get all indexes of items that get evaluated under the current schema
+
+    Covers all keywords related to unevaluatedItems: items, prefixItems, if,
+    then, else, contains, unevaluatedItems, allOf, oneOf, anyOf
+    """
+    if validator.is_type(schema, "boolean"):
+        return []
+    evaluated_indexes = []
+
+    if "additionalItems" in schema:
+        return list(range(0, len(instance)))
+
+    if "$ref" in schema:
+        scope, resolved = validator.resolver.resolve(schema["$ref"])
+        validator.resolver.push_scope(scope)
+
+        try:
+            evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                validator, instance, resolved,
+            )
+        finally:
+            validator.resolver.pop_scope()
+
+    if "items" in schema:
+        if validator.is_type(schema["items"], "object"):
+            return list(range(0, len(instance)))
+        evaluated_indexes += list(range(0, len(schema["items"])))
+
+    if "if" in schema:
+        if validator.evolve(schema=schema["if"]).is_valid(instance):
+            evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                validator, instance, schema["if"],
+            )
+            if "then" in schema:
+                evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                    validator, instance, schema["then"],
+                )
+        else:
+            if "else" in schema:
+                evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                    validator, instance, schema["else"],
+                )
+
+    for keyword in ["contains", "unevaluatedItems"]:
+        if keyword in schema:
+            for k, v in enumerate(instance):
+                if validator.evolve(schema=schema[keyword]).is_valid(v):
+                    evaluated_indexes.append(k)
+
+    for keyword in ["allOf", "oneOf", "anyOf"]:
+        if keyword in schema:
+            for subschema in schema[keyword]:
+                errs = list(validator.descend(instance, subschema))
+                if not errs:
+                    evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                        validator, instance, subschema,
+                    )
+
+    return evaluated_indexes
+
+
+def unevaluatedItems_draft2019(validator, unevaluatedItems, instance, schema):
+    if not validator.is_type(instance, "array"):
+        return
+    evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
+        validator, instance, schema,
+    )
+    unevaluated_items = [
+        item for index, item in enumerate(instance)
+        if index not in evaluated_item_indexes
+    ]
+    if unevaluated_items:
+        error = "Unevaluated items are not allowed (%s %s unexpected)"
+        yield ValidationError(error % _utils.extras_msg(unevaluated_items))

@@ -3,8 +3,8 @@ v4.14.0
 
 * ``FormatChecker.cls_checks`` is deprecated. Use ``FormatChecker.checks`` on
   an instance of ``FormatChecker`` instead.
-* ``unevaluatedItems`` has been fixed on draft 2019. It's nonetheless
-  discouraged to use draft2019 for any schemas, new or old.
+* ``unevaluatedItems`` has been fixed for draft 2019. It's nonetheless
+  discouraged to use draft 2019 for any schemas, new or old.
 
 v4.13.0
 =======

@@ -605,7 +605,7 @@ Draft201909Validator = create(
         "propertyNames": _validators.propertyNames,
         "required": _validators.required,
         "type": _validators.type,
-        "unevaluatedItems": _validators.unevaluatedItems,
+        "unevaluatedItems": _legacy_validators.unevaluatedItems_draft2019,
         "unevaluatedProperties": _validators.unevaluatedProperties,
         "uniqueItems": _validators.uniqueItems,
     },

@@ -8,7 +8,7 @@ See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 
 import sys
 
-from jsonschema.tests._helpers import bug, test_suite_bug
+from jsonschema.tests._helpers import bug
 from jsonschema.tests._suite import Suite
 import jsonschema
 
@@ -331,61 +331,6 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
     Validator=jsonschema.Draft201909Validator,
     skip=lambda test: (
         skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            description="uncle keyword evaluation is not significant",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            description="when one schema matches and has unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            description="when two schemas match and has unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            description="when if matches and it has unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            case_description="unevaluatedItems with nested tuple",
-            description="with unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            case_description="unevaluatedItems with not",
-            description="with unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            case_description="unevaluatedItems with oneOf",
-            description="with unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            case_description="unevaluatedItems with $ref",
-            description="with unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            case_description="unevaluatedItems with tuple",
-            description="with unevaluated items",
-        )(test)
-        or skip(
-            message="unevaluatedItems is different in 2019-09 (needs work).",
-            subject="unevaluatedItems",
-            description="when if doesn't match and it has unevaluated items",
-        )(test)
-        or skip(
             message="recursiveRef support isn't working yet.",
             subject="recursiveRef",
             case_description=(
