@@ -474,7 +474,7 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
             case_description="same $anchor with different base uri",
         )(test)
         or skip(
-            message=test_suite_bug(574),
+            message="Vocabulary support is still in-progress.",
             subject="vocabulary",
             description=(
                 "no validation: invalid number, but it still validates"
@@ -594,7 +594,7 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
             case_description="same $anchor with different base uri",
         )(test)
         or skip(
-            message=test_suite_bug(574),
+            message="Vocabulary support is still in-progress.",
             subject="vocabulary",
             description=(
                 "no validation: invalid number, but it still validates"
