@@ -105,10 +105,11 @@ class FormatChecker:
 
                 The format that instance should conform to
 
-
         Raises:
 
-            FormatError: if the instance does not conform to ``format``
+            FormatError:
+
+                if the instance does not conform to ``format``
         """
 
         if format not in self.checkers:

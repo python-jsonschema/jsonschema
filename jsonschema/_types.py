@@ -112,7 +112,8 @@ class TypeChecker:
         Raises:
 
             `jsonschema.exceptions.UndefinedTypeCheck`:
-                if type is unknown to this object.
+
+                if ``type`` is unknown to this object.
         """
         try:
             fn = self._type_checkers[type]

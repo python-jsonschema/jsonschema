@@ -111,7 +111,7 @@ class Validator(Protocol):
 
         Raises:
 
-            `jsonschema.exceptions.SchemaError`
+            `jsonschema.exceptions.SchemaError`:
 
                 if the schema is invalid
         """
@@ -136,7 +136,7 @@ class Validator(Protocol):
 
         Raises:
 
-            `jsonschema.exceptions.UnknownType`
+            `jsonschema.exceptions.UnknownType`:
 
                 if ``type`` is not a known type
         """
@@ -176,7 +176,7 @@ class Validator(Protocol):
 
         Raises:
 
-            `jsonschema.exceptions.ValidationError`
+            `jsonschema.exceptions.ValidationError`:
 
                 if the instance is invalid
 

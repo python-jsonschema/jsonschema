@@ -1076,11 +1076,13 @@ def validate(instance, schema, cls=None, *args, **kwargs):
 
     Raises:
 
-        `jsonschema.exceptions.ValidationError` if the instance
-            is invalid
+        `jsonschema.exceptions.ValidationError`:
 
-        `jsonschema.exceptions.SchemaError` if the schema itself
-            is invalid
+            if the instance is invalid
+
+        `jsonschema.exceptions.SchemaError`:
+
+            if the schema itself is invalid
 
     .. rubric:: Footnotes
     .. [#] known by a validator registered with
