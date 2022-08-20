@@ -7,7 +7,7 @@ typing.Protocol classes for jsonschema interfaces.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Iterator
+from typing import TYPE_CHECKING, Any, ClassVar, Iterable
 import sys
 
 # doing these imports with `try ... except ImportError` doesn't pass mypy
@@ -113,7 +113,7 @@ class Validator(Protocol):
             is not a known type.
         """
 
-    def is_valid(self, instance: dict) -> bool:
+    def is_valid(self, instance: Any) -> bool:
         """
         Check if the instance is valid under the current `schema`.
 
@@ -124,7 +124,7 @@ class Validator(Protocol):
         False
         """
 
-    def iter_errors(self, instance: dict) -> Iterator[ValidationError]:
+    def iter_errors(self, instance: Any) -> Iterable[ValidationError]:
         r"""
         Lazily yield each of the validation errors in the given instance.
 
@@ -143,7 +143,7 @@ class Validator(Protocol):
         [2, 3, 4] is too long
         """
 
-    def validate(self, instance: dict) -> None:
+    def validate(self, instance: Any) -> None:
         """
         Check if the instance is valid under the current `schema`.
 
