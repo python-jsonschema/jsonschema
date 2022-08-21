@@ -7,6 +7,7 @@ typing.Protocol classes for jsonschema interfaces.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any, ClassVar, Iterable
 import sys
 
@@ -78,12 +79,12 @@ class Validator(Protocol):
 
     #: An object representing the validator's meta schema (the schema that
     #: describes valid schemas in the given version).
-    META_SCHEMA: ClassVar[dict]
+    META_SCHEMA: ClassVar[Mapping]
 
     #: A mapping of validation keywords (`str`\s) to functions that
     #: validate the keyword with that name. For more information see
     #: `creating-validators`.
-    VALIDATORS: ClassVar[dict]
+    VALIDATORS: ClassVar[Mapping]
 
     #: A `jsonschema.TypeChecker` that will be used when validating
     #: :kw:`type` keywords in JSON schemas.
@@ -93,19 +94,22 @@ class Validator(Protocol):
     #: :kw:`format` properties in JSON schemas.
     FORMAT_CHECKER: ClassVar[jsonschema.FormatChecker]
 
-    #: The schema that was passed in when initializing the object.
-    schema: dict | bool
+    #: A function which given a schema returns its ID.
+    ID_OF: Callable[[Any], str | None]
+
+    #: The schema that will be used to validate instances
+    schema: Mapping | bool
 
     def __init__(
         self,
-        schema: dict | bool,
+        schema: Mapping | bool,
         resolver: RefResolver | None = None,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...
 
     @classmethod
-    def check_schema(cls, schema: dict) -> None:
+    def check_schema(cls, schema: Mapping | bool) -> None:
         """
         Validate the given schema against the validator's `META_SCHEMA`.
 
