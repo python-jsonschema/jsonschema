@@ -5,6 +5,7 @@ v4.14.0
   an instance of ``FormatChecker`` instead.
 * ``unevaluatedItems`` has been fixed for draft 2019. It's nonetheless
   discouraged to use draft 2019 for any schemas, new or old.
+* Fix a number of minor annotation issues in ``protocols.Validator``
 
 v4.13.0
 =======
