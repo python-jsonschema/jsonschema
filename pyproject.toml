@@ -107,6 +107,7 @@ multi_line_output = 3
 
 [tool.mypy]
 ignore_missing_imports = true
+show_error_codes = true
 
 [tool.pydocstyle]
 match = "(?!(test_|_|compat|cli)).*\\.py"  # see PyCQA/pydocstyle#323
