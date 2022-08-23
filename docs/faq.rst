@@ -2,7 +2,6 @@
 Frequently Asked Questions
 ==========================
 
-
 My schema specifies format validation. Why do invalid instances seem valid?
 ---------------------------------------------------------------------------
 
@@ -72,6 +71,32 @@ implemented here, across any other implementation they encounter.
     `jsonschema.FormatChecker`
 
         the object which implements format validation
+
+
+Can `jsonschema` be used to validate YAML, TOML, etc.?
+------------------------------------------------------
+
+Like most JSON Schema implementations, `jsonschema` doesn't actually deal directly with JSON at all (other than in relation to the :kw:`$ref` keyword, elaborated on below).
+
+In other words as far as this library is concerned, schemas and instances are simply runtime Python objects.
+The JSON object ``{}`` is simply the Python `dict` ``{}``, and a JSON Schema like ``{"type": "object", {"properties": {}}}`` is really an assertion about particular Python objects and their keys.
+
+.. note::
+
+   The :kw:`$ref` keyword is a single notable exception.
+
+   Specifically, in the case where `jsonschema` is asked to `resolve a remote reference <RefResolver>`, it has no choice but to assume that the remote reference is serialized as JSON, and to deserialize it using the `json` module.
+
+   One cannot today therefore reference some remote piece of YAML and have it deserialized into Python objects by this library without doing some additional work.
+
+In practice what this means for JSON-like formats like YAML and TOML is that indeed one can generally schematize and then validate them exactly as if they were JSON by simply first deserializing them using libraries like ``PyYAML`` or the like, and passing the resulting Python objects into functions within this library.
+
+Beware however that there are cases where the behavior of the JSON Schema specification itself is only well-defined within the data model of JSON itself, and therefore only for Python objects that could have "in theory" come from JSON.
+As an example, JSON supports only string-valued keys, whereas YAML supports additional types.
+The JSON Schema specification does not deal with how to apply the :kw:`patternProperties` keyword to non-string properties.
+The behavior of this library is therefore similarly not defined when presented with Python objects of this form, which could never have come from JSON.
+In such cases one is recommended to first pre-process the data such that the resulting behavior is well-defined.
+In the previous example, if the desired behavior is to transparently coerce numeric properties to strings, as Javascript might, then do the conversion explicitly before passing data to this library.
 
 
 How do I configure a base URI for ``$ref`` resolution using local files?
@@ -239,8 +264,8 @@ defaults.
         assert obj2 == {} # whoops
 
 
-How do jsonschema version numbers work?
----------------------------------------
+How do `jsonschema` version numbers work?
+-----------------------------------------
 
 ``jsonschema`` tries to follow the `Semantic Versioning
 <https://semver.org/>`_ specification.

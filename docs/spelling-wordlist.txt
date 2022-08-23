@@ -9,6 +9,9 @@ th
 callables
 deque
 dereferences
+deserialize
+deserialized
+deserializing
 filesystem
 hostname
 implementers
@@ -17,6 +20,7 @@ indices
 ipv
 iterable
 iteratively
+Javascript
 jsonschema
 majorly
 metaschema
@@ -27,6 +31,7 @@ programmatically
 recurses
 regex
 repr
+runtime
 sensical
 subschema
 subschemas
