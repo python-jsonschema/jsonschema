@@ -85,7 +85,7 @@ The JSON object ``{}`` is simply the Python `dict` ``{}``, and a JSON Schema lik
 
    The :kw:`$ref` keyword is a single notable exception.
 
-   Specifically, in the case where `jsonschema` is asked to `resolve a remote reference <RefResolver>`, it has no choice but to assume that the remote reference is serialized as JSON, and to deserialize it using the `json` module.
+   Specifically, in the case where `jsonschema` is asked to `resolve a remote reference <jsonschema.RefResolver>`, it has no choice but to assume that the remote reference is serialized as JSON, and to deserialize it using the `json` module.
 
    One cannot today therefore reference some remote piece of YAML and have it deserialized into Python objects by this library without doing some additional work.
 
