@@ -263,7 +263,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.tests(),
     DRAFT7.format_tests(),
     DRAFT7.optional_tests_of(name="bignum"),
-    DRAFT7.optional_tests_of(name="content"),
     DRAFT7.optional_tests_of(name="cross-draft"),
     DRAFT7.optional_tests_of(name="float-overflow"),
     DRAFT7.optional_tests_of(name="non-bmp-regex"),
@@ -293,28 +292,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             case_description=(
                 "$id must be resolved against nearest parent, "
                 "not just immediate parent"
-            ),
-        )(test)
-        or skip(
-            message=bug(593),
-            subject="content",
-            valid=False,
-            case_description=(
-                "validation of string-encoded content based on media type"
-            ),
-        )(test)
-        or skip(
-            message=bug(593),
-            subject="content",
-            valid=False,
-            case_description="validation of binary string-encoding",
-        )(test)
-        or skip(
-            message=bug(593),
-            subject="content",
-            valid=False,
-            case_description=(
-                "validation of binary-encoded media type documents"
             ),
         )(test)
     ),
