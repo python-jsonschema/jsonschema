@@ -1,3 +1,11 @@
+v4.15.0
+=======
+
+* ``$ref`` on earlier drafts (specifically draft 7 and 6) has been "fixed" to
+  follow the specified behavior when present alongside a sibling ``$id``.
+  Specifically the ID is now properly ignored, and references are resolved
+  against whatever resolution scope was previously relevant.
+
 v4.14.0
 =======
 
