@@ -445,7 +445,7 @@ Draft3Validator = create(
     type_checker=_types.draft3_type_checker,
     format_checker=_format.draft3_format_checker,
     version="draft3",
-    id_of=lambda schema: schema.get("id", ""),
+    id_of=_legacy_validators.id_of_ignore_ref(property="id"),
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
@@ -482,7 +482,7 @@ Draft4Validator = create(
     type_checker=_types.draft4_type_checker,
     format_checker=_format.draft4_format_checker,
     version="draft4",
-    id_of=lambda schema: schema.get("id", ""),
+    id_of=_legacy_validators.id_of_ignore_ref(property="id"),
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
@@ -524,6 +524,7 @@ Draft6Validator = create(
     type_checker=_types.draft6_type_checker,
     format_checker=_format.draft6_format_checker,
     version="draft6",
+    id_of=_legacy_validators.id_of_ignore_ref(),
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
@@ -566,6 +567,7 @@ Draft7Validator = create(
     type_checker=_types.draft7_type_checker,
     format_checker=_format.draft7_format_checker,
     version="draft7",
+    id_of=_legacy_validators.id_of_ignore_ref(),
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 

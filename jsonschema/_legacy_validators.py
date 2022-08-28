@@ -2,6 +2,19 @@ from jsonschema import _utils
 from jsonschema.exceptions import ValidationError
 
 
+def id_of_ignore_ref(property="$id"):
+    def id_of(schema):
+        """
+        Ignore an ``$id`` sibling of ``$ref`` if it is present.
+
+        Otherwise, return the ID of the given schema.
+        """
+        if schema is True or schema is False or "$ref" in schema:
+            return ""
+        return schema.get(property, "")
+    return id_of
+
+
 def ignore_ref_siblings(schema):
     """
     Ignore siblings of ``$ref`` if it is present.

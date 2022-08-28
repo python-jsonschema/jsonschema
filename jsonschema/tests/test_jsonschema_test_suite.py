@@ -156,7 +156,7 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or missing_format(jsonschema.draft3_format_checker)(test)
         or complex_email_validation(test)
         or skip(
-            message=bug(371),
+            message=bug(),
             subject="ref",
             valid=False,
             case_description=(
@@ -188,7 +188,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             case_description="Recursive references between schemas",
         )(test)
         or skip(
-            message=bug(371),
+            message=bug(),
             subject="ref",
             case_description=(
                 "Location-independent identifier with "
@@ -196,19 +196,19 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
             ),
         )(test)
         or skip(
-            message=bug(371),
+            message=bug(),
             subject="ref",
             case_description=(
                 "$ref prevents a sibling id from changing the base uri"
             ),
         )(test)
         or skip(
-            message=bug(371),
+            message=bug(),
             subject="id",
             description="match $ref to id",
         )(test)
         or skip(
-            message=bug(371),
+            message=bug(),
             subject="id",
             description="no match on enum or $ref to id",
         )(test)
@@ -248,13 +248,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
         )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description=(
-                "$ref prevents a sibling $id from changing the base uri"
-            ),
-        )(test)
     ),
 )
 
@@ -278,13 +271,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
             message=bug(),
             subject="refRemote",
             case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
-            message=bug(371),
-            subject="ref",
-            case_description=(
-                "$ref prevents a sibling $id from changing the base uri"
-            ),
         )(test)
         or skip(
             message=bug(),
