@@ -73,8 +73,8 @@ implemented here, across any other implementation they encounter.
         the object which implements format validation
 
 
-Can `jsonschema` be used to validate YAML, TOML, etc.?
-------------------------------------------------------
+Can jsonschema be used to validate YAML, TOML, etc.?
+----------------------------------------------------
 
 Like most JSON Schema implementations, `jsonschema` doesn't actually deal directly with JSON at all (other than in relation to the :kw:`$ref` keyword, elaborated on below).
 
@@ -99,8 +99,8 @@ In such cases one is recommended to first pre-process the data such that the res
 In the previous example, if the desired behavior is to transparently coerce numeric properties to strings, as Javascript might, then do the conversion explicitly before passing data to this library.
 
 
-How do I configure a base URI for ``$ref`` resolution using local files?
-------------------------------------------------------------------------
+How do I configure a base URI for $ref resolution using local files?
+--------------------------------------------------------------------
 
 `jsonschema` supports loading schemas from the filesystem.
 
@@ -264,8 +264,8 @@ defaults.
         assert obj2 == {} # whoops
 
 
-How do `jsonschema` version numbers work?
------------------------------------------
+How do jsonschema version numbers work?
+---------------------------------------
 
 ``jsonschema`` tries to follow the `Semantic Versioning
 <https://semver.org/>`_ specification.
