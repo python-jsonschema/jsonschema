@@ -13,6 +13,7 @@ The simplest way to validate an instance under a given schema is to use the
 :func:`validate` function.
 
 .. autofunction:: validate
+    :noindex:
 
 .. [#] For information on creating JSON schemas to validate
     your data, there is a good introduction to JSON Schema
@@ -28,6 +29,7 @@ The Validator Protocol
 to.
 
 .. autoclass:: jsonschema.protocols.Validator
+    :noindex:
     :members:
 
 All of the `versioned validators <versioned-validators>` that are included with
@@ -54,6 +56,7 @@ versions.
     :members:
 
 .. autoexception:: jsonschema.exceptions.UndefinedTypeCheck
+    :noindex:
 
     Raised when trying to remove a type check that is not known to this
     TypeChecker, or when calling `jsonschema.TypeChecker.is_type`
@@ -109,6 +112,7 @@ existing `TypeChecker` or create a new one. You may then create a new
 
 
 .. autoexception:: jsonschema.exceptions.UnknownType
+    :noindex:
 
 .. _versioned-validators:
 
@@ -121,16 +125,22 @@ that each validator class provides see the `Validator` protocol,
 which each included validator class implements.
 
 .. autoclass:: Draft202012Validator
+    :noindex:
 
 .. autoclass:: Draft201909Validator
+    :noindex:
 
 .. autoclass:: Draft7Validator
+    :noindex:
 
 .. autoclass:: Draft6Validator
+    :noindex:
 
 .. autoclass:: Draft4Validator
+    :noindex:
 
 .. autoclass:: Draft3Validator
+    :noindex:
 
 
 For example, if you wanted to validate a schema you created against the
@@ -181,7 +191,6 @@ validation can be enabled by hooking in a format-checking object into an
     :exclude-members: cls_checks
 
     .. attribute:: checkers
-
         A mapping of currently known formats to tuple of functions that
         validate them and errors that should be caught. New checkers can be
         added and removed either per-instance or globally for all checkers
@@ -204,6 +213,7 @@ validation can be enabled by hooking in a format-checking object into an
 
 
 .. autoexception:: FormatError
+    :noindex:
     :members:
 
 

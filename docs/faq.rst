@@ -85,7 +85,7 @@ The JSON object ``{}`` is simply the Python `dict` ``{}``, and a JSON Schema lik
 
    The :kw:`$ref` keyword is a single notable exception.
 
-   Specifically, in the case where `jsonschema` is asked to `resolve a remote reference <RefResolver>`, it has no choice but to assume that the remote reference is serialized as JSON, and to deserialize it using the `json` module.
+   Specifically, in the case where `jsonschema` is asked to `resolve a remote reference <jsonschema.validators.RefResolver>`, it has no choice but to assume that the remote reference is serialized as JSON, and to deserialize it using the `json` module.
 
    One cannot today therefore reference some remote piece of YAML and have it deserialized into Python objects by this library without doing some additional work.
 
@@ -104,7 +104,7 @@ How do I configure a base URI for $ref resolution using local files?
 
 `jsonschema` supports loading schemas from the filesystem.
 
-The most common mistake when configuring a :class:`~jsonschema.RefResolver`
+The most common mistake when configuring a `jsonschema.validators.RefResolver`
 to retrieve schemas from the local filesystem is to give it a base URI
 which points to a directory, but forget to add a trailing slash.
 
@@ -212,8 +212,8 @@ be valid under the schema.)
 
 See the above-linked document for more info on how this works,
 but basically, it just extends the :kw:`properties` keyword on a
-`jsonschema.Draft202012Validator` to then go ahead and update all the
-defaults.
+`jsonschema.validators.Draft202012Validator` to then go ahead and update
+all the defaults.
 
 .. note::
 

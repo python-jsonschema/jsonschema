@@ -8,6 +8,7 @@ When an invalid instance is encountered, a `ValidationError` will be
 raised or returned, depending on which method or function is used.
 
 .. autoexception:: ValidationError
+    :noindex:
 
     The information carried by an error roughly breaks down into:
 
@@ -123,6 +124,7 @@ In case an invalid schema itself is encountered, a `SchemaError` is
 raised.
 
 .. autoexception:: SchemaError
+    :noindex:
 
     The same attributes are present as for `ValidationError`\s.
 
@@ -229,6 +231,7 @@ failed when validating a given instance, you may want to do so using
 `jsonschema.exceptions.ErrorTree` objects.
 
 .. autoclass:: jsonschema.exceptions.ErrorTree
+    :noindex:
     :members:
     :special-members:
     :exclude-members: __dict__,__weakref__
@@ -361,9 +364,11 @@ to guess the most relevant error in a given bunch.
 
 
 .. autofunction:: best_match
+    :noindex:
 
 
 .. function:: relevance(validation_error)
+    :noindex:
 
     A key function that sorts errors based on heuristic relevance.
 
@@ -403,3 +408,4 @@ to guess the most relevant error in a given bunch.
 
 
 .. autofunction:: by_relevance
+    :noindex:
