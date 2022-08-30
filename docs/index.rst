@@ -12,7 +12,6 @@ Contents
 
     validate
     errors
-    references
     creating
     faq
     api/index
