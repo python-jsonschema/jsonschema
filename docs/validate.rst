@@ -209,6 +209,10 @@ By default, no validation is enforced, but optionally, validation can be enabled
             `jsonschema.exceptions.ValidationError.cause` attribute
             of the resulting validation error.
 
+        .. deprecated:: v4.14.0
+
+            Use `FormatChecker.checks` on an instance instead.
+
 
 .. autoexception:: FormatError
     :noindex:

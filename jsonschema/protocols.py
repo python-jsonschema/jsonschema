@@ -74,6 +74,11 @@ class Validator(Protocol):
             against instances. Ensure you've installed `jsonschema` with
             its `extra (optional) dependencies <index:extras>` when
             invoking ``pip``.
+
+    .. deprecated:: v4.12.0
+
+        Subclassing validator classes now explicitly warns this is not part of
+        their public API.
     """
 
     #: An object representing the validator's meta schema (the schema that
@@ -171,6 +176,11 @@ class Validator(Protocol):
         ...     print(error.message)
         4 is not one of [1, 2, 3]
         [2, 3, 4] is too long
+
+        .. deprecated:: v4.0.0
+
+            Calling this function with a second schema argument is deprecated.
+            Use `Validator.evolve` instead.
         """
 
     def validate(self, instance: Any) -> None:

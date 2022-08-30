@@ -803,6 +803,8 @@ class RefResolver:
     def in_scope(self, scope):
         """
         Temporarily enter the given scope for the duration of the context.
+
+        .. deprecated:: v4.0.0
         """
         warnings.warn(
             "jsonschema.RefResolver.in_scope is deprecated and will be "
