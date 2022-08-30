@@ -61,7 +61,7 @@ def is_any(checker, instance):
     return True
 
 
-@attr.s(frozen=True)
+@attr.s(frozen=True, repr=False)
 class TypeChecker:
     """
     A :kw:`type` property checker.
@@ -88,6 +88,10 @@ class TypeChecker:
         default=pmap(),
         converter=_typed_pmap_converter,
     )
+
+    def __repr__(self):
+        types = ", ".join(repr(k) for k in sorted(self._type_checkers))
+        return f"<{self.__class__.__name__} types={{{types}}}>"
 
     def is_type(self, instance, type: str) -> bool:
         """

@@ -105,6 +105,10 @@ class TestTypeChecker(TestCase):
 
         self.assertIs(context.exception, error)
 
+    def test_repr(self):
+        checker = TypeChecker({"foo": is_namedtuple, "bar": is_namedtuple})
+        self.assertEqual(repr(checker), "<TypeChecker types={'bar', 'foo'}>")
+
 
 class TestCustomTypes(TestCase):
     def test_simple_type_can_be_extended(self):
