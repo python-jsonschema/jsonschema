@@ -78,7 +78,8 @@ exclude_patterns = ["_build", "_cache", "_static", "_templates"]
 default_role = "any"
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+pygments_style = "lovelace"
+pygments_dark_style = "one-dark"
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
