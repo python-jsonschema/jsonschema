@@ -1,6 +1,7 @@
 v4.15.0
 =======
 
+* A specific API Reference page is now present in the documentation.
 * ``$ref`` on earlier drafts (specifically draft 7 and 6) has been "fixed" to
   follow the specified behavior when present alongside a sibling ``$id``.
   Specifically the ID is now properly ignored, and references are resolved
