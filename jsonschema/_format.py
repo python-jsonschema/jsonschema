@@ -44,7 +44,7 @@ class FormatChecker:
         tuple[_FormatCheckCallable, _RaisesType],
     ] = {}
 
-    def __init__(self, formats: typing.Iterable[str] | None = None):
+    def __init__(self, formats: typing.Iterable[str] = None):
         if formats is None:
             formats = self.checkers.keys()
         self.checkers = {k: self.checkers[k] for k in formats}
