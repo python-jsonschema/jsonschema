@@ -25,17 +25,20 @@ The simplest way to validate an instance under a given schema is to use the
 The Validator Protocol
 -----------------------
 
-`jsonschema` defines a protocol that all validator classes should adhere
-to.
+`jsonschema` defines a `protocol <typing.Protocol>` that all validator classes adhere to.
+
+.. hint::
+
+    If you are unfamiliar with protocols, either as a general notion or as specifically implemented by `typing.Protocol`, you can think of them as a set of attributes and methods that all objects satisfying the protocol have.
+
+    Here, in the context of `jsonschema`, the `Validator.iter_errors` method can be called on `jsonschema.validators.Draft202012Validator`, or `jsonschema.validators.Draft7Validator`, or indeed any validator class, as all of them have it, along with all of the other methods described below.
 
 .. autoclass:: jsonschema.protocols.Validator
     :noindex:
     :members:
 
-All of the `versioned validators <versioned-validators>` that are included with
-`jsonschema` adhere to the protocol, and implementers of validator classes
-that extend or complement the ones included should adhere to it as well. For
-more information see `creating-validators`.
+All of the `versioned validators <versioned-validators>` that are included with `jsonschema` adhere to the protocol, and any `extensions of these validators <jsonschema.validators.extend>` will as well.
+For more information on `creating <jsonschema.validators.create>` or `extending <jsonschema.validators.extend>` validators see `creating-validators`.
 
 Type Checking
 -------------
@@ -119,10 +122,10 @@ existing `TypeChecker` or create a new one. You may then create a new
 Versioned Validators
 --------------------
 
-`jsonschema` ships with validator classes for various versions of
-the JSON Schema specification. For details on the methods and attributes
-that each validator class provides see the `Validator` protocol,
-which each included validator class implements.
+`jsonschema` ships with validator classes for various versions of the JSON Schema specification.
+For details on the methods and attributes that each validator class provides see the `Validator` protocol, which each included validator class implements.
+
+Each of the below cover a specific release of the JSON Schema specification.
 
 .. autoclass:: Draft202012Validator
     :noindex:
@@ -168,11 +171,8 @@ Draft 2020-12 meta-schema, you could use:
 Validating Formats
 ------------------
 
-JSON Schema defines the :kw:`format` keyword which can be used to check
-if primitive types (``string``\s, ``number``\s, ``boolean``\s) conform to
-well-defined formats. By default, no validation is enforced, but optionally,
-validation can be enabled by hooking in a format-checking object into an
-`Validator`.
+JSON Schema defines the :kw:`format` keyword which can be used to check if primitive types (``string``\s, ``number``\s, ``boolean``\s) conform to well-defined formats.
+By default, no validation is enforced, but optionally, validation can be enabled by hooking in a format-checking object into a `Validator`.
 
 .. doctest::
 
@@ -191,18 +191,14 @@ validation can be enabled by hooking in a format-checking object into an
     :exclude-members: cls_checks
 
     .. attribute:: checkers
-        A mapping of currently known formats to tuple of functions that
-        validate them and errors that should be caught. New checkers can be
-        added and removed either per-instance or globally for all checkers
-        using the `FormatChecker.checks` or `FormatChecker.cls_checks`
-        decorators respectively.
+        A mapping of currently known formats to tuple of functions that validate them and errors that should be caught.
+        New checkers can be added and removed either per-instance or globally for all checkers using the `FormatChecker.checks` decorator.
 
     .. classmethod:: cls_checks(format, raises=())
 
         Register a decorated function as *globally* validating a new format.
 
-        Any instance created after this function is called will pick up the
-        supplied checker.
+        Any instance created after this function is called will pick up the supplied checker.
 
         :argument str format: the format that the decorated function will check
         :argument Exception raises: the exception(s) raised
