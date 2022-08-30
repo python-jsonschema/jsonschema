@@ -35,6 +35,7 @@ regex
 repr
 runtime
 sensical
+subclassing
 submodule
 submodules
 subschema
