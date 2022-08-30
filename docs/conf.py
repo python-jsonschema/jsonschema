@@ -89,6 +89,7 @@ from jsonschema import *
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "ujs": ("https://json-schema.org/understanding-json-schema/", None),
 }
 
 

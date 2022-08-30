@@ -5,6 +5,12 @@ Schema Validation
 
 .. currentmodule:: jsonschema
 
+.. tip::
+
+   Most of the documentation for this package assumes you're familiar with the fundamentals of writing JSON schemas themselves, and focuses on how this library helps you validate with them in Python.
+
+   If you aren't already comfortable with writing schemas and need an introduction which teaches about JSON Schema the specification, you may find `Understanding JSON Schema <ujs:basics>` to be a good read!
+
 
 The Basics
 ----------
@@ -14,11 +20,6 @@ The simplest way to validate an instance under a given schema is to use the
 
 .. autofunction:: validate
     :noindex:
-
-.. [#] For information on creating JSON schemas to validate
-    your data, there is a good introduction to JSON Schema
-    fundamentals underway at `Understanding JSON Schema
-    <https://json-schema.org/understanding-json-schema/>`_
 
 .. _validator-protocol:
 
