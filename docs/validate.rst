@@ -191,6 +191,7 @@ By default, no validation is enforced, but optionally, validation can be enabled
     :exclude-members: cls_checks
 
     .. attribute:: checkers
+
         A mapping of currently known formats to tuple of functions that validate them and errors that should be caught.
         New checkers can be added and removed either per-instance or globally for all checkers using the `FormatChecker.checks` decorator.
 

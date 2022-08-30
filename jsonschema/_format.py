@@ -28,13 +28,12 @@ class FormatChecker:
     `FormatChecker` objects always return ``True`` when asked about
     formats that they do not know how to validate.
 
-    To check a custom format using a function that takes an instance and
-    returns a ``bool``, use the `FormatChecker.checks` or
-    `FormatChecker.cls_checks` decorators.
+    To add a check for a custom format use the `FormatChecker.checks`
+    decorator.
 
     Arguments:
 
-        formats (~collections.abc.Iterable):
+        formats:
 
             The known formats to validate. This argument can be used to
             limit which formats will be used during validation.
@@ -47,9 +46,8 @@ class FormatChecker:
 
     def __init__(self, formats: typing.Iterable[str] | None = None):
         if formats is None:
-            self.checkers = self.checkers.copy()
-        else:
-            self.checkers = dict((k, self.checkers[k]) for k in formats)
+            formats = self.checkers.keys()
+        self.checkers = {k: self.checkers[k] for k in formats}
 
     def __repr__(self):
         return "<FormatChecker checkers={}>".format(sorted(self.checkers))
@@ -62,11 +60,11 @@ class FormatChecker:
 
         Arguments:
 
-            format (str):
+            format:
 
                 The format that the decorated function will check.
 
-            raises (Exception):
+            raises:
 
                 The exception(s) raised by the decorated function when an
                 invalid instance is found.
@@ -117,7 +115,7 @@ class FormatChecker:
 
                 The instance to check
 
-            format (str):
+            format:
 
                 The format that instance should conform to
 
@@ -150,7 +148,7 @@ class FormatChecker:
 
                 The instance to check
 
-            format (str):
+            format:
 
                 The format that instance should conform to
 
