@@ -1,7 +1,10 @@
 [
     {
         "description": "format: uri-template",
-        "schema": { "format": "uri-template" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "format": "uri-template"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",

@@ -2,6 +2,7 @@
     {
         "description": "unevaluatedProperties true",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "unevaluatedProperties": true
         },
@@ -23,6 +24,7 @@
     {
         "description": "unevaluatedProperties schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "unevaluatedProperties": {
                 "type": "string",
@@ -54,6 +56,7 @@
     {
         "description": "unevaluatedProperties false",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "unevaluatedProperties": false
         },
@@ -75,6 +78,7 @@
     {
         "description": "unevaluatedProperties with adjacent properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -102,6 +106,7 @@
     {
         "description": "unevaluatedProperties with adjacent patternProperties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "patternProperties": {
                 "^foo": { "type": "string" }
@@ -129,6 +134,7 @@
     {
         "description": "unevaluatedProperties with adjacent additionalProperties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -157,6 +163,7 @@
     {
         "description": "unevaluatedProperties with nested properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -193,6 +200,7 @@
     {
         "description": "unevaluatedProperties with nested patternProperties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -229,6 +237,7 @@
     {
         "description": "unevaluatedProperties with nested additionalProperties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -261,6 +270,7 @@
     {
         "description": "unevaluatedProperties with nested unevaluatedProperties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -296,6 +306,7 @@
     {
         "description": "unevaluatedProperties with anyOf",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -364,6 +375,7 @@
     {
         "description": "unevaluatedProperties with oneOf",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -407,6 +419,7 @@
     {
         "description": "unevaluatedProperties with not",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -435,6 +448,7 @@
     {
         "description": "unevaluatedProperties with if/then/else",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "if": {
                 "properties": {
@@ -494,6 +508,7 @@
     {
         "description": "unevaluatedProperties with if/then/else, then not defined",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "if": {
                 "properties": {
@@ -547,6 +562,7 @@
     {
         "description": "unevaluatedProperties with if/then/else, else not defined",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "if": {
                 "properties": {
@@ -600,6 +616,7 @@
     {
         "description": "unevaluatedProperties with dependentSchemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -635,6 +652,7 @@
     {
         "description": "unevaluatedProperties with boolean schemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -662,6 +680,7 @@
     {
         "description": "unevaluatedProperties with $ref",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "$ref": "#/$defs/bar",
             "properties": {
@@ -699,6 +718,7 @@
     {
         "description": "unevaluatedProperties can't see inside cousins",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "allOf": [
                 {
                     "properties": {
@@ -723,6 +743,7 @@
     {
         "description": "nested unevaluatedProperties, outer false, inner true, properties outside",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -755,6 +776,7 @@
     {
         "description": "nested unevaluatedProperties, outer false, inner true, properties inside",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "allOf": [
                 {
@@ -787,6 +809,7 @@
     {
         "description": "nested unevaluatedProperties, outer true, inner false, properties outside",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": { "type": "string" }
@@ -819,6 +842,7 @@
     {
         "description": "nested unevaluatedProperties, outer true, inner false, properties inside",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "allOf": [
                 {
@@ -851,6 +875,7 @@
     {
         "description": "cousin unevaluatedProperties, true and false, true with properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "allOf": [
                 {
@@ -885,6 +910,7 @@
     {
         "description": "cousin unevaluatedProperties, true and false, false with properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "allOf": [
                 {
@@ -920,6 +946,7 @@
         "description": "property is evaluated in an uncle schema to unevaluatedProperties",
         "comment": "see https://stackoverflow.com/questions/66936884/deeply-nested-unevaluatedproperties-and-their-expectations",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "foo": {
@@ -971,6 +998,7 @@
     {
         "description": "in-place applicator siblings, allOf has unevaluated",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "allOf": [
                 {
@@ -1016,6 +1044,7 @@
     {
         "description": "in-place applicator siblings, anyOf has unevaluated",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "allOf": [
                 {
@@ -1061,6 +1090,7 @@
     {
         "description": "unevaluatedProperties + single cyclic ref",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "properties": {
                 "x": { "$ref": "#" }
@@ -1108,6 +1138,7 @@
     {
         "description": "unevaluatedProperties + ref inside allOf / oneOf",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "$defs": {
                 "one": {
                     "properties": { "a": true }
@@ -1178,6 +1209,7 @@
     {
         "description": "dynamic evalation inside nested refs",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "$defs": {
                 "one": {
                     "oneOf": [
@@ -1311,6 +1343,7 @@
     {
         "description": "unevaluatedProperties depends on adjacent contains",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "properties": {
               "foo": { "type": "number" }
             },
@@ -1338,6 +1371,7 @@
     {
         "description": "unevaluatedProperties depends on multiple nested contains",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "allOf": [
                 { "contains": { "multipleOf": 2 } },
                 { "contains": { "multipleOf": 3 } }
@@ -1359,7 +1393,10 @@
     },
     {
         "description": "non-object instances are valid",
-        "schema": {"unevaluatedProperties": false},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "unevaluatedProperties": false
+        },
         "tests": [
             {
                 "description": "ignores booleans",
@@ -1396,6 +1433,7 @@
     {
         "description": "unevaluatedProperties with null valued instance properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "unevaluatedProperties": {
                 "type": "null"
             }

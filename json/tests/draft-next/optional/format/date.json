@@ -1,7 +1,10 @@
 [
     {
         "description": "validation of date strings",
-        "schema": { "format": "date" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "format": "date"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",

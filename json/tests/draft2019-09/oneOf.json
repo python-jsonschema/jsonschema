@@ -2,6 +2,7 @@
     {
         "description": "oneOf",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "oneOf": [
                 {
                     "type": "integer"
@@ -37,6 +38,7 @@
     {
         "description": "oneOf with base schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "type": "string",
             "oneOf" : [
                 {
@@ -67,7 +69,10 @@
     },
     {
         "description": "oneOf with boolean schemas, all true",
-        "schema": {"oneOf": [true, true, true]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "oneOf": [true, true, true]
+        },
         "tests": [
             {
                 "description": "any value is invalid",
@@ -78,7 +83,10 @@
     },
     {
         "description": "oneOf with boolean schemas, one true",
-        "schema": {"oneOf": [true, false, false]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "oneOf": [true, false, false]
+        },
         "tests": [
             {
                 "description": "any value is valid",
@@ -89,7 +97,10 @@
     },
     {
         "description": "oneOf with boolean schemas, more than one true",
-        "schema": {"oneOf": [true, true, false]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "oneOf": [true, true, false]
+        },
         "tests": [
             {
                 "description": "any value is invalid",
@@ -100,7 +111,10 @@
     },
     {
         "description": "oneOf with boolean schemas, all false",
-        "schema": {"oneOf": [false, false, false]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "oneOf": [false, false, false]
+        },
         "tests": [
             {
                 "description": "any value is invalid",
@@ -112,6 +126,7 @@
     {
         "description": "oneOf complex types",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "oneOf": [
                 {
                     "properties": {
@@ -153,6 +168,7 @@
     {
         "description": "oneOf with empty schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "oneOf": [
                 { "type": "number" },
                 {}
@@ -174,6 +190,7 @@
     {
         "description": "oneOf with required",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "type": "object",
             "oneOf": [
                 { "required": ["foo", "bar"] },
@@ -206,6 +223,7 @@
 	{
         "description": "oneOf with missing optional property",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "oneOf": [
                 {
                     "properties": {
@@ -248,6 +266,7 @@
     {
         "description": "nested oneOf, to check validation semantics",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "oneOf": [
                 {
                     "oneOf": [

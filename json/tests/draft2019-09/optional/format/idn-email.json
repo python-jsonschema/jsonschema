@@ -1,7 +1,10 @@
 [
     {
         "description": "validation of an internationalized e-mail addresses",
-        "schema": { "format": "idn-email" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "idn-email"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",

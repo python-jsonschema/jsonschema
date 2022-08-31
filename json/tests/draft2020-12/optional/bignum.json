@@ -1,7 +1,10 @@
 [
     {
         "description": "integer",
-        "schema": { "type": "integer" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "integer"
+        },
         "tests": [
             {
                 "description": "a bignum is an integer",
@@ -17,7 +20,10 @@
     },
     {
         "description": "number",
-        "schema": { "type": "number" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "number"
+        },
         "tests": [
             {
                 "description": "a bignum is a number",
@@ -33,7 +39,10 @@
     },
     {
         "description": "string",
-        "schema": { "type": "string" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "string"
+        },
         "tests": [
             {
                 "description": "a bignum is not a string",
@@ -44,7 +53,10 @@
     },
     {
         "description": "maximum integer comparison",
-        "schema": { "maximum": 18446744073709551615 },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maximum": 18446744073709551615
+        },
         "tests": [
             {
                 "description": "comparison works for high numbers",
@@ -56,6 +68,7 @@
     {
         "description": "float comparison with high precision",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "exclusiveMaximum": 972783798187987123879878123.18878137
         },
         "tests": [
@@ -68,7 +81,10 @@
     },
     {
         "description": "minimum integer comparison",
-        "schema": { "minimum": -18446744073709551615 },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "minimum": -18446744073709551615
+        },
         "tests": [
             {
                 "description": "comparison works for very negative numbers",
@@ -80,6 +96,7 @@
     {
         "description": "float comparison with high precision on negative numbers",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "exclusiveMinimum": -972783798187987123879878123.18878137
         },
         "tests": [

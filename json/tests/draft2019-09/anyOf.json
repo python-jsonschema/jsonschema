@@ -2,6 +2,7 @@
     {
         "description": "anyOf",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "anyOf": [
                 {
                     "type": "integer"
@@ -37,6 +38,7 @@
     {
         "description": "anyOf with base schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "type": "string",
             "anyOf" : [
                 {
@@ -67,7 +69,10 @@
     },
     {
         "description": "anyOf with boolean schemas, all true",
-        "schema": {"anyOf": [true, true]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "anyOf": [true, true]
+        },
         "tests": [
             {
                 "description": "any value is valid",
@@ -78,7 +83,10 @@
     },
     {
         "description": "anyOf with boolean schemas, some true",
-        "schema": {"anyOf": [true, false]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "anyOf": [true, false]
+        },
         "tests": [
             {
                 "description": "any value is valid",
@@ -89,7 +97,10 @@
     },
     {
         "description": "anyOf with boolean schemas, all false",
-        "schema": {"anyOf": [false, false]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "anyOf": [false, false]
+        },
         "tests": [
             {
                 "description": "any value is invalid",
@@ -101,6 +112,7 @@
     {
         "description": "anyOf complex types",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "anyOf": [
                 {
                     "properties": {
@@ -142,6 +154,7 @@
     {
         "description": "anyOf with one empty schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "anyOf": [
                 { "type": "number" },
                 {}
@@ -163,6 +176,7 @@
     {
         "description": "nested anyOf, to check validation semantics",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "anyOf": [
                 {
                     "anyOf": [

@@ -2,6 +2,7 @@
     {
         "description": "contains keyword validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contains": { "minimum": 5 }
         },
         "tests": [
@@ -65,6 +66,7 @@
     {
         "description": "contains keyword with const keyword",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contains": { "const": 5 }
         },
         "tests": [
@@ -102,7 +104,10 @@
     },
     {
         "description": "contains keyword with boolean schema true",
-        "schema": { "contains": true },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "contains": true
+        },
         "tests": [
             {
                 "description": "any non-empty array is valid",
@@ -128,7 +133,10 @@
     },
     {
         "description": "contains keyword with boolean schema false",
-        "schema": { "contains": false },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "contains": false
+        },
         "tests": [
             {
                 "description": "any non-empty array is invalid",
@@ -160,6 +168,7 @@
     {
         "description": "items + contains",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "additionalProperties": { "multipleOf": 2 },
             "items": { "multipleOf": 2 },
             "contains": { "multipleOf": 3 }
@@ -210,6 +219,7 @@
     {
         "description": "contains with false if subschema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contains": {
                 "if": false,
                 "else": true
@@ -241,6 +251,7 @@
     {
         "description": "contains with null instance elements",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contains": {
                 "type": "null"
             }

@@ -1,7 +1,10 @@
 [
     {
         "description": "uniqueItems validation",
-        "schema": {"uniqueItems": true},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "uniqueItems": true
+        },
         "tests": [
             {
                 "description": "unique array of integers is valid",
@@ -149,6 +152,7 @@
     {
         "description": "uniqueItems with an array of items",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": true
         },
@@ -198,6 +202,7 @@
     {
         "description": "uniqueItems with an array of items and additionalItems=false",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": true,
             "items": false
@@ -232,7 +237,10 @@
     },
     {
         "description": "uniqueItems=false validation",
-        "schema": { "uniqueItems": false },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "uniqueItems": false
+        },
         "tests": [
             {
                 "description": "unique array of integers is valid",
@@ -320,6 +328,7 @@
     {
         "description": "uniqueItems=false with an array of items",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": false
         },
@@ -369,6 +378,7 @@
     {
         "description": "uniqueItems=false with an array of items and additionalItems=false",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [{"type": "boolean"}, {"type": "boolean"}],
             "uniqueItems": false,
             "items": false

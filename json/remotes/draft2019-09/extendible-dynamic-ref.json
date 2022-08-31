@@ -1,0 +1,21 @@
+{
+    "description": "extendible array",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "http://localhost:1234/draft2019-09/extendible-dynamic-ref.json",
+    "type": "object",
+    "properties": {
+        "elements": {
+            "type": "array",
+            "items": {
+                "$dynamicRef": "#elements"
+            }
+        }
+    },
+    "required": ["elements"],
+    "additionalProperties": false,
+    "$defs": {
+        "elements": {
+            "$dynamicAnchor": "elements"
+        }
+    }
+}

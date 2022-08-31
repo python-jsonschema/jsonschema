@@ -1,7 +1,10 @@
 [
     {
         "description": "validation of time strings",
-        "schema": { "format": "time" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "format": "time"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",

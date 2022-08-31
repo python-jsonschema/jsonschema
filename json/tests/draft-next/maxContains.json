@@ -2,6 +2,7 @@
     {
         "description": "maxContains without contains is ignored",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "maxContains": 1
         },
         "tests": [
@@ -30,6 +31,7 @@
     {
         "description": "maxContains with contains",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contains": { "const": 1 },
             "maxContains": 1
         },
@@ -89,6 +91,7 @@
     {
         "description": "maxContains with contains, value with a decimal",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contains": {"const": 1},
             "maxContains": 1.0
         },
@@ -108,6 +111,7 @@
     {
         "description": "minContains < maxContains",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contains": { "const": 1 },
             "minContains": 1,
             "maxContains": 3

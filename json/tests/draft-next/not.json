@@ -2,6 +2,7 @@
     {
         "description": "not",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "not": {"type": "integer"}
         },
         "tests": [
@@ -20,6 +21,7 @@
     {
         "description": "not multiple types",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "not": {"type": ["integer", "boolean"]}
         },
         "tests": [
@@ -43,6 +45,7 @@
     {
         "description": "not more complex schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "not": {
                 "type": "object",
                 "properties": {
@@ -73,6 +76,7 @@
     {
         "description": "forbidden property",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "properties": {
                 "foo": { 
                     "not": {}
@@ -94,7 +98,10 @@
     },
     {
         "description": "not with boolean schema true",
-        "schema": {"not": true},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "not": true
+        },
         "tests": [
             {
                 "description": "any value is invalid",
@@ -105,7 +112,10 @@
     },
     {
         "description": "not with boolean schema false",
-        "schema": {"not": false},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "not": false
+        },
         "tests": [
             {
                 "description": "any value is valid",

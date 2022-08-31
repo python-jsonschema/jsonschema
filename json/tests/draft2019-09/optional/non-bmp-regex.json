@@ -2,7 +2,10 @@
     {
         "description": "Proper UTF-16 surrogate pair handling: pattern",
         "comment": "Optional because .Net doesn't correctly handle 32-bit Unicode characters",
-        "schema": { "pattern": "^🐲*$" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "pattern": "^🐲*$"
+        },
         "tests": [
             {
                 "description": "matches empty",
@@ -45,6 +48,7 @@
         "description": "Proper UTF-16 surrogate pair handling: patternProperties",
         "comment": "Optional because .Net doesn't correctly handle 32-bit Unicode characters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "patternProperties": {
                 "^🐲*$": {
                     "type": "integer"

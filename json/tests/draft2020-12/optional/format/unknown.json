@@ -1,7 +1,10 @@
 [
     {
         "description": "unknown format",
-        "schema": { "format": "unknown" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "format": "unknown"
+        },
         "tests": [
             {
                 "description": "unknown formats ignore integers",

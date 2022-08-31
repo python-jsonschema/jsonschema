@@ -2,6 +2,7 @@
     {
         "description": "additionalItems as schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [{}],
             "additionalItems": {"type": "integer"}
         },
@@ -21,6 +22,7 @@
     {
         "description": "when items is schema, additionalItems does nothing",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": {},
             "additionalItems": false
         },
@@ -35,6 +37,7 @@
     {
         "description": "array of items with no additionalItems permitted",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [{}, {}, {}],
             "additionalItems": false
         },
@@ -68,7 +71,10 @@
     },
     {
         "description": "additionalItems as false without items",
-        "schema": {"additionalItems": false},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "additionalItems": false
+        },
         "tests": [
             {
                 "description":
@@ -85,7 +91,10 @@
     },
     {
         "description": "additionalItems are allowed by default",
-        "schema": {"items": [{"type": "integer"}]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "items": [{"type": "integer"}]
+        },
         "tests": [
             {
                 "description": "only the first item is validated",
@@ -97,6 +106,7 @@
     {
         "description": "additionalItems does not look in applicators, valid case",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 { "items": [ { "type": "integer" } ] }
             ],
@@ -113,6 +123,7 @@
     {
         "description": "additionalItems does not look in applicators, invalid case",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 { "items": [ { "type": "integer" }, { "type": "string" } ] }
             ],
@@ -130,6 +141,7 @@
     {
         "description": "items validation adjusts the starting index for additionalItems",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [ { "type": "string" } ],
             "additionalItems": { "type": "integer" }
         },
@@ -149,6 +161,7 @@
     {
         "description": "additionalItems with null instance elements",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "additionalItems": {
                 "type": "null"
             }

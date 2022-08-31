@@ -2,6 +2,7 @@
     {
         "description": "a schema given for prefixItems",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [
                 {"type": "integer"},
                 {"type": "string"}
@@ -47,6 +48,7 @@
     {
         "description": "prefixItems with boolean schemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [true, false]
         },
         "tests": [
@@ -69,7 +71,10 @@
     },
     {
         "description": "additional items are allowed by default",
-        "schema": {"prefixItems": [{"type": "integer"}]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "prefixItems": [{"type": "integer"}]
+        },
         "tests": [
             {
                 "description": "only the first item is validated",
@@ -81,6 +86,7 @@
     {
         "description": "prefixItems with null instance elements",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [
                 {
                     "type": "null"

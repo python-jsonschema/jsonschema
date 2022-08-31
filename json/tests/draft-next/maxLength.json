@@ -1,7 +1,10 @@
 [
     {
         "description": "maxLength validation",
-        "schema": {"maxLength": 2},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "maxLength": 2
+        },
         "tests": [
             {
                 "description": "shorter is valid",
@@ -32,7 +35,10 @@
     },
     {
         "description": "maxLength validation with a decimal",
-        "schema": {"maxLength": 2.0},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "maxLength": 2.0
+        },
         "tests": [
             {
                 "description": "shorter is valid",

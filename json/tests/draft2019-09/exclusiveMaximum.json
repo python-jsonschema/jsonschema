@@ -2,6 +2,7 @@
     {
         "description": "exclusiveMaximum validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "exclusiveMaximum": 3.0
         },
         "tests": [

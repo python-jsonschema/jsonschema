@@ -2,6 +2,7 @@
     {
         "description": "object properties validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo": {"type": "integer"},
                 "bar": {"type": "string"}
@@ -44,6 +45,7 @@
         "description":
             "properties, patternProperties, additionalProperties interaction",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo": {"type": "array", "maxItems": 3},
                 "bar": {"type": "array"}
@@ -97,6 +99,7 @@
     {
         "description": "properties with boolean schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo": true,
                 "bar": false
@@ -128,6 +131,7 @@
     {
         "description": "properties with escaped characters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo\nbar": {"type": "number"},
                 "foo\"bar": {"type": "number"},
@@ -167,6 +171,7 @@
     {
         "description": "properties with null valued instance properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo": {"type": "null"}
             }
@@ -183,6 +188,7 @@
         "description": "properties whose names are Javascript object property names",
         "comment": "Ensure JS implementations don't universally consider e.g. __proto__ to always be present in an object.",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "__proto__": {"type": "number"},
                 "toString": {

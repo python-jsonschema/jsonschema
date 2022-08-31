@@ -2,6 +2,7 @@
     {
         "description": "validation of string-encoded content based on media type",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contentMediaType": "application/json"
         },
         "tests": [
@@ -25,6 +26,7 @@
     {
         "description": "validation of binary string-encoding",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contentEncoding": "base64"
         },
         "tests": [
@@ -48,6 +50,7 @@
     {
         "description": "validation of binary-encoded media type documents",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contentMediaType": "application/json",
             "contentEncoding": "base64"
         },
@@ -77,6 +80,7 @@
     {
         "description": "validation of binary-encoded media type documents with schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "contentMediaType": "application/json",
             "contentEncoding": "base64",
             "contentSchema": { "required": ["foo"], "properties": { "foo": { "type": "string" } } }

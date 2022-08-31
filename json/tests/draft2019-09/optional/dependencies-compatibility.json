@@ -1,7 +1,10 @@
 [
     {
         "description": "single dependency",
-        "schema": {"dependencies": {"bar": ["foo"]}},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "dependencies": {"bar": ["foo"]}
+        },
         "tests": [
             {
                 "description": "neither",
@@ -42,7 +45,10 @@
     },
     {
         "description": "empty dependents",
-        "schema": {"dependencies": {"bar": []}},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "dependencies": {"bar": []}
+        },
         "tests": [
             {
                 "description": "empty object",
@@ -63,7 +69,10 @@
     },
     {
         "description": "multiple dependents required",
-        "schema": {"dependencies": {"quux": ["foo", "bar"]}},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "dependencies": {"quux": ["foo", "bar"]}
+        },
         "tests": [
             {
                 "description": "neither",
@@ -100,6 +109,7 @@
     {
         "description": "dependencies with escaped characters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependencies": {
                 "foo\nbar": ["foo\rbar"],
                 "foo\"bar": ["foo'bar"]
@@ -142,6 +152,7 @@
     {
         "description": "single schema dependency",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependencies": {
                 "bar": {
                     "properties": {
@@ -197,6 +208,7 @@
     {
         "description": "boolean subschemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependencies": {
                 "foo": true,
                 "bar": false
@@ -228,6 +240,7 @@
     {
         "description": "schema dependencies with escaped characters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependencies": {
                 "foo\tbar": {"minProperties": 4},
                 "foo'bar": {"required": ["foo\"bar"]}

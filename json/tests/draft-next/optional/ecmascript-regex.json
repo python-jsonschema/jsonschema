@@ -2,6 +2,7 @@
     {
         "description": "ECMA 262 regex $ does not match trailing newline",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^abc$"
         },
@@ -21,6 +22,7 @@
     {
         "description": "ECMA 262 regex converts \\t to horizontal tab",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\t$"
         },
@@ -40,6 +42,7 @@
     {
         "description": "ECMA 262 regex escapes control codes with \\c and upper letter",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\cC$"
         },
@@ -59,6 +62,7 @@
     {
         "description": "ECMA 262 regex escapes control codes with \\c and lower letter",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\cc$"
         },
@@ -78,6 +82,7 @@
     {
         "description": "ECMA 262 \\d matches ascii digits only",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\d$"
         },
@@ -102,6 +107,7 @@
     {
         "description": "ECMA 262 \\D matches everything but ascii digits",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\D$"
         },
@@ -126,6 +132,7 @@
     {
         "description": "ECMA 262 \\w matches ascii letters only",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\w$"
         },
@@ -145,6 +152,7 @@
     {
         "description": "ECMA 262 \\W matches everything but ascii letters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\W$"
         },
@@ -164,6 +172,7 @@
     {
         "description": "ECMA 262 \\s matches whitespace",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\s$"
         },
@@ -228,6 +237,7 @@
     {
         "description": "ECMA 262 \\S matches everything but whitespace",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "string",
             "pattern": "^\\S$"
         },
@@ -291,7 +301,10 @@
     },
     {
         "description": "patterns always use unicode semantics with pattern",
-        "schema": { "pattern": "\\p{Letter}cole" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "pattern": "\\p{Letter}cole"
+        },
         "tests": [
             {
                 "description": "ascii character in json string",
@@ -317,7 +330,10 @@
     },
     {
         "description": "\\w in patterns matches [A-Za-z0-9_], not unicode letters",
-        "schema": { "pattern": "\\wcole" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "pattern": "\\wcole"
+        },
         "tests": [
             {
                 "description": "ascii character in json string",
@@ -343,7 +359,10 @@
     },
     {
         "description": "pattern with ASCII ranges",
-        "schema": { "pattern": "[a-z]cole" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "pattern": "[a-z]cole"
+        },
         "tests": [
             {
                 "description": "literal unicode character in json string",
@@ -364,7 +383,10 @@
     },
     {
         "description": "\\d in pattern matches [0-9], not unicode digits",
-        "schema": { "pattern": "^\\d+$" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "pattern": "^\\d+$"
+        },
         "tests": [
             {
                 "description": "ascii digits",
@@ -385,7 +407,10 @@
     },
     {
         "description": "\\a is not an ECMA 262 control escape",
-        "schema": { "$ref": "https://json-schema.org/draft/next/schema" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$ref": "https://json-schema.org/draft/next/schema"
+        },
         "tests": [
             {
                 "description": "when used as a pattern",
@@ -396,7 +421,10 @@
     },
     {
         "description": "pattern with non-ASCII digits",
-        "schema": { "pattern": "^\\p{digit}+$" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "pattern": "^\\p{digit}+$"
+        },
         "tests": [
             {
                 "description": "ascii digits",
@@ -418,6 +446,7 @@
     {
         "description": "patterns always use unicode semantics with patternProperties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "patternProperties": {
                 "\\p{Letter}cole": true
@@ -450,6 +479,7 @@
     {
         "description": "\\w in patternProperties matches [A-Za-z0-9_], not unicode letters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "patternProperties": {
                 "\\wcole": true
@@ -482,6 +512,7 @@
     {
         "description": "patternProperties with ASCII ranges",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "patternProperties": {
                 "[a-z]cole": true
@@ -509,6 +540,7 @@
     {
         "description": "\\d in patternProperties matches [0-9], not unicode digits",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "patternProperties": {
                 "^\\d+$": true
@@ -536,6 +568,7 @@
     {
         "description": "patternProperties with non-ASCII digits",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "type": "object",
             "patternProperties": {
                 "^\\p{digit}+$": true

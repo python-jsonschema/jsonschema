@@ -2,6 +2,7 @@
     {
         "description": "invalid type for default",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "properties": {
                 "foo": {
                     "type": "integer",
@@ -25,6 +26,7 @@
     {
         "description": "invalid string value for default",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "properties": {
                 "bar": {
                     "type": "string",
@@ -49,6 +51,7 @@
     {
         "description": "the default keyword does not do anything if the property is missing",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "type": "object",
             "properties": {
                 "alpha": {
