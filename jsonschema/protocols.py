@@ -48,7 +48,7 @@ from jsonschema.exceptions import ValidationError
 @runtime_checkable
 class Validator(Protocol):
     """
-    The protocol to which all validator classes should adhere.
+    The protocol to which all validator classes adhere.
 
     Arguments:
 
@@ -95,7 +95,7 @@ class Validator(Protocol):
     TYPE_CHECKER: ClassVar[jsonschema.TypeChecker]
 
     #: A `jsonschema.FormatChecker` that will be used when validating
-    #: :kw:`format` properties in JSON schemas.
+    #: :kw:`format` keywords in JSON schemas.
     FORMAT_CHECKER: ClassVar[jsonschema.FormatChecker]
 
     #: A function which given a schema returns its ID.
