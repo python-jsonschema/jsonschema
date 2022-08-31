@@ -32,8 +32,10 @@ extensions = [
 
     "autoapi.extension",
     "sphinx_autodoc_typehints",
+    "sphinx_copybutton",
     "sphinx_json_schema_spec",
     "sphinxcontrib.spelling",
+    "sphinxext.opengraph",
 ]
 
 cache_path = "_cache"

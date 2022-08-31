@@ -6,7 +6,7 @@
 #
 alabaster==0.7.12
     # via sphinx
-astroid==2.12.2
+astroid==2.12.5
     # via sphinx-autoapi
 attrs==22.1.0
     # via jsonschema
@@ -16,7 +16,7 @@ beautifulsoup4==4.11.1
     # via furo
 certifi==2022.6.15
     # via requests
-charset-normalizer==2.1.0
+charset-normalizer==2.1.1
     # via requests
 docutils==0.19
     # via sphinx
@@ -69,15 +69,19 @@ sphinx==5.1.1
     #   sphinx-autoapi
     #   sphinx-autodoc-typehints
     #   sphinx-basic-ng
+    #   sphinx-copybutton
     #   sphinx-json-schema-spec
     #   sphinxcontrib-spelling
+    #   sphinxext-opengraph
 sphinx-autoapi==1.9.0
     # via -r docs/requirements.in
 sphinx-autodoc-typehints==1.19.2
     # via -r docs/requirements.in
 sphinx-basic-ng==0.0.1a12
     # via furo
-sphinx-json-schema-spec==2.2.2
+sphinx-copybutton==0.5.0
+    # via -r docs/requirements.in
+sphinx-json-schema-spec==2.2.3
     # via -r docs/requirements.in
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
@@ -93,9 +97,11 @@ sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 sphinxcontrib-spelling==7.6.0
     # via -r docs/requirements.in
+sphinxext-opengraph==0.6.3
+    # via -r docs/requirements.in
 unidecode==1.3.4
     # via sphinx-autoapi
-urllib3==1.26.11
+urllib3==1.26.12
     # via requests
 wrapt==1.14.1
     # via astroid

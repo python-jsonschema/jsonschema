@@ -4,5 +4,7 @@ lxml
 sphinx
 sphinx-autoapi
 sphinx-autodoc-typehints
+sphinx-copybutton
 sphinx-json-schema-spec
 sphinxcontrib-spelling
+sphinxext-opengraph
