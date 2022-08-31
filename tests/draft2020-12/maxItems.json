@@ -1,7 +1,10 @@
 [
     {
         "description": "maxItems validation",
-        "schema": {"maxItems": 2},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxItems": 2
+        },
         "tests": [
             {
                 "description": "shorter is valid",
@@ -27,7 +30,10 @@
     },
     {
         "description": "maxItems validation with a decimal",
-        "schema": {"maxItems": 2.0},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxItems": 2.0
+        },
         "tests": [
             {
                 "description": "shorter is valid",

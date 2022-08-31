@@ -2,6 +2,7 @@
     {
         "description": "A $dynamicRef to a $dynamicAnchor in the same schema resource behaves like a normal $ref to an $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/dynamicRef-dynamicAnchor-same-schema/root",
             "type": "array",
             "items": { "$dynamicRef": "#items" },
@@ -28,6 +29,7 @@
     {
         "description": "A $dynamicRef to an $anchor in the same schema resource behaves like a normal $ref to an $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/dynamicRef-anchor-same-schema/root",
             "type": "array",
             "items": { "$dynamicRef": "#items" },
@@ -54,6 +56,7 @@
     {
         "description": "A $ref to a $dynamicAnchor in the same schema resource behaves like a normal $ref to an $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/ref-dynamicAnchor-same-schema/root",
             "type": "array",
             "items": { "$ref": "#items" },
@@ -80,6 +83,7 @@
     {
         "description": "A $dynamicRef resolves to the first $dynamicAnchor still in scope that is encountered when the schema is evaluated",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/typical-dynamic-resolution/root",
             "$ref": "list",
             "$defs": {
@@ -116,6 +120,7 @@
     {
         "description": "A $dynamicRef with intermediate scopes that don't include a matching $dynamicAnchor does not affect dynamic scope resolution",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/dynamic-resolution-with-intermediate-scopes/root",
             "$ref": "intermediate-scope",
             "$defs": {
@@ -156,6 +161,7 @@
     {
         "description": "An $anchor with the same name as a $dynamicAnchor is not used for dynamic scope resolution",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/dynamic-resolution-ignores-anchors/root",
             "$ref": "list",
             "$defs": {
@@ -187,6 +193,7 @@
     {
         "description": "A $dynamicRef without a matching $dynamicAnchor in the same schema resource behaves like a normal $ref to $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/dynamic-resolution-without-bookend/root",
             "$ref": "list",
             "$defs": {
@@ -218,6 +225,7 @@
     {
         "description": "A $dynamicRef with a non-matching $dynamicAnchor in the same schema resource behaves like a normal $ref to $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/unmatched-dynamic-anchor/root",
             "$ref": "list",
             "$defs": {
@@ -250,6 +258,7 @@
     {
         "description": "A $dynamicRef that initially resolves to a schema with a matching $dynamicAnchor resolves to the first $dynamicAnchor in the dynamic scope",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/relative-dynamic-reference/root",
             "$dynamicAnchor": "meta",
             "type": "object",
@@ -301,6 +310,7 @@
     {
         "description": "A $dynamicRef that initially resolves to a schema without a matching $dynamicAnchor behaves like a normal $ref to $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/relative-dynamic-reference-without-bookend/root",
             "$dynamicAnchor": "meta",
             "type": "object",
@@ -342,6 +352,7 @@
     {
         "description": "multiple dynamic paths to the $dynamicRef keyword",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/dynamic-ref-with-multiple-paths/main",
             "$defs": {
                 "inner": {
@@ -388,6 +399,7 @@
     {
         "description": "after leaving a dynamic scope, it is not used by a $dynamicRef",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": "https://test.json-schema.org/dynamic-ref-leaving-dynamic-scope/main",
             "if": {
                 "$id": "first_scope",
@@ -445,7 +457,8 @@
     {
         "description": "strict-tree schema, guards against misspelled properties",
         "schema": {
-            "$id": "http://localhost:1234/strict-tree.json",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "http://localhost:1234/draft2020-12/strict-tree.json",
             "$dynamicAnchor": "node",
 
             "$ref": "tree.json",
@@ -475,7 +488,8 @@
     {
         "description": "tests for implementation dynamic anchor and reference link",
         "schema": {
-            "$id": "http://localhost:1234/strict-extendible.json",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "http://localhost:1234/draft2020-12/strict-extendible.json",
             "$ref": "extendible-dynamic-ref.json",
             "$defs": {
                 "elements": {
@@ -519,7 +533,8 @@
     {
         "description": "$ref and $dynamicAnchor are independent of order - $defs first",
         "schema": {
-            "$id": "http://localhost:1234/strict-extendible-allof-defs-first.json",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "http://localhost:1234/draft2020-12/strict-extendible-allof-defs-first.json",
             "allOf": [
                 {
                     "$ref": "extendible-dynamic-ref.json"
@@ -569,7 +584,8 @@
     {
         "description": "$ref and $dynamicAnchor are independent of order - $ref first",
         "schema": {
-            "$id": "http://localhost:1234/strict-extendible-allof-ref-first.json",
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "http://localhost:1234/draft2020-12/strict-extendible-allof-ref-first.json",
             "allOf": [
                 {
                     "$defs": {

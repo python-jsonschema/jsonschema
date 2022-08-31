@@ -1,7 +1,10 @@
 [
     {
         "description": "maxProperties validation",
-        "schema": {"maxProperties": 2},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxProperties": 2
+        },
         "tests": [
             {
                 "description": "shorter is valid",
@@ -37,7 +40,10 @@
     },
     {
         "description": "maxProperties validation with a decimal",
-        "schema": {"maxProperties": 2.0},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxProperties": 2.0
+        },
         "tests": [
             {
                 "description": "shorter is valid",
@@ -53,7 +59,10 @@
     },
     {
         "description": "maxProperties = 0 means the object is empty",
-        "schema": { "maxProperties": 0 },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "maxProperties": 0
+        },
         "tests": [
             {
                 "description": "no properties is valid",

@@ -1,7 +1,10 @@
 [
     {
         "description": "minLength validation",
-        "schema": {"minLength": 2},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "minLength": 2
+        },
         "tests": [
             {
                 "description": "longer is valid",
@@ -32,7 +35,10 @@
     },
     {
         "description": "minLength validation with a decimal",
-        "schema": {"minLength": 2.0},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "minLength": 2.0
+        },
         "tests": [
             {
                 "description": "longer is valid",

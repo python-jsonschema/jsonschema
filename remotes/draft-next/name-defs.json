@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json-schema.org/draft/next/schema",
+    "$defs": {
+        "orNull": {
+            "anyOf": [
+                {
+                    "type": "null"
+                },
+                {
+                    "$ref": "#"
+                }
+            ]
+        }
+    },
+    "type": "string"
+}

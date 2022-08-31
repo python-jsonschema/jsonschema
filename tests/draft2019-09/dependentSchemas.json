@@ -2,6 +2,7 @@
     {
         "description": "single dependency",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependentSchemas": {
                 "bar": {
                     "properties": {
@@ -57,6 +58,7 @@
     {
         "description": "boolean subschemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependentSchemas": {
                 "foo": true,
                 "bar": false
@@ -88,6 +90,7 @@
     {
         "description": "dependencies with escaped characters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "dependentSchemas": {
                 "foo\tbar": {"minProperties": 4},
                 "foo'bar": {"required": ["foo\"bar"]}

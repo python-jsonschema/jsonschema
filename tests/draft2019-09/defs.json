@@ -1,7 +1,10 @@
 [
     {
         "description": "validate definition against metaschema",
-        "schema": {"$ref": "https://json-schema.org/draft/2019-09/schema"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$ref": "https://json-schema.org/draft/2019-09/schema"
+        },
         "tests": [
             {
                 "description": "valid definition schema",

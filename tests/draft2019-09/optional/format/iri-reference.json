@@ -1,7 +1,10 @@
 [
     {
         "description": "validation of IRI References",
-        "schema": { "format": "iri-reference" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "iri-reference"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",

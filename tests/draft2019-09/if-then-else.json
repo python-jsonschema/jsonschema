@@ -2,6 +2,7 @@
     {
         "description": "ignore if without then or else",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "if": {
                 "const": 0
             }
@@ -22,6 +23,7 @@
     {
         "description": "ignore then without if",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "then": {
                 "const": 0
             }
@@ -42,6 +44,7 @@
     {
         "description": "ignore else without if",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "else": {
                 "const": 0
             }
@@ -62,6 +65,7 @@
     {
         "description": "if and then without else",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "if": {
                 "exclusiveMaximum": 0
             },
@@ -90,6 +94,7 @@
     {
         "description": "if and else without then",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "if": {
                 "exclusiveMaximum": 0
             },
@@ -118,6 +123,7 @@
     {
         "description": "validate against correct branch, then vs else",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "if": {
                 "exclusiveMaximum": 0
             },
@@ -154,6 +160,7 @@
     {
         "description": "non-interference across combined schemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {
                     "if": {
@@ -188,6 +195,7 @@
     {
         "description": "if with boolean schema true",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "if": true,
             "then": { "const": "then" },
             "else": { "const": "else" }
@@ -208,6 +216,7 @@
     {
         "description": "if with boolean schema false",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "if": false,
             "then": { "const": "then" },
             "else": { "const": "else" }
@@ -228,6 +237,7 @@
     {
         "description": "if appears at the end when serialized (keyword processing sequence)",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "then": { "const": "yes" },
             "else": { "const": "other" },
             "if": { "maxLength": 4 }

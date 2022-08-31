@@ -1,0 +1,12 @@
+{
+    "$schema": "https://json-schema.org/draft/next/schema",
+    "$defs": {
+        "refToInteger": {
+            "$ref": "#foo"
+        },
+        "A": {
+            "$anchor": "foo",
+            "type": "integer"
+        }
+    }
+}

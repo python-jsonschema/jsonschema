@@ -2,6 +2,7 @@
     {
         "description": "required validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo": {},
                 "bar": {}
@@ -39,6 +40,7 @@
     {
         "description": "required default validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo": {}
             }
@@ -54,6 +56,7 @@
     {
         "description": "required with empty array",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {
                 "foo": {}
             },
@@ -70,6 +73,7 @@
     {
         "description": "required with escaped characters",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "required": [
                 "foo\nbar",
                 "foo\"bar",
@@ -105,7 +109,10 @@
     {
         "description": "required properties whose names are Javascript object property names",
         "comment": "Ensure JS implementations don't universally consider e.g. __proto__ to always be present in an object.",
-        "schema": { "required": ["__proto__", "toString", "constructor"] },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "required": ["__proto__", "toString", "constructor"]
+        },
         "tests": [
             {
                 "description": "ignores arrays",

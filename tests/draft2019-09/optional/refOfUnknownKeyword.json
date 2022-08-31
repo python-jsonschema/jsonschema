@@ -2,6 +2,7 @@
     {
         "description": "reference of a root arbitrary keyword ",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "unknown-keyword": {"type": "integer"},
             "properties": {
                 "bar": {"$ref": "#/unknown-keyword"}
@@ -23,6 +24,7 @@
     {
         "description": "reference of an arbitrary keyword of a sub-schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "properties": {
                 "foo": {"unknown-keyword": {"type": "integer"}},
                 "bar": {"$ref": "#/properties/foo/unknown-keyword"}

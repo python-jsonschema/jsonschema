@@ -1,4 +1,5 @@
 {
+    "$schema": "https://json-schema.org/draft/next/schema",
     "$id": "http://localhost:1234/draft-next/metaschema-no-validation.json",
     "$vocabulary": {
         "https://json-schema.org/draft/next/vocab/applicator": true,

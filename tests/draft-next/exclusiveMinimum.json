@@ -2,6 +2,7 @@
     {
         "description": "exclusiveMinimum validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "exclusiveMinimum": 1.1
         },
         "tests": [

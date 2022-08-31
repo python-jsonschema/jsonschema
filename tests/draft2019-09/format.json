@@ -1,7 +1,10 @@
 [
     {
         "description": "email format",
-        "schema": { "format": "email" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "email"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -37,7 +40,10 @@
     },
     {
         "description": "idn-email format",
-        "schema": { "format": "idn-email" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "idn-email"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -73,7 +79,10 @@
     },
     {
         "description": "regex format",
-        "schema": { "format": "regex" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "regex"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -109,7 +118,10 @@
     },
     {
         "description": "ipv4 format",
-        "schema": { "format": "ipv4" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "ipv4"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -145,7 +157,10 @@
     },
     {
         "description": "ipv6 format",
-        "schema": { "format": "ipv6" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "ipv6"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -181,7 +196,10 @@
     },
     {
         "description": "idn-hostname format",
-        "schema": { "format": "idn-hostname" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "idn-hostname"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -217,7 +235,10 @@
     },
     {
         "description": "hostname format",
-        "schema": { "format": "hostname" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "hostname"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -253,7 +274,10 @@
     },
     {
         "description": "date format",
-        "schema": { "format": "date" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "date"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -289,7 +313,10 @@
     },
     {
         "description": "date-time format",
-        "schema": { "format": "date-time" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "date-time"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -325,7 +352,10 @@
     },
     {
         "description": "time format",
-        "schema": { "format": "time" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "time"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -361,7 +391,10 @@
     },
     {
         "description": "json-pointer format",
-        "schema": { "format": "json-pointer" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "json-pointer"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -397,7 +430,10 @@
     },
     {
         "description": "relative-json-pointer format",
-        "schema": { "format": "relative-json-pointer" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "relative-json-pointer"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -433,7 +469,10 @@
     },
     {
         "description": "iri format",
-        "schema": { "format": "iri" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "iri"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -469,7 +508,10 @@
     },
     {
         "description": "iri-reference format",
-        "schema": { "format": "iri-reference" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "iri-reference"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -505,7 +547,10 @@
     },
     {
         "description": "uri format",
-        "schema": { "format": "uri" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uri"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -541,7 +586,10 @@
     },
     {
         "description": "uri-reference format",
-        "schema": { "format": "uri-reference" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uri-reference"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -577,7 +625,10 @@
     },
     {
         "description": "uri-template format",
-        "schema": { "format": "uri-template" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uri-template"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -613,7 +664,10 @@
     },
     {
         "description": "uuid format",
-        "schema": { "format": "uuid" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "uuid"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",
@@ -649,7 +703,10 @@
     },
     {
         "description": "duration format",
-        "schema": { "format": "duration" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "duration"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",

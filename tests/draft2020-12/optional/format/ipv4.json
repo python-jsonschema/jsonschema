@@ -1,7 +1,10 @@
 [
     {
         "description": "validation of IP addresses",
-        "schema": { "format": "ipv4" },
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "format": "ipv4"
+        },
         "tests": [
             {
                 "description": "all string formats ignore integers",

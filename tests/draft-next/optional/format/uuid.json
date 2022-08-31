@@ -2,6 +2,7 @@
     {
         "description": "uuid format",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "format": "uuid"
         },
         "tests": [

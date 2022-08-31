@@ -1,7 +1,10 @@
 [
     {
         "description": "maximum validation",
-        "schema": {"maximum": 3.0},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "maximum": 3.0
+        },
         "tests": [
             {
                 "description": "below the maximum is valid",
@@ -27,7 +30,10 @@
     },
     {
         "description": "maximum validation with unsigned integer",
-        "schema": {"maximum": 300},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "maximum": 300
+        },
         "tests":  [
             {
                 "description": "below the maximum is invalid",

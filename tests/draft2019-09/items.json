@@ -2,6 +2,7 @@
     {
         "description": "a schema given for items",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": {"type": "integer"}
         },
         "tests": [
@@ -33,6 +34,7 @@
     {
         "description": "an array of schemas for items",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 {"type": "integer"},
                 {"type": "string"}
@@ -77,7 +79,10 @@
     },
     {
         "description": "items with boolean schema (true)",
-        "schema": {"items": true},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "items": true
+        },
         "tests": [
             {
                 "description": "any array is valid",
@@ -93,7 +98,10 @@
     },
     {
         "description": "items with boolean schema (false)",
-        "schema": {"items": false},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "items": false
+        },
         "tests": [
             {
                 "description": "any non-empty array is invalid",
@@ -110,6 +118,7 @@
     {
         "description": "items with boolean schemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [true, false]
         },
         "tests": [
@@ -133,6 +142,7 @@
     {
         "description": "items and subitems",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "$defs": {
                 "item": {
                     "type": "array",
@@ -215,6 +225,7 @@
     {
         "description": "nested items",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "type": "array",
             "items": {
                 "type": "array",
@@ -250,6 +261,7 @@
     {
         "description": "single-form items with null instance elements",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": {
                 "type": "null"
             }
@@ -265,6 +277,7 @@
     {
         "description": "array-form items with null instance elements",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
                 {
                     "type": "null"

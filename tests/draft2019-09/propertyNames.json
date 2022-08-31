@@ -2,6 +2,7 @@
     {
         "description": "propertyNames validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "propertyNames": {"maxLength": 3}
         },
         "tests": [
@@ -46,6 +47,7 @@
     {
         "description": "propertyNames validation with pattern",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "propertyNames": { "pattern": "^a+$" }
         },
         "tests": [
@@ -74,7 +76,10 @@
     },
     {
         "description": "propertyNames with boolean schema true",
-        "schema": {"propertyNames": true},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "propertyNames": true
+        },
         "tests": [
             {
                 "description": "object with any properties is valid",
@@ -90,7 +95,10 @@
     },
     {
         "description": "propertyNames with boolean schema false",
-        "schema": {"propertyNames": false},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "propertyNames": false
+        },
         "tests": [
             {
                 "description": "object with any properties is invalid",

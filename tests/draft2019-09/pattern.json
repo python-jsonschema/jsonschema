@@ -1,7 +1,10 @@
 [
     {
         "description": "pattern validation",
-        "schema": {"pattern": "^a*$"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "pattern": "^a*$"
+        },
         "tests": [
             {
                 "description": "a matching pattern is valid",
@@ -47,7 +50,10 @@
     },
     {
         "description": "pattern is not anchored",
-        "schema": {"pattern": "a+"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "pattern": "a+"
+        },
         "tests": [
             {
                 "description": "matches a substring",

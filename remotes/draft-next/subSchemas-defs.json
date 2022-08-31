@@ -1,0 +1,11 @@
+{
+    "$schema": "https://json-schema.org/draft/next/schema",
+    "$defs": {
+        "integer": {
+            "type": "integer"
+        },
+        "refToInteger": {
+            "$ref": "#/$defs/integer"
+        }
+    }
+}

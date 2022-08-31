@@ -2,6 +2,7 @@
     {
         "description": "allOf",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {
                     "properties": {
@@ -43,6 +44,7 @@
     {
         "description": "allOf with base schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "properties": {"bar": {"type": "integer"}},
             "required": ["bar"],
             "allOf" : [
@@ -91,6 +93,7 @@
     {
         "description": "allOf simple types",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {"maximum": 30},
                 {"minimum": 20}
@@ -111,7 +114,10 @@
     },
     {
         "description": "allOf with boolean schemas, all true",
-        "schema": {"allOf": [true, true]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "allOf": [true, true]
+        },
         "tests": [
             {
                 "description": "any value is valid",
@@ -122,7 +128,10 @@
     },
     {
         "description": "allOf with boolean schemas, some false",
-        "schema": {"allOf": [true, false]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "allOf": [true, false]
+        },
         "tests": [
             {
                 "description": "any value is invalid",
@@ -133,7 +142,10 @@
     },
     {
         "description": "allOf with boolean schemas, all false",
-        "schema": {"allOf": [false, false]},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "allOf": [false, false]
+        },
         "tests": [
             {
                 "description": "any value is invalid",
@@ -145,6 +157,7 @@
     {
         "description": "allOf with one empty schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {}
             ]
@@ -160,6 +173,7 @@
     {
         "description": "allOf with two empty schemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {},
                 {}
@@ -176,6 +190,7 @@
     {
         "description": "allOf with the first empty schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {},
                 { "type": "number" }
@@ -197,6 +212,7 @@
     {
         "description": "allOf with the last empty schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 { "type": "number" },
                 {}
@@ -218,6 +234,7 @@
     {
         "description": "nested allOf, to check validation semantics",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [
                 {
                     "allOf": [
@@ -244,6 +261,7 @@
     {
         "description": "allOf combined with anyOf, oneOf",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "allOf": [ { "multipleOf": 2 } ],
             "anyOf": [ { "multipleOf": 3 } ],
             "oneOf": [ { "multipleOf": 5 } ]

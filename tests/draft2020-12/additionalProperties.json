@@ -3,6 +3,7 @@
         "description":
             "additionalProperties being false does not allow other properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {"foo": {}, "bar": {}},
             "patternProperties": { "^v": {} },
             "additionalProperties": false
@@ -43,6 +44,7 @@
     {
         "description": "non-ASCII pattern with additionalProperties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {"^á": {}},
             "additionalProperties": false
         },
@@ -62,6 +64,7 @@
     {
         "description": "additionalProperties with schema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "properties": {"foo": {}, "bar": {}},
             "additionalProperties": {"type": "boolean"}
         },
@@ -87,6 +90,7 @@
         "description":
             "additionalProperties can exist by itself",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": {"type": "boolean"}
         },
         "tests": [
@@ -104,7 +108,10 @@
     },
     {
         "description": "additionalProperties are allowed by default",
-        "schema": {"properties": {"foo": {}, "bar": {}}},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {"foo": {}, "bar": {}}
+        },
         "tests": [
             {
                 "description": "additional properties are allowed",
@@ -116,6 +123,7 @@
     {
         "description": "additionalProperties does not look in applicators",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "allOf": [
                 {"properties": {"foo": {}}}
             ],
@@ -132,6 +140,7 @@
     {
         "description": "additionalProperties with null valued instance properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": {
                 "type": "null"
             }

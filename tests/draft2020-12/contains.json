@@ -2,6 +2,7 @@
     {
         "description": "contains keyword validation",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "contains": {"minimum": 5}
         },
         "tests": [
@@ -40,6 +41,7 @@
     {
         "description": "contains keyword with const keyword",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "contains": { "const": 5 }
         },
         "tests": [
@@ -62,7 +64,10 @@
     },
     {
         "description": "contains keyword with boolean schema true",
-        "schema": {"contains": true},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "contains": true
+        },
         "tests": [
             {
                 "description": "any non-empty array is valid",
@@ -78,7 +83,10 @@
     },
     {
         "description": "contains keyword with boolean schema false",
-        "schema": {"contains": false},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "contains": false
+        },
         "tests": [
             {
                 "description": "any non-empty array is invalid",
@@ -100,6 +108,7 @@
     {
         "description": "items + contains",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "items": { "multipleOf": 2 },
             "contains": { "multipleOf": 3 }
         },
@@ -129,6 +138,7 @@
     {
         "description": "contains with false if subschema",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "contains": {
                 "if": false,
                 "else": true
@@ -150,6 +160,7 @@
     {
         "description": "contains with null instance elements",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "contains": {
                 "type": "null"
             }

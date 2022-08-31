@@ -3,6 +3,7 @@
         "description":
             "patternProperties validates properties matching a regex",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {
                 "f.*o": {"type": "integer"}
             }
@@ -48,6 +49,7 @@
     {
         "description": "multiple simultaneous patternProperties are validated",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {
                 "a*": {"type": "integer"},
                 "aaa*": {"maximum": 20}
@@ -89,6 +91,7 @@
     {
         "description": "regexes are not anchored by default and are case sensitive",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {
                 "[0-9]{2,}": { "type": "boolean" },
                 "X_": { "type": "string" }
@@ -120,6 +123,7 @@
     {
         "description": "patternProperties with boolean schemas",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {
                 "f.*": true,
                 "b.*": false
@@ -156,6 +160,7 @@
     {
         "description": "patternProperties with null valued instance properties",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "patternProperties": {
                 "^.*bar$": {"type": "null"}
             }
