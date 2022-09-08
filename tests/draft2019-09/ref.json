@@ -858,5 +858,30 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "URN ref with nested pointer ref",
+        "schema": {
+            "$ref": "urn:uuid:deadbeef-4321-ffff-ffff-1234feebdaed",
+            "$defs": {
+                "foo": {
+                    "$id": "urn:uuid:deadbeef-4321-ffff-ffff-1234feebdaed",
+                    "$defs": {"bar": {"type": "string"}},
+                    "$ref": "#/$defs/bar"
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "a string is valid",
+                "data": "bar",
+                "valid": true
+            },
+            {
+                "description": "a non-string is invalid",
+                "data": 12,
+                "valid": false
+            }
+        ]
     }
 ]
