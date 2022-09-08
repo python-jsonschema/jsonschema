@@ -243,5 +243,53 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "remote HTTP ref with different $id",
+        "schema": {"$ref": "http://localhost:1234/different-id-ref-string.json"},
+        "tests": [
+            {
+                "description": "number is invalid",
+                "data": 1,
+                "valid": false
+            },
+            {
+                "description": "string is valid",
+                "data": "foo",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "remote HTTP ref with different URN $id",
+        "schema": {"$ref": "http://localhost:1234/urn-ref-string.json"},
+        "tests": [
+            {
+                "description": "number is invalid",
+                "data": 1,
+                "valid": false
+            },
+            {
+                "description": "string is valid",
+                "data": "foo",
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "remote HTTP ref with nested absolute ref",
+        "schema": {"$ref": "http://localhost:1234/nested-absolute-ref-to-string.json"},
+        "tests": [
+            {
+                "description": "number is invalid",
+                "data": 1,
+                "valid": false
+            },
+            {
+                "description": "string is valid",
+                "data": "foo",
+                "valid": true
+            }
+        ]
     }
 ]
