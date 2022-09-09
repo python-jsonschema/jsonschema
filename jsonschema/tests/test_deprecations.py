@@ -162,3 +162,102 @@ class TestDeprecations(TestCase):
         self.assertTrue(
             str(w.warning).startswith("FormatChecker.cls_checks "),
         )
+
+    def test_draftN_format_checker(self):
+        """
+        As of v4.16.0, accessing jsonschema.draftn_format_checker is deprecated
+        in favor of Validator.FORMAT_CHECKER.
+        """
+
+        with self.assertWarns(DeprecationWarning) as w:
+            from jsonschema import draft202012_format_checker  # noqa
+
+        self.assertIs(
+            draft202012_format_checker,
+            validators.Draft202012Validator.FORMAT_CHECKER,
+        )
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.draft202012_format_checker is ",
+            ),
+            msg=w.warning,
+        )
+
+        with self.assertWarns(DeprecationWarning) as w:
+            from jsonschema import draft201909_format_checker  # noqa
+
+        self.assertIs(
+            draft201909_format_checker,
+            validators.Draft201909Validator.FORMAT_CHECKER,
+        )
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.draft201909_format_checker is ",
+            ),
+            msg=w.warning,
+        )
+
+        with self.assertWarns(DeprecationWarning) as w:
+            from jsonschema import draft7_format_checker  # noqa
+
+        self.assertIs(
+            draft7_format_checker,
+            validators.Draft7Validator.FORMAT_CHECKER,
+        )
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.draft7_format_checker is ",
+            ),
+            msg=w.warning,
+        )
+
+        with self.assertWarns(DeprecationWarning) as w:
+            from jsonschema import draft6_format_checker  # noqa
+
+        self.assertIs(
+            draft6_format_checker,
+            validators.Draft6Validator.FORMAT_CHECKER,
+        )
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.draft6_format_checker is ",
+            ),
+            msg=w.warning,
+        )
+
+        with self.assertWarns(DeprecationWarning) as w:
+            from jsonschema import draft4_format_checker  # noqa
+
+        self.assertIs(
+            draft4_format_checker,
+            validators.Draft4Validator.FORMAT_CHECKER,
+        )
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.draft4_format_checker is ",
+            ),
+            msg=w.warning,
+        )
+
+        with self.assertWarns(DeprecationWarning) as w:
+            from jsonschema import draft3_format_checker  # noqa
+
+        self.assertIs(
+            draft3_format_checker,
+            validators.Draft3Validator.FORMAT_CHECKER,
+        )
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing jsonschema.draft3_format_checker is ",
+            ),
+            msg=w.warning,
+        )
+
+        with self.assertRaises(ImportError):
+            from jsonschema import draft1234_format_checker  # noqa

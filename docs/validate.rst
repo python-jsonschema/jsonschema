@@ -181,7 +181,7 @@ By default, no validation is enforced, but optionally, validation can be enabled
     >>> validate(
     ...     instance="-12",
     ...     schema={"format" : "ipv4"},
-    ...     format_checker=draft202012_format_checker,
+    ...     format_checker=Draft202012Validator.FORMAT_CHECKER,
     ... )
     Traceback (most recent call last):
         ...

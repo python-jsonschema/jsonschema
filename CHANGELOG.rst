@@ -3,6 +3,10 @@ v4.16.0
 
 * Improve the base URI behavior when resolving a ``$ref`` to a resolution URI
   which is different from the resolved schema's declared ``$id``.
+* Accessing ``jsonschema.draftN_format_checker`` is deprecated. Instead, if you
+  want access to the format checker itself, it is exposed as
+  ``jsonschema.validators.DraftNValidator.FORMAT_CHECKER`` on any
+  ``jsonschema.protocols.Validator``.
 
 v4.15.0
 =======

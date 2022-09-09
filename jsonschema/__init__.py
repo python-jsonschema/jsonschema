@@ -10,15 +10,7 @@ for you.
 """
 import warnings
 
-from jsonschema._format import (
-    FormatChecker,
-    draft3_format_checker,
-    draft4_format_checker,
-    draft6_format_checker,
-    draft7_format_checker,
-    draft201909_format_checker,
-    draft202012_format_checker,
-)
+from jsonschema._format import FormatChecker
 from jsonschema._types import TypeChecker
 from jsonschema.exceptions import (
     ErrorTree,
@@ -56,4 +48,24 @@ def __getattr__(name):
             import importlib_metadata as metadata
 
         return metadata.version("jsonschema")
+
+    format_checkers = {
+        "draft3_format_checker": Draft3Validator,
+        "draft4_format_checker": Draft4Validator,
+        "draft6_format_checker": Draft6Validator,
+        "draft7_format_checker": Draft7Validator,
+        "draft201909_format_checker": Draft201909Validator,
+        "draft202012_format_checker": Draft202012Validator,
+    }
+    ValidatorForFormat = format_checkers.get(name)
+    if ValidatorForFormat is not None:
+        warnings.warn(
+            f"Accessing jsonschema.{name} is deprecated and will be "
+            "removed in a future release. Instead, use the FORMAT_CHECKER "
+            "attribute on the corresponding Validator.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return ValidatorForFormat.FORMAT_CHECKER
+
     raise AttributeError(f"module {__name__} has no attribute {name}")
