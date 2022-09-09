@@ -1,3 +1,9 @@
+v4.16.0
+=======
+
+* Improve the base URI behavior when resolving a ``$ref`` to a resolution URI
+  which is different from the resolved schema's declared ``$id``.
+
 v4.15.0
 =======
 
