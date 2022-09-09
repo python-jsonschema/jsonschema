@@ -396,6 +396,11 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
                 "not just immediate parent"
             ),
         )(test)
+        or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="remote HTTP ref with nested absolute ref",
+        )(test)
     ),
 )
 
@@ -515,6 +520,11 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
                 "$id must be resolved against nearest parent, "
                 "not just immediate parent"
             ),
+        )(test)
+        or skip(
+            message=bug(),
+            subject="refRemote",
+            case_description="remote HTTP ref with nested absolute ref",
         )(test)
     ),
 )

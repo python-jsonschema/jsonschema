@@ -16,6 +16,7 @@ import reprlib
 import typing
 import warnings
 
+from pyrsistent import m
 import attr
 
 from jsonschema import (
@@ -713,7 +714,7 @@ class RefResolver:
         self,
         base_uri,
         referrer,
-        store=(),
+        store=m(),
         cache_remote=True,
         handlers=(),
         urljoin_cache=None,
@@ -729,8 +730,13 @@ class RefResolver:
         self.handlers = dict(handlers)
 
         self._scopes_stack = [base_uri]
+
         self.store = _utils.URIDict(_store_schema_list())
         self.store.update(store)
+        self.store.update(
+            (schema["$id"], schema)
+            for schema in store.values() if "$id" in schema
+        )
         self.store[base_uri] = referrer
 
         self._urljoin_cache = urljoin_cache
@@ -864,6 +870,7 @@ class RefResolver:
             if target_uri.rstrip("/") == uri.rstrip("/"):
                 if fragment:
                     subschema = self.resolve_fragment(subschema, fragment)
+                self.store[url] = subschema
                 return url, subschema
         return None
 
@@ -884,16 +891,16 @@ class RefResolver:
         Resolve the given URL.
         """
         url, fragment = urldefrag(url)
-        if url:
+        if not url:
+            url = self.base_uri
+
+        try:
+            document = self.store[url]
+        except KeyError:
             try:
-                document = self.store[url]
-            except KeyError:
-                try:
-                    document = self.resolve_remote(url)
-                except Exception as exc:
-                    raise exceptions.RefResolutionError(exc)
-        else:
-            document = self.referrer
+                document = self.resolve_remote(url)
+            except Exception as exc:
+                raise exceptions.RefResolutionError(exc)
 
         return self.resolve_fragment(document, fragment)
 
