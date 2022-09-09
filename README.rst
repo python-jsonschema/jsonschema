@@ -105,6 +105,8 @@ They can be used when installing in order to include additional dependencies, e.
 
     $ pip install jsonschema'[format]'
 
+You will also want to read the `format validation documentation <https://python-jsonschema.readthedocs.io/en/latest/validate/#validating-formats>`_.
+
 .. start cut from PyPI
 
 Running the Test Suite
