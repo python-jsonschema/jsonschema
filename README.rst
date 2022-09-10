@@ -105,7 +105,8 @@ They can be used when installing in order to include additional dependencies, e.
 
     $ pip install jsonschema'[format]'
 
-You will also want to read the `format validation documentation <https://python-jsonschema.readthedocs.io/en/latest/validate/#validating-formats>`_.
+Be aware that the mere presence of these dependencies – or even the specification of ``format`` checks in a schema – do **not** activate format checks (as per specification).
+Please read the `format validation documentation <https://python-jsonschema.readthedocs.io/en/latest/validate/#validating-formats>`_ for details.
 
 .. start cut from PyPI
 

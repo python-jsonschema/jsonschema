@@ -173,7 +173,8 @@ Validating Formats
 ------------------
 
 JSON Schema defines the :kw:`format` keyword which can be used to check if primitive types (``string``\s, ``number``\s, ``boolean``\s) conform to well-defined formats.
-By default, as per the specification, no validation is enforced. Optionally however, validation can be enabled by hooking a `format-checking object <jsonschema.FormatChecker>` into a `Validator`.
+By default, as per the specification, no validation is enforced.
+Optionally however, validation can be enabled by hooking a `format-checking object <jsonschema.FormatChecker>` into a `Validator`.
 
 .. doctest::
 
