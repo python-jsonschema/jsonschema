@@ -5,6 +5,12 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 
+[tool.hatch.build]
+exclude = [
+  "jsonschema/tests",
+  "jsonschema/benchmarks",
+]
+
 [project]
 name = "jsonschema"
 description = "An implementation of JSON Schema validation for Python"
