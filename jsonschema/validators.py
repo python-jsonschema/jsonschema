@@ -758,7 +758,7 @@ class RefResolver:
             `RefResolver`
         """
 
-        return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)
+        return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)  # noqa: B026, E501
 
     def push_scope(self, scope):
         """
