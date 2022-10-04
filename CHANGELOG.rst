@@ -1,3 +1,8 @@
+v4.16.1
+=======
+
+* Make ``ErrorTree`` have a more grammatically correct ``repr``.
+
 v4.16.0
 =======
 

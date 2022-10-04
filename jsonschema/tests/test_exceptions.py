@@ -396,7 +396,17 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree([error])
         self.assertIsInstance(tree["foo"], exceptions.ErrorTree)
 
-    def test_repr(self):
+    def test_repr_single(self):
+        error = exceptions.ValidationError(
+            "1",
+            validator="foo",
+            path=["bar", "bar2"],
+            instance="i1",
+        )
+        tree = exceptions.ErrorTree([error])
+        self.assertEqual(repr(tree), "<ErrorTree (1 total error)>")
+
+    def test_repr_multiple(self):
         e1, e2 = (
             exceptions.ValidationError(
                 "1",
@@ -411,6 +421,10 @@ class TestErrorTree(TestCase):
         )
         tree = exceptions.ErrorTree([e1, e2])
         self.assertEqual(repr(tree), "<ErrorTree (2 total errors)>")
+
+    def test_repr_empty(self):
+        tree = exceptions.ErrorTree([])
+        self.assertEqual(repr(tree), "<ErrorTree (0 total errors)>")
 
 
 class TestErrorInitReprStr(TestCase):

@@ -297,7 +297,9 @@ class ErrorTree:
         return self.total_errors
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} ({len(self)} total errors)>"
+        total = len(self)
+        errors = "error" if total == 1 else "errors"
+        return f"<{self.__class__.__name__} ({total} total {errors})>"
 
     @property
     def total_errors(self):
