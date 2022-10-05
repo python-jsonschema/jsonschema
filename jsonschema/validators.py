@@ -19,6 +19,8 @@ import warnings
 from pyrsistent import m
 import attr
 
+from urllib.parse import urlparse
+
 from jsonschema import (
     _format,
     _legacy_validators,
@@ -1010,6 +1012,33 @@ class RefResolver:
         if self.cache_remote:
             self.store[uri] = result
         return result
+
+    def export_resolved_references(self, schema: dict):
+        """
+        Resolves json references and merges them into a consolidated schema for validation purposes
+        :param schema:
+        :return: schema merged with resolved references
+        """
+        if len(self.store) <= 2:
+            return RefResolutionError('RefResolver does not have any additional ' +\
+                                      'referenced schemas outside of draft 3 & 4')
+
+        if isinstance(schema, dict):
+            for key, value in schema.items():
+                if key == "$ref":
+                    ref_schema = self.resolve(urlparse(value).path)
+                    if ref_schema:
+                        return ref_schema[1]
+
+                resolved_ref = self.export_resolved_references(value)
+                if resolved_ref:
+                    schema[key] = resolved_ref
+        elif isinstance(schema, list):
+            for (idx, value) in enumerate(schema):
+                resolved_ref = self.export_resolved_references(value)
+                if resolved_ref:
+                    schema[idx] = resolved_ref
+        return schema
 
 
 _SUBSCHEMAS_KEYWORDS = ("$id", "id", "$anchor", "$dynamicAnchor")

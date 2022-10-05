@@ -1,0 +1,19 @@
+{
+  "$id": "apples",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer"
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

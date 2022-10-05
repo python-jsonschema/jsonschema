@@ -1,0 +1,21 @@
+{
+  "$id": "tree",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "fruits": {
+      "type": "object",
+      "properties": {
+        "apples": {
+          "$ref": "apples"
+        },
+        "oranges": {
+          "$ref": "oranges"
+        }
+      }
+    }
+  }
+}
