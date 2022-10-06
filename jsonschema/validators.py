@@ -7,7 +7,7 @@ from collections import deque
 from collections.abc import Sequence
 from functools import lru_cache
 from operator import methodcaller
-from urllib.parse import unquote, urldefrag, urljoin, urlsplit
+from urllib.parse import unquote, urldefrag, urljoin, urlparse, urlsplit
 from urllib.request import urlopen
 from warnings import warn
 import contextlib
@@ -18,8 +18,6 @@ import warnings
 
 from pyrsistent import m
 import attr
-
-from urllib.parse import urlparse
 
 from jsonschema import (
     _format,
