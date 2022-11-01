@@ -8,6 +8,7 @@ import argparse
 import json
 import sys
 import traceback
+import warnings
 
 try:
     from importlib import metadata
@@ -23,6 +24,16 @@ import attr
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import RefResolver, validator_for
+
+warnings.warn(
+    (
+        "The jsonschema CLI is deprecated and will be removed in a future "
+        "version. Please use check-jsonschema instead, which can be installed "
+        "from https://pypi.org/project/check-jsonschema/"
+    ),
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 
 class _CannotLoadFile(Exception):

@@ -1,4 +1,6 @@
 from unittest import TestCase
+import subprocess
+import sys
 
 from jsonschema import FormatChecker, validators
 
@@ -261,3 +263,14 @@ class TestDeprecations(TestCase):
 
         with self.assertRaises(ImportError):
             from jsonschema import draft1234_format_checker  # noqa
+
+    def test_cli(self):
+        """
+        As of v4.17.0, the jsonschema CLI is deprecated.
+        """
+
+        process = subprocess.run(
+            [sys.executable, "-m", "jsonschema"],
+            capture_output=True,
+        )
+        self.assertIn(b"The jsonschema CLI is deprecated ", process.stderr)

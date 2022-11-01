@@ -1,3 +1,11 @@
+v4.17.0
+=======
+
+* The ``jsonschema`` CLI (along with ``jsonschema.cli`` the module) are now
+  deprecated. Use ``check-jsonschema`` instead, which can be installed via
+  ``pip install check-jsonschema`` and found
+  `here <https://github.com/python-jsonschema/check-jsonschema>`_.
+
 v4.16.1
 =======
 
