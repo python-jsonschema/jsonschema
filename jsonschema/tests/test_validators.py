@@ -1453,17 +1453,35 @@ class MetaSchemaTestsMixin:
         """
         Technically, all the spec says is they SHOULD have elements, not MUST.
 
+        (As of Draft 6. Previous drafts do say MUST).
+
         See #529.
         """
-        self.Validator.check_schema({"enum": []})
+        if self.Validator in {
+            validators.Draft3Validator,
+            validators.Draft4Validator,
+        }:
+            with self.assertRaises(exceptions.SchemaError):
+                self.Validator.check_schema({"enum": []})
+        else:
+            self.Validator.check_schema({"enum": []})
 
     def test_enum_allows_non_unique_items(self):
         """
         Technically, all the spec says is they SHOULD be unique, not MUST.
 
+        (As of Draft 6. Previous drafts do say MUST).
+
         See #529.
         """
-        self.Validator.check_schema({"enum": [12, 12]})
+        if self.Validator in {
+            validators.Draft3Validator,
+            validators.Draft4Validator,
+        }:
+            with self.assertRaises(exceptions.SchemaError):
+                self.Validator.check_schema({"enum": [12, 12]})
+        else:
+            self.Validator.check_schema({"enum": [12, 12]})
 
 
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):

@@ -15,7 +15,7 @@
 
 		"properties" : {
 			"type" : "object",
-			"additionalProperties" : {"$ref" : "#", "type" : "object"},
+			"additionalProperties" : {"$ref" : "#"},
 			"default" : {}
 		},
 
@@ -47,7 +47,7 @@
 		},
 
 		"dependencies" : {
-			"type" : ["string", "array", "object"],
+			"type" : "object",
 			"additionalProperties" : {
 				"type" : ["string", "array", {"$ref" : "#"}],
 				"items" : {
@@ -73,11 +73,6 @@
 		"exclusiveMaximum" : {
 			"type" : "boolean",
 			"default" : false
-		},
-
-		"maxDecimal": {
-			"minimum": 0,
-			"type": "number"
 		},
 
 		"minItems" : {
@@ -112,7 +107,9 @@
 		},
 
 		"enum" : {
-			"type" : "array"
+			"type" : "array",
+			"minItems" : 1,
+			"uniqueItems" : true
 		},
 
 		"default" : {
@@ -153,13 +150,11 @@
 		},
 
 		"id" : {
-			"type" : "string",
-			"format" : "uri"
+			"type" : "string"
 		},
 
 		"$ref" : {
-			"type" : "string",
-			"format" : "uri"
+			"type" : "string"
 		},
 
 		"$schema" : {
