@@ -1483,6 +1483,16 @@ class MetaSchemaTestsMixin:
         else:
             self.Validator.check_schema({"enum": [12, 12]})
 
+    def test_schema_with_invalid_regex(self):
+        with self.assertRaises(exceptions.SchemaError):
+            self.Validator.check_schema({"pattern": "*notaregex"})
+
+    def test_schema_with_invalid_regex_with_disabled_format_validation(self):
+        self.Validator.check_schema(
+            {"pattern": "*notaregex"},
+            format_checker=None,
+        )
+
 
 class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def test_it_implements_the_validator_protocol(self):

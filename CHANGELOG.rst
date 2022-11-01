@@ -1,6 +1,11 @@
 v4.17.0
 =======
 
+* The ``check_schema`` method on ``jsonschema.protocols.Validator`` instances
+  now *enables* format validation by default when run. This can catch some
+  additional invalid schemas (e.g. containing invalid regular expressions)
+  where the issue is indeed uncovered by validating against the metaschema
+  with format validation enabled as an assertion.
 * The ``jsonschema`` CLI (along with ``jsonschema.cli`` the module) are now
   deprecated. Use ``check-jsonschema`` instead, which can be installed via
   ``pip install check-jsonschema`` and found
