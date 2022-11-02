@@ -1,4 +1,5 @@
 from unittest import TestCase
+import importlib
 import subprocess
 import sys
 
@@ -263,6 +264,22 @@ class TestDeprecations(TestCase):
 
         with self.assertRaises(ImportError):
             from jsonschema import draft1234_format_checker  # noqa
+
+    def test_import_cli(self):
+        """
+        As of v4.17.0, importing jsonschema.cli is deprecated.
+        """
+
+        with self.assertWarns(DeprecationWarning) as w:
+            import jsonschema.cli
+            importlib.reload(jsonschema.cli)
+
+        self.assertEqual(w.filename, importlib.__file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "The jsonschema CLI is deprecated and will be removed ",
+            ),
+        )
 
     def test_cli(self):
         """
