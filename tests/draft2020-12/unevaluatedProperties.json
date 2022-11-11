@@ -741,6 +741,31 @@
         ]
     },
     {
+        "description": "unevaluatedProperties can't see inside cousins (reverse order)",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "allOf": [
+                {
+                    "unevaluatedProperties": false
+                },
+                {
+                    "properties": {
+                        "foo": true
+                    }
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "always fails",
+                "data": {
+                    "foo": 1
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "nested unevaluatedProperties, outer false, inner true, properties outside",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
