@@ -634,7 +634,26 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance="foo", schema=schema)
         self.assertEqual(message, "'foo' is not of type 'array'")
 
-    def test_unevaluated_properties(self):
+    def test_unevaluated_properties_invalid_against_subschema(self):
+        schema = {
+            "properties": {"foo": {"type": "string"}},
+            "unevaluatedProperties": {"const": 12},
+        }
+        message = self.message_for(
+            instance={
+                "foo": "foo",
+                "bar": "bar",
+                "baz": 12,
+            },
+            schema=schema,
+        )
+        self.assertEqual(
+            message,
+            "Unevaluated properties are not valid under the given schema "
+            "('bar' was unevaluated and invalid)",
+        )
+
+    def test_unevaluated_properties_disallowed(self):
         schema = {"type": "object", "unevaluatedProperties": False}
         message = self.message_for(
             instance={
