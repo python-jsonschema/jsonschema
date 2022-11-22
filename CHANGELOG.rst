@@ -1,3 +1,9 @@
+v4.17.1
+=======
+
+* The error message when using ``unevaluatedProperties`` with a non-trivial
+  schema value (i.e. something other than ``false``) has been improved (#996).
+
 v4.17.0
 =======
 
