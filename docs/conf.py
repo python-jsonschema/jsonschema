@@ -165,6 +165,7 @@ spelling_word_list_filename = "spelling-wordlist.txt"
 suppress_warnings = [
     "autoapi.python_import_resolution",
     "autoapi.toc_reference",
+    "epub.duplicated_toc_entry",
 ]
 autoapi_root = "api"
 autoapi_ignore = [
