@@ -126,7 +126,19 @@ jobs:
           - os: windows-latest
             python-version:
               name: "3.11"
+              toxenv: docs-dirhtml
+          - os: windows-latest
+            python-version:
+              name: "3.11"
+              toxenv: docs-doctest
+          - os: windows-latest
+            python-version:
+              name: "3.11"
               toxenv: docs-linkcheck
+          - os: windows-latest
+            python-version:
+              name: "3.11"
+              toxenv: docs-spelling
           - os: windows-latest
             python-version:
               name: "3.11"
