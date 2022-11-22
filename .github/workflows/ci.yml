@@ -86,50 +86,50 @@ jobs:
             toxenv: py310-formatnongpl-build
           - name: "3.10"
             toxenv: py310-formatnongpl-tests
-          - name: "3.11.0-beta - 3.11.0"
+          - name: "3.11"
             toxenv: py311-noextra-build
-          - name: "3.11.0-beta - 3.11.0"
+          - name: "3.11"
             toxenv: py311-noextra-tests
-          - name: "3.11.0-beta - 3.11.0"
+          - name: "3.11"
             toxenv: py311-format-build
-          - name: "3.11.0-beta - 3.11.0"
+          - name: "3.11"
             toxenv: py311-format-tests
-          - name: "3.11.0-beta - 3.11.0"
+          - name: "3.11"
             toxenv: py311-formatnongpl-build
-          - name: "3.11.0-beta - 3.11.0"
+          - name: "3.11"
             toxenv: py311-formatnongpl-tests
-          - name: "3.10"
+          - name: "3.11"
             toxenv: docs-dirhtml
-          - name: "3.10"
+          - name: "3.11"
             toxenv: docs-doctest
-          - name: "3.10"
+          - name: "3.11"
             toxenv: docs-linkcheck
-          - name: "3.10"
+          - name: "3.11"
             toxenv: docs-spelling
-          - name: "3.10"
+          - name: "3.11"
             toxenv: docs-style
-          - name: "3.10"
+          - name: "3.11"
             toxenv: readme
-          - name: "3.10"
+          - name: "3.11"
             toxenv: safety
-          - name: "3.10"
+          - name: "3.11"
             toxenv: secrets
-          - name: "3.10"
+          - name: "3.11"
             toxenv: style
-          - name: "3.10"
+          - name: "3.11"
             toxenv: typing
         exclude:
           - os: windows-latest
             python-version:
-              name: "3.10"
+              name: "3.11"
               toxenv: readme
           - os: windows-latest
             python-version:
-              name: "3.10"
+              name: "3.11"
               toxenv: docs-linkcheck
           - os: windows-latest
             python-version:
-              name: "3.10"
+              name: "3.11"
               toxenv: docs-style
 
     steps:
