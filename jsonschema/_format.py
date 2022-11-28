@@ -454,6 +454,9 @@ with suppress(ImportError):
         # https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01#section-3
         if not isinstance(instance, str):
             return True
+        if not instance:
+            return False
+
         non_negative_integer, rest = [], ""
         for i, character in enumerate(instance):
             if character.isdigit():
