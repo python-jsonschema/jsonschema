@@ -7,6 +7,36 @@
         },
         "tests": [
             {
+                "description": "all string formats ignore integers",
+                "data": 12,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore floats",
+                "data": 13.7,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore objects",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore arrays",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore booleans",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "all string formats ignore nulls",
+                "data": null,
+                "valid": true
+            },
+            {
                 "description": "all upper-case",
                 "data": "2EB8AA08-AA98-11EA-B4AA-73B441D16380",
                 "valid": true

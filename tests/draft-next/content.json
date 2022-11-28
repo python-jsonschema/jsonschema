@@ -83,7 +83,7 @@
             "$schema": "https://json-schema.org/draft/next/schema",
             "contentMediaType": "application/json",
             "contentEncoding": "base64",
-            "contentSchema": { "required": ["foo"], "properties": { "foo": { "type": "string" } } }
+            "contentSchema": { "type": "object", "required": ["foo"], "properties": { "foo": { "type": "string" } } }
         },
         "tests": [
             {
