@@ -58,6 +58,7 @@ versions.
 
 .. autoclass:: TypeChecker
     :members:
+    :noindex:
 
 .. autoexception:: jsonschema.exceptions.UndefinedTypeCheck
     :noindex:
@@ -88,7 +89,7 @@ given how common validating these types are.
 
 If you *do* want the generality, or just want to add a few specific additional
 types as being acceptable for a validator object, then you should update an
-existing `TypeChecker` or create a new one. You may then create a new
+existing `jsonschema.TypeChecker` or create a new one. You may then create a new
 `Validator` via `jsonschema.validators.extend`.
 
 .. testcode::
@@ -252,6 +253,7 @@ The supported mechanism for ensuring these dependencies are present is again as 
 
 .. autoclass:: FormatChecker
     :members:
+    :noindex:
     :exclude-members: cls_checks
 
     .. attribute:: checkers

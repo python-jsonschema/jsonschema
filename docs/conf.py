@@ -36,14 +36,14 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-
-    "autoapi.extension",
-    "sphinx_autodoc_typehints",
     "sphinx_copybutton",
     "sphinx_json_schema_spec",
     "sphinxcontrib.spelling",
     "sphinxext.opengraph",
 ]
+
+# Add typing annotations to signatures
+autodoc_typehints = "signature"
 
 cache_path = "_cache"
 
@@ -159,28 +159,3 @@ autosectionlabel_prefix_document = True
 # -- Options for sphinxcontrib-spelling -----------------------------------
 
 spelling_word_list_filename = "spelling-wordlist.txt"
-
-# -- Options for autoapi ----------------------------------------------------
-
-suppress_warnings = [
-    "autoapi.python_import_resolution",
-    "autoapi.toc_reference",
-    "epub.duplicated_toc_entry",
-]
-autoapi_root = "api"
-autoapi_ignore = [
-    "*/_[a-z]*.py",
-    "*/__main__.py",
-    "*/benchmarks/*",
-    "*/cli.py",
-    "*/tests/*",
-]
-autoapi_options = [
-    "members",
-    "undoc-members",
-    "show-module-summary",
-    "imported-members",
-]
-
-autoapi_type = "python"
-autoapi_dirs = [PACKAGE_SRC]
