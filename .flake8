@@ -5,6 +5,9 @@ exclude =
     jsonschema/__init__.py
     jsonschema/_reflect.py
 ignore =
-    B008,  # Barring function calls in default args. Ha, no.
-    B306,  # See https://github.com/PyCQA/flake8-bugbear/issues/131
-    W503,  # (flake8 default) old PEP8 boolean operator line breaks
+    # Barring function calls in default args. Ha, no.
+    B008,
+    # See https://github.com/PyCQA/flake8-bugbear/issues/131
+    B306,
+    # (flake8 default) old PEP8 boolean operator line breaks
+    W503,
