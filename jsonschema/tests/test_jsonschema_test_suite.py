@@ -407,6 +407,7 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
 
 TestDraft201909Format = DRAFT201909.to_unittest_testcase(
     DRAFT201909.format_tests(),
+    name="TestDraft201909Format",
     Validator=jsonschema.Draft201909Validator,
     format_checker=jsonschema.Draft201909Validator.FORMAT_CHECKER,
     skip=lambda test: (
@@ -532,6 +533,7 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
 
 TestDraft202012Format = DRAFT202012.to_unittest_testcase(
     DRAFT202012.format_tests(),
+    name="TestDraft202012Format",
     Validator=jsonschema.Draft202012Validator,
     format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER,
     skip=lambda test: (
