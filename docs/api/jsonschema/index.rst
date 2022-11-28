@@ -10,11 +10,10 @@ Submodules
    /api/jsonschema/exceptions/index
    /api/jsonschema/protocols/index
    /api/jsonschema/validators/index
- 
+
 Package summary
 ---------------
 
 .. automodule:: jsonschema
    :members:
    :imported-members:
-
