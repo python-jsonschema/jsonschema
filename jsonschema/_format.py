@@ -501,7 +501,9 @@ with suppress(ImportError):
     def is_duration(instance: object) -> bool:
         if not isinstance(instance, str):
             return True
-        return bool(isoduration.parse_duration(instance))
+        isoduration.parse_duration(instance)
+        # FIXME: See bolsote/isoduration#25 and bolsote/isoduration#21
+        return instance.endswith(tuple("DMYWHMS"))
 
 
 @_checks_drafts(

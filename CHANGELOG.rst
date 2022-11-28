@@ -1,3 +1,12 @@
+v4.17.2
+=======
+
+* Empty strings are not valid relative JSON Pointers (aren't valid under the
+  RJP format).
+* Durations without (trailing) units are not valid durations (aren't
+  valid under the duration format). This involves changing the dependency
+  used for validating durations (from ``isoduration`` to ``isodate``).
+
 v4.17.1
 =======
 
