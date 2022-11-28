@@ -67,6 +67,11 @@
                 "valid": false
             },
             {
+                "description": "explicit positive prefix",
+                "data": "+1/foo/bar",
+                "valid": false
+            },
+            {
                 "description": "## is not a valid json-pointer",
                 "data": "0##",
                 "valid": false
@@ -80,6 +85,16 @@
                 "description": "zero cannot be followed by other digits, plus octothorpe",
                 "data": "01#",
                 "valid": false
+            },
+            {
+                "description": "empty string",
+                "data": "",
+                "valid": false
+            },
+            {
+                "description": "multi-digit integer prefix",
+                "data": "120/foo/bar",
+                "valid": true
             }
         ]
     }

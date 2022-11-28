@@ -189,8 +189,23 @@
                 "valid": false
             },
             {
+                "description": "no time offset with second fraction",
+                "data": "12:00:00.52",
+                "valid": false
+            },
+            {
                 "description": "invalid non-ASCII '২' (a Bengali 2)",
                 "data": "1২:00:00Z",
+                "valid": false
+            },
+            {
+                "description": "offset not starting with plus or minus",
+                "data": "08:30:06#00:20",
+                "valid": false
+            },
+            {
+                "description": "contains letters",
+                "data": "ab:cd:ef",
                 "valid": false
             }
         ]

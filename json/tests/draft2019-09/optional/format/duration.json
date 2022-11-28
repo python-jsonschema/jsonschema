@@ -125,6 +125,11 @@
                 "description": "invalid non-ASCII '২' (a Bengali 2)",
                 "data": "P২Y",
                 "valid": false
+            },
+            {
+                "description": "element without unit",
+                "data": "P1",
+                "valid": false
             }
         ]
     }

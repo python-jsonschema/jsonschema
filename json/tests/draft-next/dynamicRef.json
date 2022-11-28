@@ -484,5 +484,94 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "$dynamicAnchor inside propertyDependencies",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "http://localhost:1234/draft2020-12/dynamicanchor-in-propertydependencies.json",
+            "$defs": {
+                "inner": {
+                    "$id": "inner",
+                    "$dynamicAnchor": "foo",
+                    "type": "object",
+                    "additionalProperties": {
+                        "$dynamicRef": "#foo"
+                    }
+                }
+            },
+            "propertyDependencies": {
+                "expectedTypes": {
+                    "strings": {
+                        "$id": "east",
+                        "$ref": "inner",
+                        "$defs": {
+                            "foo": {
+                                "$dynamicAnchor": "foo",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "integers": {
+                        "$id": "west",
+                        "$ref": "inner",
+                        "$defs": {
+                            "foo": {
+                                "$dynamicAnchor": "foo",
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "expected strings - additional property as string is valid",
+                "data": {
+                    "expectedTypes": "strings",
+                    "anotherProperty": "also a string"
+                },
+                "valid": true
+            },
+            {
+                "description": "expected strings - additional property as not string is invalid",
+                "data": {
+                    "expectedTypes": "strings",
+                    "anotherProperty": 42
+                },
+                "valid": false
+            },
+            {
+                "description": "expected integers - additional property as integer is valid",
+                "data": {
+                    "expectedTypes": "integers",
+                    "anotherProperty": 42
+                },
+                "valid": true
+            },
+            {
+                "description": "expected integers - additional property as not integer is invalid",
+                "data": {
+                    "expectedTypes": "integers",
+                    "anotherProperty": "a string"
+                },
+                "valid": false
+            },
+            {
+                "description": "expected missing - additional property as an object is valid",
+                "data": {
+                    "anotherProperty": {}
+                },
+                "valid": true
+            },
+            {
+                "description": "expected missing - additional property as not object is invalid",
+                "data": {
+                    "anotherProperty": 42
+                },
+                "valid": false
+            }
+        ]
     }
 ]
