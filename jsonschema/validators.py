@@ -1060,9 +1060,9 @@ def validate(instance, schema, cls=None, *args, **kwargs):
             ...
         ValidationError: [2, 3, 4] is too long
 
-    :func:`validate` will first verify that the provided schema is
-    itself valid, since not doing so can lead to less obvious error
-    messages and fail in less obvious or consistent ways.
+    :func:`~jsonschema.validators.validate` will first verify that the
+    provided schema is itself valid, since not doing so can lead to less
+    obvious error messages and fail in less obvious or consistent ways.
 
     If you know you have a valid schema already, especially
     if you intend to validate multiple instances with

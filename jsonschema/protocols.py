@@ -29,6 +29,7 @@ else:
 # but use `jsonschema` for any types which will otherwise not be resolvable
 if TYPE_CHECKING:
     import jsonschema
+    import jsonschema.validators
 
 from jsonschema.exceptions import ValidationError
 
@@ -107,7 +108,7 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
-        resolver: jsonschema.RefResolver | None = None,
+        resolver: jsonschema.validators.RefResolver | None = None,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...

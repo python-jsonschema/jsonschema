@@ -16,7 +16,7 @@ The Basics
 ----------
 
 The simplest way to validate an instance under a given schema is to use the
-:func:`validate` function.
+`validate <jsonschema.validators.validate>` function.
 
 .. autofunction:: validate
     :noindex:
