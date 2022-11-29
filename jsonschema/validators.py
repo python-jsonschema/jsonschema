@@ -4,7 +4,7 @@ Creation and extension of validators, with implementations for existing drafts.
 from __future__ import annotations
 
 from collections import deque
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from operator import methodcaller
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
@@ -745,7 +745,8 @@ class RefResolver:
         self.store.update(store)
         self.store.update(
             (schema["$id"], schema)
-            for schema in store.values() if "$id" in schema
+            for schema in store.values()
+            if isinstance(schema, Mapping) and "$id" in schema
         )
         self.store[base_uri] = referrer
 
