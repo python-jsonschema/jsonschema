@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from pprint import pformat
 from textwrap import dedent, indent
+from typing import ClassVar
 import heapq
 import itertools
 
@@ -22,7 +23,7 @@ _unset = _utils.Unset()
 class _Error(Exception):
     def __init__(
         self,
-        message,
+        message: str,
         validator=_unset,
         path=(),
         cause=None,
@@ -64,34 +65,8 @@ class _Error(Exception):
     def __repr__(self):
         return f"<{self.__class__.__name__}: {self.message!r}>"
 
-    def __str__(self):
-        essential_for_verbose = (
-            self.validator, self.validator_value, self.instance, self.schema,
-        )
-        if any(m is _unset for m in essential_for_verbose):
-            return self.message
-
-        schema_path = _utils.format_as_index(
-            container=self._word_for_schema_in_error_message,
-            indices=list(self.relative_schema_path)[:-1],
-        )
-        instance_path = _utils.format_as_index(
-            container=self._word_for_instance_in_error_message,
-            indices=self.relative_path,
-        )
-        prefix = 16 * " "
-
-        return dedent(
-            f"""\
-            {self.message}
-
-            Failed validating {self.validator!r} in {schema_path}:
-                {indent(pformat(self.schema, width=72), prefix).lstrip()}
-
-            On {instance_path}:
-                {indent(pformat(self.instance, width=72), prefix).lstrip()}
-            """.rstrip(),
-        )
+    def __str__(self) -> str:
+        return self.message
 
     @classmethod
     def create_from(cls, other):
@@ -137,8 +112,16 @@ class _Error(Exception):
 
     def _contents(self):
         attrs = (
-            "message", "cause", "context", "validator", "validator_value",
-            "path", "schema_path", "instance", "schema", "parent",
+            "message",
+            "cause",
+            "context",
+            "validator",
+            "validator_value",
+            "path",
+            "schema_path",
+            "instance",
+            "schema",
+            "parent",
         )
         return dict((attr, getattr(self, attr)) for attr in attrs)
 
@@ -157,7 +140,44 @@ class _Error(Exception):
         )
 
 
-class ValidationError(_Error):
+class _VerboseError(_Error):
+    _word_for_schema_in_error_message: ClassVar[str]
+    _word_for_instance_in_error_message: ClassVar[str]
+
+    def __str__(self):
+        essential_for_verbose = (
+            self.validator,
+            self.validator_value,
+            self.instance,
+            self.schema,
+        )
+        if any(m is _unset for m in essential_for_verbose):
+            return self.message
+
+        schema_path = _utils.format_as_index(
+            container=self._word_for_schema_in_error_message,
+            indices=list(self.relative_schema_path)[:-1],
+        )
+        instance_path = _utils.format_as_index(
+            container=self._word_for_instance_in_error_message,
+            indices=self.relative_path,
+        )
+        prefix = 16 * " "
+
+        return dedent(
+            f"""\
+            {self.message}
+
+            Failed validating {self.validator!r} in {schema_path}:
+                {indent(pformat(self.schema, width=72), prefix).lstrip()}
+
+            On {instance_path}:
+                {indent(pformat(self.instance, width=72), prefix).lstrip()}
+            """.rstrip(),
+        )
+
+
+class ValidationError(_VerboseError):
     """
     An instance was invalid under a provided schema.
     """
@@ -166,7 +186,7 @@ class ValidationError(_Error):
     _word_for_instance_in_error_message = "instance"
 
 
-class SchemaError(_Error):
+class SchemaError(_VerboseError):
     """
     A schema was invalid under its corresponding metaschema.
     """
@@ -328,6 +348,7 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
             a collection of validation keywords to consider to be
             "strong"
     """
+
     def relevance(error):
         validator = error.validator
         return (
@@ -336,6 +357,7 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
             validator in strong,
             not error._matches_type(),
         )
+
     return relevance
 
 
