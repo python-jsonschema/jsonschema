@@ -1848,6 +1848,21 @@ class TestDraft202012Validator(ValidatorTestMixin, TestCase):
     invalid = {"type": "integer"}, "foo"
 
 
+class TestLatestValidator(TestCase):
+    """
+    These really apply to multiple versions but are easiest to test on one.
+    """
+
+    def test_ref_resolvers_may_have_boolean_schemas_stored(self):
+        ref = "someCoolRef"
+        schema = {"$ref": ref}
+        resolver = validators.RefResolver("", {}, store={ref: False})
+        validator = validators._LATEST_VERSION(schema, resolver=resolver)
+
+        with self.assertRaises(exceptions.ValidationError):
+            validator.validate(None)
+
+
 class TestValidatorFor(TestCase):
     def test_draft_3(self):
         schema = {"$schema": "http://json-schema.org/draft-03/schema"}

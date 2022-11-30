@@ -1,3 +1,9 @@
+v4.17.3
+=======
+
+* Fix instantiating validators with cached refs to boolean schemas
+  rather than objects (#1018).
+
 v4.17.2
 =======
 
