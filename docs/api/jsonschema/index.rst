@@ -17,3 +17,6 @@ Package summary
 .. automodule:: jsonschema
    :members:
    :imported-members:
+
+
+.. autodata:: jsonschema._format._F

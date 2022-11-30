@@ -11,6 +11,7 @@ import warnings
 from jsonschema.exceptions import FormatError
 
 _FormatCheckCallable = typing.Callable[[object], bool]
+#: A format checker callable.
 _F = typing.TypeVar("_F", bound=_FormatCheckCallable)
 _RaisesType = typing.Union[
     typing.Type[Exception], typing.Tuple[typing.Type[Exception], ...],
