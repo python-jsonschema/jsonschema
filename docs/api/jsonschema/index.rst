@@ -17,6 +17,7 @@ Package summary
 .. automodule:: jsonschema
    :members:
    :imported-members:
+   :exclude-members: Validator
 
 
 .. autodata:: jsonschema._format._F
