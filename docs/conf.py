@@ -23,9 +23,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-
-    "autoapi.extension",
-    "sphinx_autodoc_typehints",
     "sphinx_copybutton",
     "sphinx_json_schema_spec",
     "sphinxcontrib.spelling",
@@ -38,6 +35,33 @@ pygments_style = "lovelace"
 pygments_dark_style = "one-dark"
 
 html_theme = "furo"
+
+# See sphinx-doc/sphinx#10785
+_TYPE_ALIASES = {
+    "jsonschema._format._F",  # format checkers
+}
+
+
+def _resolve_type_aliases(app, env, node, contnode):
+    if (
+        node["refdomain"] == "py"
+        and node["reftype"] == "class"
+        and node["reftarget"] in _TYPE_ALIASES
+    ):
+        return app.env.get_domain("py").resolve_xref(
+            env,
+            node["refdoc"],
+            app.builder,
+            "data",
+            node["reftarget"],
+            node,
+            contnode,
+        )
+
+
+def setup(app):
+    app.connect("missing-reference", _resolve_type_aliases)
+
 
 # = Builders =
 

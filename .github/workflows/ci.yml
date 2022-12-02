@@ -153,7 +153,7 @@ jobs:
     - name: Install dependencies
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y libenchant-dev libxml2-dev libxslt-dev
+        sudo apt-get install -y libenchant-2-dev libxml2-dev libxslt-dev
       if: runner.os == 'Linux' && startsWith(matrix.python-version.toxenv, 'docs-')
     - name: Install dependencies
       run: brew install enchant

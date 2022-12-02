@@ -340,6 +340,15 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
 
 
 relevance = by_relevance()
+"""
+A key function (e.g. to use with `sorted`) which sorts errors by relevance.
+
+Example:
+
+.. code:: python
+
+    sorted(validator.iter_errors(12), key=jsonschema.exceptions.relevance)
+"""
 
 
 def best_match(errors, key=relevance):
