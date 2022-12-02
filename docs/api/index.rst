@@ -7,9 +7,9 @@ Submodules
 .. toctree::
    :titlesonly:
 
+   /api/jsonschema/validators/index
    /api/jsonschema/exceptions/index
    /api/jsonschema/protocols/index
-   /api/jsonschema/validators/index
 
 :mod:`jsonschema`
 -----------------
