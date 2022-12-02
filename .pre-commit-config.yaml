@@ -5,7 +5,6 @@ repos:
     rev: v4.4.0
     hooks:
       - id: check-ast
-      - id: check-docstring-first
       - id: check-json
       - id: check-toml
       - id: check-vcs-permalinks
