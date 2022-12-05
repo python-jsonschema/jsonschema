@@ -196,18 +196,21 @@ The easiest way to ensure you have what is needed is to install ``jsonschema`` u
 
 For example:
 
-.. code-block:: sh
+.. code:: sh
 
     $ pip install jsonschema[format]
 
-Or if you want to install MIT-license compatible dependencies only:
+Or if you want to avoid GPL dependencies, a second extra is available:
 
-.. code-block:: sh
+.. code:: sh
 
     $ pip install jsonschema[format-nongpl]
 
-The non-GPL extra is intended to not install any direct dependencies that are GPL licensed (but that of course end-users should do their own verification).
 At the moment, it supports all the available checkers except for ``iri`` and ``iri-reference``.
+
+.. warning::
+
+    It is your own responsibility ultimately to ensure you are license-compliant, so you should be double checking your own dependencies if you rely on this extra.
 
 The more specific list of formats along with any additional dependencies they have is shown below.
 

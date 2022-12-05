@@ -109,7 +109,11 @@ jobs:
           - name: "3.11"
             toxenv: docs-style
           - name: "3.11"
-            toxenv: audit
+            toxenv: format-audit
+          - name: "3.11"
+            toxenv: formatnongpl-audit
+          - name: "3.11"
+            toxenv: noextra-audit
           - name: "3.11"
             toxenv: readme
           - name: "3.11"
