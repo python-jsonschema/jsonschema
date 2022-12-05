@@ -109,9 +109,9 @@ jobs:
           - name: "3.11"
             toxenv: docs-style
           - name: "3.11"
-            toxenv: readme
+            toxenv: audit
           - name: "3.11"
-            toxenv: safety
+            toxenv: readme
           - name: "3.11"
             toxenv: secrets
           - name: "3.11"
