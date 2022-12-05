@@ -54,11 +54,7 @@ jsonschema
         ...
     ValidationError: 'Invalid' is not of type 'number'
 
-It can also be used from console:
-
-.. code-block:: bash
-
-    $ jsonschema --instance sample.json sample.schema
+It can also be used from the command line by installing `check-jsonschema <https://github.com/python-jsonschema/check-jsonschema>`_.
 
 Features
 --------
