@@ -122,6 +122,15 @@ jobs:
             toxenv: style
           - name: "3.11"
             toxenv: typing
+        include:
+          - os: ubuntu-latest
+            python-version:
+              name: "3.11"
+              toxenv: py311-format-ghcoverage
+          - os: ubuntu-latest
+            python-version:
+              name: "3.11"
+              toxenv: py311-noextra-ghcoverage
         exclude:
           - os: windows-latest
             python-version:
