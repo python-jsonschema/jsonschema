@@ -144,11 +144,11 @@ def leap_second(test):
 
 
 TestDraft3 = DRAFT3.to_unittest_testcase(
-    DRAFT3.tests(),
-    DRAFT3.format_tests(),
-    DRAFT3.optional_tests_of(name="bignum"),
-    DRAFT3.optional_tests_of(name="non-bmp-regex"),
-    DRAFT3.optional_tests_of(name="zeroTerminatedFloats"),
+    DRAFT3.cases(),
+    DRAFT3.format_cases(),
+    DRAFT3.optional_cases_of(name="bignum"),
+    DRAFT3.optional_cases_of(name="non-bmp-regex"),
+    DRAFT3.optional_cases_of(name="zeroTerminatedFloats"),
     Validator=jsonschema.Draft3Validator,
     format_checker=jsonschema.Draft3Validator.FORMAT_CHECKER,
     skip=lambda test: (
@@ -168,12 +168,12 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
 
 
 TestDraft4 = DRAFT4.to_unittest_testcase(
-    DRAFT4.tests(),
-    DRAFT4.format_tests(),
-    DRAFT4.optional_tests_of(name="bignum"),
-    DRAFT4.optional_tests_of(name="float-overflow"),
-    DRAFT4.optional_tests_of(name="non-bmp-regex"),
-    DRAFT4.optional_tests_of(name="zeroTerminatedFloats"),
+    DRAFT4.cases(),
+    DRAFT4.format_cases(),
+    DRAFT4.optional_cases_of(name="bignum"),
+    DRAFT4.optional_cases_of(name="float-overflow"),
+    DRAFT4.optional_cases_of(name="non-bmp-regex"),
+    DRAFT4.optional_cases_of(name="zeroTerminatedFloats"),
     Validator=jsonschema.Draft4Validator,
     format_checker=jsonschema.Draft4Validator.FORMAT_CHECKER,
     skip=lambda test: (
@@ -230,11 +230,11 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
 
 
 TestDraft6 = DRAFT6.to_unittest_testcase(
-    DRAFT6.tests(),
-    DRAFT6.format_tests(),
-    DRAFT6.optional_tests_of(name="bignum"),
-    DRAFT6.optional_tests_of(name="float-overflow"),
-    DRAFT6.optional_tests_of(name="non-bmp-regex"),
+    DRAFT6.cases(),
+    DRAFT6.format_cases(),
+    DRAFT6.optional_cases_of(name="bignum"),
+    DRAFT6.optional_cases_of(name="float-overflow"),
+    DRAFT6.optional_cases_of(name="non-bmp-regex"),
     Validator=jsonschema.Draft6Validator,
     format_checker=jsonschema.Draft6Validator.FORMAT_CHECKER,
     skip=lambda test: (
@@ -253,12 +253,12 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
 
 
 TestDraft7 = DRAFT7.to_unittest_testcase(
-    DRAFT7.tests(),
-    DRAFT7.format_tests(),
-    DRAFT7.optional_tests_of(name="bignum"),
-    DRAFT7.optional_tests_of(name="cross-draft"),
-    DRAFT7.optional_tests_of(name="float-overflow"),
-    DRAFT7.optional_tests_of(name="non-bmp-regex"),
+    DRAFT7.cases(),
+    DRAFT7.format_cases(),
+    DRAFT7.optional_cases_of(name="bignum"),
+    DRAFT7.optional_cases_of(name="cross-draft"),
+    DRAFT7.optional_cases_of(name="float-overflow"),
+    DRAFT7.optional_cases_of(name="non-bmp-regex"),
     Validator=jsonschema.Draft7Validator,
     format_checker=jsonschema.Draft7Validator.FORMAT_CHECKER,
     skip=lambda test: (
@@ -285,12 +285,12 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
 
 
 TestDraft201909 = DRAFT201909.to_unittest_testcase(
-    DRAFT201909.tests(),
-    DRAFT201909.optional_tests_of(name="bignum"),
-    DRAFT201909.optional_tests_of(name="cross-draft"),
-    DRAFT201909.optional_tests_of(name="float-overflow"),
-    DRAFT201909.optional_tests_of(name="non-bmp-regex"),
-    DRAFT201909.optional_tests_of(name="refOfUnknownKeyword"),
+    DRAFT201909.cases(),
+    DRAFT201909.optional_cases_of(name="bignum"),
+    DRAFT201909.optional_cases_of(name="cross-draft"),
+    DRAFT201909.optional_cases_of(name="float-overflow"),
+    DRAFT201909.optional_cases_of(name="non-bmp-regex"),
+    DRAFT201909.optional_cases_of(name="refOfUnknownKeyword"),
     Validator=jsonschema.Draft201909Validator,
     skip=lambda test: (
         skip(
@@ -406,7 +406,7 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
 
 
 TestDraft201909Format = DRAFT201909.to_unittest_testcase(
-    DRAFT201909.format_tests(),
+    DRAFT201909.format_cases(),
     name="TestDraft201909Format",
     Validator=jsonschema.Draft201909Validator,
     format_checker=jsonschema.Draft201909Validator.FORMAT_CHECKER,
@@ -421,12 +421,12 @@ TestDraft201909Format = DRAFT201909.to_unittest_testcase(
 
 
 TestDraft202012 = DRAFT202012.to_unittest_testcase(
-    DRAFT202012.tests(),
-    DRAFT202012.optional_tests_of(name="bignum"),
-    DRAFT202012.optional_tests_of(name="cross-draft"),
-    DRAFT202012.optional_tests_of(name="float-overflow"),
-    DRAFT202012.optional_tests_of(name="non-bmp-regex"),
-    DRAFT202012.optional_tests_of(name="refOfUnknownKeyword"),
+    DRAFT202012.cases(),
+    DRAFT202012.optional_cases_of(name="bignum"),
+    DRAFT202012.optional_cases_of(name="cross-draft"),
+    DRAFT202012.optional_cases_of(name="float-overflow"),
+    DRAFT202012.optional_cases_of(name="non-bmp-regex"),
+    DRAFT202012.optional_cases_of(name="refOfUnknownKeyword"),
     Validator=jsonschema.Draft202012Validator,
     skip=lambda test: (
         narrow_unicode_build(test)
@@ -532,7 +532,7 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
 
 
 TestDraft202012Format = DRAFT202012.to_unittest_testcase(
-    DRAFT202012.format_tests(),
+    DRAFT202012.format_cases(),
     name="TestDraft202012Format",
     Validator=jsonschema.Draft202012Validator,
     format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER,

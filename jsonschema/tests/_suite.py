@@ -3,10 +3,10 @@ Python representations of the JSON Schema Test Suite tests.
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 import json
 import os
 import re
@@ -15,6 +15,9 @@ import sys
 import unittest
 
 from attrs import field, frozen
+
+if TYPE_CHECKING:
+    import pyperf
 
 from jsonschema.validators import _VALIDATORS
 import jsonschema
@@ -41,23 +44,23 @@ def _find_suite():
 @frozen
 class Suite:
 
-    _root = field(factory=_find_suite)
+    _root: Path = field(factory=_find_suite)
 
-    def _remotes(self):
+    def _remotes(self) -> Mapping[str, Mapping[str, Any] | bool]:
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
         remotes = subprocess.check_output(
             [sys.executable, str(jsonschema_suite), "remotes"],
         )
         return json.loads(remotes.decode("utf-8"))
 
-    def benchmark(self, runner):  # pragma: no cover
+    def benchmark(self, runner: pyperf.Runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
             self.version(name=name).benchmark(
                 runner=runner,
                 Validator=Validator,
             )
 
-    def version(self, name):
+    def version(self, name) -> Version:
         return Version(
             name=name,
             path=self._root.joinpath("tests", name),
@@ -73,48 +76,30 @@ class Version:
 
     name: str
 
-    def benchmark(self, runner, **kwargs):  # pragma: no cover
-        for suite in self.tests():
-            for test in suite:
+    def benchmark(self, runner: pyperf.Runner, **kwargs):  # pragma: no cover
+        for case in self.cases():
+            for test in case:
                 runner.bench_func(
                     test.fully_qualified_name,
                     partial(test.validate_ignoring_errors, **kwargs),
                 )
 
-    def tests(self):
-        return (
-            test
-            for child in self._path.glob("*.json")
-            for test in self._tests_in(
-                subject=child.name[:-5],
-                path=child,
-            )
-        )
+    def cases(self) -> Iterable[Iterable[_Test]]:
+        return self._cases_in(paths=self._path.glob("*.json"))
 
-    def format_tests(self):
-        path = self._path.joinpath("optional", "format")
-        return (
-            test
-            for child in path.glob("*.json")
-            for test in self._tests_in(
-                subject=child.name[:-5],
-                path=child,
-            )
-        )
+    def format_cases(self) -> Iterable[Iterable[_Test]]:
+        return self._cases_in(paths=self._path.glob("optional/format/*.json"))
 
-    def optional_tests_of(self, name):
-        return self._tests_in(
-            subject=name,
-            path=self._path.joinpath("optional", name + ".json"),
-        )
+    def optional_cases_of(self, name: str) -> Iterable[Iterable[_Test]]:
+        return self._cases_in(paths=[self._path / "optional" / f"{name}.json"])
 
-    def to_unittest_testcase(self, *suites, **kwargs):
+    def to_unittest_testcase(self, *groups, **kwargs):
         name = kwargs.pop("name", "Test" + self.name.title().replace("-", ""))
         methods = {
             test.method_name: test.to_unittest_method(**kwargs)
-            for suite in suites
-            for tests in suite
-            for test in tests
+            for group in groups
+            for case in group
+            for test in case
         }
         cls = type(name, (unittest.TestCase,), methods)
 
@@ -128,18 +113,19 @@ class Version:
 
         return cls
 
-    def _tests_in(self, subject, path):
-        for each in json.loads(path.read_text(encoding="utf-8")):
-            yield (
-                _Test(
-                    version=self,
-                    subject=subject,
-                    case_description=each["description"],
-                    schema=each["schema"],
-                    remotes=self._remotes,
-                    **test,
-                ) for test in each["tests"]
-            )
+    def _cases_in(self, paths: Iterable[Path]) -> Iterable[Iterable[_Test]]:
+        for path in paths:
+            for case in json.loads(path.read_text(encoding="utf-8")):
+                yield (
+                    _Test(
+                        version=self,
+                        subject=path.stem,
+                        case_description=case["description"],
+                        schema=case["schema"],
+                        remotes=self._remotes,
+                        **test,
+                    ) for test in case["tests"]
+                )
 
 
 @frozen(repr=False)
@@ -152,11 +138,11 @@ class _Test:
     description: str
 
     data: Any
-    schema: dict[str, Any] | bool
+    schema: Mapping[str, Any] | bool
 
     valid: bool
 
-    _remotes: dict[str, dict[str, Any] | bool]
+    _remotes: Mapping[str, Mapping[str, Any] | bool]
 
     comment: str | None = None
 
