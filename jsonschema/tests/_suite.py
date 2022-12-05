@@ -1,9 +1,12 @@
 """
 Python representations of the JSON Schema Test Suite tests.
 """
+from __future__ import annotations
 
+from collections.abc import Mapping
 from functools import partial
 from pathlib import Path
+from typing import Any
 import json
 import os
 import re
@@ -11,7 +14,7 @@ import subprocess
 import sys
 import unittest
 
-import attr
+from attrs import field, frozen
 
 from jsonschema.validators import _VALIDATORS
 import jsonschema
@@ -35,10 +38,10 @@ def _find_suite():
     return root
 
 
-@attr.s(hash=True)
+@frozen
 class Suite:
 
-    _root = attr.ib(default=attr.Factory(_find_suite))
+    _root = field(factory=_find_suite)
 
     def _remotes(self):
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
@@ -62,13 +65,13 @@ class Suite:
         )
 
 
-@attr.s(hash=True)
+@frozen
 class Version:
 
-    _path = attr.ib()
-    _remotes = attr.ib()
+    _path: Path
+    _remotes: Mapping[str, Mapping[str, Any] | bool]
 
-    name = attr.ib()
+    name: str
 
     def benchmark(self, runner, **kwargs):  # pragma: no cover
         for suite in self.tests():
@@ -139,23 +142,23 @@ class Version:
             )
 
 
-@attr.s(hash=True, repr=False)
+@frozen(repr=False)
 class _Test:
 
-    version = attr.ib()
+    version: Version
 
-    subject = attr.ib()
-    case_description = attr.ib()
-    description = attr.ib()
+    subject: str
+    case_description: str
+    description: str
 
-    data = attr.ib()
-    schema = attr.ib(repr=False)
+    data: Any
+    schema: dict[str, Any] | bool
 
-    valid = attr.ib()
+    valid: bool
 
-    _remotes = attr.ib()
+    _remotes: dict[str, dict[str, Any] | bool]
 
-    comment = attr.ib(default=None)
+    comment: str | None = None
 
     def __repr__(self):  # pragma: no cover
         return "<Test {}>".format(self.fully_qualified_name)
