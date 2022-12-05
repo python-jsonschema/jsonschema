@@ -4,7 +4,7 @@ Python representations of the JSON Schema Test Suite tests.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from functools import partial
+from functools import cache, partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 import json
@@ -21,6 +21,8 @@ if TYPE_CHECKING:
 
 from jsonschema.validators import _VALIDATORS
 import jsonschema
+
+_DELIMITERS = re.compile(r"[\W\- ]+")
 
 
 def _find_suite():
@@ -46,6 +48,8 @@ class Suite:
 
     _root: Path = field(factory=_find_suite)
 
+    @property
+    @cache  # noqa: B019
     def _remotes(self) -> Mapping[str, Mapping[str, Any] | bool]:
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
         remotes = subprocess.check_output(
@@ -63,8 +67,8 @@ class Suite:
     def version(self, name) -> Version:
         return Version(
             name=name,
-            path=self._root.joinpath("tests", name),
-            remotes=self._remotes(),
+            path=self._root / "tests" / name,
+            remotes=self._remotes,  # type: ignore # python/mypy#5858
         )
 
 
@@ -76,30 +80,29 @@ class Version:
 
     name: str
 
-    def benchmark(self, runner: pyperf.Runner, **kwargs):  # pragma: no cover
+    def benchmark(self, **kwargs):  # pragma: no cover
         for case in self.cases():
-            for test in case:
-                runner.bench_func(
-                    test.fully_qualified_name,
-                    partial(test.validate_ignoring_errors, **kwargs),
-                )
+            case.benchmark(**kwargs)
 
-    def cases(self) -> Iterable[Iterable[_Test]]:
+    def cases(self) -> Iterable[_Case]:
         return self._cases_in(paths=self._path.glob("*.json"))
 
-    def format_cases(self) -> Iterable[Iterable[_Test]]:
+    def format_cases(self) -> Iterable[_Case]:
         return self._cases_in(paths=self._path.glob("optional/format/*.json"))
 
-    def optional_cases_of(self, name: str) -> Iterable[Iterable[_Test]]:
+    def optional_cases_of(self, name: str) -> Iterable[_Case]:
         return self._cases_in(paths=[self._path / "optional" / f"{name}.json"])
 
     def to_unittest_testcase(self, *groups, **kwargs):
         name = kwargs.pop("name", "Test" + self.name.title().replace("-", ""))
         methods = {
-            test.method_name: test.to_unittest_method(**kwargs)
-            for group in groups
-            for case in group
-            for test in case
+            method.__name__: method
+            for method in (
+                test.to_unittest_method(**kwargs)
+                for group in groups
+                for case in group
+                for test in case.tests
+            )
         }
         cls = type(name, (unittest.TestCase,), methods)
 
@@ -113,19 +116,49 @@ class Version:
 
         return cls
 
-    def _cases_in(self, paths: Iterable[Path]) -> Iterable[Iterable[_Test]]:
+    def _cases_in(self, paths: Iterable[Path]) -> Iterable[_Case]:
         for path in paths:
             for case in json.loads(path.read_text(encoding="utf-8")):
-                yield (
-                    _Test(
-                        version=self,
-                        subject=path.stem,
-                        case_description=case["description"],
-                        schema=case["schema"],
-                        remotes=self._remotes,
-                        **test,
-                    ) for test in case["tests"]
+                yield _Case.from_dict(
+                    case,
+                    version=self,
+                    subject=path.stem,
+                    remotes=self._remotes,
                 )
+
+
+@frozen
+class _Case:
+
+    version: Version
+
+    subject: str
+    description: str
+    schema: Mapping[str, Any] | bool
+    tests: list[_Test]
+    comment: str | None = None
+
+    @classmethod
+    def from_dict(cls, data, remotes, **kwargs):
+        data.update(kwargs)
+        tests = [
+            _Test(
+                version=data["version"],
+                subject=data["subject"],
+                case_description=data["description"],
+                schema=data["schema"],
+                remotes=remotes,
+                **test,
+            ) for test in data.pop("tests")
+        ]
+        return cls(tests=tests, **data)
+
+    def benchmark(self, runner: pyperf.Runner, **kwargs):  # pragma: no cover
+        for test in self.tests:
+            runner.bench_func(
+                test.fully_qualified_name,
+                partial(test.validate_ignoring_errors, **kwargs),
+            )
 
 
 @frozen(repr=False)
@@ -147,7 +180,7 @@ class _Test:
     comment: str | None = None
 
     def __repr__(self):  # pragma: no cover
-        return "<Test {}>".format(self.fully_qualified_name)
+        return f"<Test {self.fully_qualified_name}>"
 
     @property
     def fully_qualified_name(self):  # pragma: no cover
@@ -160,15 +193,6 @@ class _Test:
             ],
         )
 
-    @property
-    def method_name(self):
-        delimiters = r"[\W\- ]+"
-        return "test_{}_{}_{}".format(
-            re.sub(delimiters, "_", self.subject),
-            re.sub(delimiters, "_", self.case_description),
-            re.sub(delimiters, "_", self.description),
-        )
-
     def to_unittest_method(self, skip=lambda test: None, **kwargs):
         if self.valid:
             def fn(this):
@@ -178,7 +202,14 @@ class _Test:
                 with this.assertRaises(jsonschema.ValidationError):
                     self.validate(**kwargs)
 
-        fn.__name__ = self.method_name
+        fn.__name__ = "_".join(
+            [
+                "test",
+                _DELIMITERS.sub("_", self.subject),
+                _DELIMITERS.sub("_", self.case_description),
+                _DELIMITERS.sub("_", self.description),
+            ],
+        )
         reason = skip(self)
         if reason is None or os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
             return fn
