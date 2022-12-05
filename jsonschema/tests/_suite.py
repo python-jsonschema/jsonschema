@@ -4,7 +4,7 @@ Python representations of the JSON Schema Test Suite tests.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from functools import cache, partial
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 import json
@@ -47,15 +47,13 @@ def _find_suite():
 class Suite:
 
     _root: Path = field(factory=_find_suite)
+    _remotes: Mapping[str, Mapping[str, Any] | bool] = field(init=False)
 
-    @property
-    @cache  # noqa: B019
-    def _remotes(self) -> Mapping[str, Mapping[str, Any] | bool]:
+    def __attrs_post_init__(self):
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
-        remotes = subprocess.check_output(
-            [sys.executable, str(jsonschema_suite), "remotes"],
-        )
-        return json.loads(remotes.decode("utf-8"))
+        argv = [sys.executable, str(jsonschema_suite), "remotes"]
+        remotes = subprocess.check_output(argv).decode("utf-8")
+        object.__setattr__(self, "_remotes", json.loads(remotes))
 
     def benchmark(self, runner: pyperf.Runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
@@ -68,7 +66,7 @@ class Suite:
         return Version(
             name=name,
             path=self._root / "tests" / name,
-            remotes=self._remotes,  # type: ignore # python/mypy#5858
+            remotes=self._remotes,
         )
 
 
