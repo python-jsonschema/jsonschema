@@ -26,17 +26,17 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python-version:
-          - name: pypy-3.8
+          - name: pypy-3.9
             toxenv: pypy3-noextra-build
-          - name: pypy-3.8
+          - name: pypy-3.9
             toxenv: pypy3-noextra-tests
-          - name: pypy-3.8
+          - name: pypy-3.9
             toxenv: pypy3-format-build
-          - name: pypy-3.8
+          - name: pypy-3.9
             toxenv: pypy3-format-tests
-          - name: pypy-3.8
+          - name: pypy-3.9
             toxenv: pypy3-formatnongpl-build
-          - name: pypy-3.8
+          - name: pypy-3.9
             toxenv: pypy3-formatnongpl-tests
           - name: 3.7
             toxenv: py37-noextra-build
@@ -122,6 +122,15 @@ jobs:
             toxenv: style
           - name: "3.11"
             toxenv: typing
+        include:
+          - os: ubuntu-latest
+            python-version:
+              name: "3.11"
+              toxenv: py311-format-ghcoverage
+          - os: ubuntu-latest
+            python-version:
+              name: "3.11"
+              toxenv: py311-noextra-ghcoverage
         exclude:
           - os: windows-latest
             python-version:
