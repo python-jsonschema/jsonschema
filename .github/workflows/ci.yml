@@ -109,12 +109,6 @@ jobs:
           - name: "3.11"
             toxenv: docs-style
           - name: "3.11"
-            toxenv: format-audit
-          - name: "3.11"
-            toxenv: formatnongpl-audit
-          - name: "3.11"
-            toxenv: noextra-audit
-          - name: "3.11"
             toxenv: readme
           - name: "3.11"
             toxenv: secrets
@@ -131,6 +125,18 @@ jobs:
             python-version:
               name: "3.11"
               toxenv: py311-noextra-ghcoverage
+          - os: ubuntu-latest
+            python-version:
+              name: "3.11"
+              toxenv: format-audit
+          - os: ubuntu-latest
+            python-version:
+              name: "3.11"
+              toxenv: formatnongpl-audit
+          - os: ubuntu-latest
+            python-version:
+              name: "3.11"
+              toxenv: noextra-audit
         exclude:
           - os: windows-latest
             python-version:
