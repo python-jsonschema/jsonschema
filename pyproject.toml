@@ -101,6 +101,7 @@ path = "CHANGELOG.rst"
 pattern = "(^v.+?)\nv"
 
 [tool.isort]
+combine_as_imports = true
 from_first = true
 include_trailing_comma = true
 multi_line_output = 3
