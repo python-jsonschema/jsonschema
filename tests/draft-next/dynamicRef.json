@@ -488,13 +488,18 @@
     {
         "description": "$dynamicAnchor inside propertyDependencies",
         "schema": {
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$id": "http://localhost:1234/draft2020-12/dynamicanchor-in-propertydependencies.json",
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$id": "http://localhost:1234/draft-next/dynamicanchor-in-propertydependencies.json",
             "$defs": {
                 "inner": {
                     "$id": "inner",
                     "$dynamicAnchor": "foo",
                     "type": "object",
+                    "properties": {
+                        "expectedTypes": {
+                            "type": "string"
+                        }
+                    },
                     "additionalProperties": {
                         "$dynamicRef": "#foo"
                     }
@@ -555,20 +560,6 @@
                 "data": {
                     "expectedTypes": "integers",
                     "anotherProperty": "a string"
-                },
-                "valid": false
-            },
-            {
-                "description": "expected missing - additional property as an object is valid",
-                "data": {
-                    "anotherProperty": {}
-                },
-                "valid": true
-            },
-            {
-                "description": "expected missing - additional property as not object is invalid",
-                "data": {
-                    "anotherProperty": 42
                 },
                 "valid": false
             }

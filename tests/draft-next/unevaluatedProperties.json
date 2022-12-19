@@ -1475,6 +1475,11 @@
         "description": "unevaluatedProperties can see inside propertyDependencies",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
+            "properties": {
+                "foo": {
+                    "type": "string"
+                }
+            },
             "propertyDependencies": {
                 "foo": {
                     "foo1": { 

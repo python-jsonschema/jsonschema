@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://json-schema.org/tests/test-schema",
+    "$id": "https://json-schema.org/tests/output-test-schema",
     "description": "A schema for files contained within this suite",
 
     "type": "array",
@@ -34,10 +34,10 @@
 
     "$defs": {
         "test": {
-            "description": "A single test",
+            "description": "A single output test",
 
             "type": "object",
-            "required": [ "description", "data", "valid" ],
+            "required": [ "description", "data", "output" ],
             "properties": {
                 "description": {
                     "description": "The test description, briefly explaining which behavior it exercises",
@@ -50,12 +50,21 @@
                 "data": {
                     "description": "The instance which should be validated against the schema in \"schema\"."
                 },
-                "valid": {
-                    "description": "Whether the validation process of this instance should consider the instance valid or not",
-                    "type": "boolean"
+                "output": {
+                    "description": "schemas that are used to verify output",
+                    "type": "object",
+                    "properties": {
+                        "flag": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "basic": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "detailed": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "verbose": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "list": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "hierarchy": { "$ref": "https://json-schema.org/draft/2020-12/schema" }
+                    },
+                    "minProperties": 1,
+                    "additionalProperties": false
                 }
-            },
-            "additionalProperties": false
+            }
         }
     }
 }
