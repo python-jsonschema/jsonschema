@@ -102,12 +102,16 @@ def _id_of(schema):
 
 
 def _store_schema_list():
+    _vocabularies: list[tuple[str, typing.Any]] = []
     if not _VOCABULARIES:
         package = _utils.resources.files(__package__)
         for version in package.joinpath("schemas", "vocabularies").iterdir():
             for path in version.iterdir():
                 vocabulary = json.loads(path.read_text())
-                _VOCABULARIES.append((vocabulary["$id"], vocabulary))
+                _vocabularies.append((vocabulary["$id"], vocabulary))
+
+        _VOCABULARIES.extend(_vocabularies)
+
     return [
         (id, validator.META_SCHEMA) for id, validator in _META_SCHEMAS.items()
     ] + _VOCABULARIES
