@@ -1,0 +1,39 @@
+[
+    {
+        "description": "incorrect type",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$id": "https://json-schema.org/tests/content/draft-next/type/0",
+            "type": "string"
+        },
+        "tests": [
+            {
+                "description": "incorrect type must be reported, but a message is not required",
+                "data": 1,
+                "output": {
+                    "list": {
+                        "$id": "https://json-schema.org/tests/content/draft-next/type/0/tests/0/basic",
+                        "$ref": "/draft/next/output/schema",
+                        "properties": {
+                            "details": {
+                                "contains": {
+                                    "properties": {
+                                        "evaluationPath": {"const": ""},
+                                        "schemaLocation": {"const": "https://json-schema.org/tests/content/draft-next/type/0"},
+                                        "instanceLocation": {"const": ""},
+                                        "annotations": false,
+                                        "errors": {
+                                            "required": ["type"]
+                                        }
+                                    },
+                                    "required": ["evaluationPath", "schemaLocation", "instanceLocation"]
+                                }
+                            }
+                        },
+                        "required": ["details"]
+                    }
+                }
+            }
+        ]
+    }
+]

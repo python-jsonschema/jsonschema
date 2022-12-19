@@ -1,0 +1,43 @@
+[
+    {
+        "description": "failed validation produces no annotations",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$id": "https://json-schema.org/tests/content/draft-next/general/0",
+            "type": "string",
+            "readOnly": true
+        },
+        "tests": [
+            {
+                "description": "dropped annotations MAY appear in droppedAnnotations",
+                "data": 1,
+                "output": {
+                    "list": {
+                        "$id": "https://json-schema.org/tests/content/draft-next/general/0/tests/0/basic",
+                        "$ref": "/draft/next/output/schema",
+                        "properties": {
+                            "details": {
+                                "contains": {
+                                    "properties": {
+                                        "evaluationPath": {"const": ""},
+                                        "schemaLocation": {"const": "https://json-schema.org/tests/content/draft-next/general/0"},
+                                        "instanceLocation": {"const": ""},
+                                        "annotations": false,
+                                        "droppedAnnotations": {
+                                            "properties": {
+                                                "readOnly": {"const": true}
+                                            },
+                                            "required": ["readOnly"]
+                                        }
+                                    },
+                                    "required": ["evaluationPath", "schemaLocation", "instanceLocation"]
+                                }
+                            }
+                        },
+                        "required": ["details"]
+                    }
+                }
+            }
+        ]
+    }
+]

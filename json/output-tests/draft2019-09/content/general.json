@@ -1,0 +1,34 @@
+[
+    {
+        "description": "failed validation produces no annotations",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$id": "https://json-schema.org/tests/content/draft2019-09/general/0",
+            "type": "string",
+            "readOnly": true
+        },
+        "tests": [
+            {
+                "description": "readOnly annotation is dropped",
+                "data": 1,
+                "output": {
+                    "basic": {
+                        "$id": "https://json-schema.org/tests/content/draft2019-09/general/0/tests/0/basic",
+                        "$ref": "/draft/2019-09/output/schema",
+                        "properties": {
+                            "errors": {
+                                "items": {
+                                    "properties": {
+                                        "annotation": false
+                                    }
+                                }
+                            },
+                            "annotations": false
+                        },
+                        "required": ["errors"]
+                    }
+                }
+            }
+        ]
+    }
+]

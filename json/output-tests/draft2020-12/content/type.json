@@ -1,0 +1,63 @@
+[
+    {
+        "description": "validating type",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "https://json-schema.org/tests/content/draft2020-12/type/0",
+            "type": "string",
+            "anyOf": [ true ]
+        },
+        "tests": [
+            {
+                "description": "incorrect type must be reported, but a message is not required",
+                "data": 1,
+                "output": {
+                    "basic": {
+                        "$id": "https://json-schema.org/tests/content/draft2020-12/type/0/tests/0/basic",
+                        "$ref": "/draft/2020-12/output/schema",
+                        "properties": {
+                            "errors": {
+                                "contains": {
+                                    "properties": {
+                                        "keywordLocation": {"const": "/type"},
+                                        "absoluteKeywordLocation": {"const": "https://json-schema.org/tests/content/draft2020-12/type/0#/type"},
+                                        "instanceLocation": {"const": ""},
+                                        "annotation": false
+                                    },
+                                    "required": ["keywordLocation", "instanceLocation"]
+                                }
+                            }
+                        },
+                        "required": ["errors"]
+                    }
+                }
+            },
+            {
+                "description": "correct type yields an output unit",
+                "data": "a string",
+                "output": {
+                    "basic": {
+                        "$id": "https://json-schema.org/tests/content/draft2020-12/type/0/tests/1/basic",
+                        "$ref": "/draft/2020-12/output/schema",
+                        "properties": {
+                            "annotations": {
+                                "contains": {
+                                    "properties": {
+                                        "valid": {"const": true},
+                                        "keywordLocation": {"const": "/type"},
+                                        "absoluteKeywordLocation": {"const": "https://json-schema.org/tests/content/draft2020-12/type/0#/type"},
+                                        "instanceLocation": {"const": ""},
+                                        "annotation": false,
+                                        "error": false
+                                    },
+                                    "required": ["keywordLocation", "instanceLocation"]
+                                }
+                            }
+                        },
+                        "required": ["annotations"]
+                    }
+                }
+            }
+        ]
+    }
+]

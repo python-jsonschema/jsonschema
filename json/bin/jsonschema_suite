@@ -30,11 +30,15 @@ else:
 
 ROOT_DIR = Path(__file__).parent.parent
 SUITE_ROOT_DIR = ROOT_DIR / "tests"
+OUTPUT_ROOT_DIR = ROOT_DIR / "output-tests"
 
 REMOTES_DIR = ROOT_DIR / "remotes"
 REMOTES_BASE_URL = "http://localhost:1234/"
 
-TESTSUITE_SCHEMA = json.loads((ROOT_DIR / "test-schema.json").read_text())
+TEST_SCHEMA = json.loads(ROOT_DIR.joinpath("test-schema.json").read_text())
+OUTPUT_TEST_SCHEMA = json.loads(
+    ROOT_DIR.joinpath("output-test-schema.json").read_text(),
+)
 
 
 def files(paths):
@@ -67,7 +71,7 @@ def collect(root_dir):
     """
     All of the test file paths within the given root directory, recursively.
     """
-    return root_dir.glob("**/*.json")
+    return root_dir.rglob("*.json")
 
 
 def url_for_path(path):
@@ -80,7 +84,7 @@ def url_for_path(path):
 
     return urljoin(
         REMOTES_BASE_URL,
-        str(path.relative_to(REMOTES_DIR)).replace("\\", "/")  # Windows...
+        str(path.relative_to(REMOTES_DIR)).replace("\\", "/"),  # Windows...
     )
 
 
@@ -88,11 +92,20 @@ class SanityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         print(f"Looking for tests in {SUITE_ROOT_DIR}")
+        print(f"Looking for output tests in {OUTPUT_ROOT_DIR}")
         print(f"Looking for remotes in {REMOTES_DIR}")
 
         cls.test_files = list(collect(SUITE_ROOT_DIR))
         assert cls.test_files, "Didn't find the test files!"
         print(f"Found {len(cls.test_files)} test files")
+
+        cls.output_test_files = [
+            each
+            for each in collect(OUTPUT_ROOT_DIR)
+            if each.name != "output-schema.json"
+        ]
+        assert cls.output_test_files, "Didn't find the output test files!"
+        print(f"Found {len(cls.output_test_files)} output test files")
 
         cls.remote_files = list(collect(REMOTES_DIR))
         assert cls.remote_files, "Didn't find the remote files!"
@@ -131,22 +144,11 @@ class SanityTests(unittest.TestCase):
         self.assertNotRegex(description, r"\bshould\b", message)
         self.assertNotRegex(description, r"(?i)\btest(s)? that\b", message)
 
-    def test_all_test_files_are_valid_json(self):
+    def test_all_json_files_are_valid(self):
         """
-        All test files contain valid JSON.
+        All files (tests, output tests, remotes, etc.) contain valid JSON.
         """
-        for path in self.test_files:
-            with self.subTest(path=path):
-                try:
-                    json.loads(path.read_text())
-                except ValueError as error:
-                    self.fail(f"{path} contains invalid JSON ({error})")
-
-    def test_all_remote_files_are_valid_json(self):
-        """
-        All remote files contain valid JSON.
-        """
-        for path in self.remote_files:
+        for path in collect(ROOT_DIR):
             with self.subTest(path=path):
                 try:
                     json.loads(path.read_text())
@@ -157,24 +159,26 @@ class SanityTests(unittest.TestCase):
         """
         All cases have reasonably long descriptions.
         """
-        for case in cases(self.test_files):
+        for case in cases(self.test_files + self.output_test_files):
             with self.subTest(description=case["description"]):
                 self.assertLess(
                     len(case["description"]),
                     150,
-                    "Description is too long (keep it to less than 150 chars)."
+                    "Description is too long (keep it to less than 150 chars).",
                 )
 
     def test_all_test_descriptions_have_reasonable_length(self):
         """
         All tests have reasonably long descriptions.
         """
-        for count, test in enumerate(tests(self.test_files)):
+        for count, test in enumerate(
+            tests(self.test_files + self.output_test_files)
+        ):
             with self.subTest(description=test["description"]):
                 self.assertLess(
                     len(test["description"]),
                     70,
-                    "Description is too long (keep it to less than 70 chars)."
+                    "Description is too long (keep it to less than 70 chars).",
                 )
         print(f"Found {count} tests.")
 
@@ -182,7 +186,7 @@ class SanityTests(unittest.TestCase):
         """
         All cases have unique descriptions in their files.
         """
-        for path, cases in files(self.test_files):
+        for path, cases in files(self.test_files + self.output_test_files):
             with self.subTest(path=path):
                 self.assertUnique(case["description"] for case in cases)
 
@@ -190,7 +194,9 @@ class SanityTests(unittest.TestCase):
         """
         All test cases have unique test descriptions in their tests.
         """
-        for count, case in enumerate(cases(self.test_files)):
+        for count, case in enumerate(
+            cases(self.test_files + self.output_test_files)
+        ):
             with self.subTest(description=case["description"]):
                 self.assertUnique(
                     test["description"] for test in case["tests"]
@@ -198,12 +204,12 @@ class SanityTests(unittest.TestCase):
         print(f"Found {count} test cases.")
 
     def test_case_descriptions_do_not_use_modal_verbs(self):
-        for case in cases(self.test_files):
+        for case in cases(self.test_files + self.output_test_files):
             with self.subTest(description=case["description"]):
                 self.assertFollowsDescriptionStyle(case["description"])
 
     def test_test_descriptions_do_not_use_modal_verbs(self):
-        for test in tests(self.test_files):
+        for test in tests(self.test_files + self.output_test_files):
             with self.subTest(description=test["description"]):
                 self.assertFollowsDescriptionStyle(test["description"])
 
@@ -218,14 +224,21 @@ class SanityTests(unittest.TestCase):
 
             Validator = VALIDATORS.get(version.name)
             if Validator is not None:
+                # Valid (optional test) schemas contain regexes which
+                # aren't valid Python regexes, so skip checking it
+                Validator.FORMAT_CHECKER.checkers.pop("regex", None)
+
                 test_files = collect(version)
                 for case in cases(test_files):
                     with self.subTest(case=case):
                         try:
-                            Validator.check_schema(case["schema"])
+                            Validator.check_schema(
+                                case["schema"],
+                                format_checker=Validator.FORMAT_CHECKER,
+                            )
                         except jsonschema.SchemaError:
                             self.fail(
-                                "Found an invalid schema."
+                                "Found an invalid schema. "
                                 "See the traceback for details on why."
                             )
             else:
@@ -236,12 +249,29 @@ class SanityTests(unittest.TestCase):
         """
         All test files are valid under test-schema.json.
         """
-        Validator = jsonschema.validators.validator_for(TESTSUITE_SCHEMA)
-        validator = Validator(TESTSUITE_SCHEMA)
+        Validator = jsonschema.validators.validator_for(TEST_SCHEMA)
+        validator = Validator(TEST_SCHEMA)
         for path, cases in files(self.test_files):
             with self.subTest(path=path):
                 try:
                     validator.validate(cases)
+                except jsonschema.ValidationError as error:
+                    self.fail(str(error))
+
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
+    def test_output_suites_are_valid(self):
+        """
+        All output test files are valid under output-test-schema.json.
+        """
+        Validator = jsonschema.validators.validator_for(OUTPUT_TEST_SCHEMA)
+        validator = Validator(OUTPUT_TEST_SCHEMA)
+        for path, cases in files(self.output_test_files):
+            with self.subTest(path=path):
+                try:
+                    validator.validate(cases)
+                except jsonschema.exceptions.RefResolutionError as error:
+                    # python-jsonschema/jsonschema#884
+                    pass
                 except jsonschema.ValidationError as error:
                     self.fail(str(error))
 
@@ -277,7 +307,9 @@ def main(arguments):
         try:
             import flask
         except ImportError:
-            print(textwrap.dedent("""
+            print(
+                textwrap.dedent(
+                    """
                 The Flask library is required to serve the remote schemas.
 
                 You can install it by running `pip install Flask`.
@@ -285,7 +317,11 @@ def main(arguments):
                 Alternatively, see the `jsonschema_suite remotes` or
                 `jsonschema_suite dump_remotes` commands to create static files
                 that can be served with your own web server.
-            """.strip("\n")))
+            """.strip(
+                        "\n"
+                    )
+                )
+            )
             sys.exit(1)
 
         app = flask.Flask(__name__)
@@ -309,7 +345,7 @@ check = subparsers.add_parser("check", help="Sanity check the test suite.")
 
 flatten = subparsers.add_parser(
     "flatten",
-    help="Output a flattened file containing a selected version's test cases."
+    help="Output a flattened file containing a selected version's test cases.",
 )
 flatten.add_argument(
     "--randomize",
@@ -317,17 +353,19 @@ flatten.add_argument(
     help="Randomize the order of the outputted cases.",
 )
 flatten.add_argument(
-    "version", help="The directory containing the version to output",
+    "version",
+    help="The directory containing the version to output",
 )
 
 remotes = subparsers.add_parser(
     "remotes",
     help="Output the expected URLs and their associated schemas for remote "
-         "ref tests as a JSON object."
+    "ref tests as a JSON object.",
 )
 
 dump_remotes = subparsers.add_parser(
-    "dump_remotes", help="Dump the remote ref schemas into a file tree",
+    "dump_remotes",
+    help="Dump the remote ref schemas into a file tree",
 )
 dump_remotes.add_argument(
     "--update",
@@ -343,7 +381,7 @@ dump_remotes.add_argument(
 
 serve = subparsers.add_parser(
     "serve",
-    help="Start a webserver to serve schemas used by remote ref tests."
+    help="Start a webserver to serve schemas used by remote ref tests.",
 )
 
 if __name__ == "__main__":
