@@ -6,6 +6,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from pprint import pformat
 from textwrap import dedent, indent
+from typing import ClassVar
 import heapq
 import itertools
 
@@ -20,9 +21,13 @@ _unset = _utils.Unset()
 
 
 class _Error(Exception):
+
+    _word_for_schema_in_error_message: ClassVar[str]
+    _word_for_instance_in_error_message: ClassVar[str]
+
     def __init__(
         self,
-        message,
+        message: str,
         validator=_unset,
         path=(),
         cause=None,
@@ -328,6 +333,7 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
             a collection of validation keywords to consider to be
             "strong"
     """
+
     def relevance(error):
         validator = error.validator
         return (
@@ -336,6 +342,7 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
             validator in strong,
             not error._matches_type(),
         )
+
     return relevance
 
 
