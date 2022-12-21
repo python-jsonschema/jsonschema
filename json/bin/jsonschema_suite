@@ -88,6 +88,23 @@ def url_for_path(path):
     )
 
 
+def versions_and_validators():
+    """
+    All versions we can validate schemas from.
+    """
+
+    for version in SUITE_ROOT_DIR.iterdir():
+        if not version.is_dir():
+            continue
+
+            Validator = VALIDATORS.get(version.name)
+            if Validator is None:
+                warnings.warn(f"No schema validator for {version.name}")
+                continue
+
+            yield version, Validator
+
+
 class SanityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -218,31 +235,346 @@ class SanityTests(unittest.TestCase):
         """
         All schemas are valid under their metaschemas.
         """
-        for version in SUITE_ROOT_DIR.iterdir():
-            if not version.is_dir():
+        for version, Validator in versions_and_validators():
+            # Valid (optional test) schemas contain regexes which
+            # aren't valid Python regexes, so skip checking it
+            Validator.FORMAT_CHECKER.checkers.pop("regex", None)
+
+            test_files = collect(version)
+            for case in cases(test_files):
+                with self.subTest(case=case):
+                    try:
+                        Validator.check_schema(
+                            case["schema"],
+                            format_checker=Validator.FORMAT_CHECKER,
+                        )
+                    except jsonschema.SchemaError:
+                        self.fail(
+                            "Found an invalid schema. "
+                            "See the traceback for details on why."
+                        )
+
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
+    def test_arbitrary_schemas_do_not_use_unknown_keywords(self):
+        """
+        Test cases do not use unknown keywords.
+
+        (Unless they specifically are testing the specified behavior for
+        unknown keywords).
+
+        This helps prevent accidental leakage of newer keywords into older
+        drafts where they didn't exist.
+        """
+
+        KNOWN = {
+            "draft2020-12": {
+                "$anchor",
+                "$comment",
+                "$defs",
+                "$dynamicAnchor",
+                "$dynamicRef",
+                "$id",
+                "$ref",
+                "$schema",
+                "$vocabulary",
+                "additionalProperties",
+                "allOf",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "contentEncoding",
+                "contentMediaType",
+                "contentSchema",
+                "dependencies",
+                "dependentRequired",
+                "dependentSchemas",
+                "description",
+                "else",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "if",
+                "items",
+                "maxContains",
+                "maxItems",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minContains",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "prefixItems",
+                "properties",
+                "propertyNames",
+                "required",
+                "then",
+                "title",
+                "type",
+                "unevaluatedItems",
+                "unevaluatedProperties",
+                "uniqueItems",
+            },
+            "draft2019-09": {
+                "$anchor",
+                "$comment",
+                "$defs",
+                "$id",
+                "$recursiveAnchor",
+                "$recursiveRef",
+                "$ref",
+                "$schema",
+                "$vocabulary",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "contentEncoding",
+                "contentMediaType",
+                "contentSchema",
+                "dependencies",
+                "dependentRequired",
+                "dependentSchemas",
+                "description",
+                "else",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "if",
+                "items",
+                "maxContains",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minContains",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "propertyNames",
+                "required",
+                "then",
+                "title",
+                "type",
+                "unevaluatedItems",
+                "unevaluatedProperties",
+                "uniqueItems",
+            },
+            "draft7": {
+                "$comment",
+                "$id",
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "contentEncoding",
+                "contentMediaType",
+                "definitions",
+                "dependencies",
+                "description",
+                "else",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "if",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "propertyNames",
+                "required",
+                "then",
+                "title",
+                "type",
+                "type",
+                "uniqueItems",
+            },
+            "draft6": {
+                "$comment",
+                "$id",
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "definitions",
+                "dependencies",
+                "description",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "propertyNames",
+                "required",
+                "title",
+                "type",
+                "uniqueItems",
+            },
+            "draft4": {
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "definitions",
+                "dependencies",
+                "description",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "id",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "required",
+                "title",
+                "type",
+                "uniqueItems",
+            },
+            "draft3": {
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalProperties",
+                "definitions",
+                "dependencies",
+                "description",
+                "disallow",
+                "divisibleBy",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "extends",
+                "format",
+                "id",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minimum",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "title",
+                "type",
+                "uniqueItems",
+            },
+        }
+
+        def missing(d):
+            from collections.abc import Mapping
+
+            class BlowUpForUnknownProperties(Mapping):
+                def __iter__(this):
+                    return iter(d)
+
+                def __getitem__(this, k):
+                    if k not in KNOWN[version.name]:
+                        self.fail(
+                            f"{k} is not a known keyword for {version.name}. "
+                            "If this test is testing behavior related to "
+                            "unknown keywords you may need to add it to the "
+                            "allowlist in the jsonschema_suite checker. "
+                            "Otherwise it may contain a typo!"
+                        )
+                    return d[k]
+
+                def __len__(this):
+                    return len(d)
+
+            return BlowUpForUnknownProperties()
+
+        for version, Validator in versions_and_validators():
+            if version.name == "latest":
                 continue
 
-            Validator = VALIDATORS.get(version.name)
-            if Validator is not None:
-                # Valid (optional test) schemas contain regexes which
-                # aren't valid Python regexes, so skip checking it
-                Validator.FORMAT_CHECKER.checkers.pop("regex", None)
+            self.addCleanup(
+                setattr, Validator, "VALIDATORS", Validator.VALIDATORS,
+            )
+            Validator.VALIDATORS = missing(dict(Validator.VALIDATORS))
 
-                test_files = collect(version)
-                for case in cases(test_files):
-                    with self.subTest(case=case):
-                        try:
-                            Validator.check_schema(
-                                case["schema"],
-                                format_checker=Validator.FORMAT_CHECKER,
-                            )
-                        except jsonschema.SchemaError:
-                            self.fail(
-                                "Found an invalid schema. "
-                                "See the traceback for details on why."
-                            )
-            else:
-                warnings.warn(f"No schema validator for {version.name}")
+            test_files = [
+                each for each in collect(version)
+                if each.stem != "refOfUnknownKeyword"
+            ]
+            for case in cases(test_files):
+                if "unknown keyword" in case["description"]:
+                    continue
+                with self.subTest(case=case, version=version.name):
+                    try:
+                        Validator(case["schema"]).is_valid(12)
+                    except jsonschema.exceptions.RefResolutionError:
+                        pass
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
     def test_suites_are_valid(self):
@@ -269,7 +601,7 @@ class SanityTests(unittest.TestCase):
             with self.subTest(path=path):
                 try:
                     validator.validate(cases)
-                except jsonschema.exceptions.RefResolutionError as error:
+                except jsonschema.exceptions.RefResolutionError:
                     # python-jsonschema/jsonschema#884
                     pass
                 except jsonschema.ValidationError as error:

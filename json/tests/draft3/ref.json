@@ -215,7 +215,7 @@
                     "type": "number"
                 }
             },
-            "allOf": [
+            "extends": [
                 {
                     "$comment": "$ref resolves to http://localhost:1234/sibling_id/base/foo.json, not http://localhost:1234/sibling_id/foo.json",
                     "id": "http://localhost:1234/sibling_id/",
