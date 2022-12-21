@@ -158,7 +158,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
         or skip(
             message=bug(),
             subject="ref",
-            valid=False,
             case_description=(
                 "$ref prevents a sibling id from changing the base uri"
             ),
