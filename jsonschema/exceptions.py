@@ -154,10 +154,14 @@ class _Error(Exception):
         )
         return dict((attr, getattr(self, attr)) for attr in attrs)
 
-    def _matches_type(self):
+    def _matches_type(self) -> bool:
         try:
-            expected = self.schema["type"]
+            # We ignore this as we want to simply crash if this happens
+            expected = self.schema["type"]  # type: ignore[index]
         except (KeyError, TypeError):
+            return False
+
+        if isinstance(self._type_checker, _utils.Unset):
             return False
 
         if isinstance(expected, str):
