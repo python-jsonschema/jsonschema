@@ -4,6 +4,7 @@ Validation errors, and some surrounding helpers.
 from __future__ import annotations
 
 from collections import defaultdict, deque
+from collections.abc import Iterable, Mapping
 from pprint import pformat
 from textwrap import dedent, indent
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -31,17 +32,17 @@ class _Error(Exception):
     def __init__(
         self,
         message: str,
-        validator=_unset,
-        path=(),
-        cause=None,
+        validator: str | _utils.Unset = _unset,
+        path: Iterable[str | int] = (),
+        cause: Exception | None = None,
         context=(),
         validator_value=_unset,
-        instance=_unset,
-        schema=_unset,
-        schema_path=(),
-        parent=None,
-        type_checker=_unset,
-    ):
+        instance: Any = _unset,
+        schema: Mapping[str, Any] | bool | _utils.Unset = _unset,
+        schema_path: Iterable[str | int] = (),
+        parent: _Error | None = None,
+        type_checker: _types.TypeChecker | _utils.Unset = _unset,
+    ) -> None:
         super(_Error, self).__init__(
             message,
             validator,
