@@ -67,25 +67,6 @@ def complex_email_validation(test):
     )(test)
 
 
-is_narrow_build = sys.maxunicode == 2 ** 16 - 1
-if is_narrow_build:  # pragma: no cover
-    message = "Not running surrogate Unicode case, this Python is narrow."
-
-    def narrow_unicode_build(test):  # pragma: no cover
-        return skip(
-            message=message,
-            description=(
-                "one supplementary Unicode code point is not long enough"
-            ),
-        )(test) or skip(
-            message=message,
-            description="two supplementary Unicode code points is long enough",
-        )(test)
-else:
-    def narrow_unicode_build(test):  # pragma: no cover
-        return
-
-
 if sys.version_info < (3, 9):  # pragma: no cover
     message = "Rejecting leading zeros is 3.9+"
     allowed_leading_zeros = skip(
@@ -152,8 +133,7 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     Validator=jsonschema.Draft3Validator,
     format_checker=jsonschema.Draft3Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        narrow_unicode_build(test)
-        or missing_format(jsonschema.Draft3Validator)(test)
+        missing_format(jsonschema.Draft3Validator)(test)
         or complex_email_validation(test)
         or skip(
             message=bug(),
@@ -176,8 +156,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     Validator=jsonschema.Draft4Validator,
     format_checker=jsonschema.Draft4Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        narrow_unicode_build(test)
-        or allowed_leading_zeros(test)
+        allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft4Validator)(test)
         or complex_email_validation(test)
@@ -237,8 +216,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     Validator=jsonschema.Draft6Validator,
     format_checker=jsonschema.Draft6Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        narrow_unicode_build(test)
-        or allowed_leading_zeros(test)
+        allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft6Validator)(test)
         or complex_email_validation(test)
@@ -261,8 +239,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     Validator=jsonschema.Draft7Validator,
     format_checker=jsonschema.Draft7Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        narrow_unicode_build(test)
-        or allowed_leading_zeros(test)
+        allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft7Validator)(test)
         or complex_email_validation(test)
@@ -428,8 +405,7 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.optional_cases_of(name="refOfUnknownKeyword"),
     Validator=jsonschema.Draft202012Validator,
     skip=lambda test: (
-        narrow_unicode_build(test)
-        or skip(
+        skip(
             message="dynamicRef support isn't fully working yet.",
             subject="dynamicRef",
             description="The recursive part is not valid against the root",
