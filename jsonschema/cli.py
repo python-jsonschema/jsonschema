@@ -251,11 +251,12 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
     except _CannotLoadFile:
         return 1
 
-    if arguments["validator"] is None:
-        arguments["validator"] = validator_for(schema)
+    Validator = arguments["validator"]
+    if Validator is None:
+        Validator = validator_for(schema)
 
     try:
-        arguments["validator"].check_schema(schema)
+        Validator.check_schema(schema)
     except SchemaError as error:
         outputter.validation_error(
             instance_path=arguments["schema"],
@@ -281,7 +282,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
         referrer=schema,
     ) if arguments["base_uri"] is not None else None
 
-    validator = arguments["validator"](schema, resolver=resolver)
+    validator = Validator(schema, resolver=resolver)
     exit_code = 0
     for each in instances:
         try:
