@@ -13,9 +13,9 @@ from warnings import warn
 import contextlib
 import json
 import reprlib
-import typing
 import warnings
 
+from jsonschema_specifications import REGISTRY as SPECIFICATIONS
 from pyrsistent import m
 import attr
 
@@ -33,7 +33,6 @@ _UNSET = _utils.Unset()
 
 _VALIDATORS: dict[str, Validator] = {}
 _META_SCHEMAS = _utils.URIDict()
-_VOCABULARIES: list[tuple[str, typing.Any]] = []
 
 
 def __getattr__(name):
@@ -103,15 +102,11 @@ def _id_of(schema):
 
 
 def _store_schema_list():
-    if not _VOCABULARIES:
-        package = _utils.resources.files(__package__)
-        for version in package.joinpath("schemas", "vocabularies").iterdir():
-            for path in version.iterdir():
-                vocabulary = json.loads(path.read_text())
-                _VOCABULARIES.append((vocabulary["$id"], vocabulary))
     return [
+        (uri, each.contents) for uri, each in SPECIFICATIONS.items()
+    ] + [
         (id, validator.META_SCHEMA) for id, validator in _META_SCHEMAS.items()
-    ] + _VOCABULARIES
+    ]
 
 
 def create(
@@ -430,7 +425,9 @@ def extend(
 
 
 Draft3Validator = create(
-    meta_schema=_utils.load_schema("draft3"),
+    meta_schema=SPECIFICATIONS.contents(
+        "http://json-schema.org/draft-03/schema#",
+    ),
     validators={
         "$ref": _validators.ref,
         "additionalItems": _validators.additionalItems,
@@ -462,7 +459,9 @@ Draft3Validator = create(
 )
 
 Draft4Validator = create(
-    meta_schema=_utils.load_schema("draft4"),
+    meta_schema=SPECIFICATIONS.contents(
+        "http://json-schema.org/draft-04/schema#",
+    ),
     validators={
         "$ref": _validators.ref,
         "additionalItems": _validators.additionalItems,
@@ -499,7 +498,9 @@ Draft4Validator = create(
 )
 
 Draft6Validator = create(
-    meta_schema=_utils.load_schema("draft6"),
+    meta_schema=SPECIFICATIONS.contents(
+        "http://json-schema.org/draft-06/schema#",
+    ),
     validators={
         "$ref": _validators.ref,
         "additionalItems": _validators.additionalItems,
@@ -541,7 +542,9 @@ Draft6Validator = create(
 )
 
 Draft7Validator = create(
-    meta_schema=_utils.load_schema("draft7"),
+    meta_schema=SPECIFICATIONS.contents(
+        "http://json-schema.org/draft-07/schema#",
+    ),
     validators={
         "$ref": _validators.ref,
         "additionalItems": _validators.additionalItems,
@@ -584,7 +587,9 @@ Draft7Validator = create(
 )
 
 Draft201909Validator = create(
-    meta_schema=_utils.load_schema("draft2019-09"),
+    meta_schema=SPECIFICATIONS.contents(
+        "https://json-schema.org/draft/2019-09/schema",
+    ),
     validators={
         "$recursiveRef": _legacy_validators.recursiveRef,
         "$ref": _validators.ref,
@@ -629,7 +634,9 @@ Draft201909Validator = create(
 )
 
 Draft202012Validator = create(
-    meta_schema=_utils.load_schema("draft2020-12"),
+    meta_schema=SPECIFICATIONS.contents(
+        "https://json-schema.org/draft/2020-12/schema",
+    ),
     validators={
         "$dynamicRef": _validators.dynamicRef,
         "$ref": _validators.ref,
