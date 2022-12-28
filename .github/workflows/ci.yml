@@ -38,18 +38,6 @@ jobs:
             toxenv: pypy3-formatnongpl-build
           - name: pypy-3.9
             toxenv: pypy3-formatnongpl-tests
-          - name: 3.7
-            toxenv: py37-noextra-build
-          - name: 3.7
-            toxenv: py37-noextra-tests
-          - name: 3.7
-            toxenv: py37-format-build
-          - name: 3.7
-            toxenv: py37-format-tests
-          - name: 3.7
-            toxenv: py37-formatnongpl-build
-          - name: 3.7
-            toxenv: py37-formatnongpl-tests
           - name: 3.8
             toxenv: py38-noextra-build
           - name: 3.8
