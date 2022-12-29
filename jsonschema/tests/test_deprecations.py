@@ -77,7 +77,7 @@ class TestDeprecations(TestCase):
         As of v4.0.0, RefResolver.in_scope is deprecated.
         """
 
-        resolver = validators.RefResolver.from_schema({})
+        resolver = validators._RefResolver.from_schema({})
         with self.assertWarns(DeprecationWarning) as w:
             with resolver.in_scope("foo"):
                 pass

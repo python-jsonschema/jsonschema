@@ -61,6 +61,13 @@ def __getattr__(name):
             stacklevel=2,
         )
         return _META_SCHEMAS
+    elif name == "RefResolver":
+        warnings.warn(
+            _RefResolver._DEPRECATION_MESSAGE,
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _RefResolver
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
@@ -209,7 +216,7 @@ def create(
 
         def __attrs_post_init__(self):
             if self.resolver is None:
-                self.resolver = RefResolver.from_schema(
+                self.resolver = _RefResolver.from_schema(
                     self.schema,
                     id_of=id_of,
                 )
@@ -684,7 +691,7 @@ Draft202012Validator = create(
 _LATEST_VERSION = Draft202012Validator
 
 
-class RefResolver:
+class _RefResolver:
     """
     Resolve JSON References.
 
@@ -726,7 +733,20 @@ class RefResolver:
         cache_remote (bool):
 
             Whether remote refs should be cached after first resolution
+
+    .. deprecated:: v4.18.0
+
+        `RefResolver` has been deprecated in favor of `referencing`.
     """
+
+    _DEPRECATION_MESSAGE = (
+        "jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the "
+        "https://github.com/python-jsonschema/referencing library, which "
+        "provides more compliant referencing behavior as well as more "
+        "flexible APIs for customization. A future release will remove "
+        "RefResolver. Please file a feature request (on referencing) if you "
+        "are missing an API for the kind of customization you need."
+    )
 
     def __init__(
         self,
@@ -774,7 +794,7 @@ class RefResolver:
 
         Returns:
 
-            `RefResolver`
+            `_RefResolver`
         """
 
         return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)  # noqa: B026, E501

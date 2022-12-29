@@ -1189,7 +1189,7 @@ class TestValidationErrorDetails(TestCase):
         ref, schema = "someRef", {"additionalProperties": {"type": "integer"}}
         validator = validators.Draft7Validator(
             {"$ref": ref},
-            resolver=validators.RefResolver("", {}, store={ref: schema}),
+            resolver=validators._RefResolver("", {}, store={ref: schema}),
         )
         error, = validator.iter_errors({"foo": "notAnInteger"})
 
@@ -1542,12 +1542,12 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def test_it_creates_a_ref_resolver_if_not_provided(self):
         self.assertIsInstance(
             self.Validator({}).resolver,
-            validators.RefResolver,
+            validators._RefResolver,
         )
 
     def test_it_delegates_to_a_ref_resolver(self):
         ref, schema = "someCoolRef", {"type": "integer"}
-        resolver = validators.RefResolver("", {}, store={ref: schema})
+        resolver = validators._RefResolver("", {}, store={ref: schema})
         validator = self.Validator({"$ref": ref}, resolver=resolver)
 
         with self.assertRaises(exceptions.ValidationError):
@@ -1555,7 +1555,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
 
     def test_evolve(self):
         ref, schema = "someCoolRef", {"type": "integer"}
-        resolver = validators.RefResolver("", {}, store={ref: schema})
+        resolver = validators._RefResolver("", {}, store={ref: schema})
 
         validator = self.Validator(schema, resolver=resolver)
         new = validator.evolve(schema={"type": "string"})
@@ -1784,14 +1784,14 @@ class AntiDraft6LeakMixin:
 
     @unittest.skip(bug(523))
     def test_True_is_not_a_schema_even_if_you_forget_to_check(self):
-        resolver = validators.RefResolver("", {})
+        resolver = validators._RefResolver("", {})
         with self.assertRaises(Exception) as e:
             self.Validator(True, resolver=resolver).validate(12)
         self.assertNotIsInstance(e.exception, exceptions.ValidationError)
 
     @unittest.skip(bug(523))
     def test_False_is_not_a_schema_even_if_you_forget_to_check(self):
-        resolver = validators.RefResolver("", {})
+        resolver = validators._RefResolver("", {})
         with self.assertRaises(Exception) as e:
             self.Validator(False, resolver=resolver).validate(12)
         self.assertNotIsInstance(e.exception, exceptions.ValidationError)
@@ -1867,7 +1867,7 @@ class TestLatestValidator(TestCase):
     def test_ref_resolvers_may_have_boolean_schemas_stored(self):
         ref = "someCoolRef"
         schema = {"$ref": ref}
-        resolver = validators.RefResolver("", {}, store={ref: False})
+        resolver = validators._RefResolver("", {}, store={ref: False})
         validator = validators._LATEST_VERSION(schema, resolver=resolver)
 
         with self.assertRaises(exceptions.ValidationError):
@@ -2123,7 +2123,7 @@ class TestRefResolver(TestCase):
     def setUp(self):
         self.referrer = {}
         self.store = {self.stored_uri: self.stored_schema}
-        self.resolver = validators.RefResolver(
+        self.resolver = validators._RefResolver(
             self.base_uri, self.referrer, self.store,
         )
 
@@ -2143,7 +2143,7 @@ class TestRefResolver(TestCase):
 
     def test_it_resolves_local_refs_with_id(self):
         schema = {"id": "http://bar/schema#", "a": {"foo": "bar"}}
-        resolver = validators.RefResolver.from_schema(
+        resolver = validators._RefResolver.from_schema(
             schema,
             id_of=lambda schema: schema.get("id", ""),
         )
@@ -2206,7 +2206,7 @@ class TestRefResolver(TestCase):
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
-        resolver = validators.RefResolver.from_schema(
+        resolver = validators._RefResolver.from_schema(
             schema,
             id_of=lambda schema: schema.get("id", ""),
         )
@@ -2223,7 +2223,7 @@ class TestRefResolver(TestCase):
 
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
-        resolver = validators.RefResolver.from_schema(schema)
+        resolver = validators._RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "")
         self.assertEqual(resolver.resolution_scope, "")
         with resolver.resolving("") as resolved:
@@ -2238,7 +2238,7 @@ class TestRefResolver(TestCase):
 
         schema = {"foo": "bar"}
         ref = "foo://bar"
-        resolver = validators.RefResolver("", {}, handlers={"foo": handler})
+        resolver = validators._RefResolver("", {}, handlers={"foo": handler})
         with resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, schema)
 
@@ -2252,7 +2252,7 @@ class TestRefResolver(TestCase):
                 self.fail("Response must not have been cached!")
 
         ref = "foo://bar"
-        resolver = validators.RefResolver(
+        resolver = validators._RefResolver(
             "", {}, cache_remote=True, handlers={"foo": handler},
         )
         with resolver.resolving(ref):
@@ -2270,7 +2270,7 @@ class TestRefResolver(TestCase):
                 self.fail("Handler called twice!")
 
         ref = "foo://bar"
-        resolver = validators.RefResolver(
+        resolver = validators._RefResolver(
             "", {}, cache_remote=False, handlers={"foo": handler},
         )
         with resolver.resolving(ref):
@@ -2283,14 +2283,14 @@ class TestRefResolver(TestCase):
             raise error
 
         ref = "foo://bar"
-        resolver = validators.RefResolver("", {}, handlers={"foo": handler})
+        resolver = validators._RefResolver("", {}, handlers={"foo": handler})
         with self.assertRaises(exceptions.RefResolutionError) as err:
             with resolver.resolving(ref):
                 self.fail("Shouldn't get this far!")  # pragma: no cover
         self.assertEqual(err.exception, exceptions.RefResolutionError(error))
 
     def test_helpful_error_message_on_failed_pop_scope(self):
-        resolver = validators.RefResolver("", {})
+        resolver = validators._RefResolver("", {})
         resolver.pop_scope()
         with self.assertRaises(exceptions.RefResolutionError) as exc:
             resolver.pop_scope()

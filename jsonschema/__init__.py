@@ -27,7 +27,6 @@ from jsonschema.validators import (
     Draft7Validator,
     Draft201909Validator,
     Draft202012Validator,
-    RefResolver,
     validate,
 )
 
@@ -48,6 +47,14 @@ def __getattr__(name):
             import importlib_metadata as metadata
 
         return metadata.version("jsonschema")
+    elif name == "RefResolver":
+        from jsonschema.validators import _RefResolver
+        warnings.warn(
+            _RefResolver._DEPRECATION_MESSAGE,
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _RefResolver
 
     format_checkers = {
         "draft3_format_checker": Draft3Validator,

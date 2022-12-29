@@ -23,7 +23,7 @@ except ImportError:
 import attr
 
 from jsonschema.exceptions import SchemaError
-from jsonschema.validators import RefResolver, validator_for
+from jsonschema.validators import _RefResolver, validator_for
 
 warnings.warn(
     (
@@ -277,7 +277,7 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):
                 raise _CannotLoadFile()
         instances = ["<stdin>"]
 
-    resolver = RefResolver(
+    resolver = _RefResolver(
         base_uri=arguments["base_uri"],
         referrer=schema,
     ) if arguments["base_uri"] is not None else None

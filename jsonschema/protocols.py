@@ -108,7 +108,7 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
-        resolver: jsonschema.validators.RefResolver | None = None,
+        resolver: jsonschema.validators._RefResolver | None = None,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...

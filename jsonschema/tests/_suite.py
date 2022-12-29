@@ -19,7 +19,7 @@ from attrs import field, frozen
 if TYPE_CHECKING:
     import pyperf
 
-from jsonschema.validators import _VALIDATORS
+from jsonschema.validators import _VALIDATORS, _RefResolver
 import jsonschema
 
 _DELIMITERS = re.compile(r"[\W\- ]+")
@@ -218,7 +218,7 @@ class _Test:
 
     def validate(self, Validator, **kwargs):
         Validator.check_schema(self.schema)
-        resolver = jsonschema.RefResolver.from_schema(
+        resolver = _RefResolver.from_schema(
             schema=self.schema,
             store=self._remotes,
             id_of=Validator.ID_OF,
