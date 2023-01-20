@@ -1,0 +1,720 @@
+#! /usr/bin/env python3
+from pathlib import Path
+from urllib.parse import urljoin
+import argparse
+import json
+import os
+import random
+import shutil
+import sys
+import textwrap
+import unittest
+import warnings
+
+try:
+    import jsonschema.validators
+except ImportError:
+    jsonschema = None
+    VALIDATORS = {}
+else:
+    VALIDATORS = {
+        "draft3": jsonschema.validators.Draft3Validator,
+        "draft4": jsonschema.validators.Draft4Validator,
+        "draft6": jsonschema.validators.Draft6Validator,
+        "draft7": jsonschema.validators.Draft7Validator,
+        "draft2019-09": jsonschema.validators.Draft201909Validator,
+        "draft2020-12": jsonschema.validators.Draft202012Validator,
+        "latest": jsonschema.validators.Draft202012Validator,
+    }
+
+
+ROOT_DIR = Path(__file__).parent.parent
+SUITE_ROOT_DIR = ROOT_DIR / "tests"
+OUTPUT_ROOT_DIR = ROOT_DIR / "output-tests"
+
+REMOTES_DIR = ROOT_DIR / "remotes"
+REMOTES_BASE_URL = "http://localhost:1234/"
+
+TEST_SCHEMA = json.loads(ROOT_DIR.joinpath("test-schema.json").read_text())
+OUTPUT_TEST_SCHEMA = json.loads(
+    ROOT_DIR.joinpath("output-test-schema.json").read_text(),
+)
+
+
+def files(paths):
+    """
+    Each test file in the provided paths, as an array of test cases.
+    """
+    for path in paths:
+        yield path, json.loads(path.read_text())
+
+
+def cases(paths):
+    """
+    Each test case within each file in the provided paths.
+    """
+    for _, test_file in files(paths):
+        yield from test_file
+
+
+def tests(paths):
+    """
+    Each individual test within all cases within the provided paths.
+    """
+    for case in cases(paths):
+        for test in case["tests"]:
+            test["schema"] = case["schema"]
+            yield test
+
+
+def collect(root_dir):
+    """
+    All of the test file paths within the given root directory, recursively.
+    """
+    return root_dir.rglob("*.json")
+
+
+def url_for_path(path):
+    """
+    Return the assumed remote URL for a file in the remotes/ directory.
+
+    Tests in the refRemote.json file reference this URL, and assume the
+    corresponding contents are available at the URL.
+    """
+
+    return urljoin(
+        REMOTES_BASE_URL,
+        str(path.relative_to(REMOTES_DIR)).replace("\\", "/"),  # Windows...
+    )
+
+
+def versions_and_validators():
+    """
+    All versions we can validate schemas from.
+    """
+
+    for version in SUITE_ROOT_DIR.iterdir():
+        if not version.is_dir():
+            continue
+
+        Validator = VALIDATORS.get(version.name)
+        if Validator is None:
+            warnings.warn(f"No schema validator for {version.name}")
+            continue
+
+        yield version, Validator
+
+
+class SanityTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        print(f"Looking for tests in {SUITE_ROOT_DIR}")
+        print(f"Looking for output tests in {OUTPUT_ROOT_DIR}")
+        print(f"Looking for remotes in {REMOTES_DIR}")
+
+        cls.test_files = list(collect(SUITE_ROOT_DIR))
+        assert cls.test_files, "Didn't find the test files!"
+        print(f"Found {len(cls.test_files)} test files")
+
+        cls.output_test_files = [
+            each
+            for each in collect(OUTPUT_ROOT_DIR)
+            if each.name != "output-schema.json"
+        ]
+        assert cls.output_test_files, "Didn't find the output test files!"
+        print(f"Found {len(cls.output_test_files)} output test files")
+
+        cls.remote_files = list(collect(REMOTES_DIR))
+        assert cls.remote_files, "Didn't find the remote files!"
+        print(f"Found {len(cls.remote_files)} remote files")
+
+    def assertUnique(self, iterable):
+        """
+        Assert that the elements of an iterable are unique.
+        """
+
+        seen, duplicated = set(), set()
+        for each in iterable:
+            if each in seen:
+                duplicated.add(each)
+            seen.add(each)
+        self.assertFalse(duplicated, "Elements are not unique.")
+
+    def assertFollowsDescriptionStyle(self, description):
+        """
+        Instead of saying "test that X frobs" or "X should frob" use "X frobs".
+
+        See e.g. https://jml.io/pages/test-docstrings.html
+
+        This test isn't comprehensive (it doesn't catch all the extra
+        verbiage there), but it's just to catch whatever it manages to
+        cover.
+        """
+
+        message = (
+            "In descriptions, don't say 'Test that X frobs' or 'X should "
+            "frob' or 'X should be valid'. Just say 'X frobs' or 'X is "
+            "valid'. It's shorter, and the test suite is entirely about "
+            "what *should* be already. "
+            "See https://jml.io/pages/test-docstrings.html for help."
+        )
+        self.assertNotRegex(description, r"\bshould\b", message)
+        self.assertNotRegex(description, r"(?i)\btest(s)? that\b", message)
+
+    def test_all_json_files_are_valid(self):
+        """
+        All files (tests, output tests, remotes, etc.) contain valid JSON.
+        """
+        for path in collect(ROOT_DIR):
+            with self.subTest(path=path):
+                try:
+                    json.loads(path.read_text())
+                except ValueError as error:
+                    self.fail(f"{path} contains invalid JSON ({error})")
+
+    def test_all_case_descriptions_have_reasonable_length(self):
+        """
+        All cases have reasonably long descriptions.
+        """
+        for case in cases(self.test_files + self.output_test_files):
+            with self.subTest(description=case["description"]):
+                self.assertLess(
+                    len(case["description"]),
+                    150,
+                    "Description is too long (keep it to less than 150 chars).",
+                )
+
+    def test_all_test_descriptions_have_reasonable_length(self):
+        """
+        All tests have reasonably long descriptions.
+        """
+        for count, test in enumerate(
+            tests(self.test_files + self.output_test_files)
+        ):
+            with self.subTest(description=test["description"]):
+                self.assertLess(
+                    len(test["description"]),
+                    70,
+                    "Description is too long (keep it to less than 70 chars).",
+                )
+        print(f"Found {count} tests.")
+
+    def test_all_case_descriptions_are_unique(self):
+        """
+        All cases have unique descriptions in their files.
+        """
+        for path, cases in files(self.test_files + self.output_test_files):
+            with self.subTest(path=path):
+                self.assertUnique(case["description"] for case in cases)
+
+    def test_all_test_descriptions_are_unique(self):
+        """
+        All test cases have unique test descriptions in their tests.
+        """
+        for count, case in enumerate(
+            cases(self.test_files + self.output_test_files)
+        ):
+            with self.subTest(description=case["description"]):
+                self.assertUnique(
+                    test["description"] for test in case["tests"]
+                )
+        print(f"Found {count} test cases.")
+
+    def test_case_descriptions_do_not_use_modal_verbs(self):
+        for case in cases(self.test_files + self.output_test_files):
+            with self.subTest(description=case["description"]):
+                self.assertFollowsDescriptionStyle(case["description"])
+
+    def test_test_descriptions_do_not_use_modal_verbs(self):
+        for test in tests(self.test_files + self.output_test_files):
+            with self.subTest(description=test["description"]):
+                self.assertFollowsDescriptionStyle(test["description"])
+
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
+    def test_all_schemas_are_valid(self):
+        """
+        All schemas are valid under their metaschemas.
+        """
+        for version, Validator in versions_and_validators():
+            # Valid (optional test) schemas contain regexes which
+            # aren't valid Python regexes, so skip checking it
+            Validator.FORMAT_CHECKER.checkers.pop("regex", None)
+
+            test_files = collect(version)
+            for case in cases(test_files):
+                with self.subTest(case=case):
+                    try:
+                        Validator.check_schema(
+                            case["schema"],
+                            format_checker=Validator.FORMAT_CHECKER,
+                        )
+                    except jsonschema.SchemaError:
+                        self.fail(
+                            "Found an invalid schema. "
+                            "See the traceback for details on why."
+                        )
+
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
+    def test_arbitrary_schemas_do_not_use_unknown_keywords(self):
+        """
+        Test cases do not use unknown keywords.
+
+        (Unless they specifically are testing the specified behavior for
+        unknown keywords).
+
+        This helps prevent accidental leakage of newer keywords into older
+        drafts where they didn't exist.
+        """
+
+        KNOWN = {
+            "draft2020-12": {
+                "$anchor",
+                "$comment",
+                "$defs",
+                "$dynamicAnchor",
+                "$dynamicRef",
+                "$id",
+                "$ref",
+                "$schema",
+                "$vocabulary",
+                "additionalProperties",
+                "allOf",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "contentEncoding",
+                "contentMediaType",
+                "contentSchema",
+                "dependencies",
+                "dependentRequired",
+                "dependentSchemas",
+                "description",
+                "else",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "if",
+                "items",
+                "maxContains",
+                "maxItems",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minContains",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "prefixItems",
+                "properties",
+                "propertyNames",
+                "required",
+                "then",
+                "title",
+                "type",
+                "unevaluatedItems",
+                "unevaluatedProperties",
+                "uniqueItems",
+            },
+            "draft2019-09": {
+                "$anchor",
+                "$comment",
+                "$defs",
+                "$id",
+                "$recursiveAnchor",
+                "$recursiveRef",
+                "$ref",
+                "$schema",
+                "$vocabulary",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "contentEncoding",
+                "contentMediaType",
+                "contentSchema",
+                "dependencies",
+                "dependentRequired",
+                "dependentSchemas",
+                "description",
+                "else",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "if",
+                "items",
+                "maxContains",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minContains",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "propertyNames",
+                "required",
+                "then",
+                "title",
+                "type",
+                "unevaluatedItems",
+                "unevaluatedProperties",
+                "uniqueItems",
+            },
+            "draft7": {
+                "$comment",
+                "$id",
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "contentEncoding",
+                "contentMediaType",
+                "definitions",
+                "dependencies",
+                "description",
+                "else",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "if",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "propertyNames",
+                "required",
+                "then",
+                "title",
+                "type",
+                "type",
+                "uniqueItems",
+            },
+            "draft6": {
+                "$comment",
+                "$id",
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "const",
+                "contains",
+                "definitions",
+                "dependencies",
+                "description",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "propertyNames",
+                "required",
+                "title",
+                "type",
+                "uniqueItems",
+            },
+            "draft4": {
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalItems",
+                "additionalProperties",
+                "allOf",
+                "anyOf",
+                "definitions",
+                "dependencies",
+                "description",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "format",
+                "id",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maxProperties",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minProperties",
+                "minimum",
+                "multipleOf",
+                "not",
+                "oneOf",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "required",
+                "title",
+                "type",
+                "uniqueItems",
+            },
+            "draft3": {
+                "$ref",
+                "$schema",
+                "additionalItems",
+                "additionalProperties",
+                "definitions",
+                "dependencies",
+                "description",
+                "disallow",
+                "divisibleBy",
+                "enum",
+                "exclusiveMaximum",
+                "exclusiveMinimum",
+                "extends",
+                "format",
+                "id",
+                "items",
+                "maxItems",
+                "maxLength",
+                "maximum",
+                "minItems",
+                "minLength",
+                "minimum",
+                "pattern",
+                "patternProperties",
+                "properties",
+                "title",
+                "type",
+                "uniqueItems",
+            },
+        }
+
+        def missing(d):
+            from collections.abc import Mapping
+
+            class BlowUpForUnknownProperties(Mapping):
+                def __iter__(this):
+                    return iter(d)
+
+                def __getitem__(this, k):
+                    if k not in KNOWN[version.name]:
+                        self.fail(
+                            f"{k} is not a known keyword for {version.name}. "
+                            "If this test is testing behavior related to "
+                            "unknown keywords you may need to add it to the "
+                            "allowlist in the jsonschema_suite checker. "
+                            "Otherwise it may contain a typo!"
+                        )
+                    return d[k]
+
+                def __len__(this):
+                    return len(d)
+
+            return BlowUpForUnknownProperties()
+
+        for version, Validator in versions_and_validators():
+            if version.name == "latest":
+                continue
+
+            self.addCleanup(
+                setattr, Validator, "VALIDATORS", Validator.VALIDATORS,
+            )
+            Validator.VALIDATORS = missing(dict(Validator.VALIDATORS))
+
+            test_files = [
+                each for each in collect(version)
+                if each.stem != "refOfUnknownKeyword"
+            ]
+            for case in cases(test_files):
+                if "unknown keyword" in case["description"]:
+                    continue
+                with self.subTest(case=case, version=version.name):
+                    try:
+                        Validator(case["schema"]).is_valid(12)
+                    except jsonschema.exceptions.RefResolutionError:
+                        pass
+
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
+    def test_suites_are_valid(self):
+        """
+        All test files are valid under test-schema.json.
+        """
+        Validator = jsonschema.validators.validator_for(TEST_SCHEMA)
+        validator = Validator(TEST_SCHEMA)
+        for path, cases in files(self.test_files):
+            with self.subTest(path=path):
+                try:
+                    validator.validate(cases)
+                except jsonschema.ValidationError as error:
+                    self.fail(str(error))
+
+    @unittest.skipIf(jsonschema is None, "Validation library not present!")
+    def test_output_suites_are_valid(self):
+        """
+        All output test files are valid under output-test-schema.json.
+        """
+        Validator = jsonschema.validators.validator_for(OUTPUT_TEST_SCHEMA)
+        validator = Validator(OUTPUT_TEST_SCHEMA)
+        for path, cases in files(self.output_test_files):
+            with self.subTest(path=path):
+                try:
+                    validator.validate(cases)
+                except jsonschema.exceptions.RefResolutionError:
+                    # python-jsonschema/jsonschema#884
+                    pass
+                except jsonschema.ValidationError as error:
+                    self.fail(str(error))
+
+
+def main(arguments):
+    if arguments.command == "check":
+        suite = unittest.TestLoader().loadTestsFromTestCase(SanityTests)
+        result = unittest.TextTestRunner().run(suite)
+        sys.exit(not result.wasSuccessful())
+    elif arguments.command == "flatten":
+        selected_cases = [case for case in cases(collect(arguments.version))]
+
+        if arguments.randomize:
+            random.shuffle(selected_cases)
+
+        json.dump(selected_cases, sys.stdout, indent=4, sort_keys=True)
+    elif arguments.command == "remotes":
+        remotes = {
+            url_for_path(path): json.loads(path.read_text())
+            for path in collect(REMOTES_DIR)
+        }
+        json.dump(remotes, sys.stdout, indent=4, sort_keys=True)
+    elif arguments.command == "dump_remotes":
+        if arguments.update:
+            shutil.rmtree(arguments.out_dir, ignore_errors=True)
+
+        try:
+            shutil.copytree(REMOTES_DIR, arguments.out_dir)
+        except FileExistsError:
+            print(f"{arguments.out_dir} already exists. Aborting.")
+            sys.exit(1)
+    elif arguments.command == "serve":
+        try:
+            import flask
+        except ImportError:
+            print(
+                textwrap.dedent(
+                    """
+                The Flask library is required to serve the remote schemas.
+
+                You can install it by running `pip install Flask`.
+
+                Alternatively, see the `jsonschema_suite remotes` or
+                `jsonschema_suite dump_remotes` commands to create static files
+                that can be served with your own web server.
+            """.strip(
+                        "\n"
+                    )
+                )
+            )
+            sys.exit(1)
+
+        app = flask.Flask(__name__)
+
+        @app.route("/<path:path>")
+        def serve_path(path):
+            return flask.send_from_directory(REMOTES_DIR, path)
+
+        app.run(port=1234)
+
+
+parser = argparse.ArgumentParser(
+    description="JSON Schema Test Suite utilities",
+)
+subparsers = parser.add_subparsers(
+    help="utility commands", dest="command", metavar="COMMAND"
+)
+subparsers.required = True
+
+check = subparsers.add_parser("check", help="Sanity check the test suite.")
+
+flatten = subparsers.add_parser(
+    "flatten",
+    help="Output a flattened file containing a selected version's test cases.",
+)
+flatten.add_argument(
+    "--randomize",
+    action="store_true",
+    help="Randomize the order of the outputted cases.",
+)
+flatten.add_argument(
+    "version",
+    help="The directory containing the version to output",
+)
+
+remotes = subparsers.add_parser(
+    "remotes",
+    help="Output the expected URLs and their associated schemas for remote "
+    "ref tests as a JSON object.",
+)
+
+dump_remotes = subparsers.add_parser(
+    "dump_remotes",
+    help="Dump the remote ref schemas into a file tree",
+)
+dump_remotes.add_argument(
+    "--update",
+    action="store_true",
+    help="Update the remotes in an existing directory.",
+)
+dump_remotes.add_argument(
+    "--out-dir",
+    default=REMOTES_DIR,
+    type=os.path.abspath,
+    help="The output directory to create as the root of the file tree",
+)
+
+serve = subparsers.add_parser(
+    "serve",
+    help="Start a webserver to serve schemas used by remote ref tests.",
+)
+
+if __name__ == "__main__":
+    main(parser.parse_args())
