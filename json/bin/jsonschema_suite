@@ -97,12 +97,12 @@ def versions_and_validators():
         if not version.is_dir():
             continue
 
-            Validator = VALIDATORS.get(version.name)
-            if Validator is None:
-                warnings.warn(f"No schema validator for {version.name}")
-                continue
+        Validator = VALIDATORS.get(version.name)
+        if Validator is None:
+            warnings.warn(f"No schema validator for {version.name}")
+            continue
 
-            yield version, Validator
+        yield version, Validator
 
 
 class SanityTests(unittest.TestCase):
