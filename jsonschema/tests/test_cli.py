@@ -708,7 +708,7 @@ class TestCLI(TestCase):
         ref_path = Path(ref_schema_file.name)
         ref_path.write_text('{"definitions": {"num": {"type": "integer"}}}')
 
-        schema = f'{{"$ref": "{ref_path.name}#definitions/num"}}'
+        schema = f'{{"$ref": "{ref_path.name}#/definitions/num"}}'
 
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance="1"),
@@ -729,7 +729,7 @@ class TestCLI(TestCase):
         ref_path = Path(ref_schema_file.name)
         ref_path.write_text('{"definitions": {"num": {"type": "integer"}}}')
 
-        schema = f'{{"$ref": "{ref_path.name}#definitions/num"}}'
+        schema = f'{{"$ref": "{ref_path.name}#/definitions/num"}}'
 
         self.assertOutputs(
             files=dict(some_schema=schema, some_instance='"1"'),
