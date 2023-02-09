@@ -15,6 +15,8 @@ import sys
 import unittest
 
 from attrs import field, frozen
+from referencing import Registry
+import referencing.jsonschema
 
 if TYPE_CHECKING:
     import pyperf
@@ -47,13 +49,38 @@ def _find_suite():
 class Suite:
 
     _root: Path = field(factory=_find_suite)
-    _remotes: Mapping[str, Mapping[str, Any] | bool] = field(init=False)
+    _remotes: Registry = field(init=False)
 
     def __attrs_post_init__(self):
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
         argv = [sys.executable, str(jsonschema_suite), "remotes"]
         remotes = subprocess.check_output(argv).decode("utf-8")
-        object.__setattr__(self, "_remotes", json.loads(remotes))
+
+        resources = json.loads(remotes)
+
+        li = "http://localhost:1234/locationIndependentIdentifierPre2019.json"
+        li4 = "http://localhost:1234/locationIndependentIdentifierDraft4.json"
+
+        registry = Registry().with_resources(
+            [
+                (
+                    li,
+                    referencing.jsonschema.DRAFT7.create_resource(
+                        contents=resources.pop(li),
+                    ),
+                ),
+                (
+                    li4,
+                    referencing.jsonschema.DRAFT4.create_resource(
+                        contents=resources.pop(li4),
+                    ),
+                ),
+            ],
+        ).with_contents(
+            resources.items(),
+            default_specification=referencing.jsonschema.DRAFT202012,
+        )
+        object.__setattr__(self, "_remotes", registry)
 
     def benchmark(self, runner: pyperf.Runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
@@ -74,7 +101,7 @@ class Suite:
 class Version:
 
     _path: Path
-    _remotes: Mapping[str, Mapping[str, Any] | bool]
+    _remotes: Registry
 
     name: str
 
@@ -173,7 +200,7 @@ class _Test:
 
     valid: bool
 
-    _remotes: Mapping[str, Mapping[str, Any] | bool]
+    _remotes: Registry
 
     comment: str | None = None
 
@@ -220,7 +247,7 @@ class _Test:
         Validator.check_schema(self.schema)
         resolver = _RefResolver.from_schema(
             schema=self.schema,
-            store=self._remotes,
+            store={k: v.contents for k, v in self._remotes.items()},
             id_of=Validator.ID_OF,
         )
 
