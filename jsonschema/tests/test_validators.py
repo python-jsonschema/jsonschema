@@ -1539,20 +1539,6 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def test_non_existent_properties_are_ignored(self):
         self.Validator({object(): object()}).validate(instance=object())
 
-    def test_it_creates_a_ref_resolver_if_not_provided(self):
-        self.assertIsInstance(
-            self.Validator({}).resolver,
-            validators._RefResolver,
-        )
-
-    def test_it_delegates_to_a_ref_resolver(self):
-        ref, schema = "someCoolRef", {"type": "integer"}
-        resolver = validators._RefResolver("", {}, store={ref: schema})
-        validator = self.Validator({"$ref": ref}, resolver=resolver)
-
-        with self.assertRaises(exceptions.ValidationError):
-            validator.validate(None)
-
     def test_evolve(self):
         ref, schema = "someCoolRef", {"type": "integer"}
         resolver = validators._RefResolver("", {}, store={ref: schema})
@@ -1587,24 +1573,6 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         new = validator.evolve(schema={"type": "integer"})
         self.assertEqual(new.foo, [1, 2, 3])
         self.assertEqual(new._bar, 12)
-
-    def test_it_delegates_to_a_legacy_ref_resolver(self):
-        """
-        Legacy RefResolvers support only the context manager form of
-        resolution.
-        """
-
-        class LegacyRefResolver:
-            @contextmanager
-            def resolving(this, ref):
-                self.assertEqual(ref, "the ref")
-                yield {"type": "integer"}
-
-        resolver = LegacyRefResolver()
-        schema = {"$ref": "the ref"}
-
-        with self.assertRaises(exceptions.ValidationError):
-            self.Validator(schema, resolver=resolver).validate(None)
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.Validator({}).is_type("foo", "string"))
@@ -1765,6 +1733,38 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         for instance in invalid_instances:
             with self.assertRaises(exceptions.ValidationError):
                 validator.validate(instance)
+
+    def test_it_creates_a_ref_resolver_if_not_provided(self):
+        self.assertIsInstance(
+            self.Validator({}).resolver,
+            validators._RefResolver,
+        )
+
+    def test_it_upconverts_from_deprecated_RefResolvers(self):
+        ref, schema = "someCoolRef", {"type": "integer"}
+        resolver = validators._RefResolver("", {}, store={ref: schema})
+        validator = self.Validator({"$ref": ref}, resolver=resolver)
+
+        with self.assertRaises(exceptions.ValidationError):
+            validator.validate(None)
+
+    def test_it_upconverts_from_yet_older_deprecated_legacy_RefResolvers(self):
+        """
+        Legacy RefResolvers support only the context manager form of
+        resolution.
+        """
+
+        class LegacyRefResolver:
+            @contextmanager
+            def resolving(this, ref):
+                self.assertEqual(ref, "the ref")
+                yield {"type": "integer"}
+
+        resolver = LegacyRefResolver()
+        schema = {"$ref": "the ref"}
+
+        with self.assertRaises(exceptions.ValidationError):
+            self.Validator(schema, resolver=resolver).validate(None)
 
 
 class AntiDraft6LeakMixin:
