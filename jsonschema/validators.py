@@ -23,12 +23,18 @@ from jsonschema import (
     _format,
     _legacy_validators,
     _types,
+    _typing,
     _utils,
     _validators,
     exceptions,
 )
 
 _UNSET = _utils.Unset()
+
+_ValidatorCallback = typing.Callable[
+    [typing.Any, typing.Any, _typing.JsonValue, _typing.JsonObject],
+    typing.Iterator[exceptions.ValidationError],
+]
 
 _VALIDATORS: dict[str, typing.Any] = {}
 _META_SCHEMAS = _utils.URIDict()
@@ -114,13 +120,15 @@ def _store_schema_list():
 
 
 def create(
-    meta_schema,
-    validators=(),
+    meta_schema: _typing.Schema,
+    validators: Mapping[str, _ValidatorCallback] | tuple[()] = (),
     version=None,
-    type_checker=_types.draft202012_type_checker,
-    format_checker=_format.draft202012_format_checker,
-    id_of=_id_of,
-    applicable_validators=methodcaller("items"),
+    type_checker: _types.TypeChecker = _types.draft202012_type_checker,
+    format_checker: _format.FormatChecker = _format.draft202012_format_checker,
+    id_of: typing.Callable[[_typing.Schema], str] = _id_of,
+    applicable_validators: typing.Callable[
+        [_typing.Schema], typing.Iterable[tuple[str, _ValidatorCallback]]
+    ] = methodcaller("items"),
 ):
     """
     Create a new validator class.
@@ -186,7 +194,7 @@ def create(
     @attr.s
     class Validator:
 
-        VALIDATORS = dict(validators)
+        VALIDATORS: dict[str, _ValidatorCallback] = dict(validators)
         META_SCHEMA = dict(meta_schema)
         TYPE_CHECKER = type_checker
         FORMAT_CHECKER = format_checker_arg
@@ -339,7 +347,7 @@ def create(
     if version is not None:
         safe = version.title().replace(" ", "").replace("-", "")
         Validator.__name__ = Validator.__qualname__ = f"{safe}Validator"
-        Validator = validates(version)(Validator)
+        Validator = validates(version)(Validator)  # type: ignore[misc]
 
     return Validator
 
