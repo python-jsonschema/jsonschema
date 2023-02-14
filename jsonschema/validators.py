@@ -18,6 +18,7 @@ import warnings
 from jsonschema_specifications import REGISTRY as SPECIFICATIONS
 from pyrsistent import m
 import attr
+import referencing.jsonschema
 
 from jsonschema import (
     _format,
@@ -99,15 +100,6 @@ def validates(version):
     return _validates
 
 
-def _id_of(schema):
-    """
-    Return the ID of a schema for recent JSON Schema drafts.
-    """
-    if schema is True or schema is False:
-        return ""
-    return schema.get("$id", "")
-
-
 def _store_schema_list():
     return [
         (uri, each.contents) for uri, each in SPECIFICATIONS.items()
@@ -122,7 +114,7 @@ def create(
     version=None,
     type_checker=_types.draft202012_type_checker,
     format_checker=_format.draft202012_format_checker,
-    id_of=_id_of,
+    id_of=referencing.jsonschema.DRAFT202012.id_of,
     applicable_validators=methodcaller("items"),
 ):
     """
@@ -461,7 +453,7 @@ Draft3Validator = create(
     type_checker=_types.draft3_type_checker,
     format_checker=_format.draft3_format_checker,
     version="draft3",
-    id_of=_legacy_validators.id_of_ignore_ref(property="id"),
+    id_of=referencing.jsonschema.DRAFT3.id_of,
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
@@ -500,7 +492,7 @@ Draft4Validator = create(
     type_checker=_types.draft4_type_checker,
     format_checker=_format.draft4_format_checker,
     version="draft4",
-    id_of=_legacy_validators.id_of_ignore_ref(property="id"),
+    id_of=referencing.jsonschema.DRAFT4.id_of,
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
@@ -544,7 +536,7 @@ Draft6Validator = create(
     type_checker=_types.draft6_type_checker,
     format_checker=_format.draft6_format_checker,
     version="draft6",
-    id_of=_legacy_validators.id_of_ignore_ref(),
+    id_of=referencing.jsonschema.DRAFT6.id_of,
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
@@ -589,7 +581,7 @@ Draft7Validator = create(
     type_checker=_types.draft7_type_checker,
     format_checker=_format.draft7_format_checker,
     version="draft7",
-    id_of=_legacy_validators.id_of_ignore_ref(),
+    id_of=referencing.jsonschema.DRAFT7.id_of,
     applicable_validators=_legacy_validators.ignore_ref_siblings,
 )
 
@@ -782,7 +774,13 @@ class _RefResolver:
         self._remote_cache = remote_cache
 
     @classmethod
-    def from_schema(cls, schema, id_of=_id_of, *args, **kwargs):
+    def from_schema(
+        cls,
+        schema,
+        id_of=referencing.jsonschema.DRAFT202012.id_of,
+        *args,
+        **kwargs,
+    ):
         """
         Construct a resolver from a JSON schema object.
 
@@ -797,7 +795,7 @@ class _RefResolver:
             `_RefResolver`
         """
 
-        return cls(base_uri=id_of(schema), referrer=schema, *args, **kwargs)  # noqa: B026, E501
+        return cls(base_uri=id_of(schema) or "", referrer=schema, *args, **kwargs)  # noqa: B026, E501
 
     def push_scope(self, scope):
         """
