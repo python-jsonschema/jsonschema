@@ -180,7 +180,7 @@ def create(
         ID_OF = staticmethod(id_of)
 
         schema = attr.ib(repr=reprlib.repr)
-        resolver = attr.ib(default=None, repr=False)
+        _resolver = attr.ib(default=None, repr=False)
         format_checker = attr.ib(default=None)
 
         def __init_subclass__(cls):
@@ -198,13 +198,6 @@ def create(
                 stacklevel=2,
             )
 
-        def __attrs_post_init__(self):
-            if self.resolver is None:
-                self.resolver = _RefResolver.from_schema(
-                    self.schema,
-                    id_of=id_of,
-                )
-
         @classmethod
         def check_schema(cls, schema, format_checker=_UNSET):
             Validator = validator_for(cls.META_SCHEMA, default=cls)
@@ -216,6 +209,15 @@ def create(
             )
             for error in validator.iter_errors(schema):
                 raise exceptions.SchemaError.create_from(error)
+
+        @property
+        def resolver(self):
+            if self._resolver is None:
+                self._resolver = _RefResolver.from_schema(
+                    self.schema,
+                    id_of=id_of,
+                )
+            return self._resolver
 
         def evolve(self, **changes):
             # Essentially reproduces attr.evolve, but may involve instantiating
@@ -262,6 +264,8 @@ def create(
                 )
                 return
 
+            # Temporarily needed to eagerly create a resolver...
+            self.resolver
             scope = id_of(_schema)
             if scope:
                 self.resolver.push_scope(scope)
@@ -305,6 +309,20 @@ def create(
                 return self.TYPE_CHECKER.is_type(instance, type)
             except exceptions.UndefinedTypeCheck:
                 raise exceptions.UnknownType(type, instance, self.schema)
+
+        def _validate_reference(self, ref, instance):
+            resolve = getattr(self.resolver, "resolve", None)
+            if resolve is None:
+                with self.resolver.resolving(ref) as resolved:
+                    yield from self.descend(instance, resolved)
+            else:
+                scope, resolved = self.resolver.resolve(ref)
+                self.resolver.push_scope(scope)
+
+                try:
+                    yield from self.descend(instance, resolved)
+                finally:
+                    self.resolver.pop_scope()
 
         def is_valid(self, instance, _schema=None):
             if _schema is not None:

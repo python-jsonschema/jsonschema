@@ -1,5 +1,4 @@
 from fractions import Fraction
-from urllib.parse import urldefrag, urljoin
 import re
 
 from jsonschema._utils import (
@@ -286,33 +285,11 @@ def enum(validator, enums, instance, schema):
 
 
 def ref(validator, ref, instance, schema):
-    resolve = getattr(validator.resolver, "resolve", None)
-    if resolve is None:
-        with validator.resolver.resolving(ref) as resolved:
-            yield from validator.descend(instance, resolved)
-    else:
-        scope, resolved = validator.resolver.resolve(ref)
-        validator.resolver.push_scope(scope)
-
-        try:
-            yield from validator.descend(instance, resolved)
-        finally:
-            validator.resolver.pop_scope()
+    yield from validator._validate_reference(ref=ref, instance=instance)
 
 
 def dynamicRef(validator, dynamicRef, instance, schema):
-    _, fragment = urldefrag(dynamicRef)
-
-    for url in validator.resolver._scopes_stack:
-        lookup_url = urljoin(url, dynamicRef)
-        with validator.resolver.resolving(lookup_url) as subschema:
-            if ("$dynamicAnchor" in subschema
-                    and fragment == subschema["$dynamicAnchor"]):
-                yield from validator.descend(instance, subschema)
-                break
-    else:
-        with validator.resolver.resolving(dynamicRef) as subschema:
-            yield from validator.descend(instance, subschema)
+    yield from validator._validate_reference(ref=dynamicRef, instance=instance)
 
 
 def type(validator, types, instance, schema):

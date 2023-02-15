@@ -422,23 +422,6 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
         or skip(
             message="dynamicRef support isn't fully working yet.",
             subject="dynamicRef",
-            description="correct extended schema",
-            case_description=(
-                "$ref and $dynamicAnchor are independent of order - "
-                "$defs first"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description="correct extended schema",
-            case_description=(
-                "$ref and $dynamicAnchor are independent of order - $ref first"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
             description="incorrect extended schema",
             case_description=(
                 "$ref and $dynamicAnchor are independent of order - $ref first"
@@ -481,6 +464,41 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
             message="dynamicRef support isn't fully working yet.",
             subject="anchor",
             case_description="same $anchor with different base uri",
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="instance with misspelled field",
+            case_description=(
+                "strict-tree schema, guards against misspelled properties"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="An array containing non-strings is invalid",
+            case_description=(
+                "A $dynamicRef resolves to the first $dynamicAnchor still "
+                "in scope that is encountered when the schema is evaluated"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="An array containing non-strings is invalid",
+            case_description=(
+                "A $dynamicRef with intermediate scopes that don't include a "
+                "matching $dynamicAnchor does not affect dynamic scope "
+                "resolution"
+            ),
+        )(test)
+        or skip(
+            message="dynamicRef support isn't fully working yet.",
+            subject="dynamicRef",
+            description="incorrect extended schema",
+            case_description=(
+                "tests for implementation dynamic anchor and reference link"
+            ),
         )(test)
         or skip(
             message="Vocabulary support is still in-progress.",
