@@ -212,6 +212,18 @@ def create(
 
         @property
         def resolver(self):
+            warnings.warn(
+                (
+                    f"Accessing {self.__class__.__name__}.resolver is "
+                    "deprecated as of v4.18.0, in favor of the "
+                    "https://github.com/python-jsonschema/referencing "
+                    "library, which provides more compliant referencing "
+                    "behavior as well as more flexible APIs for "
+                    "customization."
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
             if self._resolver is None:
                 self._resolver = _RefResolver.from_schema(
                     self.schema,
@@ -265,7 +277,9 @@ def create(
                 return
 
             # Temporarily needed to eagerly create a resolver...
-            self.resolver
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                self.resolver
             scope = id_of(_schema)
             if scope:
                 self.resolver.push_scope(scope)

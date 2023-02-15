@@ -65,6 +65,11 @@ class Validator(Protocol):
             a resolver that will be used to resolve :kw:`$ref`
             properties (JSON references). If unprovided, one will be created.
 
+            .. deprecated:: v4.18.0
+
+                `RefResolver` has been deprecated in favor of `referencing`,
+                and with it, this argument.
+
         format_checker:
 
             if provided, a checker which will be used to assert about
@@ -108,7 +113,6 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
-        resolver: jsonschema.validators._RefResolver | None = None,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...

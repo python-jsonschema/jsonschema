@@ -1735,10 +1735,9 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
                 validator.validate(instance)
 
     def test_it_creates_a_ref_resolver_if_not_provided(self):
-        self.assertIsInstance(
-            self.Validator({}).resolver,
-            validators._RefResolver,
-        )
+        with self.assertWarns(DeprecationWarning):
+            resolver = self.Validator({}).resolver
+        self.assertIsInstance(resolver, validators._RefResolver)
 
     def test_it_upconverts_from_deprecated_RefResolvers(self):
         ref, schema = "someCoolRef", {"type": "integer"}

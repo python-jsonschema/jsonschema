@@ -125,6 +125,22 @@ class TestDeprecations(TestCase):
             ),
         )
 
+    def test_Validator_resolver(self):
+        """
+        As of v4.18.0, accessing Validator.resolver is deprecated.
+        """
+
+        validator = validators.Draft7Validator({})
+        with self.assertWarns(DeprecationWarning) as w:
+            self.assertIsInstance(validator.resolver, validators._RefResolver)
+
+        self.assertEqual(w.filename, __file__)
+        self.assertTrue(
+            str(w.warning).startswith(
+                "Accessing Draft7Validator.resolver is ",
+            ),
+        )
+
     def test_Validator_subclassing(self):
         """
         As of v4.12.0, subclassing a validator class produces an explicit
