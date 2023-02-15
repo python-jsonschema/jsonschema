@@ -27,10 +27,11 @@ from jsonschema import (
     _validators,
     exceptions,
 )
+from jsonschema.protocols import Validator
 
 _UNSET = _utils.Unset()
 
-_VALIDATORS: dict[str, typing.Any] = {}
+_VALIDATORS: dict[str, Validator] = {}
 _META_SCHEMAS = _utils.URIDict()
 _VOCABULARIES: list[tuple[str, typing.Any]] = []
 
