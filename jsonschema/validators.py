@@ -100,14 +100,6 @@ def validates(version):
     return _validates
 
 
-def _store_schema_list():
-    return [
-        (uri, each.contents) for uri, each in SPECIFICATIONS.items()
-    ] + [
-        (id, validator.META_SCHEMA) for id, validator in _META_SCHEMAS.items()
-    ]
-
-
 def create(
     meta_schema,
     validators=(),
@@ -761,7 +753,12 @@ class _RefResolver:
 
         self._scopes_stack = [base_uri]
 
-        self.store = _utils.URIDict(_store_schema_list())
+        self.store = _utils.URIDict(
+            (uri, each.contents) for uri, each in SPECIFICATIONS.items()
+        )
+        self.store.update(
+            (id, each.META_SCHEMA) for id, each in _META_SCHEMAS.items()
+        )
         self.store.update(store)
         self.store.update(
             (schema["$id"], schema)
