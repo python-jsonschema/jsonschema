@@ -38,6 +38,11 @@ class TestCreateAndExtend(TestCase):
             validators._META_SCHEMAS,
             dict(validators._META_SCHEMAS),
         )
+        self.addCleanup(
+            self.assertEqual,
+            validators._VALIDATORS,
+            dict(validators._VALIDATORS),
+        )
 
         self.meta_schema = {"$id": "some://meta/schema"}
         self.validators = {"fail": fail}
@@ -108,6 +113,7 @@ class TestCreateAndExtend(TestCase):
             version="my version",
         )
         self.addCleanup(validators._META_SCHEMAS.pop, "something")
+        self.addCleanup(validators._VALIDATORS.pop, "my version")
         self.assertEqual(Validator.__name__, "MyVersionValidator")
         self.assertEqual(Validator.__qualname__, "MyVersionValidator")
 
@@ -117,6 +123,7 @@ class TestCreateAndExtend(TestCase):
             version="my version",
         )
         self.addCleanup(validators._META_SCHEMAS.pop, "something")
+        self.addCleanup(validators._VALIDATORS.pop, "my version")
         self.assertEqual(
             repr(Validator({})),
             "MyVersionValidator(schema={}, format_checker=None)",
@@ -128,6 +135,7 @@ class TestCreateAndExtend(TestCase):
             version="my version",
         )
         self.addCleanup(validators._META_SCHEMAS.pop, "something")
+        self.addCleanup(validators._VALIDATORS.pop, "my version")
         self.assertEqual(
             repr(Validator({"a": list(range(1000))})), (
                 "MyVersionValidator(schema={'a': [0, 1, 2, 3, 4, 5, ...]}, "
@@ -148,6 +156,7 @@ class TestCreateAndExtend(TestCase):
             version="foo-bar",
         )
         self.addCleanup(validators._META_SCHEMAS.pop, "something")
+        self.addCleanup(validators._VALIDATORS.pop, "foo-bar")
         self.assertEqual(Validator.__qualname__, "FooBarValidator")
 
     def test_if_a_version_is_not_provided_it_is_not_registered(self):
@@ -165,6 +174,7 @@ class TestCreateAndExtend(TestCase):
             id_of=lambda s: s.get("id", ""),
         )
         self.addCleanup(validators._META_SCHEMAS.pop, meta_schema_key)
+        self.addCleanup(validators._VALIDATORS.pop, "my version")
 
         self.assertIn(meta_schema_key, validators._META_SCHEMAS)
 
@@ -177,6 +187,7 @@ class TestCreateAndExtend(TestCase):
             version="my version",
         )
         self.addCleanup(validators._META_SCHEMAS.pop, meta_schema_key)
+        self.addCleanup(validators._VALIDATORS.pop, "my version")
 
         self.assertIn(meta_schema_key, validators._META_SCHEMAS)
 
