@@ -786,7 +786,7 @@ class _RefResolver:
 
     .. deprecated:: v4.18.0
 
-        `RefResolver` has been deprecated in favor of `referencing`.
+        ``RefResolver`` has been deprecated in favor of `referencing`.
     """
 
     _DEPRECATION_MESSAGE = (

@@ -11,8 +11,6 @@ from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any, ClassVar, Iterable
 import sys
 
-from referencing.jsonschema import SchemaRegistry
-
 # doing these imports with `try ... except ImportError` doesn't pass mypy
 # checking because mypy sees `typing._SpecialForm` and
 # `typing_extensions._SpecialForm` as incompatible
@@ -32,6 +30,7 @@ else:
 if TYPE_CHECKING:
     import jsonschema
     import jsonschema.validators
+    import referencing.jsonschema
 
 from jsonschema.exceptions import ValidationError
 
@@ -73,8 +72,8 @@ class Validator(Protocol):
 
             .. deprecated:: v4.18.0
 
-                `RefResolver` has been deprecated in favor of `referencing`,
-                and with it, this argument.
+                `RefResolver <_RefResolver>` has been deprecated in favor of
+                `referencing`, and with it, this argument.
 
         format_checker:
 
@@ -119,7 +118,7 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
-        registry: SchemaRegistry,
+        registry: referencing.jsonschema.SchemaRegistry,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...
