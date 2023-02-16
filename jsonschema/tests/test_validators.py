@@ -1540,16 +1540,23 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         self.Validator({object(): object()}).validate(instance=object())
 
     def test_evolve(self):
-        ref, schema = "someCoolRef", {"type": "integer"}
-        resolver = validators._RefResolver("", {}, store={ref: schema})
+        schema, format_checker = {"type": "integer"}, FormatChecker()
+        original = self.Validator(
+            schema,
+            format_checker=format_checker,
+        )
+        new = original.evolve(
+            schema={"type": "string"},
+            format_checker=self.Validator.FORMAT_CHECKER,
+        )
 
-        validator = self.Validator(schema, resolver=resolver)
-        new = validator.evolve(schema={"type": "string"})
-
-        expected = self.Validator({"type": "string"}, resolver=resolver)
+        expected = self.Validator(
+            {"type": "string"},
+            format_checker=self.Validator.FORMAT_CHECKER,
+        )
 
         self.assertEqual(new, expected)
-        self.assertNotEqual(new, validator)
+        self.assertNotEqual(new, original)
 
     def test_evolve_with_subclass(self):
         """
