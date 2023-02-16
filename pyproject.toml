@@ -31,7 +31,7 @@ classifiers = [
 dynamic = ["version", "readme"]
 
 dependencies = [
-  "attrs>=17.4.0",
+  "attrs>=22.2.0",
   "pyrsistent>=0.14.0,!=0.17.0,!=0.17.1,!=0.17.2",
   "jsonschema-specifications>=2023.03.1",
   "referencing>=0.17.1",
