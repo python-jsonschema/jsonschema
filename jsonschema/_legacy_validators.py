@@ -1,3 +1,5 @@
+from referencing.jsonschema import lookup_recursive_ref
+
 from jsonschema import _utils
 from jsonschema.exceptions import ValidationError
 
@@ -210,22 +212,12 @@ def contains_draft6_draft7(validator, contains, instance, schema):
 
 
 def recursiveRef(validator, recursiveRef, instance, schema):
-    lookup_url, target = validator.resolver.resolution_scope, validator.schema
-
-    for each in reversed(validator.resolver._scopes_stack[1:]):
-        lookup_url, next_target = validator.resolver.resolve(each)
-        if next_target.get("$recursiveAnchor"):
-            target = next_target
-        else:
-            break
-
-    fragment = recursiveRef.lstrip("#")
-    subschema = validator.resolver.resolve_fragment(target, fragment)
-    # FIXME: This is gutted (and not calling .descend) because it can trigger
-    #        recursion errors, so there's a bug here. Re-enable the tests to
-    #        see it.
-    subschema
-    return []
+    resolved = lookup_recursive_ref(validator._resolver)
+    yield from validator.descend(
+        instance,
+        resolved.contents,
+        resolver=resolved.resolver,
+    )
 
 
 def find_evaluated_item_indexes_by_schema(validator, instance, schema):
@@ -243,15 +235,17 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
         return list(range(0, len(instance)))
 
     if "$ref" in schema:
-        scope, resolved = validator.resolver.resolve(schema["$ref"])
-        validator.resolver.push_scope(scope)
-
-        try:
-            evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                validator, instance, resolved,
-            )
-        finally:
-            validator.resolver.pop_scope()
+        resolved = validator._resolver.lookup(schema["$ref"])
+        evaluated_indexes.extend(
+            find_evaluated_item_indexes_by_schema(
+                validator.evolve(
+                    schema=resolved.contents,
+                    _resolver=resolved.resolver,
+                ),
+                instance,
+                resolved.contents,
+            ),
+        )
 
     if "items" in schema:
         if validator.is_type(schema["items"], "object"):

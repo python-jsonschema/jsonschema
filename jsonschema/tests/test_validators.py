@@ -1553,6 +1553,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         expected = self.Validator(
             {"type": "string"},
             format_checker=self.Validator.FORMAT_CHECKER,
+            _resolver=new._resolver,
         )
 
         self.assertEqual(new, expected)

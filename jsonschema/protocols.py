@@ -11,6 +11,8 @@ from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any, ClassVar, Iterable
 import sys
 
+from referencing.jsonschema import SchemaRegistry
+
 # doing these imports with `try ... except ImportError` doesn't pass mypy
 # checking because mypy sees `typing._SpecialForm` and
 # `typing_extensions._SpecialForm` as incompatible
@@ -59,6 +61,10 @@ class Validator(Protocol):
             It is assumed to be valid, and providing
             an invalid schema can lead to undefined behavior. See
             `Validator.check_schema` to validate a schema first.
+
+        registry:
+
+            a schema registry that will be used for looking up JSON references
 
         resolver:
 
@@ -113,6 +119,7 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
+        registry: SchemaRegistry,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...

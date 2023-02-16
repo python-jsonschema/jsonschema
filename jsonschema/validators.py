@@ -17,6 +17,7 @@ import warnings
 
 from jsonschema_specifications import REGISTRY as SPECIFICATIONS
 from pyrsistent import m
+from referencing import Specification
 import attr
 import referencing.jsonschema
 
@@ -170,6 +171,11 @@ def create(
     # preemptively don't shadow the `Validator.format_checker` local
     format_checker_arg = format_checker
 
+    specification = referencing.jsonschema.specification_with(
+        dialect_id=id_of(meta_schema),
+        default=Specification.OPAQUE,
+    )
+
     @attr.s
     class Validator:
 
@@ -182,6 +188,19 @@ def create(
         schema = attr.ib(repr=reprlib.repr)
         _ref_resolver = attr.ib(default=None, repr=False, alias="resolver")
         format_checker = attr.ib(default=None)
+        # TODO: include new meta-schemas added at runtime
+        _registry = attr.ib(
+            default=SPECIFICATIONS,
+            converter=SPECIFICATIONS.combine,  # type: ignore[misc]
+            kw_only=True,
+            repr=False,
+        )
+        _resolver = attr.ib(
+            alias="_resolver",
+            default=None,
+            kw_only=True,
+            repr=False,
+        )
 
         def __init_subclass__(cls):
             warnings.warn(
@@ -197,6 +216,12 @@ def create(
                 DeprecationWarning,
                 stacklevel=2,
             )
+
+        def __attrs_post_init__(self):
+            if self._resolver is None:
+                self._resolver = self._registry.resolver_with_root(
+                    resource=specification.create_resource(self.schema),
+                )
 
         @classmethod
         def check_schema(cls, schema, format_checker=_UNSET):
@@ -276,38 +301,39 @@ def create(
                 )
                 return
 
-            # Temporarily needed to eagerly create a resolver...
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                self.resolver
-            scope = id_of(_schema)
-            if scope:
-                self.resolver.push_scope(scope)
-            try:
-                for k, v in applicable_validators(_schema):
-                    validator = self.VALIDATORS.get(k)
-                    if validator is None:
-                        continue
+            for k, v in applicable_validators(_schema):
+                validator = self.VALIDATORS.get(k)
+                if validator is None:
+                    continue
 
-                    errors = validator(self, v, instance, _schema) or ()
-                    for error in errors:
-                        # set details if not already set by the called fn
-                        error._set(
-                            validator=k,
-                            validator_value=v,
-                            instance=instance,
-                            schema=_schema,
-                            type_checker=self.TYPE_CHECKER,
-                        )
-                        if k not in {"if", "$ref"}:
-                            error.schema_path.appendleft(k)
-                        yield error
-            finally:
-                if scope:
-                    self.resolver.pop_scope()
+                errors = validator(self, v, instance, _schema) or ()
+                for error in errors:
+                    # set details if not already set by the called fn
+                    error._set(
+                        validator=k,
+                        validator_value=v,
+                        instance=instance,
+                        schema=_schema,
+                        type_checker=self.TYPE_CHECKER,
+                    )
+                    if k not in {"if", "$ref"}:
+                        error.schema_path.appendleft(k)
+                    yield error
 
-        def descend(self, instance, schema, path=None, schema_path=None):
-            for error in self.evolve(schema=schema).iter_errors(instance):
+        def descend(
+            self,
+            instance,
+            schema,
+            path=None,
+            schema_path=None,
+            resolver=None,
+        ):
+            if resolver is None:
+                resolver = self._resolver.in_subresource(
+                    specification.create_resource(schema),
+                )
+            validator = self.evolve(schema=schema, _resolver=resolver)
+            for error in validator.iter_errors(instance):
                 if path is not None:
                     error.path.appendleft(path)
                 if schema_path is not None:
@@ -325,6 +351,14 @@ def create(
                 raise exceptions.UnknownType(type, instance, self.schema)
 
         def _validate_reference(self, ref, instance):
+            if self._ref_resolver is None:
+                resolved = self._resolver.lookup(ref)
+                return self.descend(
+                    instance,
+                    resolved.contents,
+                    resolver=resolved.resolver,
+                )
+            else:
                 resolve = getattr(self._ref_resolver, "resolve", None)
                 if resolve is None:
                     with self._ref_resolver.resolving(ref) as resolved:

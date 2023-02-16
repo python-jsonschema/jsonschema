@@ -21,7 +21,7 @@ import referencing.jsonschema
 if TYPE_CHECKING:
     import pyperf
 
-from jsonschema.validators import _VALIDATORS, _RefResolver
+from jsonschema.validators import _VALIDATORS
 import jsonschema
 
 _DELIMITERS = re.compile(r"[\W\- ]+")
@@ -245,20 +245,11 @@ class _Test:
 
     def validate(self, Validator, **kwargs):
         Validator.check_schema(self.schema)
-        resolver = _RefResolver.from_schema(
+        validator = Validator(
             schema=self.schema,
-            store={k: v.contents for k, v in self._remotes.items()},
-            id_of=Validator.ID_OF,
+            registry=self._remotes,
+            **kwargs,
         )
-
-        # XXX: #693 asks to improve the public API for this, since yeah, it's
-        #      bad. Figures that since it's hard for end-users, we experience
-        #      the pain internally here too.
-        def prevent_network_access(uri):
-            raise RuntimeError(f"Tried to access the network: {uri}")
-        resolver.resolve_remote = prevent_network_access
-
-        validator = Validator(schema=self.schema, resolver=resolver, **kwargs)
         if os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
             breakpoint()
         validator.validate(instance=self.data)
