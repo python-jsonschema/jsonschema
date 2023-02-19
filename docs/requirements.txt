@@ -82,7 +82,7 @@ pytz==2022.7.1
     # via babel
 pyyaml==6.0
     # via sphinx-autoapi
-referencing==0.17.1
+referencing==0.18.6
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -127,7 +127,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-sphinxcontrib-spelling==7.7.0
+sphinxcontrib-spelling==8.0.0
     # via -r docs/requirements.in
 sphinxext-opengraph==0.8.1
     # via -r docs/requirements.in
