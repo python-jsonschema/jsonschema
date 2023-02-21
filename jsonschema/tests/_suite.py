@@ -49,7 +49,7 @@ def _find_suite():
 class Suite:
 
     _root: Path = field(factory=_find_suite)
-    _remotes: Registry = field(init=False)
+    _remotes: referencing.jsonschema.SchemaRegistry = field(init=False)
 
     def __attrs_post_init__(self):
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
@@ -101,7 +101,7 @@ class Suite:
 class Version:
 
     _path: Path
-    _remotes: Registry
+    _remotes: referencing.jsonschema.SchemaRegistry
 
     name: str
 
@@ -200,7 +200,7 @@ class _Test:
 
     valid: bool
 
-    _remotes: Registry
+    _remotes: referencing.jsonschema.SchemaRegistry
 
     comment: str | None = None
 
