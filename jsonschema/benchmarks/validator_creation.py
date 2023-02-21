@@ -6,7 +6,7 @@ schema = {
     "type": "array",
     "minLength": 1,
     "maxLength": 1,
-    "items": {"type": "integer"}
+    "items": {"type": "integer"},
 }
 
 
