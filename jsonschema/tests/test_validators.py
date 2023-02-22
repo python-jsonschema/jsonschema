@@ -2323,5 +2323,8 @@ class _ReallyFakeJSONResponse:
 
     _response = attr.ib()
 
+    def raise_for_status(self):
+        return None
+
     def json(self):
         return json.loads(self._response)

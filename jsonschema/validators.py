@@ -1013,7 +1013,9 @@ class RefResolver:
         elif scheme in ["http", "https"] and requests:
             # Requests has support for detecting the correct encoding of
             # json over http
-            result = requests.get(uri).json()
+            response = requests.get(uri)
+            response.raise_for_status()
+            result = response.json()
         else:
             # Otherwise, pass off to urllib and assume utf-8
             with urlopen(uri) as url:
