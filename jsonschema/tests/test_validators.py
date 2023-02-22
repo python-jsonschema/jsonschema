@@ -10,7 +10,6 @@ import json
 import os
 import sys
 import tempfile
-import unittest
 import warnings
 
 import attr
@@ -22,7 +21,6 @@ from jsonschema import (
     protocols,
     validators,
 )
-from jsonschema.tests._helpers import bug
 
 
 def fail(validator, errors, instance, schema):
