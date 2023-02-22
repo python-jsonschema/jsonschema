@@ -82,7 +82,7 @@ pytz==2022.7.1
     # via babel
 pyyaml==6.0
     # via sphinx-autoapi
-referencing==0.18.6
+referencing==0.20.0
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -113,7 +113,7 @@ sphinx-basic-ng==1.0.0b1
     # via furo
 sphinx-copybutton==0.5.1
     # via -r docs/requirements.in
-sphinx-json-schema-spec==2.3.3
+sphinx-json-schema-spec==2023.2.2
     # via -r docs/requirements.in
 sphinxcontrib-applehelp==1.0.4
     # via sphinx

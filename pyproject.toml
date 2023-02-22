@@ -34,7 +34,7 @@ dependencies = [
   "attrs>=22.2.0",
   "pyrsistent>=0.19.3",
   "jsonschema-specifications>=2023.03.1",
-  "referencing>=0.18.6",
+  "referencing>=0.20.0",
 
   "importlib_metadata;python_version<'3.8'",
   "typing_extensions;python_version<'3.8'",

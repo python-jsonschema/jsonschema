@@ -10,6 +10,7 @@ callables
 # non-codeblocked cls from autoapi
 cls
 deque
+deduplication
 dereferences
 deserialize
 deserialized
@@ -30,6 +31,7 @@ online
 outputter
 pre
 programmatically
+pseudocode
 recurses
 regex
 repr
@@ -41,6 +43,7 @@ submodules
 subschema
 subschemas
 subscopes
+untrusted
 uri
 validator
 validators
