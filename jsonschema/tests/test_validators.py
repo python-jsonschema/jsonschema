@@ -1789,18 +1789,14 @@ class AntiDraft6LeakMixin:
             self.Validator.check_schema(False)
         self.assertIn("False is not of type", str(e.exception))
 
-    @unittest.skip(bug(523))
     def test_True_is_not_a_schema_even_if_you_forget_to_check(self):
-        resolver = validators._RefResolver("", {})
         with self.assertRaises(Exception) as e:
-            self.Validator(True, resolver=resolver).validate(12)
+            self.Validator(True).validate(12)
         self.assertNotIsInstance(e.exception, exceptions.ValidationError)
 
-    @unittest.skip(bug(523))
     def test_False_is_not_a_schema_even_if_you_forget_to_check(self):
-        resolver = validators._RefResolver("", {})
         with self.assertRaises(Exception) as e:
-            self.Validator(False, resolver=resolver).validate(12)
+            self.Validator(False).validate(12)
         self.assertNotIsInstance(e.exception, exceptions.ValidationError)
 
 
