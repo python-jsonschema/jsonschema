@@ -141,6 +141,20 @@ class TestDeprecations(TestCase):
             ),
         )
 
+    def test_RefResolver(self):
+        """
+        As of v4.18.0, RefResolver is fully deprecated.
+        """
+
+        message = "jsonschema.RefResolver is deprecated"
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            from jsonschema import RefResolver  # noqa: F401
+        self.assertEqual(w.filename, __file__)
+
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            from jsonschema.validators import RefResolver  # noqa: F401, F811
+        self.assertEqual(w.filename, __file__)
+
     def test_Validator_subclassing(self):
         """
         As of v4.12.0, subclassing a validator class produces an explicit
