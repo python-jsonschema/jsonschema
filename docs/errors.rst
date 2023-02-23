@@ -273,6 +273,7 @@ error objects.
 
 .. testcode::
 
+    from jsonschema.exceptions import ErrorTree
     tree = ErrorTree(v.iter_errors(instance))
 
 As you can see, `jsonschema.exceptions.ErrorTree` takes an

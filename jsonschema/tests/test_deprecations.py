@@ -3,7 +3,7 @@ import importlib
 import subprocess
 import sys
 
-from jsonschema import FormatChecker, validators
+from jsonschema import FormatChecker, exceptions, validators
 
 
 class TestDeprecations(TestCase):
@@ -28,6 +28,33 @@ class TestDeprecations(TestCase):
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
             from jsonschema.validators import ErrorTree  # noqa
 
+        self.assertEqual(ErrorTree, exceptions.ErrorTree)
+        self.assertEqual(w.filename, __file__)
+
+    def test_import_ErrorTree(self):
+        """
+        As of v4.18.0, importing ErrorTree from the package root is
+        deprecated in favor of doing so from jsonschema.exceptions.
+        """
+
+        message = "Importing ErrorTree directly from the jsonschema package "
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            from jsonschema import ErrorTree  # noqa
+
+        self.assertEqual(ErrorTree, exceptions.ErrorTree)
+        self.assertEqual(w.filename, __file__)
+
+    def test_import_FormatError(self):
+        """
+        As of v4.18.0, importing FormatError from the package root is
+        deprecated in favor of doing so from jsonschema.exceptions.
+        """
+
+        message = "Importing FormatError directly from the jsonschema package "
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            from jsonschema import FormatError  # noqa
+
+        self.assertEqual(FormatError, exceptions.FormatError)
         self.assertEqual(w.filename, __file__)
 
     def test_validators_validators(self):
@@ -121,6 +148,25 @@ class TestDeprecations(TestCase):
 
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
             from jsonschema.validators import RefResolver  # noqa: F401, F811
+        self.assertEqual(w.filename, __file__)
+
+    def test_RefResolutionError(self):
+        """
+        As of v4.18.0, RefResolutionError is deprecated in favor of directly
+        catching errors from the referencing library.
+        """
+
+        message = "jsonschema.exceptions.RefResolutionError is deprecated"
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            from jsonschema import RefResolutionError  # noqa: F401
+
+        self.assertEqual(RefResolutionError, exceptions._RefResolutionError)
+        self.assertEqual(w.filename, __file__)
+
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            from jsonschema.exceptions import RefResolutionError  # noqa
+
+        self.assertEqual(RefResolutionError, exceptions._RefResolutionError)
         self.assertEqual(w.filename, __file__)
 
     def test_Validator_subclassing(self):

@@ -2285,15 +2285,15 @@ class TestRefResolver(TestCase):
 
         ref = "foo://bar"
         resolver = validators._RefResolver("", {}, handlers={"foo": handler})
-        with self.assertRaises(exceptions.RefResolutionError) as err:
+        with self.assertRaises(exceptions._RefResolutionError) as err:
             with resolver.resolving(ref):
                 self.fail("Shouldn't get this far!")  # pragma: no cover
-        self.assertEqual(err.exception, exceptions.RefResolutionError(error))
+        self.assertEqual(err.exception, exceptions._RefResolutionError(error))
 
     def test_helpful_error_message_on_failed_pop_scope(self):
         resolver = validators._RefResolver("", {})
         resolver.pop_scope()
-        with self.assertRaises(exceptions.RefResolutionError) as exc:
+        with self.assertRaises(exceptions._RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
 

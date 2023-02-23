@@ -884,7 +884,7 @@ class _RefResolver:
         try:
             self._scopes_stack.pop()
         except IndexError:
-            raise exceptions.RefResolutionError(
+            raise exceptions._RefResolutionError(
                 "Failed to pop the scope from an empty stack. "
                 "`pop_scope()` should only be called once for every "
                 "`push_scope()`",
@@ -1000,7 +1000,7 @@ class _RefResolver:
             try:
                 document = self.resolve_remote(url)
             except Exception as exc:
-                raise exceptions.RefResolutionError(exc)
+                raise exceptions._RefResolutionError(exc)
 
         return self.resolve_fragment(document, fragment)
 
@@ -1054,7 +1054,7 @@ class _RefResolver:
             try:
                 document = document[part]
             except (TypeError, LookupError):
-                raise exceptions.RefResolutionError(
+                raise exceptions._RefResolutionError(
                     f"Unresolvable JSON pointer: {fragment!r}",
                 )
 

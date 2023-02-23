@@ -20,9 +20,9 @@ from pyrsistent import m
 
 from jsonschema import Draft4Validator, Draft202012Validator
 from jsonschema.exceptions import (
-    RefResolutionError,
     SchemaError,
     ValidationError,
+    _RefResolutionError,
 )
 from jsonschema.validators import _LATEST_VERSION, validate
 
@@ -747,7 +747,7 @@ class TestCLI(TestCase):
         schema = '{"$ref": "someNonexistentFile.json#definitions/num"}'
         instance = "1"
 
-        with self.assertRaises(RefResolutionError) as e:
+        with self.assertRaises(_RefResolutionError) as e:
             self.assertOutputs(
                 files=dict(
                     some_schema=schema,
@@ -766,7 +766,7 @@ class TestCLI(TestCase):
         schema = '{"$ref": "foo.json#definitions/num"}'
         instance = "1"
 
-        with self.assertRaises(RefResolutionError) as e:
+        with self.assertRaises(_RefResolutionError) as e:
             self.assertOutputs(
                 files=dict(
                     some_schema=schema,
