@@ -82,7 +82,7 @@ pytz==2022.7.1
     # via babel
 pyyaml==6.0
     # via sphinx-autoapi
-referencing==0.20.0
+referencing==0.21.0
     # via
     #   jsonschema
     #   jsonschema-specifications
