@@ -18,6 +18,53 @@ The examples below essentially follow these two steps.
 .. [1] One that in fact is independent of this `jsonschema` library itself, and may some day be used by other tools or implementations.
 
 
+Introduction to the `referencing <referencing:index>` API
+---------------------------------------------------------
+
+There are 3 main objects to be aware of in the `referencing` API:
+
+    * `referencing.Registry`, which represents a specific immutable set of JSON Schemas (either in-memory or retrievable)
+    * `referencing.Specification`, which represents a specific *version* of the JSON Schema specification, which can have differing referencing behavior.
+      JSON Schema-specific specifications live in the `referencing.jsonschema` module and are named like `referencing.jsonschema.DRAFT202012`.
+    * `referencing.Resource`, which represents a specific JSON Schema (often a Python `dict`) *along* with a specific `referencing.Specification` it is to be interpreted under.
+
+As a concrete example, the simple schema ``{"type": "integer"}`` may be interpreted as a schema under either Draft 2020-12 or Draft 4 of the JSON Schema specification (amongst others); in draft 2020-12, the float ``2.0`` must be considered an integer, whereas in draft 4, it potentially is not.
+If you mean the former (i.e. to associate this schema with draft 2020-12), you'd use ``referencing.Resource(contents={"type": "integer"}, specification=referencing.jsonschema.DRAFT202012)``, whereas for the latter you'd use `referencing.jsonschema.DRAFT4`.
+
+.. seealso:: the JSON Schema :kw:`$schema` keyword
+
+    Which should generally be used to remove all ambiguity and identify *internally* to the schema what version it is written for.
+
+A schema may be identified via one or more URIs, either because they contain an :kw:`$id` keyword (in suitable versions of the JSON Schema specification) which indicates their canonical URI, or simply because you wish to externally associate a URI with the schema, regardless of whether it contains an ``$id`` keyword.
+You could add the aforementioned simple schema to a `referencing.Registry` by creating an empty registry and then identifying it via some URI:
+
+.. testcode::
+
+    from referencing import Registry, Resource
+    from referencing.jsonschema import DRAFT202012
+    schema = Resource(contents={"type": "integer"}, specification=DRAFT202012)
+    registry = Registry().with_resource(uri="http://example.com/my/schema", resource=schema)
+    print(registry)
+
+.. testoutput::
+
+   <Registry (1 uncrawled resource)>
+
+.. note::
+
+    `referencing.Registry` is an entirely immutable object.
+    All of its methods which add schemas (resources) to itself return *new* registry objects containing the added schemas.
+
+You could also confirm your schema is in the registry if you'd like, via `referencing.Registry.contents`, which will show you the contents of a resource at a given URI:
+
+.. testcode::
+
+   print(registry.contents("http://example.com/my/schema"))
+
+.. testoutput::
+
+   {'type': 'integer'}
+
 Common Scenarios
 ----------------
 
@@ -244,7 +291,19 @@ Older versions of `jsonschema` used a different object -- `_RefResolver` -- for 
 
 If you are not already constructing your own `_RefResolver`, this change should be transparent to you (or even recognizably improved, as the point of the migration was to improve the quality of the referencing implementation and enable some new functionality).
 
-If you *were* configuring your own `_RefResolver`, here's how to migrate to the newer APIs:
+.. table:: Rough equivalence between `_RefResolver` and `referencing.Registry` APIs
+   :widths: auto
+
+   ===========================================================  =====================================================================================================================
+                             Old API                                                                                      New API
+   ===========================================================  =====================================================================================================================
+   ``RefResolver.from_schema({"$id": "urn:example:foo", ...}``  ``Registry().with_resource(uri="urn:example:foo", resource=Resource.from_contents({"$id": "urn:example:foo", ...}))``
+   Overriding ``RefResolver.resolve_from_url``                  Passing a callable to `referencing.Registry`\ 's ``retrieve`` argument
+   ``DraftNValidator(..., resolver=_RefResolver(...))``  ``     DraftNValidator(..., registry=Registry().with_resources(...))``
+   ===========================================================  =====================================================================================================================
+
+
+Here are some more specifics on how to migrate to the newer APIs:
 
 The ``store`` argument
 ~~~~~~~~~~~~~~~~~~~~~~
