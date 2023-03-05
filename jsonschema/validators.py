@@ -16,8 +16,8 @@ import reprlib
 import warnings
 
 from jsonschema_specifications import REGISTRY as SPECIFICATIONS
-from pyrsistent import m
 from referencing import Specification
+from rpds import HashTrieMap
 import attr
 import referencing.jsonschema
 
@@ -802,7 +802,7 @@ class _RefResolver:
         self,
         base_uri,
         referrer,
-        store=m(),
+        store=HashTrieMap(),
         cache_remote=True,
         handlers=(),
         urljoin_cache=None,

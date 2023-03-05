@@ -16,8 +16,6 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     import importlib_metadata as metadata  # type: ignore
 
-from pyrsistent import m
-
 from jsonschema import Draft4Validator, Draft202012Validator
 from jsonschema.exceptions import (
     SchemaError,
@@ -70,13 +68,13 @@ def _message_for(non_json):
 
 class TestCLI(TestCase):
     def run_cli(
-        self, argv, files=m(), stdin=StringIO(), exit_code=0, **override,
+        self, argv, files=None, stdin=StringIO(), exit_code=0, **override,
     ):
         arguments = cli.parse_args(argv)
         arguments.update(override)
 
         self.assertFalse(hasattr(cli, "open"))
-        cli.open = fake_open(files)
+        cli.open = fake_open(files or {})
         try:
             stdout, stderr = StringIO(), StringIO()
             actual_exit_code = cli.run(
