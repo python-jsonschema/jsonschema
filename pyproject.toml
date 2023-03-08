@@ -33,8 +33,8 @@ dynamic = ["version", "readme"]
 dependencies = [
   "attrs>=22.2.0",
   "jsonschema-specifications>=2023.03.1",
-  "referencing>=0.21.0",
-  "rpds-py>=0.4.1",
+  "referencing>=0.24.2",
+  "rpds-py>=0.5.2",
 
   "importlib_metadata;python_version<'3.8'",
   "typing_extensions;python_version<'3.8'",
