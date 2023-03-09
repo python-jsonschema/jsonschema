@@ -5,7 +5,7 @@ JSON (Schema) Referencing
 The JSON Schema :kw:`$ref` and :kw:`$dynamicRef` keywords allow schema authors to combine multiple schemas (or subschemas) together for reuse or deduplication.
 
 The `referencing <referencing:index>` library was written in order to provide a simple, well-behaved and well-tested implementation of this kind of reference resolution [1]_.
-It has its own documentation, but this page serves as a quick introduction which is tailored more specifically to JSON Schema, and even more specifically to how to configure `referencing <referencing:index>` for use with `Validator` objects in order to customize the behavior of :kw:`$ref` and friends in your schemas.
+It has its `own documentation which is worth reviewing <referencing:intro>`, but this page serves as an introduction which is tailored specifically to JSON Schema, and even more specifically to how to configure `referencing <referencing:index>` for use with `Validator` objects in order to customize the behavior of the :kw:`$ref` keyword and friends in your schemas.
 
 Configuring `jsonschema` for custom referencing behavior is essentially a two step process:
 
@@ -64,6 +64,8 @@ You could also confirm your schema is in the registry if you'd like, via `refere
 .. testoutput::
 
    {'type': 'integer'}
+
+For further details, see the `referencing documentation <referencing:intro>`.
 
 Common Scenarios
 ----------------
