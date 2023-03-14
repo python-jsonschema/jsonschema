@@ -8,6 +8,7 @@ v4.18.0
   Please file issues on the ``referencing`` tracker if there is functionality missing from it, or here on the ``jsonschema`` issue tracker if you have issues with existing code not functioning the same, or with figuring out how to change it to use ``referencing``.
 * Support for Python 3.7 has been dropped, as it is nearing end-of-life.
   This should not be a "visible" change in the sense that ``requires-python`` has been updated, so users using 3.7 should still receive ``v4.17.3`` when installing the library.
+* On draft 2019-09, ``unevaluatedItems`` now properly does *not* consider items to be evaluated by an ``additionalItems`` schema if ``items`` is missing from the schema, as the specification says in this case that ``additionalItems`` must be completely ignored.
 
 v4.17.3
 =======
