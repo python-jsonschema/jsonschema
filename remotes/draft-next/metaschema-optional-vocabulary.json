@@ -1,0 +1,13 @@
+{
+    "$schema": "https://json-schema.org/draft/next/schema",
+    "$id": "http://localhost:1234/draft-next/metaschema-optional-vocabulary.json",
+    "$vocabulary": {
+        "https://json-schema.org/draft/next/vocab/validation": true,
+        "https://json-schema.org/draft/next/vocab/core": true,
+        "http://localhost:1234/draft/next/vocab/custom": false
+    },
+    "allOf": [
+        { "$ref": "https://json-schema.org/draft/next/meta/validation" },
+        { "$ref": "https://json-schema.org/draft/next/meta/core" }
+    ]
+}

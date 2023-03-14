@@ -99,7 +99,7 @@
         ]
     },
     {
-        "description": "unevaluatedItems with items",
+        "description": "unevaluatedItems with items and prefixItems",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "prefixItems": [
@@ -113,6 +113,27 @@
                 "description": "unevaluatedItems doesn't apply",
                 "data": ["foo", 42],
                 "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with items",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "items": {"type": "number"},
+            "unevaluatedItems": {"type": "string"}
+        },
+        "tests": [
+            {
+                "description": "valid under items",
+                "comment": "no elements are considered by unevaluatedItems",
+                "data": [5, 6, 7, 8],
+                "valid": true
+            },
+            {
+                "description": "invalid under items",
+                "data": ["foo", "bar", "baz"],
+                "valid": false
             }
         ]
     },

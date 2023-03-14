@@ -118,6 +118,44 @@
         ]
     },
     {
+        "description": "A $dynamicRef without anchor in fragment behaves identical to $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "https://test.json-schema.org/dynamicRef-without-anchor/root",
+            "$ref": "list",
+            "$defs": {
+                "foo": {
+                    "$dynamicAnchor": "items",
+                    "type": "string"
+                },
+                "list": {
+                    "$id": "list",
+                    "type": "array",
+                    "items": { "$dynamicRef": "#/$defs/items" },
+                    "$defs": {
+                      "items": {
+                          "$comment": "This is only needed to satisfy the bookending requirement",
+                          "$dynamicAnchor": "items",
+                          "type": "number"
+                      }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "An array of strings is invalid",
+                "data": ["foo", "bar"],
+                "valid": false
+            },
+            {
+                "description": "An array of numbers is valid",
+                "data": [24, 42],
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "A $dynamicRef with intermediate scopes that don't include a matching $dynamicAnchor does not affect dynamic scope resolution",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",

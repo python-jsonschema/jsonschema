@@ -79,5 +79,19 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "small multiple of large integer",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "type": "integer", "multipleOf": 1e-8
+        },
+        "tests": [
+            {
+                "description": "any integer is a multiple of 1e-8",
+                "data": 12391239123,
+                "valid": true
+            }
+        ]
     }
 ]

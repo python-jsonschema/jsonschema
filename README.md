@@ -20,6 +20,8 @@ Drafts 04 and 03 are considered "frozen" in that less effort is put in to backpo
 Additional coverage is always welcome, particularly for bugs encountered in real-world implementations.
 If you see anything missing or incorrect, please feel free to [file an issue](https://github.com/json-schema-org/JSON-Schema-Test-Suite/issues) or [submit a PR](https://github.com/json-schema-org/JSON-Schema-Test-Suite).
 
+@gregsdennis has also started a separate [test suite](https://github.com/gregsdennis/json-schema-vocab-test-suites) that is modelled after this suite to cover third-party vocabularies.
+
 ## Introduction to the Test Suite Structure
 
 The tests in this suite are contained in the `tests` directory at the root of this repository.

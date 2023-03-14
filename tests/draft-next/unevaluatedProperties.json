@@ -1516,5 +1516,27 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "unevaluatedProperties not affected by propertyNames",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "propertyNames": {"maxLength": 1},
+            "unevaluatedProperties": {
+                "type": "number"
+            }
+        },
+        "tests": [
+            {
+                "description": "allows only number properties",
+                "data": {"a": 1},
+                "valid": true
+            },
+            {
+                "description": "string property is invalid",
+                "data": {"a": "b"},
+                "valid": false
+            }
+        ]
     }
 ]

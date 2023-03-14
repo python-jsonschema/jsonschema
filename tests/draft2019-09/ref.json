@@ -949,5 +949,34 @@
                 "valid": true
             }
         ]
-    }
+    },
+    {
+         "description": "ref with absolute-path-reference",
+         "schema": {
+             "$id": "http://example.com/ref/absref.json",
+             "$defs": {
+                 "a": {
+                     "$id": "http://example.com/ref/absref/foobar.json",
+                     "type": "number"
+                 },
+                 "b": {
+                     "$id": "http://example.com/absref/foobar.json",
+                     "type": "string"
+                 }
+             },
+             "$ref": "/absref/foobar.json"
+         },
+         "tests": [
+             {
+                 "description": "a string is valid",
+                 "data": "foo",
+                 "valid": true
+             },
+             {
+                 "description": "an integer is invalid",
+                 "data": 12,
+                 "valid": false
+             }
+         ]
+     }
 ]
