@@ -99,7 +99,7 @@
         ]
     },
     {
-        "description": "unevaluatedItems with additionalItems",
+        "description": "unevaluatedItems with items and additionalItems",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
             "items": [
@@ -112,6 +112,48 @@
             {
                 "description": "unevaluatedItems doesn't apply",
                 "data": ["foo", 42],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with ignored additionalItems",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "additionalItems": {"type": "number"},
+            "unevaluatedItems": {"type": "string"}
+        },
+        "tests": [
+            {
+                "description": "invalid under unevaluatedItems",
+                "comment": "additionalItems is entirely ignored when items isn't present, so all elements need to be valid against the unevaluatedItems schema",
+                "data": ["foo", 1],
+                "valid": false
+            },
+            {
+                "description": "all valid under unevaluatedItems",
+                "data": ["foo", "bar", "baz"],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedItems with ignored applicator additionalItems",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "allOf": [ { "additionalItems": { "type": "number" } } ],
+            "unevaluatedItems": {"type": "string"}
+        },
+        "tests": [
+            {
+                "description": "invalid under unevaluatedItems",
+                "comment": "additionalItems is entirely ignored when items isn't present, so all elements need to be valid against the unevaluatedItems schema",
+                "data": ["foo", 1],
+                "valid": false
+            },
+            {
+                "description": "all valid under unevaluatedItems",
+                "data": ["foo", "bar", "baz"],
                 "valid": true
             }
         ]

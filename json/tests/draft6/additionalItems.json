@@ -21,6 +21,29 @@
     {
         "description": "when items is schema, additionalItems does nothing",
         "schema": {
+            "items": {
+                "type": "integer"
+            },
+            "additionalItems": {
+                "type": "string"
+            }
+        },
+        "tests": [
+            {
+                "description": "valid with a array of type integers",
+                "data": [1,2,3],
+                "valid": true
+            },
+            {
+                "description": "invalid with a array of mixed types",
+                "data": [1,"2","3"],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "when items is schema, boolean additionalItems does nothing",
+        "schema": {
             "items": {},
             "additionalItems": false
         },

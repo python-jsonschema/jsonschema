@@ -39,6 +39,21 @@
                 "valid": true
             },
             {
+                "description": "invalid time string with extra leading zeros",
+                "data": "008:030:006Z",
+                "valid": false
+            },
+            {
+                "description": "invalid time string with no leading zero for single digit",
+                "data": "8:3:6Z",
+                "valid": false
+            },
+            {
+                "description": "hour, minute, second must be two digits",
+                "data": "8:0030:6Z",
+                "valid": false
+            },
+            {
                 "description": "a valid time string with leap second, Zulu",
                 "data": "23:59:60Z",
                 "valid": true
@@ -127,6 +142,11 @@
                 "description": "a valid time string with minus offset",
                 "data": "08:30:06-08:00",
                 "valid": true
+            },
+            {
+                "description": "hour, minute in time-offset must be two digits",
+                "data": "08:30:06-8:000",
+                "valid": false
             },
             {
                 "description": "a valid time string with case-insensitive Z",

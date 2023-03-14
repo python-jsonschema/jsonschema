@@ -38,6 +38,25 @@
         ]
     },
     {
+        "description": "anchor within remote ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$ref": "http://localhost:1234/draft2020-12/locationIndependentIdentifier.json#foo"
+        },
+        "tests": [
+            {
+                "description": "remote anchor valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "remote anchor invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "ref within remote ref",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",

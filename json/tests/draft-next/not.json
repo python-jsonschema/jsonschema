@@ -123,5 +123,31 @@
                 "valid": true
             }
         ]
-    }
+    },
+    {
+        "description": "collect annotations inside a 'not', even if collection is disabled",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "not": {
+                "$comment": "this subschema must still produce annotations internally, even though the 'not' will ultimately discard them",
+                "anyOf": [
+                    true,
+                    { "properties": { "foo": true } }
+                ],
+                "unevaluatedProperties": false
+            }
+        },
+        "tests": [
+            {
+                "description": "unevaluated property",
+                "data": { "bar": 1 },
+                "valid": true
+            },
+            {
+                "description": "annotations are still collected inside a 'not'",
+                "data": { "foo": 1 },
+                "valid": false
+            }
+        ]
+     }
 ]

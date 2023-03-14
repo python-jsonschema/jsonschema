@@ -34,5 +34,24 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "ignore unrecognized optional vocabulary",
+        "schema": {
+            "$schema": "http://localhost:1234/draft2020-12/metaschema-optional-vocabulary.json",
+            "type": "number"
+        },
+        "tests": [
+            {
+                "description": "string value",
+                "data": "foobar",
+                "valid": false
+            },
+            {
+                "description": "number value",
+                "data": 20,
+                "valid": true
+            }
+        ]
     }
 ]

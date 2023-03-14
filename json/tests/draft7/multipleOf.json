@@ -67,5 +67,16 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "small multiple of large integer",
+        "schema": {"type": "integer", "multipleOf": 1e-8},
+        "tests": [
+            {
+                "description": "any integer is a multiple of 1e-8",
+                "data": 12391239123,
+                "valid": true
+            }
+        ]
     }
 ]
