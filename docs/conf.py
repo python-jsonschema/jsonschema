@@ -38,29 +38,36 @@ html_theme = "furo"
 
 # See sphinx-doc/sphinx#10785
 _TYPE_ALIASES = {
-    "jsonschema._format._F",  # format checkers
+    "jsonschema._format._F": ("data", "_F"),
 }
 
 
-def _resolve_type_aliases(app, env, node, contnode):
-    if (
-        node["refdomain"] == "py"
-        and node["reftype"] == "class"
-        and node["reftarget"] in _TYPE_ALIASES
-    ):
+def _resolve_broken_refs(app, env, node, contnode):
+    if node["refdomain"] != "py":
+        return
+
+    if node["reftarget"].startswith("referencing."):  # :( :( :( :( :(
+        node["reftype"] = "data"
+        from sphinx.ext import intersphinx
+        return intersphinx.resolve_reference_in_inventory(
+            env, "referencing", node, contnode,
+        )
+
+    kind, target = _TYPE_ALIASES.get(node["reftarget"], (None, None))
+    if kind is not None:
         return app.env.get_domain("py").resolve_xref(
             env,
             node["refdoc"],
             app.builder,
-            "data",
-            node["reftarget"],
+            kind,
+            target,
             node,
             contnode,
         )
 
 
 def setup(app):
-    app.connect("missing-reference", _resolve_type_aliases)
+    app.connect("missing-reference", _resolve_broken_refs)
 
 
 # = Builders =
@@ -116,6 +123,7 @@ autosectionlabel_prefix_document = True
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
     "ujs": ("https://json-schema.org/understanding-json-schema/", None),
 }
 

@@ -8,7 +8,6 @@ See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 
 import sys
 
-from jsonschema.tests._helpers import bug
 from jsonschema.tests._suite import Suite
 import jsonschema
 
@@ -135,13 +134,6 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     skip=lambda test: (
         missing_format(jsonschema.Draft3Validator)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description=(
-                "$ref prevents a sibling id from changing the base uri"
-            ),
-        )(test)
     ),
 )
 
@@ -160,49 +152,6 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         or leap_second(test)
         or missing_format(jsonschema.Draft4Validator)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description="Recursive references between schemas",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description=(
-                "Location-independent identifier with "
-                "base URI change in subschema"
-            ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description=(
-                "$ref prevents a sibling id from changing the base uri"
-            ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="id",
-            description="match $ref to id",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="id",
-            description="no match on enum or $ref to id",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description=(
-                "id must be resolved against nearest parent, "
-                "not just immediate parent"
-            ),
-        )(test)
     ),
 )
 
@@ -220,11 +169,6 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or leap_second(test)
         or missing_format(jsonschema.Draft6Validator)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="base URI change - change folder in subschema",
-        )(test)
     ),
 )
 
@@ -243,19 +187,6 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or leap_second(test)
         or missing_format(jsonschema.Draft7Validator)(test)
         or complex_email_validation(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="base URI change - change folder in subschema",
-        )(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description=(
-                "$id must be resolved against nearest parent, "
-                "not just immediate parent"
-            ),
-        )(test)
     ),
 )
 
@@ -268,115 +199,12 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
     DRAFT201909.optional_cases_of(name="non-bmp-regex"),
     DRAFT201909.optional_cases_of(name="refOfUnknownKeyword"),
     Validator=jsonschema.Draft201909Validator,
-    skip=lambda test: (
-        skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            case_description=(
-                "$recursiveRef with no $recursiveAnchor in "
-                "the initial target schema resource"
-            ),
-            description=(
-                "leaf node does not match: recursion uses the inner schema"
-            ),
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            description="leaf node matches: recursion uses the inner schema",
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            case_description=(
-                "dynamic $recursiveRef destination (not predictable "
-                "at schema compile time)"
-            ),
-            description="integer node",
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            case_description=(
-                "multiple dynamic paths to the $recursiveRef keyword"
-            ),
-            description="recurse to integerNode - floats are not allowed",
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            description="integer does not match as a property value",
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            description=(
-                "leaf node does not match: "
-                "recursion only uses inner schema"
-            ),
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            description=(
-                "leaf node matches: "
-                "recursion only uses inner schema"
-            ),
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            description=(
-                "two levels, integer does not match as a property value"
-            ),
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            description="recursive mismatch",
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="recursiveRef",
-            description="two levels, no match",
-        )(test)
-        or skip(
-            message="recursiveRef support isn't working yet.",
-            subject="id",
-            case_description=(
-                "Invalid use of fragments in location-independent $id"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="defs",
-            description="invalid definition schema",
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="anchor",
-            case_description="same $anchor with different base uri",
-        )(test)
-        or skip(
-            message="Vocabulary support is still in-progress.",
-            subject="vocabulary",
-            description=(
-                "no validation: invalid number, but it still validates"
-            ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description=(
-                "$id must be resolved against nearest parent, "
-                "not just immediate parent"
-            ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="remote HTTP ref with nested absolute ref",
-        )(test)
+    skip=skip(
+        message="Vocabulary support is still in-progress.",
+        subject="vocabulary",
+        description=(
+            "no validation: invalid number, but it still validates"
+        ),
     ),
 )
 
@@ -404,104 +232,12 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.optional_cases_of(name="non-bmp-regex"),
     DRAFT202012.optional_cases_of(name="refOfUnknownKeyword"),
     Validator=jsonschema.Draft202012Validator,
-    skip=lambda test: (
-        skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description="The recursive part is not valid against the root",
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description="incorrect extended schema",
-            case_description=(
-                "$ref and $dynamicAnchor are independent of order - "
-                "$defs first"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description="correct extended schema",
-            case_description=(
-                "$ref and $dynamicAnchor are independent of order - "
-                "$defs first"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description="correct extended schema",
-            case_description=(
-                "$ref and $dynamicAnchor are independent of order - $ref first"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description="incorrect extended schema",
-            case_description=(
-                "$ref and $dynamicAnchor are independent of order - $ref first"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description=(
-                "/then/$defs/thingy is the final stop for the $dynamicRef"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description=(
-                "string matches /$defs/thingy, but the $dynamicRef "
-                "does not stop here"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description=(
-                "string matches /$defs/thingy, but the $dynamicRef "
-                "does not stop here"
-            ),
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="dynamicRef",
-            description="recurse to integerNode - floats are not allowed",
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="defs",
-            description="invalid definition schema",
-        )(test)
-        or skip(
-            message="dynamicRef support isn't fully working yet.",
-            subject="anchor",
-            case_description="same $anchor with different base uri",
-        )(test)
-        or skip(
-            message="Vocabulary support is still in-progress.",
-            subject="vocabulary",
-            description=(
-                "no validation: invalid number, but it still validates"
-            ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="ref",
-            case_description=(
-                "$id must be resolved against nearest parent, "
-                "not just immediate parent"
-            ),
-        )(test)
-        or skip(
-            message=bug(),
-            subject="refRemote",
-            case_description="remote HTTP ref with nested absolute ref",
-        )(test)
+    skip=skip(
+        message="Vocabulary support is still in-progress.",
+        subject="vocabulary",
+        description=(
+            "no validation: invalid number, but it still validates"
+        ),
     ),
 )
 

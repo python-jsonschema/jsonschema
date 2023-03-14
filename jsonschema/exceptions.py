@@ -9,6 +9,7 @@ from textwrap import dedent, indent
 from typing import ClassVar
 import heapq
 import itertools
+import warnings
 
 import attr
 
@@ -18,6 +19,17 @@ WEAK_MATCHES: frozenset[str] = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES: frozenset[str] = frozenset()
 
 _unset = _utils.Unset()
+
+
+def __getattr__(name):
+    if name == "RefResolutionError":
+        warnings.warn(
+            _RefResolutionError._DEPRECATION_MESSAGE,
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _RefResolutionError
+    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
 class _Error(Exception):
@@ -181,10 +193,16 @@ class SchemaError(_Error):
 
 
 @attr.s(hash=True)
-class RefResolutionError(Exception):
+class _RefResolutionError(Exception):
     """
     A ref could not be resolved.
     """
+
+    _DEPRECATION_MESSAGE = (
+        "jsonschema.exceptions.RefResolutionError is deprecated as of version "
+        "4.18.0. If you wish to catch potential reference resolution errors, "
+        "directly catch referencing.exceptions.Unresolvable."
+    )
 
     _cause = attr.ib()
 

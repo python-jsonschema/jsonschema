@@ -10,7 +10,6 @@ import json
 import os
 import sys
 import tempfile
-import unittest
 import warnings
 
 import attr
@@ -22,7 +21,6 @@ from jsonschema import (
     protocols,
     validators,
 )
-from jsonschema.tests._helpers import bug
 
 
 def fail(validator, errors, instance, schema):
@@ -1189,7 +1187,7 @@ class TestValidationErrorDetails(TestCase):
         ref, schema = "someRef", {"additionalProperties": {"type": "integer"}}
         validator = validators.Draft7Validator(
             {"$ref": ref},
-            resolver=validators.RefResolver("", {}, store={ref: schema}),
+            resolver=validators._RefResolver("", {}, store={ref: schema}),
         )
         error, = validator.iter_errors({"foo": "notAnInteger"})
 
@@ -1539,31 +1537,25 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
     def test_non_existent_properties_are_ignored(self):
         self.Validator({object(): object()}).validate(instance=object())
 
-    def test_it_creates_a_ref_resolver_if_not_provided(self):
-        self.assertIsInstance(
-            self.Validator({}).resolver,
-            validators.RefResolver,
+    def test_evolve(self):
+        schema, format_checker = {"type": "integer"}, FormatChecker()
+        original = self.Validator(
+            schema,
+            format_checker=format_checker,
+        )
+        new = original.evolve(
+            schema={"type": "string"},
+            format_checker=self.Validator.FORMAT_CHECKER,
         )
 
-    def test_it_delegates_to_a_ref_resolver(self):
-        ref, schema = "someCoolRef", {"type": "integer"}
-        resolver = validators.RefResolver("", {}, store={ref: schema})
-        validator = self.Validator({"$ref": ref}, resolver=resolver)
-
-        with self.assertRaises(exceptions.ValidationError):
-            validator.validate(None)
-
-    def test_evolve(self):
-        ref, schema = "someCoolRef", {"type": "integer"}
-        resolver = validators.RefResolver("", {}, store={ref: schema})
-
-        validator = self.Validator(schema, resolver=resolver)
-        new = validator.evolve(schema={"type": "string"})
-
-        expected = self.Validator({"type": "string"}, resolver=resolver)
+        expected = self.Validator(
+            {"type": "string"},
+            format_checker=self.Validator.FORMAT_CHECKER,
+            _resolver=new._resolver,
+        )
 
         self.assertEqual(new, expected)
-        self.assertNotEqual(new, validator)
+        self.assertNotEqual(new, original)
 
     def test_evolve_with_subclass(self):
         """
@@ -1587,24 +1579,6 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
         new = validator.evolve(schema={"type": "integer"})
         self.assertEqual(new.foo, [1, 2, 3])
         self.assertEqual(new._bar, 12)
-
-    def test_it_delegates_to_a_legacy_ref_resolver(self):
-        """
-        Legacy RefResolvers support only the context manager form of
-        resolution.
-        """
-
-        class LegacyRefResolver:
-            @contextmanager
-            def resolving(this, ref):
-                self.assertEqual(ref, "the ref")
-                yield {"type": "integer"}
-
-        resolver = LegacyRefResolver()
-        schema = {"$ref": "the ref"}
-
-        with self.assertRaises(exceptions.ValidationError):
-            self.Validator(schema, resolver=resolver).validate(None)
 
     def test_is_type_is_true_for_valid_type(self):
         self.assertTrue(self.Validator({}).is_type("foo", "string"))
@@ -1766,6 +1740,37 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             with self.assertRaises(exceptions.ValidationError):
                 validator.validate(instance)
 
+    def test_it_creates_a_ref_resolver_if_not_provided(self):
+        with self.assertWarns(DeprecationWarning):
+            resolver = self.Validator({}).resolver
+        self.assertIsInstance(resolver, validators._RefResolver)
+
+    def test_it_upconverts_from_deprecated_RefResolvers(self):
+        ref, schema = "someCoolRef", {"type": "integer"}
+        resolver = validators._RefResolver("", {}, store={ref: schema})
+        validator = self.Validator({"$ref": ref}, resolver=resolver)
+
+        with self.assertRaises(exceptions.ValidationError):
+            validator.validate(None)
+
+    def test_it_upconverts_from_yet_older_deprecated_legacy_RefResolvers(self):
+        """
+        Legacy RefResolvers support only the context manager form of
+        resolution.
+        """
+
+        class LegacyRefResolver:
+            @contextmanager
+            def resolving(this, ref):
+                self.assertEqual(ref, "the ref")
+                yield {"type": "integer"}
+
+        resolver = LegacyRefResolver()
+        schema = {"$ref": "the ref"}
+
+        with self.assertRaises(exceptions.ValidationError):
+            self.Validator(schema, resolver=resolver).validate(None)
+
 
 class AntiDraft6LeakMixin:
     """
@@ -1782,18 +1787,14 @@ class AntiDraft6LeakMixin:
             self.Validator.check_schema(False)
         self.assertIn("False is not of type", str(e.exception))
 
-    @unittest.skip(bug(523))
     def test_True_is_not_a_schema_even_if_you_forget_to_check(self):
-        resolver = validators.RefResolver("", {})
         with self.assertRaises(Exception) as e:
-            self.Validator(True, resolver=resolver).validate(12)
+            self.Validator(True).validate(12)
         self.assertNotIsInstance(e.exception, exceptions.ValidationError)
 
-    @unittest.skip(bug(523))
     def test_False_is_not_a_schema_even_if_you_forget_to_check(self):
-        resolver = validators.RefResolver("", {})
         with self.assertRaises(Exception) as e:
-            self.Validator(False, resolver=resolver).validate(12)
+            self.Validator(False).validate(12)
         self.assertNotIsInstance(e.exception, exceptions.ValidationError)
 
 
@@ -1867,7 +1868,7 @@ class TestLatestValidator(TestCase):
     def test_ref_resolvers_may_have_boolean_schemas_stored(self):
         ref = "someCoolRef"
         schema = {"$ref": ref}
-        resolver = validators.RefResolver("", {}, store={ref: False})
+        resolver = validators._RefResolver("", {}, store={ref: False})
         validator = validators._LATEST_VERSION(schema, resolver=resolver)
 
         with self.assertRaises(exceptions.ValidationError):
@@ -2123,7 +2124,7 @@ class TestRefResolver(TestCase):
     def setUp(self):
         self.referrer = {}
         self.store = {self.stored_uri: self.stored_schema}
-        self.resolver = validators.RefResolver(
+        self.resolver = validators._RefResolver(
             self.base_uri, self.referrer, self.store,
         )
 
@@ -2143,7 +2144,7 @@ class TestRefResolver(TestCase):
 
     def test_it_resolves_local_refs_with_id(self):
         schema = {"id": "http://bar/schema#", "a": {"foo": "bar"}}
-        resolver = validators.RefResolver.from_schema(
+        resolver = validators._RefResolver.from_schema(
             schema,
             id_of=lambda schema: schema.get("id", ""),
         )
@@ -2206,7 +2207,7 @@ class TestRefResolver(TestCase):
 
     def test_it_can_construct_a_base_uri_from_a_schema(self):
         schema = {"id": "foo"}
-        resolver = validators.RefResolver.from_schema(
+        resolver = validators._RefResolver.from_schema(
             schema,
             id_of=lambda schema: schema.get("id", ""),
         )
@@ -2223,7 +2224,7 @@ class TestRefResolver(TestCase):
 
     def test_it_can_construct_a_base_uri_from_a_schema_without_id(self):
         schema = {}
-        resolver = validators.RefResolver.from_schema(schema)
+        resolver = validators._RefResolver.from_schema(schema)
         self.assertEqual(resolver.base_uri, "")
         self.assertEqual(resolver.resolution_scope, "")
         with resolver.resolving("") as resolved:
@@ -2238,7 +2239,7 @@ class TestRefResolver(TestCase):
 
         schema = {"foo": "bar"}
         ref = "foo://bar"
-        resolver = validators.RefResolver("", {}, handlers={"foo": handler})
+        resolver = validators._RefResolver("", {}, handlers={"foo": handler})
         with resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, schema)
 
@@ -2252,7 +2253,7 @@ class TestRefResolver(TestCase):
                 self.fail("Response must not have been cached!")
 
         ref = "foo://bar"
-        resolver = validators.RefResolver(
+        resolver = validators._RefResolver(
             "", {}, cache_remote=True, handlers={"foo": handler},
         )
         with resolver.resolving(ref):
@@ -2270,7 +2271,7 @@ class TestRefResolver(TestCase):
                 self.fail("Handler called twice!")
 
         ref = "foo://bar"
-        resolver = validators.RefResolver(
+        resolver = validators._RefResolver(
             "", {}, cache_remote=False, handlers={"foo": handler},
         )
         with resolver.resolving(ref):
@@ -2283,16 +2284,16 @@ class TestRefResolver(TestCase):
             raise error
 
         ref = "foo://bar"
-        resolver = validators.RefResolver("", {}, handlers={"foo": handler})
-        with self.assertRaises(exceptions.RefResolutionError) as err:
+        resolver = validators._RefResolver("", {}, handlers={"foo": handler})
+        with self.assertRaises(exceptions._RefResolutionError) as err:
             with resolver.resolving(ref):
                 self.fail("Shouldn't get this far!")  # pragma: no cover
-        self.assertEqual(err.exception, exceptions.RefResolutionError(error))
+        self.assertEqual(err.exception, exceptions._RefResolutionError(error))
 
     def test_helpful_error_message_on_failed_pop_scope(self):
-        resolver = validators.RefResolver("", {})
+        resolver = validators._RefResolver("", {})
         resolver.pop_scope()
-        with self.assertRaises(exceptions.RefResolutionError) as exc:
+        with self.assertRaises(exceptions._RefResolutionError) as exc:
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
 

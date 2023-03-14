@@ -30,6 +30,7 @@ else:
 if TYPE_CHECKING:
     import jsonschema
     import jsonschema.validators
+    import referencing.jsonschema
 
 from jsonschema.exceptions import ValidationError
 
@@ -60,10 +61,19 @@ class Validator(Protocol):
             an invalid schema can lead to undefined behavior. See
             `Validator.check_schema` to validate a schema first.
 
+        registry:
+
+            a schema registry that will be used for looking up JSON references
+
         resolver:
 
             a resolver that will be used to resolve :kw:`$ref`
             properties (JSON references). If unprovided, one will be created.
+
+            .. deprecated:: v4.18.0
+
+                `RefResolver <_RefResolver>` has been deprecated in favor of
+                `referencing`, and with it, this argument.
 
         format_checker:
 
@@ -108,7 +118,7 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
-        resolver: jsonschema.validators.RefResolver | None = None,
+        registry: referencing.jsonschema.SchemaRegistry,
         format_checker: jsonschema.FormatChecker | None = None,
     ) -> None:
         ...

@@ -1,3 +1,10 @@
+v4.18.0
+=======
+
+* ``jsonschema.RefResolver`` is now deprecated in favor of the new `referencing library <https://github.com/python-jsonschema/referencing/>`_.
+  ``referencing`` will begin in beta, but already is more compliant than the existing ``$ref`` support.
+  Please file issues on the ``referencing`` tracker if there is functionality missing from it.
+
 v4.17.3
 =======
 

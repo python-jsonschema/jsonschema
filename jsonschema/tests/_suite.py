@@ -15,6 +15,8 @@ import sys
 import unittest
 
 from attrs import field, frozen
+from referencing import Registry
+import referencing.jsonschema
 
 if TYPE_CHECKING:
     import pyperf
@@ -47,13 +49,38 @@ def _find_suite():
 class Suite:
 
     _root: Path = field(factory=_find_suite)
-    _remotes: Mapping[str, Mapping[str, Any] | bool] = field(init=False)
+    _remotes: referencing.jsonschema.SchemaRegistry = field(init=False)
 
     def __attrs_post_init__(self):
         jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
         argv = [sys.executable, str(jsonschema_suite), "remotes"]
         remotes = subprocess.check_output(argv).decode("utf-8")
-        object.__setattr__(self, "_remotes", json.loads(remotes))
+
+        resources = json.loads(remotes)
+
+        li = "http://localhost:1234/locationIndependentIdentifierPre2019.json"
+        li4 = "http://localhost:1234/locationIndependentIdentifierDraft4.json"
+
+        registry = Registry().with_resources(
+            [
+                (
+                    li,
+                    referencing.jsonschema.DRAFT7.create_resource(
+                        contents=resources.pop(li),
+                    ),
+                ),
+                (
+                    li4,
+                    referencing.jsonschema.DRAFT4.create_resource(
+                        contents=resources.pop(li4),
+                    ),
+                ),
+            ],
+        ).with_contents(
+            resources.items(),
+            default_specification=referencing.jsonschema.DRAFT202012,
+        )
+        object.__setattr__(self, "_remotes", registry)
 
     def benchmark(self, runner: pyperf.Runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
@@ -74,7 +101,7 @@ class Suite:
 class Version:
 
     _path: Path
-    _remotes: Mapping[str, Mapping[str, Any] | bool]
+    _remotes: referencing.jsonschema.SchemaRegistry
 
     name: str
 
@@ -173,7 +200,7 @@ class _Test:
 
     valid: bool
 
-    _remotes: Mapping[str, Mapping[str, Any] | bool]
+    _remotes: referencing.jsonschema.SchemaRegistry
 
     comment: str | None = None
 
@@ -218,20 +245,11 @@ class _Test:
 
     def validate(self, Validator, **kwargs):
         Validator.check_schema(self.schema)
-        resolver = jsonschema.RefResolver.from_schema(
+        validator = Validator(
             schema=self.schema,
-            store=self._remotes,
-            id_of=Validator.ID_OF,
+            registry=self._remotes,
+            **kwargs,
         )
-
-        # XXX: #693 asks to improve the public API for this, since yeah, it's
-        #      bad. Figures that since it's hard for end-users, we experience
-        #      the pain internally here too.
-        def prevent_network_access(uri):
-            raise RuntimeError(f"Tried to access the network: {uri}")
-        resolver.resolve_remote = prevent_network_access
-
-        validator = Validator(schema=self.schema, resolver=resolver, **kwargs)
         if os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
             breakpoint()
         validator.validate(instance=self.data)

@@ -12,6 +12,7 @@ Contents
 
     validate
     errors
+    referencing
     creating
     faq
     api/index
