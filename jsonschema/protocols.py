@@ -7,7 +7,7 @@ typing.Protocol classes for jsonschema interfaces.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, ClassVar, Iterable
 import sys
 
@@ -28,6 +28,7 @@ else:
 # therefore, only import at type-checking time (to avoid circular references),
 # but use `jsonschema` for any types which will otherwise not be resolvable
 if TYPE_CHECKING:
+    from jsonschema import _typing
     import jsonschema
     import jsonschema.validators
     import referencing.jsonschema
@@ -110,7 +111,7 @@ class Validator(Protocol):
     FORMAT_CHECKER: ClassVar[jsonschema.FormatChecker]
 
     #: A function which given a schema returns its ID.
-    ID_OF: Callable[[Any], str | None]
+    ID_OF: _typing.id_of
 
     #: The schema that will be used to validate instances
     schema: Mapping | bool

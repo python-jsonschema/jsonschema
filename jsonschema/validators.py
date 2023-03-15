@@ -4,7 +4,7 @@ Creation and extension of validators, with implementations for existing drafts.
 from __future__ import annotations
 
 from collections import deque
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from functools import lru_cache
 from operator import methodcaller
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
@@ -15,16 +15,17 @@ import json
 import reprlib
 import warnings
 
+from attrs import define, field, fields
 from jsonschema_specifications import REGISTRY as SPECIFICATIONS
 from referencing import Specification
 from rpds import HashTrieMap
-import attr
 import referencing.jsonschema
 
 from jsonschema import (
     _format,
     _legacy_validators,
     _types,
+    _typing,
     _utils,
     _validators,
     exceptions,
@@ -102,24 +103,29 @@ def validates(version):
 
 
 def create(
-    meta_schema,
-    validators=(),
-    version=None,
-    type_checker=_types.draft202012_type_checker,
-    format_checker=_format.draft202012_format_checker,
-    id_of=referencing.jsonschema.DRAFT202012.id_of,
-    applicable_validators=methodcaller("items"),
+    meta_schema: referencing.jsonschema.ObjectSchema,
+    validators: (
+        Mapping[str, _typing.SchemaKeywordValidator]
+        | Iterable[tuple[str, _typing.SchemaKeywordValidator]]
+    ) = (),
+    version: str | None = None,
+    type_checker: _types.TypeChecker = _types.draft202012_type_checker,
+    format_checker: _format.FormatChecker = _format.draft202012_format_checker,
+    id_of: _typing.id_of = referencing.jsonschema.DRAFT202012.id_of,
+    applicable_validators: _typing.ApplicableValidators = methodcaller(
+        "items",
+    ),
 ):
     """
     Create a new validator class.
 
     Arguments:
 
-        meta_schema (collections.abc.Mapping):
+        meta_schema:
 
             the meta schema for the new validator class
 
-        validators (collections.abc.Mapping):
+        validators:
 
             a mapping from names to callables, where each callable will
             validate the schema property with the given name.
@@ -132,7 +138,7 @@ def create(
                 3. the instance
                 4. the schema
 
-        version (str):
+        version:
 
             an identifier for the version that this validator class will
             validate. If provided, the returned validator class will
@@ -140,29 +146,34 @@ def create(
             will have `jsonschema.validators.validates` automatically
             called for the given version.
 
-        type_checker (jsonschema.TypeChecker):
+        type_checker:
 
             a type checker, used when applying the :kw:`type` keyword.
 
             If unprovided, a `jsonschema.TypeChecker` will be created
             with a set of default types typical of JSON Schema drafts.
 
-        format_checker (jsonschema.FormatChecker):
+        format_checker:
 
             a format checker, used when applying the :kw:`format` keyword.
 
             If unprovided, a `jsonschema.FormatChecker` will be created
             with a set of default formats typical of JSON Schema drafts.
 
-        id_of (collections.abc.Callable):
+        id_of:
 
             A function that given a schema, returns its ID.
 
-        applicable_validators (collections.abc.Callable):
+        applicable_validators:
 
-            A function that given a schema, returns the list of
-            applicable validators (validation keywords and callables)
+            A function that, given a schema, returns the list of
+            applicable schema keywords and associated values
             which will be used to validate the instance.
+            This is mostly used to support pre-draft 7 versions of JSON Schema
+            which specified behavior around ignoring keywords if they were
+            siblings of a ``$ref`` keyword. If you're not attempting to
+            implement similar behavior, you can typically ignore this argument
+            and leave it at its default.
 
     Returns:
 
@@ -176,7 +187,7 @@ def create(
         default=Specification.OPAQUE,
     )
 
-    @attr.s
+    @define
     class Validator:
 
         VALIDATORS = dict(validators)
@@ -185,17 +196,17 @@ def create(
         FORMAT_CHECKER = format_checker_arg
         ID_OF = staticmethod(id_of)
 
-        schema = attr.ib(repr=reprlib.repr)
-        _ref_resolver = attr.ib(default=None, repr=False, alias="resolver")
-        format_checker = attr.ib(default=None)
+        schema: referencing.jsonschema.Schema = field(repr=reprlib.repr)
+        _ref_resolver = field(default=None, repr=False, alias="resolver")
+        format_checker: _format.FormatChecker | None = field(default=None)
         # TODO: include new meta-schemas added at runtime
-        _registry = attr.ib(
+        _registry: referencing.jsonschema.SchemaRegistry = field(
             default=SPECIFICATIONS,
             converter=SPECIFICATIONS.combine,  # type: ignore[misc]
             kw_only=True,
             repr=False,
         )
-        _resolver = attr.ib(
+        _resolver = field(
             alias="_resolver",
             default=None,
             kw_only=True,
@@ -222,7 +233,7 @@ def create(
                 schema = changes.setdefault("schema", self.schema)
                 NewValidator = validator_for(schema, default=cls)
 
-                for field in attr.fields(cls):
+                for field in fields(cls):  # noqa: F402
                     if not field.init:
                         continue
                     attr_name = field.name
@@ -429,14 +440,14 @@ def create(
 
     evolve_fields = [
         (field.name, field.alias)
-        for field in attr.fields(Validator)
+        for field in fields(Validator)
         if field.init
     ]
 
     if version is not None:
         safe = version.title().replace(" ", "").replace("-", "")
         Validator.__name__ = Validator.__qualname__ = f"{safe}Validator"
-        Validator = validates(version)(Validator)
+        Validator = validates(version)(Validator)  # type: ignore[misc]
 
     return Validator
 
