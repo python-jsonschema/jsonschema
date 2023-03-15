@@ -1522,7 +1522,7 @@ class MetaSchemaTestsMixin:
         )
 
 
-class ValidatorTestMixin(MetaSchemaTestsMixin, object):
+class ValidatorTestMixin(MetaSchemaTestsMixin):
     def test_it_implements_the_validator_protocol(self):
         self.assertIsInstance(self.Validator({}), protocols.Validator)
 
@@ -1632,7 +1632,7 @@ class ValidatorTestMixin(MetaSchemaTestsMixin, object):
             elif value == "bad":
                 raise bad
             else:  # pragma: no cover
-                self.fail("What is {}? [Baby Don't Hurt Me]".format(value))
+                self.fail(f"What is {value}? [Baby Don't Hurt Me]")
 
         validator = self.Validator(
             {"format": "foo"}, format_checker=checker,
@@ -2201,7 +2201,7 @@ class TestRefResolver(TestCase):
             self.addCleanup(os.remove, tempf.name)
             json.dump({"foo": "bar"}, tempf)
 
-        ref = "file://{}#foo".format(pathname2url(tempf.name))
+        ref = f"file://{pathname2url(tempf.name)}#foo"
         with self.resolver.resolving(ref) as resolved:
             self.assertEqual(resolved, "bar")
 

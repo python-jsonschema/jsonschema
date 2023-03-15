@@ -1,5 +1,5 @@
 """
-An implementation of JSON Schema for Python
+An implementation of JSON Schema for Python.
 
 The main functionality is provided by the validator classes for each of the
 supported JSON Schema versions.
@@ -98,3 +98,19 @@ def __getattr__(name):
         return ValidatorForFormat.FORMAT_CHECKER
 
     raise AttributeError(f"module {__name__} has no attribute {name}")
+
+
+__all__ = [
+    "Draft201909Validator",
+    "Draft202012Validator",
+    "Draft3Validator",
+    "Draft4Validator",
+    "Draft6Validator",
+    "Draft7Validator",
+    "FormatChecker",
+    "SchemaError",
+    "TypeChecker",
+    "ValidationError",
+    "Validator",
+    "validate",
+]

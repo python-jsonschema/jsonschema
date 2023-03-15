@@ -39,7 +39,7 @@ def missing_format(Validator):
         ):
             return
 
-        return "Format checker {0!r} not found.".format(schema["format"])
+        return f"Format checker {schema['format']!r} not found."
     return missing_format
 
 

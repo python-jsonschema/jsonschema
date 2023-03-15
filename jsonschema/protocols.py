@@ -206,7 +206,7 @@ class Validator(Protocol):
         ValidationError: [2, 3, 4] is too long
         """
 
-    def evolve(self, **kwargs) -> "Validator":
+    def evolve(self, **kwargs) -> Validator:
         """
         Create a new validator like this one, but with given changes.
 

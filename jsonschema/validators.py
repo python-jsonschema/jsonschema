@@ -518,7 +518,6 @@ def extend(
         likely be made before modifying it, in order to not affect the
         old validator.
     """
-
     all_validators = dict(validator.VALIDATORS)
     all_validators.update(validators)
 
@@ -892,7 +891,7 @@ class _RefResolver:
         self._remote_cache = remote_cache
 
     @classmethod
-    def from_schema(
+    def from_schema(  # noqa: D417
         cls,
         schema,
         id_of=referencing.jsonschema.DRAFT202012.id_of,
@@ -912,7 +911,6 @@ class _RefResolver:
 
             `_RefResolver`
         """
-
         return cls(base_uri=id_of(schema) or "", referrer=schema, *args, **kwargs)  # noqa: B026, E501
 
     def push_scope(self, scope):
@@ -992,7 +990,6 @@ class _RefResolver:
 
                 The reference to resolve
         """
-
         url, resolved = self.resolve(ref)
         self.push_scope(url)
         try:
@@ -1003,7 +1000,7 @@ class _RefResolver:
     def _find_in_referrer(self, key):
         return self._get_subschemas_cache()[key]
 
-    @lru_cache()  # noqa: B019
+    @lru_cache  # noqa: B019
     def _get_subschemas_cache(self):
         cache = {key: [] for key in _SUBSCHEMAS_KEYWORDS}
         for keyword, subschema in _search_schema(
@@ -1012,7 +1009,7 @@ class _RefResolver:
             cache[keyword].append(subschema)
         return cache
 
-    @lru_cache()  # noqa: B019
+    @lru_cache  # noqa: B019
     def _find_in_subschemas(self, url):
         subschemas = self._get_subschemas_cache()["$id"]
         if not subschemas:
@@ -1073,7 +1070,6 @@ class _RefResolver:
 
                 a URI fragment to resolve within it
         """
-
         fragment = fragment.lstrip("/")
 
         if not fragment:
@@ -1196,7 +1192,7 @@ def _search_schema(schema, matcher):
         values.extendleft(value.values())
 
 
-def validate(instance, schema, cls=None, *args, **kwargs):
+def validate(instance, schema, cls=None, *args, **kwargs):  # noqa: D417
     """
     Validate an instance under the given schema.
 
@@ -1323,7 +1319,6 @@ def validator_for(schema, default=_UNSET):
         recommended.
 
     """
-
     DefaultValidator = _LATEST_VERSION if default is _UNSET else default
 
     if schema is True or schema is False or "$schema" not in schema:

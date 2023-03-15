@@ -51,7 +51,7 @@ class _Error(Exception):
         parent=None,
         type_checker=_unset,
     ):
-        super(_Error, self).__init__(
+        super().__init__(
             message,
             validator,
             path,
@@ -252,7 +252,7 @@ class FormatError(Exception):
     """
 
     def __init__(self, message, cause=None):
-        super(FormatError, self).__init__(message, cause)
+        super().__init__(message, cause)
         self.message = message
         self.cause = self.__cause__ = cause
 
@@ -283,7 +283,6 @@ class ErrorTree:
         """
         Check whether ``instance[index]`` has any errors.
         """
-
         return index in self._contents
 
     def __getitem__(self, index):
@@ -295,7 +294,6 @@ class ErrorTree:
         by ``instance.__getitem__`` will be propagated (usually this is
         some subclass of `LookupError`.
         """
-
         if self._instance is not _unset and index not in self:
             self._instance[index]
         return self._contents[index]
@@ -310,7 +308,6 @@ class ErrorTree:
         """
         Iterate (non-recursively) over the indices in the instance with errors.
         """
-
         return iter(self._contents)
 
     def __len__(self):
@@ -329,7 +326,6 @@ class ErrorTree:
         """
         The total number of errors in the entire tree, including children.
         """
-
         child_errors = sum(len(tree) for _, tree in self._contents.items())
         return len(self.errors) + child_errors
 

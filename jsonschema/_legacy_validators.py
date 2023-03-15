@@ -222,7 +222,7 @@ def recursiveRef(validator, recursiveRef, instance, schema):
 
 def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     """
-    Get all indexes of items that get evaluated under the current schema
+    Get all indexes of items that get evaluated under the current schema.
 
     Covers all keywords related to unevaluatedItems: items, prefixItems, if,
     then, else, contains, unevaluatedItems, allOf, oneOf, anyOf
