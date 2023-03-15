@@ -20,3 +20,5 @@ Submodules
    :exclude-members: Validator
 
 .. autodata:: jsonschema._format._F
+
+.. autodata:: jsonschema._typing.id_of

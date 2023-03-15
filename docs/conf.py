@@ -40,6 +40,7 @@ html_theme = "furo"
 # See sphinx-doc/sphinx#10785
 _TYPE_ALIASES = {
     "jsonschema._format._F": ("data", "_F"),
+    "_typing.id_of": ("data", "jsonschema._typing.id_of"),
 }
 
 
