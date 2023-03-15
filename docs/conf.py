@@ -76,6 +76,7 @@ def setup(app):
 
 doctest_global_setup = """
 from jsonschema import *
+from jsonschema import exceptions
 import jsonschema.validators
 """
 
