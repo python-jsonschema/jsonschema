@@ -1,6 +1,9 @@
 v4.18.0
 =======
 
+This release majorly rehaul's the way in which JSON Schema reference resolution is configured.
+It does so in a way that *should* be backwards compatible, preserving old behavior whilst emitting deprecation warnings.
+
 * ``jsonschema.RefResolver`` is now deprecated in favor of the new `referencing library <https://github.com/python-jsonschema/referencing/>`_.
   ``referencing`` will begin in beta, but already is more compliant than the existing ``$ref`` support.
   This change is a culmination of a meaningful chunk of work to make ``$ref`` resolution more flexible and more correct.
@@ -9,6 +12,14 @@ v4.18.0
 * Support for Python 3.7 has been dropped, as it is nearing end-of-life.
   This should not be a "visible" change in the sense that ``requires-python`` has been updated, so users using 3.7 should still receive ``v4.17.3`` when installing the library.
 * On draft 2019-09, ``unevaluatedItems`` now properly does *not* consider items to be evaluated by an ``additionalItems`` schema if ``items`` is missing from the schema, as the specification says in this case that ``additionalItems`` must be completely ignored.
+
+Deprecations
+------------
+
+* ``jsonschema.RefResolver`` -- see above for details on the replacement
+* ``jsonschema.RefResolutionError`` -- see above for details on the replacement
+* importing ``jsonschema.ErrorTree`` -- instead import it via ``jsonschema.exceptions.ErrorTree``
+* importing ``jsonschema.FormatError`` -- instead import it via ``jsonschema.exceptions.FormatError``
 
 v4.17.3
 =======
