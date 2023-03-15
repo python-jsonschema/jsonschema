@@ -90,10 +90,7 @@ def extras_msg(extras):
     Create an error message for extra items or properties.
     """
 
-    if len(extras) == 1:
-        verb = "was"
-    else:
-        verb = "were"
+    verb = "was" if len(extras) == 1 else "were"
     return ", ".join(repr(extra) for extra in sorted(extras)), verb
 
 

@@ -4,6 +4,7 @@ Python representations of the JSON Schema Test Suite tests.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
+from contextlib import suppress
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -131,13 +132,11 @@ class Version:
         }
         cls = type(name, (unittest.TestCase,), methods)
 
-        try:
+        # We're doing crazy things, so if they go wrong, like a function
+        # behaving differently on some other interpreter, just make them
+        # not happen.
+        with suppress(Exception):
             cls.__module__ = _someone_save_us_the_module_of_the_caller()
-        except Exception:  # pragma: no cover
-            # We're doing crazy things, so if they go wrong, like a function
-            # behaving differently on some other interpreter, just make them
-            # not happen.
-            pass
 
         return cls
 
@@ -255,10 +254,8 @@ class _Test:
         validator.validate(instance=self.data)
 
     def validate_ignoring_errors(self, Validator):  # pragma: no cover
-        try:
+        with suppress(jsonschema.ValidationError):
             self.validate(Validator=Validator)
-        except jsonschema.ValidationError:
-            pass
 
 
 def _someone_save_us_the_module_of_the_caller():

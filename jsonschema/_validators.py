@@ -45,11 +45,7 @@ def additionalProperties(validator, aP, instance, schema):
             yield from validator.descend(instance[extra], aP, path=extra)
     elif not aP and extras:
         if "patternProperties" in schema:
-            if len(extras) == 1:
-                verb = "does"
-            else:
-                verb = "do"
-
+            verb = "does" if len(extras) == 1 else "do"
             joined = ", ".join(repr(each) for each in sorted(extras))
             patterns = ", ".join(
                 repr(each) for each in sorted(schema["patternProperties"])

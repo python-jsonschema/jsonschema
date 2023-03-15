@@ -1097,8 +1097,7 @@ class _RefResolver:
             part = part.replace("~1", "/").replace("~0", "~")
 
             if isinstance(document, Sequence):
-                # Array indexes should be turned into integers
-                try:
+                try:  # noqa: SIM105
                     part = int(part)
                 except ValueError:
                     pass
@@ -1323,15 +1322,14 @@ def validator_for(schema, default=_UNSET):
 
     if schema is True or schema is False or "$schema" not in schema:
         return DefaultValidator
-    if schema["$schema"] not in _META_SCHEMAS:
-        if default is _UNSET:
-            warn(
-                (
-                    "The metaschema specified by $schema was not found. "
-                    "Using the latest draft to validate, but this will raise "
-                    "an error in the future."
-                ),
-                DeprecationWarning,
-                stacklevel=2,
-            )
+    if schema["$schema"] not in _META_SCHEMAS and default is _UNSET:
+        warn(
+            (
+                "The metaschema specified by $schema was not found. "
+                "Using the latest draft to validate, but this will raise "
+                "an error in the future."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
     return _META_SCHEMAS.get(schema["$schema"], DefaultValidator)
