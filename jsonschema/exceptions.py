@@ -4,9 +4,10 @@ Validation errors, and some surrounding helpers.
 from __future__ import annotations
 
 from collections import defaultdict, deque
+from collections.abc import Iterable, Mapping
 from pprint import pformat
 from textwrap import dedent, indent
-from typing import ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 import heapq
 import itertools
 import warnings
@@ -14,6 +15,9 @@ import warnings
 import attr
 
 from jsonschema import _utils
+
+if TYPE_CHECKING:
+    from jsonschema import _types
 
 WEAK_MATCHES: frozenset[str] = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES: frozenset[str] = frozenset()
@@ -40,17 +44,17 @@ class _Error(Exception):
     def __init__(
         self,
         message: str,
-        validator=_unset,
-        path=(),
-        cause=None,
+        validator: str | _utils.Unset = _unset,
+        path: Iterable[str | int] = (),
+        cause: Exception | None = None,
         context=(),
         validator_value=_unset,
-        instance=_unset,
-        schema=_unset,
-        schema_path=(),
-        parent=None,
-        type_checker=_unset,
-    ):
+        instance: Any = _unset,
+        schema: Mapping[str, Any] | bool | _utils.Unset = _unset,
+        schema_path: Iterable[str | int] = (),
+        parent: _Error | None = None,
+        type_checker: _types.TypeChecker | _utils.Unset = _unset,
+    ) -> None:
         super(_Error, self).__init__(
             message,
             validator,
@@ -78,10 +82,10 @@ class _Error(Exception):
         for error in context:
             error.parent = self
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.message!r}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         essential_for_verbose = (
             self.validator, self.validator_value, self.instance, self.schema,
         )
@@ -111,11 +115,11 @@ class _Error(Exception):
         )
 
     @classmethod
-    def create_from(cls, other):
+    def create_from(cls, other: _Error):
         return cls(**other._contents())
 
     @property
-    def absolute_path(self):
+    def absolute_path(self) -> deque[str | int]:
         parent = self.parent
         if parent is None:
             return self.relative_path
@@ -125,7 +129,7 @@ class _Error(Exception):
         return path
 
     @property
-    def absolute_schema_path(self):
+    def absolute_schema_path(self) -> deque[str | int]:
         parent = self.parent
         if parent is None:
             return self.relative_schema_path
@@ -135,7 +139,7 @@ class _Error(Exception):
         return path
 
     @property
-    def json_path(self):
+    def json_path(self) -> str:
         path = "$"
         for elem in self.absolute_path:
             if isinstance(elem, int):
@@ -144,7 +148,11 @@ class _Error(Exception):
                 path += "." + elem
         return path
 
-    def _set(self, type_checker=None, **kwargs):
+    def _set(
+        self,
+        type_checker: _types.TypeChecker | None = None,
+        **kwargs: Any,
+    ) -> None:
         if type_checker is not None and self._type_checker is _unset:
             self._type_checker = type_checker
 
@@ -159,10 +167,14 @@ class _Error(Exception):
         )
         return dict((attr, getattr(self, attr)) for attr in attrs)
 
-    def _matches_type(self):
+    def _matches_type(self) -> bool:
         try:
-            expected = self.schema["type"]
+            # We ignore this as we want to simply crash if this happens
+            expected = self.schema["type"]  # type: ignore[index]
         except (KeyError, TypeError):
+            return False
+
+        if isinstance(self._type_checker, _utils.Unset):
             return False
 
         if isinstance(expected, str):
@@ -206,7 +218,7 @@ class _RefResolutionError(Exception):
 
     _cause = attr.ib()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._cause)
 
 
@@ -215,10 +227,10 @@ class UndefinedTypeCheck(Exception):
     A type checker was asked to check a type it did not have registered.
     """
 
-    def __init__(self, type):
+    def __init__(self, type: str) -> None:
         self.type = type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Type {self.type!r} is unknown to this type checker"
 
 
