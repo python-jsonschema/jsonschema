@@ -2115,6 +2115,37 @@ class TestValidate(TestCase):
         self.assertIn("12 is less than the minimum of 20", str(e.exception))
 
 
+class TestThreading(TestCase):
+    """
+    Threading-related functionality tests.
+
+    jsonschema doesn't promise thread safety, and its validation behavior
+    across multiple threads may change at any time, but that means it isn't
+    safe to share *validators* across threads, not that anytime one has
+    multiple threads that jsonschema won't work (it certainly is intended to).
+
+    These tests ensure that this minimal level of functionality continues to
+    work.
+    """
+
+    def test_validation_across_a_second_thread(self):
+        failed = []
+
+        def validate():
+            try:
+                validators.validate(instance=37, schema=True)
+            except:  # noqa: E722, pragma: no cover
+                failed.append(sys.exc_info())
+
+        validate()  # just verify it succeeds
+
+        from threading import Thread
+        thread = Thread(target=validate)
+        thread.start()
+        thread.join()
+        self.assertEqual((thread.is_alive(), failed), (False, []))
+
+
 class TestRefResolver(TestCase):
 
     base_uri = ""
