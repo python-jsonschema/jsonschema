@@ -1208,7 +1208,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):  # noqa: D417
     if you intend to validate multiple instances with
     the same schema, you likely would prefer using the
     `jsonschema.protocols.Validator.validate` method directly on a
-    specific validator (e.g. ``Draft20212Validator.validate``).
+    specific validator (e.g. ``Draft202012Validator.validate``).
 
 
     Arguments:
