@@ -183,7 +183,7 @@ def create(
     format_checker_arg = format_checker
 
     specification = referencing.jsonschema.specification_with(
-        dialect_id=id_of(meta_schema),
+        dialect_id=id_of(meta_schema) or "urn:unknown-dialect",
         default=Specification.OPAQUE,
     )
 
