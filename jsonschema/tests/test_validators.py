@@ -694,7 +694,8 @@ class TestValidationErrorMessages(TestCase):
             },
             schema=schema,
         )
-        error = [e for e in errors if e.validator == "unevaluatedProperties"][0]
+        error = [e for e in errors
+                 if e.validator == "unevaluatedProperties"][0]
         self.assertEqual(
             error.message,
             "Unevaluated properties are not allowed "
