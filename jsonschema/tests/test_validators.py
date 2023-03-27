@@ -284,11 +284,14 @@ class TestCreateAndExtend(TestCase):
 
 
 class TestValidationErrorMessages(TestCase):
-    def message_for(self, instance, schema, *args, **kwargs):
+    def errors_for(self, instance, schema, *args, **kwargs):
         cls = kwargs.pop("cls", validators._LATEST_VERSION)
         cls.check_schema(schema)
         validator = cls(schema, *args, **kwargs)
-        errors = list(validator.iter_errors(instance))
+        return list(validator.iter_errors(instance))
+
+    def message_for(self, instance, schema, *args, **kwargs):
+        errors = self.errors_for(instance, schema, *args, **kwargs)
         self.assertTrue(errors, msg=f"No errors were raised for {instance!r}")
         self.assertEqual(
             len(errors),
@@ -675,6 +678,27 @@ class TestValidationErrorMessages(TestCase):
             message,
             "Unevaluated properties are not allowed "
             "('bar', 'foo' were unexpected)",
+        )
+
+    def test_unevaluated_properties_failed_validation(self):
+        schema = {
+            "type": "object",
+            "patternProperties": {
+                "^foo": {"type": "string"},
+            },
+            "unevaluatedProperties": False,
+        }
+        errors = self.errors_for(
+            instance={
+                "foo": 42,
+            },
+            schema=schema,
+        )
+        error = [e for e in errors if e.validator == "unevaluatedProperties"][0]
+        self.assertEqual(
+            error.message,
+            "Unevaluated properties are not allowed "
+            "('foo' was unexpected)",
         )
 
     def test_unevaluated_properties_on_invalid_type(self):
