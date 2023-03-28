@@ -17,6 +17,8 @@ _RaisesType = typing.Union[
     typing.Type[Exception], typing.Tuple[typing.Type[Exception], ...],
 ]
 
+_RE_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$", re.ASCII)
+
 
 class FormatChecker:
     """
@@ -396,7 +398,10 @@ def is_regex(instance: object) -> bool:
 def is_date(instance: object) -> bool:
     if not isinstance(instance, str):
         return True
-    return bool(instance.isascii() and datetime.date.fromisoformat(instance))
+    return bool(
+        _RE_DATE.fullmatch(instance)
+        and datetime.date.fromisoformat(instance)
+    )
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
