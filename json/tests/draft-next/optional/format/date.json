@@ -220,6 +220,26 @@
                 "description": "invalid non-ASCII '৪' (a Bengali 4)",
                 "data": "1963-06-1৪",
                 "valid": false
+            },
+            {
+                "description": "ISO8601 / non-RFC3339: YYYYMMDD without dashes (2023-03-28)",
+                "data": "20230328",
+                "valid": false
+            },
+            {
+                "description": "ISO8601 / non-RFC3339: week number implicit day of week (2023-01-02)",
+                "data": "2023-W01",
+                "valid": false
+            },
+            {
+                "description": "ISO8601 / non-RFC3339: week number with day of week (2023-03-28)",
+                "data": "2023-W13-2",
+                "valid": false
+            },
+            {
+                "description": "ISO8601 / non-RFC3339: week number rollover to next year (2023-01-01)",
+                "data": "2022W527",
+                "valid": false
             }
         ]
     }
