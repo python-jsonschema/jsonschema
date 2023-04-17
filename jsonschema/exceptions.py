@@ -11,6 +11,7 @@ import heapq
 import itertools
 import warnings
 
+from referencing.exceptions import Unresolvable as _Unresolvable
 import attr
 
 from jsonschema import _utils
@@ -208,6 +209,15 @@ class _RefResolutionError(Exception):
 
     def __str__(self):
         return str(self._cause)
+
+
+class _WrappedReferencingError(_RefResolutionError, _Unresolvable):
+    def __init__(self, cause: _Unresolvable):
+        object.__setattr__(self, "_cause", cause)
+
+    def __getattribute__(self, attr):
+        cause = object.__getattribute__(self, "_cause")
+        return getattr(cause, attr)
 
 
 class UndefinedTypeCheck(Exception):

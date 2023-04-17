@@ -19,6 +19,7 @@ from attrs import define, field, fields
 from jsonschema_specifications import REGISTRY as SPECIFICATIONS
 from referencing import Specification
 from rpds import HashTrieMap
+import referencing.exceptions
 import referencing.jsonschema
 
 from jsonschema import (
@@ -401,7 +402,11 @@ def create(
 
         def _validate_reference(self, ref, instance):
             if self._ref_resolver is None:
-                resolved = self._resolver.lookup(ref)
+                try:
+                    resolved = self._resolver.lookup(ref)
+                except referencing.exceptions.Unresolvable as err:
+                    raise exceptions._WrappedReferencingError(err)
+
                 return self.descend(
                     instance,
                     resolved.contents,

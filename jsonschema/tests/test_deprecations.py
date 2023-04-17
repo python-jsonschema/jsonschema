@@ -3,6 +3,8 @@ import importlib
 import subprocess
 import sys
 
+import referencing.exceptions
+
 from jsonschema import FormatChecker, exceptions, validators
 
 
@@ -168,6 +170,38 @@ class TestDeprecations(TestCase):
 
         self.assertEqual(RefResolutionError, exceptions._RefResolutionError)
         self.assertEqual(w.filename, __file__)
+
+    def test_catching_Unresolvable_directly(self):
+        """
+        This behavior is the intended behavior (i.e. it's not deprecated), but
+        given we do "tricksy" things in the iterim to wrap exceptions in a
+        multiple inheritance subclass, we need to be extra sure it works and
+        stays working.
+        """
+        validator = validators.Draft202012Validator({"$ref": "http://foo.com"})
+
+        with self.assertRaises(referencing.exceptions.Unresolvable) as e:
+            validator.validate(12)
+
+        expected = referencing.exceptions.Unresolvable(ref="http://foo.com")
+        self.assertEqual(e.exception, expected)
+
+    def test_catching_Unresolvable_via_RefResolutionError(self):
+        """
+        Until RefResolutionError is removed, it is still possible to catch
+        exceptions from reference resolution using it, even though they may
+        have been raised by referencing.
+        """
+        with self.assertWarns(DeprecationWarning):
+            from jsonschema import RefResolutionError
+
+        validator = validators.Draft202012Validator({"$ref": "http://foo.com"})
+
+        with self.assertRaises(referencing.exceptions.Unresolvable):
+            validator.validate(12)
+
+        with self.assertRaises(RefResolutionError):
+            validator.validate(12)
 
     def test_Validator_subclassing(self):
         """
