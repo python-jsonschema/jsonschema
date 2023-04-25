@@ -2328,6 +2328,15 @@ class TestRefResolver(TestCase):
             resolver.pop_scope()
         self.assertIn("Failed to pop the scope", str(exc.exception))
 
+    def test_pointer_within_schema_with_different_id(self):
+        """
+        See #1085.
+        """
+        schema = validators.Draft7Validator.META_SCHEMA
+        resolver = validators._RefResolver("", schema)
+        validator = validators.Draft7Validator(schema, resolver=resolver)
+        self.assertFalse(validator.is_valid({"maxLength": "foo"}))
+
 
 def sorted_errors(errors):
     def key(error):
