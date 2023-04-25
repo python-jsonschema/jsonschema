@@ -9,6 +9,9 @@ It does so in a way that *should* be backwards compatible, preserving old behavi
   This change is a culmination of a meaningful chunk of work to make ``$ref`` resolution more flexible and more correct.
   Backwards compatibility *should* be preserved for existing code which uses ``RefResolver``, though doing so is again now deprecated, and all such use cases should be doable using the new APIs.
   Please file issues on the ``referencing`` tracker if there is functionality missing from it, or here on the ``jsonschema`` issue tracker if you have issues with existing code not functioning the same, or with figuring out how to change it to use ``referencing``.
+  In particular, this referencing change includes a change concerning *automatic* retrieval of remote references (retrieving ``http://foo/bar`` automatically within a schema).
+  This behavior has always been a potential security risk and counter to the recommendations of the JSON Schema specifications; it has survived this long essentially only for backwards compatibility reasons, and now explicitly produces warnings.
+  The ``referencing`` library itself will *not* automatically retrieve references if you interact directly with it, so the deprecated behavior is only triggered if you fully rely on the default ``$ref`` resolution behavior and also include remote references in your schema, which will still be retrieved during the deprecation period (after which they will become an error).
 * Support for Python 3.7 has been dropped, as it is nearing end-of-life.
   This should not be a "visible" change in the sense that ``requires-python`` has been updated, so users using 3.7 should still receive ``v4.17.3`` when installing the library.
 * On draft 2019-09, ``unevaluatedItems`` now properly does *not* consider items to be evaluated by an ``additionalItems`` schema if ``items`` is missing from the schema, as the specification says in this case that ``additionalItems`` must be completely ignored.
@@ -20,6 +23,7 @@ Deprecations
 
 * ``jsonschema.RefResolver`` -- see above for details on the replacement
 * ``jsonschema.RefResolutionError`` -- see above for details on the replacement
+* relying on automatic resolution of remote references -- see above for details on the replacement
 * importing ``jsonschema.ErrorTree`` -- instead import it via ``jsonschema.exceptions.ErrorTree``
 * importing ``jsonschema.FormatError`` -- instead import it via ``jsonschema.exceptions.FormatError``
 

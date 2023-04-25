@@ -178,12 +178,12 @@ class TestDeprecations(TestCase):
         multiple inheritance subclass, we need to be extra sure it works and
         stays working.
         """
-        validator = validators.Draft202012Validator({"$ref": "http://foo.com"})
+        validator = validators.Draft202012Validator({"$ref": "urn:nothing"})
 
         with self.assertRaises(referencing.exceptions.Unresolvable) as e:
             validator.validate(12)
 
-        expected = referencing.exceptions.Unresolvable(ref="http://foo.com")
+        expected = referencing.exceptions.Unresolvable(ref="urn:nothing")
         self.assertEqual(e.exception, expected)
 
     def test_catching_Unresolvable_via_RefResolutionError(self):
@@ -195,7 +195,7 @@ class TestDeprecations(TestCase):
         with self.assertWarns(DeprecationWarning):
             from jsonschema import RefResolutionError
 
-        validator = validators.Draft202012Validator({"$ref": "http://foo.com"})
+        validator = validators.Draft202012Validator({"$ref": "urn:nothing"})
 
         with self.assertRaises(referencing.exceptions.Unresolvable):
             validator.validate(12)

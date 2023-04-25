@@ -17,7 +17,6 @@ import warnings
 
 from attrs import define, field, fields
 from jsonschema_specifications import REGISTRY as SPECIFICATIONS
-from referencing import Specification
 from rpds import HashTrieMap
 import referencing.exceptions
 import referencing.jsonschema
@@ -103,6 +102,29 @@ def validates(version):
     return _validates
 
 
+def _warn_for_remote_retrieve(uri: str):
+    from urllib.request import urlopen
+    with urlopen(uri) as response:
+        warnings.warn(
+            "Automatically retrieving remote references can be a security "
+            "vulnerability and is discouraged by the JSON Schema "
+            "specifications. Relying on this behavior is deprecated "
+            "and will shortly become an error. If you are sure you want to "
+            "remotely retrieve your reference and that it is safe to do so, "
+            "you can find instructions for doing so via referencing.Registry "
+            "in the referencing documentation "
+            "(https://referencing.readthedocs.org).",
+            DeprecationWarning,
+            stacklevel=9,  # Ha ha ha ha magic numbers :/
+        )
+        return referencing.Resource.from_contents(json.load(response))
+
+
+_DEFAULT_REGISTRY = SPECIFICATIONS.combine(
+    referencing.Registry(retrieve=_warn_for_remote_retrieve),
+)
+
+
 def create(
     meta_schema: referencing.jsonschema.ObjectSchema,
     validators: (
@@ -185,7 +207,7 @@ def create(
 
     specification = referencing.jsonschema.specification_with(
         dialect_id=id_of(meta_schema) or "urn:unknown-dialect",
-        default=Specification.OPAQUE,
+        default=referencing.Specification.OPAQUE,
     )
 
     @define
@@ -202,8 +224,12 @@ def create(
         format_checker: _format.FormatChecker | None = field(default=None)
         # TODO: include new meta-schemas added at runtime
         _registry: referencing.jsonschema.SchemaRegistry = field(
-            default=SPECIFICATIONS,
-            converter=SPECIFICATIONS.combine,  # type: ignore[misc]
+            default=_DEFAULT_REGISTRY,
+            converter=lambda value: (
+                _DEFAULT_REGISTRY
+                if value is _DEFAULT_REGISTRY
+                else SPECIFICATIONS.combine(value)
+            ),
             kw_only=True,
             repr=False,
         )
