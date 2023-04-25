@@ -601,16 +601,16 @@
         "schema": {
             "$comment": "$id must be evaluated before $ref to get the proper $ref destination",
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$id": "/draft2020-12/ref-and-id1/base.json",
+            "$id": "https://example.com/draft2020-12/ref-and-id1/base.json",
             "$ref": "int.json",
             "$defs": {
                 "bigint": {
-                    "$comment": "canonical uri: /ref-and-id1/int.json",
+                    "$comment": "canonical uri: https://example.com/ref-and-id1/int.json",
                     "$id": "int.json",
                     "maximum": 10
                 },
                 "smallint": {
-                    "$comment": "canonical uri: /ref-and-id1-int.json",
+                    "$comment": "canonical uri: https://example.com/ref-and-id1-int.json",
                     "$id": "/draft2020-12/ref-and-id1-int.json",
                     "maximum": 2
                 }
@@ -634,7 +634,7 @@
         "schema": {
             "$comment": "$id must be evaluated before $ref to get the proper $ref destination",
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$id": "/draft2020-12/ref-and-id2/base.json",
+            "$id": "https://example.com/draft2020-12/ref-and-id2/base.json",
             "$ref": "#bigint",
             "$defs": {
                 "bigint": {
@@ -643,8 +643,8 @@
                     "maximum": 10
                 },
                 "smallint": {
-                    "$comment": "canonical uri: /ref-and-id2#/$defs/smallint; another valid uri for this location: /ref-and-id2/#bigint",
-                    "$id": "/draft2020-12/ref-and-id2/",
+                    "$comment": "canonical uri: https://example.com/ref-and-id2#/$defs/smallint; another valid uri for this location: https://example.com/ref-and-id2/#bigint",
+                    "$id": "https://example.com/draft2020-12/ref-and-id2/",
                     "$anchor": "bigint",
                     "maximum": 2
                 }
@@ -975,6 +975,83 @@
             {
                 "description": "an integer is invalid",
                 "data": 12,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "$id with file URI still resolves pointers - *nix",
+        "schema": {
+            "$id": "file:///folder/file.json",
+            "$defs": {
+                "foo": {
+                    "type": "number"
+                }
+            },
+            "$ref": "#/$defs/foo"
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "$id with file URI still resolves pointers - windows",
+        "schema": {
+            "$id": "file:///c:/folder/file.json",
+            "$defs": {
+                "foo": {
+                    "type": "number"
+                }
+            },
+            "$ref": "#/$defs/foo"
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "empty tokens in $ref json-pointer",
+        "schema": {
+            "$defs": {
+                "": {
+                    "$defs": {
+                        "": { "type": "number" }
+                    }
+                } 
+            },
+            "allOf": [
+                {
+                    "$ref": "#/$defs//$defs/"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
                 "valid": false
             }
         ]

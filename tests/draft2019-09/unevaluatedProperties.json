@@ -1441,5 +1441,35 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "unevaluatedProperties can see annotations from if without then and else",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "if": {
+                "patternProperties": {
+                    "foo": {
+                        "type": "string"
+                    }
+                }
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "valid in case if is evaluated",
+                "data": {
+                    "foo": "a"
+                },
+                "valid": true
+            },
+            {
+                "description": "invalid in case if is evaluated",
+                "data": {
+                    "bar": "a"
+                },
+                "valid": false
+            }
+        ]
     }
 ]

@@ -503,5 +503,90 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "id with file URI still resolves pointers - *nix",
+        "schema": {
+            "id": "file:///folder/file.json",
+            "definitions": {
+                "foo": {
+                    "type": "number"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/foo"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "id with file URI still resolves pointers - windows",
+        "schema": {
+            "id": "file:///c:/folder/file.json",
+            "definitions": {
+                "foo": {
+                    "type": "number"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/foo"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "empty tokens in $ref json-pointer",
+        "schema": {
+            "definitions": {
+                "": {
+                    "definitions": {
+                        "": { "type": "number" }
+                    }
+                } 
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions//definitions/"
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
     }
 ]

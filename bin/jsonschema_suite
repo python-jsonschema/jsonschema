@@ -498,6 +498,13 @@ class SanityTests(unittest.TestCase):
                 "title",
                 "type",
                 "uniqueItems",
+
+                # Technically this is wrong, $comment doesn't exist in this
+                # draft, but the point of this test is to detect mistakes by,
+                # test authors, whereas the point of the $comment keyword is
+                # to just standardize a place for a comment, so it's not a
+                # mistake to use it in earlier drafts in tests per se.
+                "$comment",
             },
             "draft3": {
                 "$ref",
@@ -528,6 +535,13 @@ class SanityTests(unittest.TestCase):
                 "title",
                 "type",
                 "uniqueItems",
+
+                # Technically this is wrong, $comment doesn't exist in this
+                # draft, but the point of this test is to detect mistakes by,
+                # test authors, whereas the point of the $comment keyword is
+                # to just standardize a place for a comment, so it's not a
+                # mistake to use it in earlier drafts in tests per se.
+                "$comment",
             },
         }
 
