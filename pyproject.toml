@@ -27,6 +27,8 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: File Formats :: JSON",
+  "Topic :: File Formats :: JSON Schema",
 ]
 dynamic = ["version", "readme"]
 
