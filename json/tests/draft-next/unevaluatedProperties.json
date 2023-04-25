@@ -1232,7 +1232,7 @@
         ]
     },
     {
-        "description": "dynamic evalation inside nested refs",
+        "description": "dynamic evaluation inside nested refs",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
             "$defs": {
@@ -1482,7 +1482,7 @@
             },
             "propertyDependencies": {
                 "foo": {
-                    "foo1": { 
+                    "foo1": {
                         "properties": {
                             "bar": true
                         }
@@ -1535,6 +1535,36 @@
             {
                 "description": "string property is invalid",
                 "data": {"a": "b"},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties can see annotations from if without then and else",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "if": {
+                "patternProperties": {
+                    "foo": {
+                        "type": "string"
+                    }
+                }
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "valid in case if is evaluated",
+                "data": {
+                    "foo": "a"
+                },
+                "valid": true
+            },
+            {
+                "description": "invalid in case if is evaluated",
+                "data": {
+                    "bar": "a"
+                },
                 "valid": false
             }
         ]

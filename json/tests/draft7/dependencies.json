@@ -244,5 +244,43 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "dependent subschema incompatible with root",
+        "schema": {
+            "properties": {
+                "foo": {}
+            },
+            "dependencies": {
+                "foo": {
+                    "properties": {
+                        "bar": {}
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "matches root",
+                "data": {"foo": 1},
+                "valid": false
+            },
+            {
+                "description": "matches dependency",
+                "data": {"bar": 1},
+                "valid": true
+            },
+            {
+                "description": "matches both",
+                "data": {"foo": 1, "bar": 2},
+                "valid": false
+            },
+            {
+                "description": "no dependency",
+                "data": {"baz": 1},
+                "valid": true
+            }
+        ]
     }
 ]

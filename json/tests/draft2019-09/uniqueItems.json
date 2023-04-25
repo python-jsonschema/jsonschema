@@ -57,6 +57,11 @@
                 "valid": false
             },
             {
+                "description": "property order of array of objects is ignored",
+                "data": [{"foo": "bar", "bar": "foo"}, {"bar": "foo", "foo": "bar"}],
+                "valid": false
+            },
+            {
                 "description": "unique array of nested objects is valid",
                 "data": [
                     {"foo": {"bar" : {"baz" : true}}},
