@@ -387,11 +387,14 @@ def create(
                 )
                 return
 
-            if resolver is None:
-                resolver = self._resolver.in_subresource(
-                    specification.create_resource(schema),
-                )
-            evolved = self.evolve(schema=schema, _resolver=resolver)
+            if self._ref_resolver is not None:
+                evolved = self.evolve(schema=schema)
+            else:
+                if resolver is None:
+                    resolver = self._resolver.in_subresource(
+                        specification.create_resource(schema),
+                    )
+                evolved = self.evolve(schema=schema, _resolver=resolver)
 
             for k, v in applicable_validators(schema):
                 validator = evolved.VALIDATORS.get(k)
@@ -448,7 +451,7 @@ def create(
                     self._ref_resolver.push_scope(scope)
 
                     try:
-                        return self.descend(instance, resolved)
+                        return list(self.descend(instance, resolved))
                     finally:
                         self._ref_resolver.pop_scope()
 

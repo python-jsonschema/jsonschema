@@ -2333,8 +2333,15 @@ class TestRefResolver(TestCase):
         See #1085.
         """
         schema = validators.Draft7Validator.META_SCHEMA
-        resolver = validators._RefResolver("", schema)
-        validator = validators.Draft7Validator(schema, resolver=resolver)
+        one = validators._RefResolver("", schema)
+        validator = validators.Draft7Validator(schema, resolver=one)
+        self.assertFalse(validator.is_valid({"maxLength": "foo"}))
+
+        another = {
+            "allOf": [{"$ref": validators.Draft7Validator.META_SCHEMA["$id"]}],
+        }
+        two = validators._RefResolver("", another)
+        validator = validators.Draft7Validator(another, resolver=two)
         self.assertFalse(validator.is_valid({"maxLength": "foo"}))
 
 
