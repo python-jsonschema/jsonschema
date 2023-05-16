@@ -8,8 +8,8 @@ source = "vcs"
 [project]
 name = "jsonschema"
 description = "An implementation of JSON Schema validation for Python"
-requires-python = ">=3.8"
 license = {text = "MIT"}
+requires-python = ">=3.8"
 keywords = ["validation", "data validation", "jsonschema", "json"]
 authors = [
   {email = "Julian+jsonschema@GrayVines.com"},
@@ -27,6 +27,8 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: File Formats :: JSON",
+  "Topic :: File Formats :: JSON :: JSON Schema",
 ]
 dynamic = ["version", "readme"]
 
