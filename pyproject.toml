@@ -149,7 +149,3 @@ docstring-quotes = "double"
 "jsonschema/_utils.py" = ["D"]
 "jsonschema/benchmarks/*" = ["D"]
 "jsonschema/tests/*" = ["D", "SIM"]
-
-[tool.ruff.pyupgrade]
-# We support 3.8 + 3.9
-keep-runtime-typing = true
