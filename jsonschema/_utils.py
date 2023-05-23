@@ -40,7 +40,7 @@ class Unset:
     An as-of-yet unset attribute or unprovided default parameter.
     """
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "<unset>"
 
 
