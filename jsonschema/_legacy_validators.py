@@ -276,8 +276,8 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     for keyword in ["allOf", "oneOf", "anyOf"]:
         if keyword in schema:
             for subschema in schema[keyword]:
-                errs = list(validator.descend(instance, subschema))
-                if not errs:
+                errs = next(validator.descend(instance, subschema), None)
+                if errs is None:
                     evaluated_indexes += find_evaluated_item_indexes_by_schema(
                         validator, instance, subschema,
                     )
