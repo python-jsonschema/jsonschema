@@ -106,6 +106,10 @@ source = ["jsonschema"]
 dynamic_context = "test_function"
 
 [tool.coverage.report]
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "\\s*\\.\\.\\.\\s*",
+]
 omit = [
   "*/jsonschema/__main__.py",
   "*/jsonschema/benchmarks/*",
