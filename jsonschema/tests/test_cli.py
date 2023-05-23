@@ -1,4 +1,5 @@
 from contextlib import redirect_stderr, redirect_stdout
+from importlib import metadata
 from io import StringIO
 from json import JSONDecodeError
 from pathlib import Path
@@ -10,11 +11,6 @@ import subprocess
 import sys
 import tempfile
 import warnings
-
-try:  # pragma: no cover
-    from importlib import metadata
-except ImportError:  # pragma: no cover
-    import importlib_metadata as metadata  # type: ignore
 
 from jsonschema import Draft4Validator, Draft202012Validator
 from jsonschema.exceptions import (

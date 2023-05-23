@@ -2,6 +2,7 @@
 The ``jsonschema`` command line.
 """
 
+from importlib import metadata
 from json import JSONDecodeError
 from textwrap import dedent
 import argparse
@@ -9,11 +10,6 @@ import json
 import sys
 import traceback
 import warnings
-
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata  # type: ignore
 
 try:
     from pkgutil import resolve_name

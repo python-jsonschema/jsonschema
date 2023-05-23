@@ -35,11 +35,7 @@ def __getattr__(name):
             stacklevel=2,
         )
 
-        try:
-            from importlib import metadata
-        except ImportError:
-            import importlib_metadata as metadata
-
+        from importlib import metadata
         return metadata.version("jsonschema")
     elif name == "RefResolver":
         from jsonschema.validators import _RefResolver
