@@ -76,7 +76,7 @@ python-dateutil==2.8.2
     # via matplotlib
 pyyaml==6.0
     # via sphinx-autoapi
-referencing==0.28.3
+referencing==0.28.4
     # via
     #   jsonschema
     #   jsonschema-specifications
