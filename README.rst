@@ -98,8 +98,8 @@ Please read the `format validation documentation <https://python-jsonschema.read
 Running the Test Suite
 ----------------------
 
-If you have ``tox`` installed (perhaps via ``pip install tox`` or your package manager), running ``tox`` in the directory of your source checkout will run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema`` supports.
-If you don't have all of the versions that ``jsonschema`` is tested under, you'll likely want to run using ``tox``'s ``--skip-missing-interpreters`` option.
+If you have ``nox`` installed (perhaps via ``pipx install nox`` or your package manager), running ``nox`` in the directory of your source checkout will run ``jsonschema``'s test suite on all of the versions of Python ``jsonschema`` supports.
+If you don't have all of the versions that ``jsonschema`` is tested under, you'll likely want to run using ``nox``'s ``--no-error-on-missing-interpreters`` option.
 
 Of course you're also free to just run the tests on a single version with your favorite test runner.
 The tests live in the ``jsonschema.tests`` package.
@@ -111,7 +111,7 @@ Benchmarks
 ``jsonschema``'s benchmarks make use of `pyperf <https://pyperf.readthedocs.io>`_.
 Running them can be done via::
 
-      $ tox -e perf
+      $ nox -s perf
 
 
 Community
