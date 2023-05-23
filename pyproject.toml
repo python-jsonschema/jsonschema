@@ -115,6 +115,11 @@ line-length = 79
 target-version = "py38"
 select = ["B", "D", "D204", "E", "F", "Q", "SIM", "UP", "W"]
 ignore = [
+  # Wat, type annotations for self and cls, why is this a thing?
+  "ANN101",
+  "ANN102",
+  # Private annotations are fine to leave out.
+  "ANN202",
   # It's totally OK to call functions for default arguments.
   "B008",
   # raise SomeException(...) is fine.
@@ -144,8 +149,9 @@ extend-exclude = ["json"]
 docstring-quotes = "double"
 
 [tool.ruff.per-file-ignores]
-"docs/*" = ["D"]
+"noxfile.py" = ["ANN", "D"]
+"docs/*" = ["ANN", "D"]
 "jsonschema/cli.py" = ["D", "SIM", "UP"]
 "jsonschema/_utils.py" = ["D"]
 "jsonschema/benchmarks/*" = ["D"]
-"jsonschema/tests/*" = ["D", "SIM"]
+"jsonschema/tests/*" = ["ANN", "D", "SIM"]
