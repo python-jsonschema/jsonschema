@@ -100,6 +100,18 @@ Release Information
 path = "CHANGELOG.rst"
 pattern = "(^v.+?)\nv"
 
+[tool.coverage.run]
+branch = true
+source = ["jsonschema"]
+dynamic_context = "test_function"
+
+[tool.coverage.report]
+omit = [
+  "*/jsonschema/__main__.py",
+  "*/jsonschema/benchmarks/*",
+  "*/jsonschema/tests/fuzz_validate.py",
+]
+
 [tool.doc8]
 ignore = [
     "D001",  # one sentence per line, so max length doesn't make sense
