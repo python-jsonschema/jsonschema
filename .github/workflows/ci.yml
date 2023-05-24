@@ -51,10 +51,10 @@ jobs:
         posargs: [""]
         include:
           - os: ubuntu-latest
-            noxenv: "tests-3.11(extras='[format]')"
+            noxenv: "tests-3.11(format)"
             posargs: ghcoverage
           - os: ubuntu-latest
-            noxenv: "tests-3.11(extras='')"
+            noxenv: "tests-3.11(no-extras)"
             posargs: ghcoverage
         exclude:
           - os: windows-latest

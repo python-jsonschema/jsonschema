@@ -11,7 +11,7 @@ DOCS = ROOT / "docs"
 
 INSTALLABLE = [
     nox.param(value, id=name) for name, value in [
-        ("no-extras", ROOT),
+        ("no-extras", str(ROOT)),
         ("format", f"{ROOT}[format]"),
         ("format-nongpl", f"{ROOT}[format-nongpl]"),
     ]
