@@ -9,7 +9,13 @@ PYPROJECT = ROOT / "pyproject.toml"
 CHANGELOG = ROOT / "CHANGELOG.rst"
 DOCS = ROOT / "docs"
 
-EXTRAS = ["", "[format]", "[format-nongpl]"]
+INSTALLABLE = [
+    nox.param(value, id=name) for name, value in [
+        ("no-extras", ROOT),
+        ("format", f"{ROOT}[format]"),
+        ("format-nongpl", f"{ROOT}[format-nongpl]"),
+    ]
+]
 
 NONGPL_LICENSES = [
     "Apache Software License",
@@ -19,7 +25,6 @@ NONGPL_LICENSES = [
     "Mozilla Public License 2.0 (MPL 2.0)",
     "Python Software Foundation License",
 ]
-
 
 
 nox.options.sessions = []
@@ -35,36 +40,45 @@ def session(default=True, **kwargs):
 
 
 @session(python=["3.8", "3.9", "3.10", "3.11", "pypy3"])
-@nox.parametrize("extras", EXTRAS)
-def tests(session, extras):
+@nox.parametrize("installable", INSTALLABLE)
+def tests(session, installable):
 
     env = dict(JSON_SCHEMA_TEST_SUITE=str(ROOT / "json"))
 
-    session.install("virtue", f"{ROOT}{extras}")
+    session.install("virtue", installable)
 
-    ghcoverage = session.posargs == ["ghcoverage"]
-    if session.posargs == ["coverage"] or ghcoverage:
+    if session.posargs and session.posargs[0] in {"coverage", "ghcoverage"}:
+        ghcoverage = session.posargs.pop(0) == "ghcoverage"
+
         session.install("coverage[toml]")
-        session.run("coverage", "run", "-m", "virtue", PACKAGE, env=env)
+        session.run(
+            "coverage",
+            "run",
+            *session.posargs,
+            "-m",
+            "virtue",
+            PACKAGE,
+            env=env,
+        )
         session.run("coverage", "report")
+
+        if ghcoverage:
+            session.run(
+                "sh",
+                ROOT / ".github/coverage.sh",
+                f"{session.bin}/python",
+            )
     else:
         session.run("virtue", *session.posargs, PACKAGE, env=env)
 
-    if ghcoverage:
-        session.run(
-            "sh",
-            ROOT / ".github/coverage.sh",
-            f"{session.bin}/python",
-        )
-
 
 @session()
-@nox.parametrize("extras", EXTRAS)
-def audit(session, extras):
-    session.install("pip-audit", f"{ROOT}{extras}")
+@nox.parametrize("installable", INSTALLABLE)
+def audit(session, installable):
+    session.install("pip-audit", installable)
     session.run("python", "-m", "pip_audit")
 
-    if "nongpl" in extras:
+    if "format-nongpl" in installable:
         session.install("pip-licenses")
         session.run(
             "python",

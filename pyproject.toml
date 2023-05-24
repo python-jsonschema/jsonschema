@@ -100,6 +100,9 @@ Release Information
 path = "CHANGELOG.rst"
 pattern = "(^v.+?)\nv"
 
+[tool.coverage.html]
+show_contexts = true
+
 [tool.coverage.run]
 branch = true
 source = ["jsonschema"]
@@ -115,6 +118,8 @@ omit = [
   "*/jsonschema/benchmarks/*",
   "*/jsonschema/tests/fuzz_validate.py",
 ]
+show_missing = true
+skip_covered = true
 
 [tool.doc8]
 ignore = [
