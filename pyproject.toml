@@ -102,6 +102,7 @@ pattern = "(^v.+?)\nv"
 
 [tool.coverage.html]
 show_contexts = true
+skip_covered = false
 
 [tool.coverage.run]
 branch = true
