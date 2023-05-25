@@ -52,10 +52,10 @@ jobs:
         include:
           - os: ubuntu-latest
             noxenv: "tests-3.11(format)"
-            posargs: ghcoverage
+            posargs: coverage github
           - os: ubuntu-latest
             noxenv: "tests-3.11(no-extras)"
-            posargs: ghcoverage
+            posargs: coverage github
         exclude:
           - os: windows-latest
             noxenv: readme

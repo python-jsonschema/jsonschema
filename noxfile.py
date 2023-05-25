@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 import nox
 
@@ -47,27 +48,36 @@ def tests(session, installable):
 
     session.install("virtue", installable)
 
-    if session.posargs and session.posargs[0] in {"coverage", "ghcoverage"}:
-        ghcoverage = session.posargs.pop(0) == "ghcoverage"
+    if session.posargs and session.posargs[0] == "coverage":
+        if len(session.posargs) > 1 and session.posargs[1] == "github":
+            posargs = session.posargs[2:]
+            github = os.environ["GITHUB_STEP_SUMMARY"]
+        else:
+            posargs, github = session.posargs[1:], None
 
         session.install("coverage[toml]")
         session.run(
             "coverage",
             "run",
-            *session.posargs,
+            *posargs,
             "-m",
             "virtue",
             PACKAGE,
             env=env,
         )
-        session.run("coverage", "report")
 
-        if ghcoverage:
-            session.run(
-                "sh",
-                ROOT / ".github/coverage.sh",
-                f"{session.bin}/python",
-            )
+        if github is None:
+            session.run("coverage", "report")
+        else:
+            with open(github, "a") as summary:
+                summary.write("### Coverage\n\n")
+                summary.flush()  # without a flush, output seems out of order.
+                session.run(
+                    "coverage",
+                    "report",
+                    "--format=markdown",
+                    stdout=summary,
+                )
     else:
         session.run("virtue", *session.posargs, PACKAGE, env=env)
 
