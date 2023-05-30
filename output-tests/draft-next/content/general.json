@@ -20,7 +20,7 @@
                                 "contains": {
                                     "properties": {
                                         "evaluationPath": {"const": ""},
-                                        "schemaLocation": {"const": "https://json-schema.org/tests/content/draft-next/general/0"},
+                                        "schemaLocation": {"const": "https://json-schema.org/tests/content/draft-next/general/0#"},
                                         "instanceLocation": {"const": ""},
                                         "annotations": false,
                                         "droppedAnnotations": {

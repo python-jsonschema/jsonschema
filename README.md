@@ -12,6 +12,8 @@ This repository contains a set of JSON objects that implementers of JSON Schema 
 It is meant to be language agnostic and should require only a JSON parser.
 The conversion of the JSON objects into tests within a specific language and test framework of choice is left to be done by the validator implementer.
 
+The recommended workflow of this test suite is to clone the `main` branch of this repository as a `git submodule` or `git subtree`. The `main` branch is always stable.
+
 ## Coverage
 
 All JSON Schema specification releases should be well covered by this suite, including drafts 2020-12, 2019-09, 07, 06, 04 and 03.

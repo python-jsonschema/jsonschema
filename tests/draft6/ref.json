@@ -446,6 +446,33 @@
         ]
     },
     {
+        "description": "Reference an anchor with a non-relative URI",
+        "schema": {
+            "$id": "https://example.com/schema-with-anchor",
+            "allOf": [{
+                "$ref": "https://example.com/schema-with-anchor#foo"
+            }],
+            "definitions": {
+                "A": {
+                    "$id": "#foo",
+                    "type": "integer"
+                }
+            }
+        },
+        "tests": [
+            {
+                "data": 1,
+                "description": "match",
+                "valid": true
+            },
+            {
+                "data": "a",
+                "description": "mismatch",
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "Location-independent identifier with base URI change in subschema",
         "schema": {
             "$id": "http://localhost:1234/root",
