@@ -213,11 +213,23 @@ class _RefResolutionError(Exception):
 
 class _WrappedReferencingError(_RefResolutionError, _Unresolvable):
     def __init__(self, cause: _Unresolvable):
-        object.__setattr__(self, "_cause", cause)
+        object.__setattr__(self, "_wrapped", cause)
 
-    def __getattribute__(self, attr):
-        cause = object.__getattribute__(self, "_cause")
-        return getattr(cause, attr)
+    def __eq__(self, other):
+        if other.__class__ is self.__class__:
+            return self._wrapped == other._wrapped
+        elif other.__class__ is self._wrapped.__class__:
+            return self._wrapped == other
+        return NotImplemented
+
+    def __getattr__(self, attr):
+        return getattr(self._wrapped, attr)
+
+    def __repr__(self):
+        return f"<WrappedReferencingError {self._wrapped!r}>"
+
+    def __str__(self):
+        return f"{self._wrapped.__class__.__name__}: {self._wrapped}"
 
 
 class UndefinedTypeCheck(Exception):

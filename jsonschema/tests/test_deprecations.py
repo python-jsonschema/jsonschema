@@ -184,7 +184,10 @@ class TestDeprecations(TestCase):
             validator.validate(12)
 
         expected = referencing.exceptions.Unresolvable(ref="urn:nothing")
-        self.assertEqual(e.exception, expected)
+        self.assertEqual(
+            (e.exception, str(e.exception)),
+            (expected, "Unresolvable: urn:nothing")
+        )
 
     def test_catching_Unresolvable_via_RefResolutionError(self):
         """
@@ -197,11 +200,16 @@ class TestDeprecations(TestCase):
 
         validator = validators.Draft202012Validator({"$ref": "urn:nothing"})
 
-        with self.assertRaises(referencing.exceptions.Unresolvable):
+        with self.assertRaises(referencing.exceptions.Unresolvable) as u:
             validator.validate(12)
 
-        with self.assertRaises(RefResolutionError):
+        with self.assertRaises(RefResolutionError) as e:
             validator.validate(12)
+
+        self.assertEqual(
+            (e.exception, str(e.exception)),
+            (u.exception, "Unresolvable: urn:nothing")
+        )
 
     def test_Validator_subclassing(self):
         """
