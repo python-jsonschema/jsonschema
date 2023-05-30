@@ -17,7 +17,7 @@ Submodules
 .. automodule:: jsonschema
    :members:
    :imported-members:
-   :exclude-members: Validator
+   :exclude-members: FormatError, Validator
 
 .. autodata:: jsonschema._format._F
 
