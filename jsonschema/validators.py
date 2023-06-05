@@ -224,12 +224,7 @@ def create(
         format_checker: _format.FormatChecker | None = field(default=None)
         # TODO: include new meta-schemas added at runtime
         _registry: referencing.jsonschema.SchemaRegistry = field(
-            default=_DEFAULT_REGISTRY,
-            converter=lambda value: (
-                _DEFAULT_REGISTRY
-                if value is _DEFAULT_REGISTRY
-                else SPECIFICATIONS.combine(value)
-            ),
+            default=referencing.Registry(),
             kw_only=True,
             repr=False,
         )
@@ -274,9 +269,9 @@ def create(
 
         def __attrs_post_init__(self):
             if self._resolver is None:
-                self._resolver = self._registry.resolver_with_root(
-                    resource=specification.create_resource(self.schema),
-                )
+                registry = _DEFAULT_REGISTRY.combine(self._registry)
+                resource = specification.create_resource(self.schema)
+                self._resolver = registry.resolver_with_root(resource)
 
         @classmethod
         def check_schema(cls, schema, format_checker=_UNSET):
