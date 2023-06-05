@@ -2134,7 +2134,7 @@ class TestThreading(TestCase):
         def validate():
             try:
                 validators.validate(instance=37, schema=True)
-            except:  # noqa: E722, pragma: no cover
+            except:  # pragma: no cover  # noqa: E722
                 failed.append(sys.exc_info())
 
         validate()  # just verify it succeeds
@@ -2196,7 +2196,7 @@ class TestRefResolver(TestCase):
         ref = "http://bar#baz"
         schema = {"baz": 12}
 
-        if "requests" in sys.modules:
+        if "requests" in sys.modules:  # pragma: no cover
             self.addCleanup(
                 sys.modules.__setitem__, "requests", sys.modules["requests"],
             )
@@ -2209,7 +2209,7 @@ class TestRefResolver(TestCase):
         ref = "http://bar#baz"
         schema = {"baz": 12}
 
-        if "requests" in sys.modules:
+        if "requests" in sys.modules:  # pragma: no cover
             self.addCleanup(
                 sys.modules.__setitem__, "requests", sys.modules["requests"],
             )
