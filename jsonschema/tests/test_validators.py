@@ -12,7 +12,9 @@ import sys
 import tempfile
 import warnings
 
+from referencing.jsonschema import DRAFT202012
 import attr
+import referencing.exceptions
 
 from jsonschema import (
     FormatChecker,
@@ -2144,6 +2146,32 @@ class TestThreading(TestCase):
         thread.start()
         thread.join()
         self.assertEqual((thread.is_alive(), failed), (False, []))
+
+
+class TestReferencing(TestCase):
+    def test_registry_with_retrieve(self):
+        def retrieve(uri):
+            return DRAFT202012.create_resource({"type": "integer"})
+
+        registry = referencing.Registry(retrieve=retrieve)
+        schema = {"$ref": "https://example.com/"}
+        validator = validators.Draft202012Validator(schema, registry=registry)
+
+        self.assertEqual(
+            (validator.is_valid(12), validator.is_valid("foo")),
+            (True, False),
+        )
+
+    def test_custom_registries_do_not_autoretrieve_remote_resources(self):
+        registry = referencing.Registry()
+        schema = {"$ref": "https://example.com/"}
+        validator = validators.Draft202012Validator(schema, registry=registry)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            with self.assertRaises(referencing.exceptions.Unresolvable):
+                validator.validate(12)
+        self.assertFalse(w)
 
 
 class TestRefResolver(TestCase):

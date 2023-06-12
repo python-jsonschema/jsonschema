@@ -120,7 +120,7 @@ def _warn_for_remote_retrieve(uri: str):
         return referencing.Resource.from_contents(json.load(response))
 
 
-_DEFAULT_REGISTRY = SPECIFICATIONS.combine(
+_REMOTE_WARNING_REGISTRY = SPECIFICATIONS.combine(
     referencing.Registry(retrieve=_warn_for_remote_retrieve),  # type: ignore[call-arg]  # noqa: E501
 )
 
@@ -224,7 +224,7 @@ def create(
         format_checker: _format.FormatChecker | None = field(default=None)
         # TODO: include new meta-schemas added at runtime
         _registry: referencing.jsonschema.SchemaRegistry = field(
-            default=referencing.Registry(),
+            default=_REMOTE_WARNING_REGISTRY,
             kw_only=True,
             repr=False,
         )
@@ -269,7 +269,9 @@ def create(
 
         def __attrs_post_init__(self):
             if self._resolver is None:
-                registry = _DEFAULT_REGISTRY.combine(self._registry)
+                registry = self._registry
+                if registry is not _REMOTE_WARNING_REGISTRY:
+                    registry = SPECIFICATIONS.combine(registry)
                 resource = specification.create_resource(self.schema)
                 self._resolver = registry.resolver_with_root(resource)
 
