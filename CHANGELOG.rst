@@ -1,7 +1,7 @@
 v4.18.0
 =======
 
-This release majorly rehaul's the way in which JSON Schema reference resolution is configured.
+This release majorly rehauls the way in which JSON Schema reference resolution is configured.
 It does so in a way that *should* be backwards compatible, preserving old behavior whilst emitting deprecation warnings.
 
 * ``jsonschema.RefResolver`` is now deprecated in favor of the new `referencing library <https://github.com/python-jsonschema/referencing/>`_.
