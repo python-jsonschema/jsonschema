@@ -4,6 +4,7 @@ from collections import deque, namedtuple
 from contextlib import contextmanager
 from decimal import Decimal
 from io import BytesIO
+from typing import Any
 from unittest import TestCase, mock
 from urllib.request import pathname2url
 import json
@@ -12,8 +13,8 @@ import sys
 import tempfile
 import warnings
 
+from attrs import define, field
 from referencing.jsonschema import DRAFT202012
-import attr
 import referencing.exceptions
 
 from jsonschema import (
@@ -1570,10 +1571,10 @@ class ValidatorTestMixin(MetaSchemaTestsMixin):
         """
 
         with self.assertWarns(DeprecationWarning):
-            @attr.s
+            @define
             class OhNo(self.Validator):
-                foo = attr.ib(factory=lambda: [1, 2, 3])
-                _bar = attr.ib(default=37)
+                foo = field(factory=lambda: [1, 2, 3])
+                _bar = field(default=37)
 
         validator = OhNo({}, bar=12)
         self.assertEqual(validator.foo, [1, 2, 3])
@@ -2382,10 +2383,10 @@ def sorted_errors(errors):
     return sorted(errors, key=key)
 
 
-@attr.s
+@define
 class ReallyFakeRequests:
 
-    _responses = attr.ib()
+    _responses: dict[str, Any]
 
     def get(self, url):
         response = self._responses.get(url)
@@ -2394,10 +2395,10 @@ class ReallyFakeRequests:
         return _ReallyFakeJSONResponse(json.dumps(response))
 
 
-@attr.s
+@define
 class _ReallyFakeJSONResponse:
 
-    _response = attr.ib()
+    _response: str
 
     def json(self):
         return json.loads(self._response)

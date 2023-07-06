@@ -16,7 +16,7 @@ try:
 except ImportError:
     from pkgutil_resolve_name import resolve_name  # type: ignore
 
-import attr
+from attrs import define, field
 
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import _RefResolver, validator_for
@@ -36,12 +36,12 @@ class _CannotLoadFile(Exception):
     pass
 
 
-@attr.s
+@define
 class _Outputter:
 
-    _formatter = attr.ib()
-    _stdout = attr.ib()
-    _stderr = attr.ib()
+    _formatter = field()
+    _stdout = field()
+    _stderr = field()
 
     @classmethod
     def from_arguments(cls, arguments, stdout, stderr):
@@ -78,7 +78,7 @@ class _Outputter:
         self._stdout.write(self._formatter.validation_success(**kwargs))
 
 
-@attr.s
+@define
 class _PrettyFormatter:
 
     _ERROR_MSG = dedent(
@@ -120,10 +120,10 @@ class _PrettyFormatter:
         return self._SUCCESS_MSG.format(path=instance_path)
 
 
-@attr.s
+@define
 class _PlainFormatter:
 
-    _error_format = attr.ib()
+    _error_format = field()
 
     def filenotfound_error(self, path, exc_info):
         return "{!r} does not exist.\n".format(path)

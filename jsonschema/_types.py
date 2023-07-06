@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import Any, Callable, Mapping
 import numbers
 
+from attrs import evolve, field, frozen
 from rpds import HashTrieMap
-import attr
 
 from jsonschema.exceptions import UndefinedTypeCheck
 
 
-# unfortunately, the type of HashTrieMap is generic, and if used as the attr.ib
+# unfortunately, the type of HashTrieMap is generic, and if used as an attrs
 # converter, the generic type is presented to mypy, which then fails to match
 # the concrete type of a type checker mapping
 # this "do nothing" wrapper presents the correct information to mypy
@@ -57,7 +57,7 @@ def is_any(checker, instance):
     return True
 
 
-@attr.s(frozen=True, repr=False)
+@frozen(repr=False)
 class TypeChecker:
     """
     A :kw:`type` property checker.
@@ -80,10 +80,7 @@ class TypeChecker:
 
     _type_checkers: HashTrieMap[
         str, Callable[[TypeChecker, Any], bool],
-    ] = attr.ib(
-        default=HashTrieMap(),
-        converter=_typed_map_converter,
-    )
+    ] = field(default=HashTrieMap(), converter=_typed_map_converter)
 
     def __repr__(self):
         types = ", ".join(repr(k) for k in sorted(self._type_checkers))
@@ -146,7 +143,7 @@ class TypeChecker:
                 A dictionary mapping types to their checking functions.
         """
         type_checkers = self._type_checkers.update(definitions)
-        return attr.evolve(self, type_checkers=type_checkers)
+        return evolve(self, type_checkers=type_checkers)
 
     def remove(self, *types) -> TypeChecker:
         """
@@ -170,7 +167,7 @@ class TypeChecker:
                 type_checkers = type_checkers.remove(each)
             except KeyError:
                 raise UndefinedTypeCheck(each)
-        return attr.evolve(self, type_checkers=type_checkers)
+        return evolve(self, type_checkers=type_checkers)
 
 
 draft3_type_checker = TypeChecker(

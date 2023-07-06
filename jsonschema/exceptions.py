@@ -11,8 +11,8 @@ import heapq
 import itertools
 import warnings
 
+from attrs import define
 from referencing.exceptions import Unresolvable as _Unresolvable
-import attr
 
 from jsonschema import _utils
 
@@ -193,7 +193,7 @@ class SchemaError(_Error):
     _word_for_instance_in_error_message = "schema"
 
 
-@attr.s(hash=True)
+@define(slots=False)
 class _RefResolutionError(Exception):
     """
     A ref could not be resolved.
@@ -205,7 +205,12 @@ class _RefResolutionError(Exception):
         "directly catch referencing.exceptions.Unresolvable."
     )
 
-    _cause = attr.ib()
+    _cause: Exception
+
+    def __eq__(self, other):
+        if self.__class__ is not other.__class__:
+            return NotImplemented
+        return self._cause == other._cause
 
     def __str__(self):
         return str(self._cause)
