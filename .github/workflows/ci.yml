@@ -58,8 +58,6 @@ jobs:
             posargs: coverage github
         exclude:
           - os: windows-latest
-            noxenv: readme
-          - os: windows-latest
             noxenv: "docs(dirhtml)"
           - os: windows-latest
             noxenv: "docs(doctest)"

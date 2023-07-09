@@ -111,7 +111,9 @@ def build(session):
     with TemporaryDirectory() as tmpdir:
         session.run("python", "-m", "build", ROOT, "--outdir", tmpdir)
         session.run("twine", "check", "--strict", tmpdir + "/*")
-        session.run("rst2html5.py", "--halt=warning", CHANGELOG, "/dev/null")
+        session.run(
+            "python", "-m", "docutils", "--strict", CHANGELOG, os.devnull,
+        )
 
 
 @session()
