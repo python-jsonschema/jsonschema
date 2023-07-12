@@ -2373,6 +2373,28 @@ class TestRefResolver(TestCase):
         validator = validators.Draft7Validator(another, resolver=two)
         self.assertFalse(validator.is_valid({"maxLength": "foo"}))
 
+    def test_newly_created_validator_with_ref_resolver(self):
+        """
+        See https://github.com/python-jsonschema/jsonschema/issues/1061#issuecomment-1624266555.
+        """  # noqa: E501
+
+        def handle(uri):
+            self.assertEqual(uri, "http://example.com/foo")
+            return {"type": "integer"}
+
+        resolver = validators._RefResolver("", {}, handlers={"http": handle})
+        Validator = validators.create(
+            meta_schema={},
+            validators=validators.Draft4Validator.VALIDATORS,
+        )
+        schema = {"$id": "http://example.com/bar", "$ref": "foo"}
+        validator = Validator(schema, resolver=resolver)
+        self.assertEqual(
+            (validator.is_valid({}), validator.is_valid(37)),
+            (False, True),
+        )
+
+
 
 def sorted_errors(errors):
     def key(error):

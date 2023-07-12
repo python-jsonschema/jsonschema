@@ -1,3 +1,8 @@
+v4.18.1
+=======
+
+* Fix a regression with ``jsonschema.RefResolver`` based resolution when used in combination with a custom validation dialect (via ``jsonschema.validators.create``).
+
 v4.18.0
 =======
 

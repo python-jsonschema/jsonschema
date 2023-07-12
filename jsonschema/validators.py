@@ -275,6 +275,11 @@ def create(
                 resource = specification.create_resource(self.schema)
                 self._resolver = registry.resolver_with_root(resource)
 
+            # REMOVEME: Legacy ref resolution state management.
+            push_scope = getattr(self._ref_resolver, "push_scope", None)
+            if push_scope is not None:
+                push_scope(id_of(self.schema))
+
         @classmethod
         def check_schema(cls, schema, format_checker=_UNSET):
             Validator = validator_for(cls.META_SCHEMA, default=cls)
