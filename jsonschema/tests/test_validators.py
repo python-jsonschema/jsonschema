@@ -2394,6 +2394,25 @@ class TestRefResolver(TestCase):
             (False, True),
         )
 
+    def test_refresolver_with_pointer_in_schema_with_no_id(self):
+        """
+        See https://github.com/python-jsonschema/jsonschema/issues/1124#issuecomment-1632574249.
+        """  # noqa: E501
+
+        schema = {
+            "properties": {"x": {"$ref": "#/definitions/x"}},
+            "definitions": {"x": {"type": "integer"}},
+        }
+
+        validator = validators.Draft202012Validator(
+            schema,
+            resolver=validators._RefResolver("", schema),
+        )
+        self.assertEqual(
+            (validator.is_valid({"x": "y"}), validator.is_valid({"x": 37})),
+            (False, True),
+        )
+
 
 
 def sorted_errors(errors):

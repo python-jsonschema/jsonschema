@@ -278,7 +278,9 @@ def create(
             # REMOVEME: Legacy ref resolution state management.
             push_scope = getattr(self._ref_resolver, "push_scope", None)
             if push_scope is not None:
-                push_scope(id_of(self.schema))
+                id = id_of(self.schema)
+                if id is not None:
+                    push_scope(id)
 
         @classmethod
         def check_schema(cls, schema, format_checker=_UNSET):

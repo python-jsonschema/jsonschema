@@ -1,3 +1,8 @@
+v4.18.2
+=======
+
+* Fix an additional regression with the deprecated ``jsonschema.RefResolver`` and pointer resolution.
+
 v4.18.1
 =======
 
