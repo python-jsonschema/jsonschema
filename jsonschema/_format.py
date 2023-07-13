@@ -270,6 +270,7 @@ with suppress(ImportError):
         draft7="hostname",
         draft201909="hostname",
         draft202012="hostname",
+        raises=ValueError,
     )
     def is_host_name(instance: object) -> bool:
         if not isinstance(instance, str):
