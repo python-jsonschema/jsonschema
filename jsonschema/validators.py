@@ -219,6 +219,8 @@ def create(
         FORMAT_CHECKER = format_checker_arg
         ID_OF = staticmethod(id_of)
 
+        _APPLICABLE_VALIDATORS = applicable_validators
+
         schema: referencing.jsonschema.Schema = field(repr=reprlib.repr)
         _ref_resolver = field(default=None, repr=False, alias="resolver")
         format_checker: _format.FormatChecker | None = field(default=None)
@@ -570,6 +572,7 @@ def extend(
         type_checker=type_checker,
         format_checker=format_checker,
         id_of=validator.ID_OF,
+        applicable_validators=validator._APPLICABLE_VALIDATORS,
     )
 
 

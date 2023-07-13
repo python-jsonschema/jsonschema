@@ -1,3 +1,9 @@
+v4.18.3
+=======
+
+* Properly preserve ``applicable_validators`` in extended validators.
+  Specifically, validators extending early drafts where siblings of ``$ref`` were ignored will properly ignore siblings in the extended validator.
+
 v4.18.2
 =======
 
