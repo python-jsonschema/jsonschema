@@ -1,3 +1,8 @@
+v4.18.4
+=======
+
+* Improve the hashability of wrapped referencing exceptions when they contain hashable data.
+
 v4.18.3
 =======
 

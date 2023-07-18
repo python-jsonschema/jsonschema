@@ -211,6 +211,24 @@ class TestDeprecations(TestCase):
             (u.exception, "Unresolvable: urn:nothing")
         )
 
+    def test_WrappedReferencingError_hashability(self):
+        """
+        Ensure the wrapped referencing errors are hashable when possible.
+        """
+        with self.assertWarns(DeprecationWarning):
+            from jsonschema import RefResolutionError
+
+        validator = validators.Draft202012Validator({"$ref": "urn:nothing"})
+
+        with self.assertRaises(referencing.exceptions.Unresolvable) as u:
+            validator.validate(12)
+
+        with self.assertRaises(RefResolutionError) as e:
+            validator.validate(12)
+
+        self.assertIn(e.exception, {u.exception})
+        self.assertIn(u.exception, {e.exception})
+
     def test_Validator_subclassing(self):
         """
         As of v4.12.0, subclassing a validator class produces an explicit

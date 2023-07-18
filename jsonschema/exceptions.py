@@ -230,6 +230,9 @@ class _WrappedReferencingError(_RefResolutionError, _Unresolvable):
     def __getattr__(self, attr):
         return getattr(self._wrapped, attr)
 
+    def __hash__(self):
+        return hash(self._wrapped)
+
     def __repr__(self):
         return f"<WrappedReferencingError {self._wrapped!r}>"
 
