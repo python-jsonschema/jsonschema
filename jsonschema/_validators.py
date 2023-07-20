@@ -1,6 +1,7 @@
 from fractions import Fraction
 import re
 
+from jsonschema import exceptions
 from jsonschema._utils import (
     ensure_list,
     equal,
@@ -12,6 +13,7 @@ from jsonschema._utils import (
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
+import jsonschema.exceptions.keywords  # noqa: F401
 
 
 def patternProperties(validator, patternProperties, instance, schema):
@@ -315,7 +317,7 @@ def required(validator, required, instance, schema):
         return
     for property in required:
         if property not in instance:
-            yield ValidationError(f"{property!r} is a required property")
+            yield exceptions.keywords.Required(property_name=property)
 
 
 def minProperties(validator, mP, instance, schema):

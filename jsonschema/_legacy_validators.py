@@ -1,7 +1,7 @@
 from referencing.jsonschema import lookup_recursive_ref
 
 from jsonschema import _utils
-from jsonschema.exceptions import ValidationError
+from jsonschema.exceptions import ValidationError, keywords
 
 
 def ignore_ref_siblings(schema):
@@ -160,7 +160,7 @@ def properties_draft3(validator, properties, instance, schema):
                 schema_path=property,
             )
         elif subschema.get("required", False):
-            error = ValidationError(f"{property!r} is a required property")
+            error = keywords.Required(property_name=property)
             error._set(
                 validator="required",
                 validator_value=subschema["required"],

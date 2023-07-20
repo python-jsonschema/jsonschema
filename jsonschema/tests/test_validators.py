@@ -24,6 +24,7 @@ from jsonschema import (
     protocols,
     validators,
 )
+import jsonschema.exceptions.keywords
 
 
 def fail(validator, errors, instance, schema):
@@ -1759,6 +1760,18 @@ class ValidatorTestMixin(MetaSchemaTestsMixin):
         for instance in invalid_instances:
             with self.assertRaises(exceptions.ValidationError):
                 validator.validate(instance)
+
+    def test_required_missing(self):
+        if self.Validator is not validators.Draft3Validator:
+            schema = {"required": ["a", "b"]}
+        else:
+            required = dict(required=True)
+            schema = {"properties": dict(a=required, b=required)}
+        validator = self.Validator(schema)
+
+        with self.assertRaises(exceptions.keywords.Required) as e:
+            validator.validate({"a": 37})
+        self.assertEqual(e.exception.property_name, "b")
 
     def test_it_creates_a_ref_resolver_if_not_provided(self):
         with self.assertWarns(DeprecationWarning):
