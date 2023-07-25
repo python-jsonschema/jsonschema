@@ -136,6 +136,7 @@ multi_line_output = 3
 [tool.mypy]
 ignore_missing_imports = true
 show_error_codes = true
+exclude = ["jsonschema/benchmarks/*"]
 
 [tool.ruff]
 line-length = 79
