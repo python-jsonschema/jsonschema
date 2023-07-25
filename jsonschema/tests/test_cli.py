@@ -84,18 +84,13 @@ class TestCLI(TestCase):
 
         self.assertEqual(
             actual_exit_code, exit_code, msg=dedent(
-                """
-                    Expected an exit code of {} != {}.
+                f"""
+                    Expected an exit code of {exit_code} != {actual_exit_code}.
 
-                    stdout: {}
+                    stdout: {stdout.getvalue()}
 
-                    stderr: {}
-                """.format(
-                    exit_code,
-                    actual_exit_code,
-                    stdout.getvalue(),
-                    stderr.getvalue(),
-                ),
+                    stderr: {stderr.getvalue()}
+                """,
             ),
         )
         return stdout.getvalue(), stderr.getvalue()
@@ -450,9 +445,9 @@ class TestCLI(TestCase):
             argv=["-i", "some_instance", "some_schema"],
 
             exit_code=1,
-            stderr="""\
-                Failed to parse 'some_instance': {}
-            """.format(_message_for(instance)),
+            stderr=f"""\
+                Failed to parse 'some_instance': {_message_for(instance)}
+            """,
         )
 
     def test_instance_is_invalid_JSON_pretty_output(self):
@@ -483,9 +478,9 @@ class TestCLI(TestCase):
             argv=["some_schema"],
 
             exit_code=1,
-            stderr="""\
-                Failed to parse <stdin>: {}
-            """.format(_message_for(instance)),
+            stderr=f"""\
+                Failed to parse <stdin>: {_message_for(instance)}
+            """,
         )
 
     def test_instance_is_invalid_JSON_on_stdin_pretty_output(self):
@@ -513,9 +508,9 @@ class TestCLI(TestCase):
             argv=["some_schema"],
 
             exit_code=1,
-            stderr="""\
-                Failed to parse 'some_schema': {}
-            """.format(_message_for(schema)),
+            stderr=f"""\
+                Failed to parse 'some_schema': {_message_for(schema)}
+            """,
         )
 
     def test_schema_is_invalid_JSON_pretty_output(self):
@@ -543,9 +538,9 @@ class TestCLI(TestCase):
             argv=["some_schema"],
 
             exit_code=1,
-            stderr="""\
-                Failed to parse 'some_schema': {}
-            """.format(_message_for(schema)),
+            stderr=f"""\
+                Failed to parse 'some_schema': {_message_for(schema)}
+            """,
         )
 
     def test_schema_and_instance_are_both_invalid_JSON_pretty_output(self):
