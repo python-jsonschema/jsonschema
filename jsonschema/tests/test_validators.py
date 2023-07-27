@@ -1485,6 +1485,18 @@ class TestValidationErrorDetails(TestCase):
             ),
         )
 
+    def test_ref_history(self):
+        schema = {
+            "$defs": {"foo": {"properties":{"prop":{"$ref":"#/$defs/bar"},},},
+                      "bar": {"properties":{"a":{"type":"integer"},},},},
+            "$ref": "#/$defs/foo"
+        }
+        instance = {"prop": {"a":"1",}}
+
+        validator = validators._LATEST_VERSION(schema)
+        e, = list(validator.iter_errors(instance))
+        self.assertEqual(list(e.refs), ["#/$defs/foo", "#/$defs/bar"])
+
 
 class MetaSchemaTestsMixin:
     # TODO: These all belong upstream

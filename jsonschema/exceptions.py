@@ -51,6 +51,7 @@ class _Error(Exception):
         schema_path=(),
         parent=None,
         type_checker=_unset,
+        refs=()
     ):
         super().__init__(
             message,
@@ -63,6 +64,7 @@ class _Error(Exception):
             schema,
             schema_path,
             parent,
+            refs,
         )
         self.message = message
         self.path = self.relative_path = deque(path)
@@ -74,6 +76,7 @@ class _Error(Exception):
         self.instance = instance
         self.schema = schema
         self.parent = parent
+        self.refs = deque(refs)
         self._type_checker = type_checker
 
         for error in context:
@@ -156,7 +159,7 @@ class _Error(Exception):
     def _contents(self):
         attrs = (
             "message", "cause", "context", "validator", "validator_value",
-            "path", "schema_path", "instance", "schema", "parent",
+            "path", "schema_path", "instance", "schema", "parent", "refs",
         )
         return dict((attr, getattr(self, attr)) for attr in attrs)
 

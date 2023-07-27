@@ -369,6 +369,8 @@ def create(
                         schema=_schema,
                         type_checker=self.TYPE_CHECKER,
                     )
+                    if k == "$ref":
+                        error.refs.appendleft(v)
                     if k not in {"if", "$ref"}:
                         error.schema_path.appendleft(k)
                     yield error
@@ -417,6 +419,8 @@ def create(
                         schema=schema,
                         type_checker=evolved.TYPE_CHECKER,
                     )
+                    if k == "$ref":
+                        error.refs.appendleft(v)
                     if k not in {"if", "$ref"}:
                         error.schema_path.appendleft(k)
                     if path is not None:
