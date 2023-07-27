@@ -4,11 +4,11 @@ Validation errors, and some surrounding helpers.
 from __future__ import annotations
 
 from collections import defaultdict, deque
-import json
 from textwrap import dedent, indent
 from typing import ClassVar
 import heapq
 import itertools
+import json
 import warnings
 
 from attrs import define
@@ -34,7 +34,8 @@ def __getattr__(name):
 
 
 def _format_json(obj):
-    return json.dumps(obj, ensure_ascii=False, indent=2)
+    return json.dumps(obj, ensure_ascii=False, indent=2, default=repr,
+                      sort_keys=True)
 
 class _Error(Exception):
 
