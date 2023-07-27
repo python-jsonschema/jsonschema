@@ -4,7 +4,7 @@ Validation errors, and some surrounding helpers.
 from __future__ import annotations
 
 from collections import defaultdict, deque
-from pprint import pformat
+import json
 from textwrap import dedent, indent
 from typing import ClassVar
 import heapq
@@ -32,6 +32,9 @@ def __getattr__(name):
         return _RefResolutionError
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
+
+def _format_json(obj):
+    return json.dumps(obj, ensure_ascii=False, indent=2)
 
 class _Error(Exception):
 
@@ -104,10 +107,10 @@ class _Error(Exception):
             {self.message}
 
             Failed validating {self.validator!r} in {schema_path}:
-                {indent(pformat(self.schema, width=72), prefix).lstrip()}
+                {indent(_format_json(self.schema), prefix).lstrip()}
 
             On {instance_path}:
-                {indent(pformat(self.instance, width=72), prefix).lstrip()}
+                {indent(_format_json(self.instance), prefix).lstrip()}
             """.rstrip(),
         )
 
@@ -268,10 +271,10 @@ class UnknownType(Exception):
         return dedent(
             f"""\
             Unknown type {self.type!r} for validator with schema:
-                {indent(pformat(self.schema, width=72), prefix).lstrip()}
+                {indent(_format_json(self.schema), prefix).lstrip()}
 
             While checking instance:
-                {indent(pformat(self.instance, width=72), prefix).lstrip()}
+                {indent(_format_json(self.instance), prefix).lstrip()}
             """.rstrip(),
         )
 
