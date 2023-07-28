@@ -216,8 +216,18 @@ easier debugging.
     3 is not valid under any of the given schemas
 
     Failed validating 'anyOf' in schema['items']:
-        {'anyOf': [{'maxLength': 2, 'type': 'string'},
-                   {'minimum': 5, 'type': 'integer'}]}
+        {
+          "anyOf": [
+            {
+              "maxLength": 2,
+              "type": "string"
+            },
+            {
+              "minimum": 5,
+              "type": "integer"
+            }
+          ]
+        }
 
     On instance[1]:
         3
