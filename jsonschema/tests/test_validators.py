@@ -2393,7 +2393,7 @@ class TestRefResolver(TestCase):
     def test_newly_created_validator_with_ref_resolver(self):
         """
         See https://github.com/python-jsonschema/jsonschema/issues/1061#issuecomment-1624266555.
-        """  # noqa: E501
+        """
 
         def handle(uri):
             self.assertEqual(uri, "http://example.com/foo")
@@ -2414,7 +2414,7 @@ class TestRefResolver(TestCase):
     def test_refresolver_with_pointer_in_schema_with_no_id(self):
         """
         See https://github.com/python-jsonschema/jsonschema/issues/1124#issuecomment-1632574249.
-        """  # noqa: E501
+        """
 
         schema = {
             "properties": {"x": {"$ref": "#/definitions/x"}},

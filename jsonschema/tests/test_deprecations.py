@@ -16,7 +16,7 @@ class TestDeprecations(TestCase):
 
         message = "Accessing jsonschema.__version__ is deprecated"
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import __version__  # noqa
+            from jsonschema import __version__  # noqa: F401
 
         self.assertEqual(w.filename, __file__)
 
@@ -28,7 +28,7 @@ class TestDeprecations(TestCase):
 
         message = "Importing ErrorTree from jsonschema.validators is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema.validators import ErrorTree  # noqa
+            from jsonschema.validators import ErrorTree
 
         self.assertEqual(ErrorTree, exceptions.ErrorTree)
         self.assertEqual(w.filename, __file__)
@@ -41,7 +41,7 @@ class TestDeprecations(TestCase):
 
         message = "Importing ErrorTree directly from the jsonschema package "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import ErrorTree  # noqa
+            from jsonschema import ErrorTree
 
         self.assertEqual(ErrorTree, exceptions.ErrorTree)
         self.assertEqual(w.filename, __file__)
@@ -54,7 +54,7 @@ class TestDeprecations(TestCase):
 
         message = "Importing FormatError directly from the jsonschema package "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import FormatError  # noqa
+            from jsonschema import FormatError
 
         self.assertEqual(FormatError, exceptions.FormatError)
         self.assertEqual(w.filename, __file__)
@@ -145,7 +145,7 @@ class TestDeprecations(TestCase):
 
         message = "jsonschema.RefResolver is deprecated"
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import RefResolver  # noqa: F401
+            from jsonschema import RefResolver
         self.assertEqual(w.filename, __file__)
 
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
@@ -160,13 +160,13 @@ class TestDeprecations(TestCase):
 
         message = "jsonschema.exceptions.RefResolutionError is deprecated"
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import RefResolutionError  # noqa: F401
+            from jsonschema import RefResolutionError
 
         self.assertEqual(RefResolutionError, exceptions._RefResolutionError)
         self.assertEqual(w.filename, __file__)
 
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema.exceptions import RefResolutionError  # noqa
+            from jsonschema.exceptions import RefResolutionError
 
         self.assertEqual(RefResolutionError, exceptions._RefResolutionError)
         self.assertEqual(w.filename, __file__)
@@ -274,7 +274,7 @@ class TestDeprecations(TestCase):
 
         message = "Accessing jsonschema.draft202012_format_checker is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import draft202012_format_checker  # noqa
+            from jsonschema import draft202012_format_checker
 
         self.assertIs(
             draft202012_format_checker,
@@ -284,7 +284,7 @@ class TestDeprecations(TestCase):
 
         message = "Accessing jsonschema.draft201909_format_checker is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import draft201909_format_checker  # noqa
+            from jsonschema import draft201909_format_checker
 
         self.assertIs(
             draft201909_format_checker,
@@ -294,7 +294,7 @@ class TestDeprecations(TestCase):
 
         message = "Accessing jsonschema.draft7_format_checker is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import draft7_format_checker  # noqa
+            from jsonschema import draft7_format_checker
 
         self.assertIs(
             draft7_format_checker,
@@ -304,7 +304,7 @@ class TestDeprecations(TestCase):
 
         message = "Accessing jsonschema.draft6_format_checker is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import draft6_format_checker  # noqa
+            from jsonschema import draft6_format_checker
 
         self.assertIs(
             draft6_format_checker,
@@ -314,7 +314,7 @@ class TestDeprecations(TestCase):
 
         message = "Accessing jsonschema.draft4_format_checker is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import draft4_format_checker  # noqa
+            from jsonschema import draft4_format_checker
 
         self.assertIs(
             draft4_format_checker,
@@ -324,7 +324,7 @@ class TestDeprecations(TestCase):
 
         message = "Accessing jsonschema.draft3_format_checker is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema import draft3_format_checker  # noqa
+            from jsonschema import draft3_format_checker
 
         self.assertIs(
             draft3_format_checker,

@@ -213,8 +213,8 @@ def create(
     @define
     class Validator:
 
-        VALIDATORS = dict(validators)
-        META_SCHEMA = dict(meta_schema)
+        VALIDATORS = dict(validators)  # noqa: RUF012
+        META_SCHEMA = dict(meta_schema)  # noqa: RUF012
         TYPE_CHECKER = type_checker
         FORMAT_CHECKER = format_checker_arg
         ID_OF = staticmethod(id_of)
