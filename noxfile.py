@@ -201,7 +201,7 @@ def perf(session, benchmark):
 @session(default=False)
 def requirements(session):
     session.install("pip-tools")
-    for each in [DOCS / "requirements.in", ROOT / "test-requirements.in"]:
+    for each in [DOCS / "requirements.in"]:
         session.run(
             "pip-compile",
             "--resolver",
