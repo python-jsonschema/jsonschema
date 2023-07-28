@@ -34,10 +34,7 @@ jobs:
       - id: noxenvs-matrix
         run: |
           echo >>$GITHUB_OUTPUT noxenvs=$(
-            nox --list-sessions |
-            grep '^* ' |
-            cut -d ' ' -f 2- |
-            jq --raw-input --slurp 'split("\n") | map(select(. != ""))'
+            nox --list-sessions --json | jq '[.[].session]'
           )
 
   ci:
