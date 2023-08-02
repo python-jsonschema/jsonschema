@@ -281,7 +281,7 @@ The supported mechanism for ensuring these dependencies are present is again as 
 
             Use `FormatChecker.checks` on an instance instead.
 
-.. autoexception:: FormatError
+.. autoexception:: jsonschema.exceptions.FormatError
     :noindex:
     :members:
 
