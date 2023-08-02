@@ -103,8 +103,10 @@ def validates(version):
 
 
 def _warn_for_remote_retrieve(uri: str):
-    from urllib.request import urlopen
-    with urlopen(uri) as response:
+    from urllib.request import Request, urlopen
+    headers = {"User-Agent": "python-jsonschema (deprecated $ref resolution)"}
+    request = Request(uri, headers=headers)
+    with urlopen(request) as response:
         warnings.warn(
             "Automatically retrieving remote references can be a security "
             "vulnerability and is discouraged by the JSON Schema "

@@ -1,3 +1,8 @@
+v4.18.6
+=======
+
+* Set a ``jsonschema`` specific user agent when automatically retrieving remote references (which is deprecated).
+
 v4.18.5
 =======
 
