@@ -25,6 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: File Formats :: JSON",
@@ -68,8 +69,8 @@ format-nongpl = [
 jsonschema = "jsonschema.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/python-jsonschema/jsonschema"
 Documentation = "https://python-jsonschema.readthedocs.io/"
+Homepage = "https://github.com/python-jsonschema/jsonschema"
 Issues = "https://github.com/python-jsonschema/jsonschema/issues/"
 Funding = "https://github.com/sponsors/Julian"
 Tidelift = "https://tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-jsonschema&utm_medium=referral&utm_campaign=pypi-link"
@@ -170,6 +171,8 @@ ignore = [
   "D407",
   # Plz spaces after section headers
   "D412",
+  # We support 3.8 + 3.9
+  "UP007",
 ]
 extend-exclude = ["json"]
 
