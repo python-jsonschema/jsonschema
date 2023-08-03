@@ -1,0 +1,13 @@
+{
+  "$id": "http://localhost:1234/draft-next/detached-ref.json",
+  "$schema": "https://json-schema.org/draft/next/schema",
+  "$defs": {
+    "foo": {
+      "$ref": "#detached"
+    },
+    "detached": {
+      "$anchor": "detached",
+      "type": "integer"
+    }
+  }
+}
