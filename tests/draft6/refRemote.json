@@ -235,5 +235,23 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "$ref to $ref finds location-independent $id",
+        "schema": {
+            "$ref": "http://localhost:1234/draft6/detached-ref.json#/definitions/foo"
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
+                "valid": false
+            }
+        ]
     }
 ]

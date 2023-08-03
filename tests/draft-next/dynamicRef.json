@@ -207,45 +207,75 @@
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
             "$id": "https://test.json-schema.org/dynamic-ref-with-multiple-paths/main",
+            "propertyDependencies": {
+                "kindOfList": {
+                    "numbers": { "$ref": "numberList" },
+                    "strings": { "$ref": "stringList" }
+                }
+            },
             "$defs": {
-                "inner": {
-                    "$id": "inner",
-                    "$dynamicAnchor": "foo",
-                    "title": "inner",
-                    "additionalProperties": {
-                        "$dynamicRef": "#foo"
+                "genericList": {
+                    "$id": "genericList",
+                    "properties": {
+                        "list": {
+                            "items": { "$dynamicRef": "#itemType" }
+                        }
                     }
+                },
+                "numberList": {
+                    "$id": "numberList",
+                    "$defs": {
+                        "itemType": {
+                            "$dynamicAnchor": "itemType",
+                            "type": "number"
+                        }
+                    },
+                    "$ref": "genericList"
+                },
+                "stringList": {
+                    "$id": "stringList",
+                    "$defs": {
+                        "itemType": {
+                            "$dynamicAnchor": "itemType",
+                            "type": "string"
+                        }
+                    },
+                    "$ref": "genericList"
                 }
-            },
-            "if": {
-                "propertyNames": {
-                    "pattern": "^[a-m]"
-                }
-            },
-            "then": {
-                "title": "any type of node",
-                "$id": "anyLeafNode",
-                "$dynamicAnchor": "foo",
-                "$ref": "inner"
-            },
-            "else": {
-                "title": "integer node",
-                "$id": "integerNode",
-                "$dynamicAnchor": "foo",
-                "type": [ "object", "integer" ],
-                "$ref": "inner"
             }
         },
         "tests": [
             {
-                "description": "recurse to anyLeafNode - floats are allowed",
-                "data": { "alpha": 1.1 },
+                "description": "number list with number values",
+                "data": {
+                    "kindOfList": "numbers",
+                    "list": [1.1]
+                },
                 "valid": true
             },
             {
-                "description": "recurse to integerNode - floats are not allowed",
-                "data": { "november": 1.1 },
+                "description": "number list with string values",
+                "data": {
+                    "kindOfList": "numbers",
+                    "list": ["foo"]
+                },
                 "valid": false
+            },
+            {
+                "description": "string list with number values",
+                "data": {
+                    "kindOfList": "strings",
+                    "list": [1.1]
+                },
+                "valid": false
+            },
+            {
+                "description": "string list with string values",
+                "data": {
+                    "kindOfList": "strings",
+                    "list": ["foo"]
+                },
+                "valid": true
             }
         ]
     },
@@ -561,6 +591,24 @@
                     "expectedTypes": "integers",
                     "anotherProperty": "a string"
                 },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "$ref to $dynamicRef finds detached $dynamicAnchor",
+        "schema": {
+            "$ref": "http://localhost:1234/draft-next/detached-dynamicref.json#/$defs/foo"
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "non-number is invalid",
+                "data": "a",
                 "valid": false
             }
         ]

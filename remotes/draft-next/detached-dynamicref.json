@@ -1,0 +1,13 @@
+{
+  "$id": "http://localhost:1234/draft-next/detached-dynamicref.json",
+  "$schema": "https://json-schema.org/draft/next/schema",
+  "$defs": {
+    "foo": {
+      "$dynamicRef": "#detached"
+    },
+    "detached": {
+      "$dynamicAnchor": "detached",
+      "type": "integer"
+    }
+  }
+}
