@@ -13,7 +13,6 @@ import warnings
 from jsonschema._format import FormatChecker
 from jsonschema._types import TypeChecker
 from jsonschema.exceptions import SchemaError, ValidationError
-from jsonschema.protocols import Validator
 from jsonschema.validators import (
     Draft3Validator,
     Draft4Validator,
@@ -65,6 +64,16 @@ def __getattr__(name):
         )
         from jsonschema.exceptions import FormatError
         return FormatError
+    elif name == "Validator":
+        warnings.warn(
+            "Importing Validator directly from the jsonschema package "
+            "is deprecated and will become an ImportError. Import it from "
+            "jsonschema.protocols instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        from jsonschema.protocols import Validator
+        return Validator
     elif name == "RefResolutionError":
         from jsonschema.exceptions import _RefResolutionError
         warnings.warn(
@@ -107,6 +116,5 @@ __all__ = [
     "SchemaError",
     "TypeChecker",
     "ValidationError",
-    "Validator",
     "validate",
 ]

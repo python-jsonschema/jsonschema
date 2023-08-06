@@ -9,7 +9,7 @@ import urllib.request
 
 import referencing.exceptions
 
-from jsonschema import FormatChecker, exceptions, validators
+from jsonschema import FormatChecker, exceptions, protocols, validators
 
 
 class TestDeprecations(TestCase):
@@ -62,6 +62,19 @@ class TestDeprecations(TestCase):
             from jsonschema import FormatError
 
         self.assertEqual(FormatError, exceptions.FormatError)
+        self.assertEqual(w.filename, __file__)
+
+    def test_import_Validator(self):
+        """
+        As of v4.19.0, importing Validator from the package root is
+        deprecated in favor of doing so from jsonschema.protocols.
+        """
+
+        message = "Importing Validator directly from the jsonschema package "
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            from jsonschema import Validator
+
+        self.assertEqual(Validator, protocols.Validator)
         self.assertEqual(w.filename, __file__)
 
     def test_validators_validators(self):

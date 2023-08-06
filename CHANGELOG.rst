@@ -1,3 +1,9 @@
+v4.19.0
+=======
+
+* Importing the ``Validator`` protocol directly from the package root is deprecated.
+  Import it from ``jsonschema.protocols.Validator`` instead.
+
 v4.18.6
 =======
 
