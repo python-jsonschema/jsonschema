@@ -381,10 +381,7 @@ class TestDeprecations(TestCase):
         Automatic retrieval of remote references is deprecated as of v4.18.0.
         """
         ref = "http://bar#/$defs/baz"
-        schema = {
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$defs": {"baz": {"type": "integer"}},
-        }
+        schema = {"$defs": {"baz": {"type": "integer"}}}
 
         if "requests" in sys.modules:  # pragma: no cover
             self.addCleanup(

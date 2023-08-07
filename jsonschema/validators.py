@@ -119,7 +119,10 @@ def _warn_for_remote_retrieve(uri: str):
             DeprecationWarning,
             stacklevel=9,  # Ha ha ha ha magic numbers :/
         )
-        return referencing.Resource.from_contents(json.load(response))
+        return referencing.Resource.from_contents(
+            json.load(response),
+            default_specification=referencing.jsonschema.DRAFT202012,
+        )
 
 
 _REMOTE_WARNING_REGISTRY = SPECIFICATIONS.combine(
