@@ -149,7 +149,8 @@ Resolving References from the File System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Another common request from schema authors is to be able to map URIs to the file system, perhaps while developing a set of schemas in different local files.
-The referencing library supports doing so dynamically by configuring a callable which can be used to retrieve any schema which is *not* already pre-loaded in the manner described `above <in-memory-schemas>`.
+If you have a set of *fixed* or *static* schemas in a few files, you still likely will want to follow the `above in-memory instructions <in-memory-schemas>`, and simply load all of your files by reading them in-memory from your program.
+If however you wish to *dynamically* read files off of the file system, perhaps because they may change during the lifetime of your process, then the referencing library supports doing so fully dynamically by configuring a callable which can be used to retrieve any schema which is *not* already pre-loaded in-memory.
 
 Here we resolve any schema beginning with ``http://localhost`` to a directory ``/tmp/schemas`` on the local filesystem (note of course that this will not work if run directly unless you have populated that directory with some schemas):
 
