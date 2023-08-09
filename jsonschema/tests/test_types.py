@@ -8,7 +8,7 @@ functions correctly at a more granular level.
 from collections import namedtuple
 from unittest import TestCase
 
-from jsonschema import ValidationError, _validators
+from jsonschema import ValidationError, _keywords
 from jsonschema._types import TypeChecker
 from jsonschema.exceptions import UndefinedTypeCheck, UnknownType
 from jsonschema.validators import Draft202012Validator, extend
@@ -191,8 +191,8 @@ class TestCustomTypes(TestCase):
                 return fn(validator, value, instance, schema)
             return coerced
 
-        required = coerce_named_tuple(_validators.required)
-        properties = coerce_named_tuple(_validators.properties)
+        required = coerce_named_tuple(_keywords.required)
+        properties = coerce_named_tuple(_keywords.properties)
 
         CustomValidator = extend(
             Draft202012Validator,

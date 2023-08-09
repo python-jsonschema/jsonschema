@@ -238,9 +238,7 @@ failed when validating a given instance, you may want to do so using
 
     .. attribute:: errors
 
-        The mapping of validator keywords to the error objects (usually
-        `jsonschema.exceptions.ValidationError`\s) at this level
-        of the tree.
+        The mapping of validation keywords to the error objects (usually `jsonschema.exceptions.ValidationError`\s) at this level of the tree.
 
 Consider the following example:
 
@@ -276,10 +274,7 @@ error objects.
     from jsonschema.exceptions import ErrorTree
     tree = ErrorTree(v.iter_errors(instance))
 
-As you can see, `jsonschema.exceptions.ErrorTree` takes an
-iterable of `ValidationError`\s when constructing a tree so
-you can directly pass it the return value of a validator object's
-`jsonschema.protocols.Validator.iter_errors` method.
+As you can see, `jsonschema.exceptions.ErrorTree` takes an iterable of `ValidationError`\s when constructing a tree so you can directly pass it the return value of a validator's `jsonschema.protocols.Validator.iter_errors` method.
 
 `ErrorTree`\s support a number of useful operations. The first one we
 might want to perform is to check whether a given element in our instance

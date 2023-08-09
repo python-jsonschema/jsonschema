@@ -50,12 +50,9 @@ This library made the choice to leave it off by default, for two reasons:
       implementations they were using to ensure they too were explicitly
       enabled for :kw:`format` validation.
 
-As of ``draft2019-09`` however, the opt-out by default behavior
-mentioned here is now *required* for all validators.
+As of ``draft2019-09`` however, the opt-out by default behavior mentioned here is now *required* for all implementations of JSON Schema.
 
-Difficult as this may sound for new users, at this point it at least
-means they should expect the same behavior that has always been
-implemented here, across any other implementation they encounter.
+Difficult as this may sound for new users, at this point it at least means they should expect the same behavior that has always been implemented here, across any other implementation they encounter.
 
 .. seealso::
 
