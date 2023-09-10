@@ -180,7 +180,7 @@ extend-exclude = ["json"]
 docstring-quotes = "double"
 
 [tool.ruff.per-file-ignores]
-"noxfile.py" = ["ANN", "D"]
+"noxfile.py" = ["ANN", "D100"]
 "docs/*" = ["ANN", "D"]
 "jsonschema/cli.py" = ["D", "SIM", "UP"]
 "jsonschema/_utils.py" = ["D"]
