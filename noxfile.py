@@ -95,19 +95,24 @@ def audit(session, installable):
     session.install("pip-audit", installable)
     session.run("python", "-m", "pip_audit")
 
-    if "format-nongpl" in installable:
-        session.install("pip-licenses")
-        session.run(
-            "python",
-            "-m",
-            "piplicenses",
-            "--ignore-packages",
-            "pip-requirements-parser",
-            "pip_audit",
-            "pip-api",
-            "--allow-only",
-            ";".join(NONGPL_LICENSES),
-        )
+
+@session()
+def license_check(session):
+    """
+    Check that the non-GPL extra does not allow arbitrary licenses.
+    """
+    session.install("pip-licenses", f"{ROOT}[format-nongpl]")
+    session.run(
+        "python",
+        "-m",
+        "piplicenses",
+        "--ignore-packages",
+        "pip-requirements-parser",
+        "pip_audit",
+        "pip-api",
+        "--allow-only",
+        ";".join(NONGPL_LICENSES),
+    )
 
 
 @session(tags=["build"])
