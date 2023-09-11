@@ -1,7 +1,7 @@
 file:.#egg=jsonschema
 furo
 lxml
-sphinx
+sphinx!=7.2.5
 sphinx-autoapi
 sphinx-autodoc-typehints
 sphinx-copybutton
