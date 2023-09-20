@@ -14,9 +14,11 @@ import warnings
 try:
     import jsonschema.validators
 except ImportError:
-    jsonschema = None
+    jsonschema = Unresolvable = None
     VALIDATORS = {}
 else:
+    from referencing.exceptions import Unresolvable
+
     VALIDATORS = {
         "draft3": jsonschema.validators.Draft3Validator,
         "draft4": jsonschema.validators.Draft4Validator,
@@ -587,7 +589,7 @@ class SanityTests(unittest.TestCase):
                 with self.subTest(case=case, version=version.name):
                     try:
                         Validator(case["schema"]).is_valid(12)
-                    except jsonschema.exceptions.RefResolutionError:
+                    except Unresolvable:
                         pass
 
     @unittest.skipIf(jsonschema is None, "Validation library not present!")
@@ -615,9 +617,6 @@ class SanityTests(unittest.TestCase):
             with self.subTest(path=path):
                 try:
                     validator.validate(cases)
-                except jsonschema.exceptions.RefResolutionError:
-                    # python-jsonschema/jsonschema#884
-                    pass
                 except jsonschema.ValidationError as error:
                     self.fail(str(error))
 

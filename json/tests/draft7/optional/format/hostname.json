@@ -92,6 +92,26 @@
                 "description": "exceeds maximum label length",
                 "data": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.com",
                 "valid": false
+            },
+            {
+                "description": "single label",
+                "data": "hostname",
+                "valid": true
+            },
+            {
+                "description": "single label with hyphen",
+                "data": "host-name",
+                "valid": true
+            },
+            {
+                "description": "single label with digits",
+                "data": "h0stn4me",
+                "valid": true
+            },
+            {
+                "description": "single label ending with digit",
+                "data": "hostnam3",
+                "valid": true
             }
         ]
     }
