@@ -1,3 +1,10 @@
+v4.19.1
+=======
+
+* Single label hostnames are now properly considered valid according to the ``hostname`` format.
+  This is the behavior specified by the relevant RFC (1123).
+  IDN hostname behavior was already correct.
+
 v4.19.0
 =======
 
