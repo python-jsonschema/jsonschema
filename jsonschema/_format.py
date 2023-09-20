@@ -274,7 +274,7 @@ with suppress(ImportError):
     def is_host_name(instance: object) -> bool:
         if not isinstance(instance, str):
             return True
-        return FQDN(instance).is_valid
+        return FQDN(instance, min_labels=1).is_valid
 
 
 with suppress(ImportError):
