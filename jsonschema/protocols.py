@@ -81,6 +81,12 @@ class Validator(Protocol):
             its `extra (optional) dependencies <index:extras>` when
             invoking ``pip``.
 
+        check_deprecated:
+
+            if ``True``, raise validation errors when the :kw:`deprecated`
+            keyword is ``true`` for an instance value, indicating it should not
+            be used and may be removed in the future.
+
     .. deprecated:: v4.12.0
 
         Subclassing validator classes now explicitly warns this is not part of
@@ -216,7 +222,7 @@ class Validator(Protocol):
 
         >>> validator = Draft202012Validator({})
         >>> validator.evolve(schema={"type": "number"})
-        Draft202012Validator(schema={'type': 'number'}, format_checker=None)
+        Draft202012Validator(schema={'type': 'number'}, format_checker=None, check_deprecated=False)
 
         The returned object satisfies the validator protocol, but may not
         be of the same concrete class! In particular this occurs
@@ -226,5 +232,5 @@ class Validator(Protocol):
         >>> validator.evolve(
         ...     schema={"$schema": Draft7Validator.META_SCHEMA["$id"]}
         ... )
-        Draft7Validator(schema=..., format_checker=None)
-        """
+        Draft7Validator(schema=..., format_checker=None, check_deprecated=False)
+        """  # noqa: E501
