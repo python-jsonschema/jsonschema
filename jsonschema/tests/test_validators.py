@@ -127,7 +127,8 @@ class TestCreateAndExtend(TestCase):
         self.addCleanup(validators._VALIDATORS.pop, "my version")
         self.assertEqual(
             repr(Validator({})),
-            "MyVersionValidator(schema={}, format_checker=None)",
+            "MyVersionValidator(schema={}, format_checker=None, "
+            "check_deprecated=False)",
         )
 
     def test_long_repr(self):
@@ -140,7 +141,7 @@ class TestCreateAndExtend(TestCase):
         self.assertEqual(
             repr(Validator({"a": list(range(1000))})), (
                 "MyVersionValidator(schema={'a': [0, 1, 2, 3, 4, 5, ...]}, "
-                "format_checker=None)"
+                "format_checker=None, check_deprecated=False)"
             ),
         )
 
@@ -148,7 +149,8 @@ class TestCreateAndExtend(TestCase):
         Validator = validators.create(meta_schema={})
         self.assertEqual(
             repr(Validator({})),
-            "Validator(schema={}, format_checker=None)",
+            "Validator(schema={}, format_checker=None, "
+            "check_deprecated=False)",
         )
 
     def test_dashes_are_stripped_from_validator_names(self):
@@ -529,6 +531,32 @@ class TestValidationErrorMessages(TestCase):
             schema={"maxLength": 2},
         )
         self.assertEqual(message, "'abc' is too long")
+
+    def test_deprecated(self):
+        message = self.message_for(
+            instance={"id": 1, "name": "abc"},
+            schema={
+                "properties": {
+                    "id": {"type": "integer"},
+                    "name": {"type": "string", "deprecated": True},
+                },
+            },
+            check_deprecated=True,
+        )
+        self.assertEqual(message, "'abc' is deprecated")
+
+    def test_deprecated_disabled(self):
+        schema = {
+            "properties": {
+                "id": {"type": "integer"},
+                "name": {"type": "string", "deprecated": True},
+            },
+        }
+        instance={"id": 1, "name": "abc"}
+
+        validator = validators.Draft202012Validator(schema)
+        errors = list(validator.iter_errors(instance))
+        self.assertListEqual(errors, [])
 
     def test_pattern(self):
         message = self.message_for(

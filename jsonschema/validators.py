@@ -229,6 +229,7 @@ def create(
         schema: referencing.jsonschema.Schema = field(repr=reprlib.repr)
         _ref_resolver = field(default=None, repr=False, alias="resolver")
         format_checker: _format.FormatChecker | None = field(default=None)
+        check_deprecated: bool = field(default=False)
         # TODO: include new meta-schemas added at runtime
         _registry: referencing.jsonschema.SchemaRegistry = field(
             default=_REMOTE_WARNING_REGISTRY,
@@ -758,6 +759,7 @@ Draft201909Validator = create(
         "contains": _keywords.contains,
         "dependentRequired": _keywords.dependentRequired,
         "dependentSchemas": _keywords.dependentSchemas,
+        "deprecated": _keywords.deprecated,
         "enum": _keywords.enum,
         "exclusiveMaximum": _keywords.exclusiveMaximum,
         "exclusiveMinimum": _keywords.exclusiveMinimum,
@@ -805,6 +807,7 @@ Draft202012Validator = create(
         "contains": _keywords.contains,
         "dependentRequired": _keywords.dependentRequired,
         "dependentSchemas": _keywords.dependentSchemas,
+        "deprecated": _keywords.deprecated,
         "enum": _keywords.enum,
         "exclusiveMaximum": _keywords.exclusiveMaximum,
         "exclusiveMinimum": _keywords.exclusiveMinimum,

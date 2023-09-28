@@ -447,3 +447,8 @@ def prefixItems(validator, prefixItems, instance, schema):
             schema_path=index,
             path=index,
         )
+
+
+def deprecated(validator, deprecated, instance, schema):
+    if validator.check_deprecated and deprecated is True:
+        yield ValidationError(f"{instance!r} is deprecated")
