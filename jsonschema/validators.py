@@ -102,10 +102,10 @@ def validates(version):
     return _validates
 
 
-def _warn_for_remote_retrieve(uri: str):
+def _warn_for_remote_retrieve(uri):
     from urllib.request import Request, urlopen
     headers = {"User-Agent": "python-jsonschema (deprecated $ref resolution)"}
-    request = Request(uri, headers=headers)
+    request = Request(str(uri), headers=headers)
     with urlopen(request) as response:
         warnings.warn(
             "Automatically retrieving remote references can be a security "
@@ -130,6 +130,10 @@ _REMOTE_WARNING_REGISTRY = SPECIFICATIONS.combine(
 )
 
 
+def _str_id_of(specification):
+    return lambda schema: str(specification.id_of(schema))
+
+
 def create(
     meta_schema: referencing.jsonschema.ObjectSchema,
     validators: (
@@ -139,7 +143,7 @@ def create(
     version: str | None = None,
     type_checker: _types.TypeChecker = _types.draft202012_type_checker,
     format_checker: _format.FormatChecker = _format.draft202012_format_checker,
-    id_of: _typing.id_of = referencing.jsonschema.DRAFT202012.id_of,
+    id_of: _typing.id_of = _str_id_of(referencing.jsonschema.DRAFT202012),
     applicable_validators: _typing.ApplicableValidators = methodcaller(
         "items",
     ),
@@ -611,7 +615,7 @@ Draft3Validator = create(
     type_checker=_types.draft3_type_checker,
     format_checker=_format.draft3_format_checker,
     version="draft3",
-    id_of=referencing.jsonschema.DRAFT3.id_of,
+    id_of=_str_id_of(referencing.jsonschema.DRAFT3),
     applicable_validators=_legacy_keywords.ignore_ref_siblings,
 )
 
@@ -650,7 +654,7 @@ Draft4Validator = create(
     type_checker=_types.draft4_type_checker,
     format_checker=_format.draft4_format_checker,
     version="draft4",
-    id_of=referencing.jsonschema.DRAFT4.id_of,
+    id_of=_str_id_of(referencing.jsonschema.DRAFT4),
     applicable_validators=_legacy_keywords.ignore_ref_siblings,
 )
 
@@ -694,7 +698,7 @@ Draft6Validator = create(
     type_checker=_types.draft6_type_checker,
     format_checker=_format.draft6_format_checker,
     version="draft6",
-    id_of=referencing.jsonschema.DRAFT6.id_of,
+    id_of=_str_id_of(referencing.jsonschema.DRAFT6),
     applicable_validators=_legacy_keywords.ignore_ref_siblings,
 )
 
@@ -739,7 +743,7 @@ Draft7Validator = create(
     type_checker=_types.draft7_type_checker,
     format_checker=_format.draft7_format_checker,
     version="draft7",
-    id_of=referencing.jsonschema.DRAFT7.id_of,
+    id_of=_str_id_of(referencing.jsonschema.DRAFT7),
     applicable_validators=_legacy_keywords.ignore_ref_siblings,
 )
 
@@ -940,7 +944,7 @@ class _RefResolver:
     def from_schema(  # noqa: D417
         cls,
         schema,
-        id_of=referencing.jsonschema.DRAFT202012.id_of,
+        id_of=_str_id_of(referencing.jsonschema.DRAFT202012),
         *args,
         **kwargs,
     ):
