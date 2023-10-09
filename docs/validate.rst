@@ -9,7 +9,7 @@ Schema Validation
 
    Most of the documentation for this package assumes you're familiar with the fundamentals of writing JSON schemas themselves, and focuses on how this library helps you validate with them in Python.
 
-   If you aren't already comfortable with writing schemas and need an introduction which teaches about JSON Schema the specification, you may find `Understanding JSON Schema <ujs:basics>` to be a good read!
+   If you aren't already comfortable with writing schemas and need an introduction which teaches about JSON Schema the specification, you may find :ujs:`Understanding JSON Schema </>` to be a good read!
 
 
 The Basics
