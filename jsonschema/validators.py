@@ -126,7 +126,7 @@ def _warn_for_remote_retrieve(uri: str):
 
 
 _REMOTE_WARNING_REGISTRY = SPECIFICATIONS.combine(
-    referencing.Registry(retrieve=_warn_for_remote_retrieve),  # type: ignore[call-arg]  # noqa: E501
+    referencing.Registry(retrieve=_warn_for_remote_retrieve),  # type: ignore[call-arg]
 )
 
 
