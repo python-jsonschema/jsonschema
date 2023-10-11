@@ -313,7 +313,7 @@ Node-specific support is maintained in a [separate repository](https://github.co
 * [fastjsonschema](https://github.com/seznam/python-fastjsonschema)
 * [hypothesis-jsonschema](https://github.com/Zac-HD/hypothesis-jsonschema)
 * [jschon](https://github.com/marksparkza/jschon)
-* [python-experimental, OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python-experimental.md)
+* [OpenAPI JSON Schema Generator](https://github.com/openapi-json-schema-tools/openapi-json-schema-generator)
 
 ### Ruby
 

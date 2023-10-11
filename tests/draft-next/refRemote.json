@@ -265,7 +265,10 @@
     },
     {
         "description": "remote HTTP ref with different $id",
-        "schema": {"$ref": "http://localhost:1234/different-id-ref-string.json"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$ref": "http://localhost:1234/different-id-ref-string.json"
+        },
         "tests": [
             {
                 "description": "number is invalid",
@@ -281,7 +284,10 @@
     },
     {
         "description": "remote HTTP ref with different URN $id",
-        "schema": {"$ref": "http://localhost:1234/urn-ref-string.json"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$ref": "http://localhost:1234/urn-ref-string.json"
+        },
         "tests": [
             {
                 "description": "number is invalid",
@@ -297,7 +303,10 @@
     },
     {
         "description": "remote HTTP ref with nested absolute ref",
-        "schema": {"$ref": "http://localhost:1234/nested-absolute-ref-to-string.json"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$ref": "http://localhost:1234/nested-absolute-ref-to-string.json"
+        },
         "tests": [
             {
                 "description": "number is invalid",
@@ -314,6 +323,7 @@
     {
        "description": "$ref to $ref finds detached $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
             "$ref": "http://localhost:1234/draft-next/detached-ref.json#/$defs/foo"
         },
         "tests": [

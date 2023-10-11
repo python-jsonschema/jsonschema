@@ -132,6 +132,7 @@
     {
         "description": "dependent subschema incompatible with root",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
             "properties": {
                 "foo": {}
             },
