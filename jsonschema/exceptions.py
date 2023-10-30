@@ -331,7 +331,18 @@ class ErrorTree:
     def __setitem__(self, index, value):
         """
         Add an error to the tree at the given ``index``.
+
+        .. deprecated:: v4.20.0
+
+            Setting items on an `ErrorTree` is deprecated without replacement.
+            To populate a tree, provide all of its suberrors when you construct
+            the tree.
         """
+        warnings.warn(
+            "ErrorTree.__setitem__ is deprecated without replacement.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._contents[index] = value
 
     def __iter__(self):

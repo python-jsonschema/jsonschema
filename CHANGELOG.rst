@@ -1,3 +1,9 @@
+v4.20.0
+=======
+
+* ``jsonschema.exceptions.ErrorTree.__setitem__`` is now deprecated.
+  More broadly, in general users of ``jsonschema`` should never be mutating objects owned by the library.
+
 v4.19.2
 =======
 

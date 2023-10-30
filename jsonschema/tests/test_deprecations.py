@@ -51,6 +51,22 @@ class TestDeprecations(TestCase):
         self.assertEqual(ErrorTree, exceptions.ErrorTree)
         self.assertEqual(w.filename, __file__)
 
+    def test_ErrorTree_setitem(self):
+        """
+        As of v4.20.0, setting items on an ErrorTree is deprecated.
+        """
+
+        e = exceptions.ValidationError("some error", path=["foo"])
+        tree = exceptions.ErrorTree()
+        subtree = exceptions.ErrorTree(errors=[e])
+
+        message = "ErrorTree.__setitem__ is "
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+            tree["foo"] = subtree
+
+        self.assertEqual(tree["foo"], subtree)
+        self.assertEqual(w.filename, __file__)
+
     def test_import_FormatError(self):
         """
         As of v4.18.0, importing FormatError from the package root is
