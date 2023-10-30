@@ -335,8 +335,8 @@ class ErrorTree:
         .. deprecated:: v4.20.0
 
             Setting items on an `ErrorTree` is deprecated without replacement.
-            To populate a tree, provide all of its suberrors when you construct
-            the tree.
+            To populate a tree, provide all of its sub-errors when you
+            construct the tree.
         """
         warnings.warn(
             "ErrorTree.__setitem__ is deprecated without replacement.",
