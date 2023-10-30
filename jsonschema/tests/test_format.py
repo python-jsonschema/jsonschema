@@ -54,6 +54,7 @@ class TestFormatChecker(TestCase):
 
         self.assertIs(cm.exception.cause, BOOM)
         self.assertIs(cm.exception.__cause__, BOOM)
+        self.assertEqual(str(cm.exception), "12 is not a 'boom'")
 
         # Unregistered errors should not be caught
         with self.assertRaises(type(BANG)):

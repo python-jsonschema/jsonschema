@@ -209,14 +209,14 @@ class _RefResolutionError(Exception):
 
     def __eq__(self, other):
         if self.__class__ is not other.__class__:
-            return NotImplemented
+            return NotImplemented  # pragma: no cover -- uncovered but deprecated  # noqa: E501
         return self._cause == other._cause
 
     def __str__(self):
         return str(self._cause)
 
 
-class _WrappedReferencingError(_RefResolutionError, _Unresolvable):
+class _WrappedReferencingError(_RefResolutionError, _Unresolvable):  # pragma: no cover -- partially uncovered but to be removed  # noqa: E501
     def __init__(self, cause: _Unresolvable):
         object.__setattr__(self, "_wrapped", cause)
 
