@@ -266,6 +266,26 @@
         ]
     },
     {
+        "description": "items with heterogeneous array",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "prefixItems": [{}],
+            "items": false
+        },
+        "tests": [
+            {
+                "description": "heterogeneous invalid instance",
+                "data": [ "foo", "bar", 37 ],
+                "valid": false
+            },
+            {
+                "description": "valid instance",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "items with null instance elements",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",

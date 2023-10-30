@@ -42,5 +42,28 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "reference internals of known non-applicator",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "/base",
+            "examples": [
+              { "type": "string" }
+            ],
+            "$ref": "#/examples/0"
+        },
+        "tests": [
+            {
+                "description": "match",
+                "data": "a string",
+                "valid": true
+            },
+            {
+                "description": "mismatch",
+                "data": 42,
+                "valid": false
+            }
+        ]
     }
 ]

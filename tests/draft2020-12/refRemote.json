@@ -22,7 +22,7 @@
         "description": "fragment within remote ref",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$ref": "http://localhost:1234/draft2020-12/subSchemas-defs.json#/$defs/integer"
+            "$ref": "http://localhost:1234/draft2020-12/subSchemas.json#/$defs/integer"
         },
         "tests": [
             {
@@ -60,7 +60,7 @@
         "description": "ref within remote ref",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$ref": "http://localhost:1234/draft2020-12/subSchemas-defs.json#/$defs/refToInteger"
+            "$ref": "http://localhost:1234/draft2020-12/subSchemas.json#/$defs/refToInteger"
         },
         "tests": [
             {

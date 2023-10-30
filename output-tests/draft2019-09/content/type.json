@@ -31,32 +31,6 @@
                         "required": ["errors"]
                     }
                 }
-            },
-            {
-                "description": "correct type yields an output unit",
-                "data": "a string",
-                "output": {
-                    "basic": {
-                        "$id": "https://json-schema.org/tests/content/draft2019-09/type/0/tests/1/basic",
-                        "$ref": "/draft/2019-09/output/schema",
-                        "properties": {
-                            "annotations": {
-                                "contains": {
-                                    "properties": {
-                                        "valid": {"const": true},
-                                        "keywordLocation": {"const": "/type"},
-                                        "absoluteKeywordLocation": {"const": "https://json-schema.org/tests/content/draft2019-09/type/0#/type"},
-                                        "instanceLocation": {"const": ""},
-                                        "annotation": false,
-                                        "error": false
-                                    },
-                                    "required": ["keywordLocation", "instanceLocation"]
-                                }
-                            }
-                        },
-                        "required": ["annotations"]
-                    }
-                }
             }
         ]
     }
