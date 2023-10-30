@@ -147,6 +147,25 @@
         ]
     },
     {
+        "description": "additionalItems with heterogeneous array",
+        "schema": {
+            "items": [{}],
+            "additionalItems": false
+        },
+        "tests": [
+            {
+                "description": "heterogeneous invalid instance",
+                "data": [ "foo", "bar", 37 ],
+                "valid": false
+            },
+            {
+                "description": "valid instance",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "additionalItems with null instance elements",
         "schema": {
             "additionalItems": {

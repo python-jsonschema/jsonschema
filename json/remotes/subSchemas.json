@@ -1,8 +1,10 @@
 {
-    "integer": {
-        "type": "integer"
-    },
-    "refToInteger": {
-        "$ref": "#/integer"
+    "definitions": {
+        "integer": {
+            "type": "integer"
+        },
+        "refToInteger": {
+            "$ref": "#/definitions/integer"
+        }
     }
 }

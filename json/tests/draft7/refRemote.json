@@ -17,7 +17,7 @@
     },
     {
         "description": "fragment within remote ref",
-        "schema": {"$ref": "http://localhost:1234/subSchemas.json#/integer"},
+        "schema": {"$ref": "http://localhost:1234/subSchemas.json#/definitions/integer"},
         "tests": [
             {
                 "description": "remote fragment valid",
@@ -34,7 +34,7 @@
     {
         "description": "ref within remote ref",
         "schema": {
-            "$ref": "http://localhost:1234/subSchemas.json#/refToInteger"
+            "$ref": "http://localhost:1234/subSchemas.json#/definitions/refToInteger"
         },
         "tests": [
             {
