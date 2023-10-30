@@ -511,10 +511,23 @@ class TestValidationErrorMessages(TestCase):
 
     def test_prefixItems_with_items(self):
         message = self.message_for(
+            instance=[1, 2, "foo"],
+            schema={"items": False, "prefixItems": [{}, {}]},
+        )
+        self.assertEqual(
+            message,
+            "Expected at most 2 items but found 1 extra: 'foo'"
+        )
+
+    def test_prefixItems_with_multiple_extra_items(self):
+        message = self.message_for(
             instance=[1, 2, "foo", 5],
             schema={"items": False, "prefixItems": [{}, {}]},
         )
-        self.assertEqual(message, "Expected at most 2 items, but found 4")
+        self.assertEqual(
+            message,
+            "Expected at most 2 items but found 2 extra: ['foo', 5]"
+        )
 
     def test_minLength(self):
         message = self.message_for(
@@ -655,7 +668,7 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance=["foo", "bar"], schema=schema)
         self.assertIn(
             message,
-            "Unevaluated items are not allowed ('bar', 'foo' were unexpected)",
+            "Unevaluated items are not allowed ('foo', 'bar' were unexpected)",
         )
 
     def test_unevaluated_items_on_invalid_type(self):
@@ -701,6 +714,79 @@ class TestValidationErrorMessages(TestCase):
         schema = {"type": "object", "unevaluatedProperties": False}
         message = self.message_for(instance="foo", schema=schema)
         self.assertEqual(message, "'foo' is not of type 'object'")
+
+    def test_single_item(self):
+        schema = {"prefixItems": [{}], "items": False}
+        message = self.message_for(
+            instance=["foo", "bar", "baz"],
+            schema=schema,
+        )
+        self.assertEqual(
+            message,
+            "Expected at most 1 item but found 2 extra: ['bar', 'baz']",
+        )
+
+    def test_heterogeneous_additionalItems_with_Items(self):
+        schema = {"items": [{}], "additionalItems": False}
+        message = self.message_for(
+            instance=["foo", "bar", 37],
+            schema=schema,
+            cls=validators.Draft7Validator,
+        )
+        self.assertEqual(
+            message,
+            "Additional items are not allowed ('bar', 37 were unexpected)"
+        )
+
+    def test_heterogeneous_items_prefixItems(self):
+        schema = {"prefixItems": [{}], "items": False}
+        message = self.message_for(
+            instance=["foo", "bar", 37],
+            schema=schema,
+        )
+        self.assertEqual(
+            message,
+            "Expected at most 1 item but found 2 extra: ['bar', 37]",
+        )
+
+    def test_heterogeneous_unevaluatedItems_prefixItems(self):
+        schema = {"prefixItems": [{}], "unevaluatedItems": False}
+        message = self.message_for(
+            instance=["foo", "bar", 37],
+            schema=schema,
+        )
+        self.assertEqual(
+            message,
+            "Unevaluated items are not allowed ('bar', 37 were unexpected)",
+        )
+
+    def test_heterogeneous_properties_additionalProperties(self):
+        """
+        Not valid deserialized JSON, but this should not blow up.
+        """
+        schema = {"properties": {"foo": {}}, "additionalProperties": False}
+        message = self.message_for(
+            instance={"foo": {}, "a": "baz", 37: 12},
+            schema=schema,
+        )
+        self.assertEqual(
+            message,
+            "Additional properties are not allowed (37, 'a' were unexpected)",
+        )
+
+    def test_heterogeneous_properties_unevaluatedProperties(self):
+        """
+        Not valid deserialized JSON, but this should not blow up.
+        """
+        schema = {"properties": {"foo": {}}, "unevaluatedProperties": False}
+        message = self.message_for(
+            instance={"foo": {}, "a": "baz", 37: 12},
+            schema=schema,
+        )
+        self.assertEqual(
+            message,
+            "Unevaluated properties are not allowed (37, 'a' were unexpected)",
+        )
 
 
 class TestValidationErrorDetails(TestCase):

@@ -1,3 +1,8 @@
+v4.19.2
+=======
+
+* Fix the error message for additional items when used with heterogeneous arrays.
+
 v4.19.1
 =======
 

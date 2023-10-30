@@ -54,7 +54,7 @@ def additionalProperties(validator, aP, instance, schema):
             yield ValidationError(error)
         else:
             error = "Additional properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % extras_msg(extras))
+            yield ValidationError(error % extras_msg(sorted(extras, key=str)))
 
 
 def items(validator, items, instance, schema):
@@ -63,9 +63,17 @@ def items(validator, items, instance, schema):
 
     prefix = len(schema.get("prefixItems", []))
     total = len(instance)
-    if items is False and total > prefix:
-        message = f"Expected at most {prefix} items, but found {total}"
-        yield ValidationError(message)
+    extra = total - prefix
+    if extra <= 0:
+        return
+
+    if items is False:
+        rest = instance[prefix:] if extra != 1 else instance[prefix]
+        item = "items" if prefix != 1 else "item"
+        yield ValidationError(
+            f"Expected at most {prefix} {item} but found {extra} "
+            f"extra: {rest!r}",
+        )
     else:
         for index in range(prefix, total):
             yield from validator.descend(
@@ -427,7 +435,8 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
     if unevaluated_keys:
         if unevaluatedProperties is False:
             error = "Unevaluated properties are not allowed (%s %s unexpected)"
-            yield ValidationError(error % extras_msg(unevaluated_keys))
+            extras = sorted(unevaluated_keys, key=str)
+            yield ValidationError(error % extras_msg(extras))
         else:
             error = (
                 "Unevaluated properties are not valid under "
