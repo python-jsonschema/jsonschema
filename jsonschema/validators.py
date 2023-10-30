@@ -587,7 +587,7 @@ Draft3Validator = create(
     ),
     validators={
         "$ref": _keywords.ref,
-        "additionalItems": _keywords.additionalItems,
+        "additionalItems": _legacy_keywords.additionalItems,
         "additionalProperties": _keywords.additionalProperties,
         "dependencies": _legacy_keywords.dependencies_draft3,
         "disallow": _legacy_keywords.disallow_draft3,
@@ -621,7 +621,7 @@ Draft4Validator = create(
     ),
     validators={
         "$ref": _keywords.ref,
-        "additionalItems": _keywords.additionalItems,
+        "additionalItems": _legacy_keywords.additionalItems,
         "additionalProperties": _keywords.additionalProperties,
         "allOf": _keywords.allOf,
         "anyOf": _keywords.anyOf,
@@ -660,7 +660,7 @@ Draft6Validator = create(
     ),
     validators={
         "$ref": _keywords.ref,
-        "additionalItems": _keywords.additionalItems,
+        "additionalItems": _legacy_keywords.additionalItems,
         "additionalProperties": _keywords.additionalProperties,
         "allOf": _keywords.allOf,
         "anyOf": _keywords.anyOf,
@@ -704,7 +704,7 @@ Draft7Validator = create(
     ),
     validators={
         "$ref": _keywords.ref,
-        "additionalItems": _keywords.additionalItems,
+        "additionalItems": _legacy_keywords.additionalItems,
         "additionalProperties": _keywords.additionalProperties,
         "allOf": _keywords.allOf,
         "anyOf": _keywords.anyOf,
@@ -750,7 +750,7 @@ Draft201909Validator = create(
     validators={
         "$recursiveRef": _legacy_keywords.recursiveRef,
         "$ref": _keywords.ref,
-        "additionalItems": _keywords.additionalItems,
+        "additionalItems": _legacy_keywords.additionalItems,
         "additionalProperties": _keywords.additionalProperties,
         "allOf": _keywords.allOf,
         "anyOf": _keywords.anyOf,
@@ -797,7 +797,6 @@ Draft202012Validator = create(
     validators={
         "$dynamicRef": _keywords.dynamicRef,
         "$ref": _keywords.ref,
-        "additionalItems": _keywords.additionalItems,
         "additionalProperties": _keywords.additionalProperties,
         "allOf": _keywords.allOf,
         "anyOf": _keywords.anyOf,
