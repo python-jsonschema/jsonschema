@@ -4,6 +4,7 @@ Validation errors, and some surrounding helpers.
 from __future__ import annotations
 
 from collections import defaultdict, deque
+from collections.abc import Iterable, Mapping, MutableMapping
 from pprint import pformat
 from textwrap import dedent, indent
 from typing import ClassVar
@@ -297,9 +298,9 @@ class ErrorTree:
 
     _instance = _unset
 
-    def __init__(self, errors=()):
-        self.errors = {}
-        self._contents = defaultdict(self.__class__)
+    def __init__(self, errors: Iterable[ValidationError] = ()):
+        self.errors: MutableMapping[str, ValidationError] = {}
+        self._contents: Mapping[str, ErrorTree] = defaultdict(self.__class__)
 
         for error in errors:
             container = self
@@ -309,7 +310,7 @@ class ErrorTree:
 
             container._instance = error.instance
 
-    def __contains__(self, index):
+    def __contains__(self, index: str | int):
         """
         Check whether ``instance[index]`` has any errors.
         """
@@ -328,7 +329,7 @@ class ErrorTree:
             self._instance[index]
         return self._contents[index]
 
-    def __setitem__(self, index, value):
+    def __setitem__(self, index: str | int, value: ErrorTree):
         """
         Add an error to the tree at the given ``index``.
 
@@ -343,7 +344,7 @@ class ErrorTree:
             DeprecationWarning,
             stacklevel=2,
         )
-        self._contents[index] = value
+        self._contents[index] = value  # type: ignore[index]
 
     def __iter__(self):
         """
