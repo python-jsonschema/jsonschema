@@ -481,6 +481,51 @@
         ]
     },
     {
+        "description": "unevaluatedItems with $recursiveRef",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$id": "https://example.com/extended-tree",
+
+            "$recursiveAnchor": true,
+
+            "$ref": "/tree",
+            "items": [
+                true,
+                true,
+                { "type": "string" }
+            ],
+
+            "$defs": {
+                "tree": {
+                    "$id": "/tree",
+                    "$recursiveAnchor": true,
+
+                    "type": "array",
+                    "items": [
+                        { "type": "number" },
+                        {
+                            "$comment": "unevaluatedItems comes first so it's more likely to catch bugs with implementations that are sensitive to keyword ordering",
+                            "unevaluatedItems": false,
+                            "$recursiveRef": "#"
+                        }
+                    ]
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": [1, [2, [], "b"], "a"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": [1, [2, [], "b", "too many"], "a"],
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedItems can't see inside cousins",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
