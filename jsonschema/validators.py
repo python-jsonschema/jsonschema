@@ -782,7 +782,9 @@ Draft201909Validator = create(
         "required": _keywords.required,
         "type": _keywords.type,
         "unevaluatedItems": _legacy_keywords.unevaluatedItems_draft2019,
-        "unevaluatedProperties": _keywords.unevaluatedProperties,
+        "unevaluatedProperties": (
+            _legacy_keywords.unevaluatedProperties_draft2019
+        ),
         "uniqueItems": _keywords.uniqueItems,
     },
     type_checker=_types.draft201909_type_checker,

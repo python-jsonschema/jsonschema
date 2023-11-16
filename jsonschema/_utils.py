@@ -197,8 +197,23 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     if "items" in schema:
         return list(range(0, len(instance)))
 
-    if "$ref" in schema:
-        resolved = validator._resolver.lookup(schema["$ref"])
+    ref = schema.get("$ref")
+    if ref is not None:
+        resolved = validator._resolver.lookup(ref)
+        evaluated_indexes.extend(
+            find_evaluated_item_indexes_by_schema(
+                validator.evolve(
+                    schema=resolved.contents,
+                    _resolver=resolved.resolver,
+                ),
+                instance,
+                resolved.contents,
+            ),
+        )
+
+    dynamicRef = schema.get("$dynamicRef")
+    if dynamicRef is not None:
+        resolved = validator._resolver.lookup(dynamicRef)
         evaluated_indexes.extend(
             find_evaluated_item_indexes_by_schema(
                 validator.evolve(
@@ -258,8 +273,23 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
         return []
     evaluated_keys = []
 
-    if "$ref" in schema:
-        resolved = validator._resolver.lookup(schema["$ref"])
+    ref = schema.get("$ref")
+    if ref is not None:
+        resolved = validator._resolver.lookup(ref)
+        evaluated_keys.extend(
+            find_evaluated_property_keys_by_schema(
+                validator.evolve(
+                    schema=resolved.contents,
+                    _resolver=resolved.resolver,
+                ),
+                instance,
+                resolved.contents,
+            ),
+        )
+
+    dynamicRef = schema.get("$dynamicRef")
+    if dynamicRef is not None:
+        resolved = validator._resolver.lookup(dynamicRef)
         evaluated_keys.extend(
             find_evaluated_property_keys_by_schema(
                 validator.evolve(

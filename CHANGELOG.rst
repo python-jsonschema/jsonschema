@@ -1,6 +1,7 @@
 v4.20.0
 =======
 
+* Properly consider items (and properties) to be evaluated by ``unevaluatedItems`` (resp. ``unevaluatedProperties``) when behind a ``$dynamicRef`` as specified by the 2020 and 2019 specifications.
 * ``jsonschema.exceptions.ErrorTree.__setitem__`` is now deprecated.
   More broadly, in general users of ``jsonschema`` should never be mutating objects owned by the library.
 

@@ -1,3 +1,5 @@
+import re
+
 from referencing.jsonschema import lookup_recursive_ref
 
 from jsonschema import _utils
@@ -249,8 +251,22 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
         return []
     evaluated_indexes = []
 
-    if "$ref" in schema:
-        resolved = validator._resolver.lookup(schema["$ref"])
+    ref = schema.get("$ref")
+    if ref is not None:
+        resolved = validator._resolver.lookup(ref)
+        evaluated_indexes.extend(
+            find_evaluated_item_indexes_by_schema(
+                validator.evolve(
+                    schema=resolved.contents,
+                    _resolver=resolved.resolver,
+                ),
+                instance,
+                resolved.contents,
+            ),
+        )
+
+    if "$recursiveRef" in schema:
+        resolved = lookup_recursive_ref(validator._resolver)
         evaluated_indexes.extend(
             find_evaluated_item_indexes_by_schema(
                 validator.evolve(
@@ -316,3 +332,121 @@ def unevaluatedItems_draft2019(validator, unevaluatedItems, instance, schema):
     if unevaluated_items:
         error = "Unevaluated items are not allowed (%s %s unexpected)"
         yield ValidationError(error % _utils.extras_msg(unevaluated_items))
+
+
+def find_evaluated_property_keys_by_schema(validator, instance, schema):
+    if validator.is_type(schema, "boolean"):
+        return []
+    evaluated_keys = []
+
+    ref = schema.get("$ref")
+    if ref is not None:
+        resolved = validator._resolver.lookup(ref)
+        evaluated_keys.extend(
+            find_evaluated_property_keys_by_schema(
+                validator.evolve(
+                    schema=resolved.contents,
+                    _resolver=resolved.resolver,
+                ),
+                instance,
+                resolved.contents,
+            ),
+        )
+
+    if "$recursiveRef" in schema:
+        resolved = lookup_recursive_ref(validator._resolver)
+        evaluated_keys.extend(
+            find_evaluated_property_keys_by_schema(
+                validator.evolve(
+                    schema=resolved.contents,
+                    _resolver=resolved.resolver,
+                ),
+                instance,
+                resolved.contents,
+            ),
+        )
+
+    for keyword in [
+        "properties", "additionalProperties", "unevaluatedProperties",
+    ]:
+        if keyword in schema:
+            schema_value = schema[keyword]
+            if validator.is_type(schema_value, "boolean") and schema_value:
+                evaluated_keys += instance.keys()
+
+            elif validator.is_type(schema_value, "object"):
+                for property in schema_value:
+                    if property in instance:
+                        evaluated_keys.append(property)
+
+    if "patternProperties" in schema:
+        for property in instance:
+            for pattern in schema["patternProperties"]:
+                if re.search(pattern, property):
+                    evaluated_keys.append(property)
+
+    if "dependentSchemas" in schema:
+        for property, subschema in schema["dependentSchemas"].items():
+            if property not in instance:
+                continue
+            evaluated_keys += find_evaluated_property_keys_by_schema(
+                validator, instance, subschema,
+            )
+
+    for keyword in ["allOf", "oneOf", "anyOf"]:
+        if keyword in schema:
+            for subschema in schema[keyword]:
+                errs = next(validator.descend(instance, subschema), None)
+                if errs is None:
+                    evaluated_keys += find_evaluated_property_keys_by_schema(
+                        validator, instance, subschema,
+                    )
+
+    if "if" in schema:
+        if validator.evolve(schema=schema["if"]).is_valid(instance):
+            evaluated_keys += find_evaluated_property_keys_by_schema(
+                validator, instance, schema["if"],
+            )
+            if "then" in schema:
+                evaluated_keys += find_evaluated_property_keys_by_schema(
+                    validator, instance, schema["then"],
+                )
+        else:
+            if "else" in schema:
+                evaluated_keys += find_evaluated_property_keys_by_schema(
+                    validator, instance, schema["else"],
+                )
+
+    return evaluated_keys
+
+
+def unevaluatedProperties_draft2019(validator, uP, instance, schema):
+    if not validator.is_type(instance, "object"):
+        return
+    evaluated_keys = find_evaluated_property_keys_by_schema(
+        validator, instance, schema,
+    )
+    unevaluated_keys = []
+    for property in instance:
+        if property not in evaluated_keys:
+            for _ in validator.descend(
+                instance[property],
+                uP,
+                path=property,
+                schema_path=property,
+            ):
+                # FIXME: Include context for each unevaluated property
+                #        indicating why it's invalid under the subschema.
+                unevaluated_keys.append(property)
+
+    if unevaluated_keys:
+        if uP is False:
+            error = "Unevaluated properties are not allowed (%s %s unexpected)"
+            extras = sorted(unevaluated_keys, key=str)
+            yield ValidationError(error % _utils.extras_msg(extras))
+        else:
+            error = (
+                "Unevaluated properties are not valid under "
+                "the given schema (%s %s unevaluated and invalid)"
+            )
+            yield ValidationError(error % _utils.extras_msg(unevaluated_keys))
