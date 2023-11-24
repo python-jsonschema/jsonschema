@@ -7,7 +7,6 @@ typing.Protocol classes for jsonschema interfaces.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,12 +21,14 @@ from typing import (
 # therefore, only import at type-checking time (to avoid circular references),
 # but use `jsonschema` for any types which will otherwise not be resolvable
 if TYPE_CHECKING:
-    from jsonschema import _typing
-    import jsonschema
-    import jsonschema.validators
+    from collections.abc import Mapping
+
     import referencing.jsonschema
 
-from jsonschema.exceptions import ValidationError
+    from jsonschema import _typing
+    from jsonschema.exceptions import ValidationError
+    import jsonschema
+    import jsonschema.validators
 
 # For code authors working on the validator protocol, these are the three
 # use-cases which should be kept in mind:

@@ -3,7 +3,6 @@ Python representations of the JSON Schema Test Suite tests.
 """
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
 from contextlib import suppress
 from functools import partial
 from pathlib import Path
@@ -20,6 +19,8 @@ from referencing import Registry
 import referencing.jsonschema
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
+
     import pyperf
 
 from jsonschema.validators import _VALIDATORS

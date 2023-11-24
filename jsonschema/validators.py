@@ -7,6 +7,7 @@ from collections import deque
 from collections.abc import Iterable, Mapping, Sequence
 from functools import lru_cache
 from operator import methodcaller
+from typing import TYPE_CHECKING
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
 from warnings import warn
@@ -30,7 +31,9 @@ from jsonschema import (
     _utils,
     exceptions,
 )
-from jsonschema.protocols import Validator
+
+if TYPE_CHECKING:
+    from jsonschema.protocols import Validator
 
 _UNSET = _utils.Unset()
 

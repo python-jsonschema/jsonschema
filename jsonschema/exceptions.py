@@ -4,10 +4,9 @@ Validation errors, and some surrounding helpers.
 from __future__ import annotations
 
 from collections import defaultdict, deque
-from collections.abc import Iterable, Mapping, MutableMapping
 from pprint import pformat
 from textwrap import dedent, indent
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 import heapq
 import itertools
 import warnings
@@ -16,6 +15,9 @@ from attrs import define
 from referencing.exceptions import Unresolvable as _Unresolvable
 
 from jsonschema import _utils
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping, MutableMapping
 
 WEAK_MATCHES: frozenset[str] = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES: frozenset[str] = frozenset()
