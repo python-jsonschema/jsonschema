@@ -1311,7 +1311,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):  # noqa: D417
         raise error
 
 
-def validator_for(schema, default=_UNSET):
+def validator_for(schema, default=_UNSET) -> Validator:
     """
     Retrieve the validator class appropriate for validating the given schema.
 
