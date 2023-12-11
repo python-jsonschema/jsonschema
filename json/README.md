@@ -109,7 +109,7 @@ To test a specific version:
 
 * For 2019-09 and later published drafts, implementations that are able to detect the draft of each schema via `$schema` SHOULD be configured to do so
 * For draft-07 and earlier, draft-next, and implementations unable to detect via `$schema`, implementations MUST be configured to expect the draft matching the test directory name
-* Load any remote references [described below](additional-assumptions) and configure your implementation to retrieve them via their URIs
+* Load any remote references [described below](#additional-assumptions) and configure your implementation to retrieve them via their URIs
 * Walk the filesystem tree for that version's subdirectory and for each `.json` file found:
 
     * if the file is located in the root of the version directory:
@@ -159,7 +159,7 @@ If your implementation supports multiple versions, run the above procedure for e
     ```
 
 2. Test cases found within [special subdirectories](#subdirectories-within-each-draft) may require additional configuration to run.
-   In particular, tests within the `optional/format` subdirectory may require implementations to change the way they treat the `"format"`keyword (particularly on older drafts which did not have a notion of vocabularies).
+   In particular, when running tests within the `optional/format` subdirectory, test runners should configure implementations to enable format validation, where the implementation supports it.
 
 ### Invariants & Guarantees
 
@@ -254,6 +254,7 @@ This suite is being used by:
 
 ### Java
 
+* [json-schema-validation-comparison](https://www.creekservice.org/json-schema-validation-comparison/functional) (Comparison site for JVM-based validator implementations)
 * [json-schema-validator](https://github.com/daveclayton/json-schema-validator)
 * [everit-org/json-schema](https://github.com/everit-org/json-schema)
 * [networknt/json-schema-validator](https://github.com/networknt/json-schema-validator)
@@ -278,6 +279,10 @@ This suite is being used by:
 * [jsen](https://github.com/bugventure/jsen)
 * [ajv](https://github.com/epoberezkin/ajv)
 * [djv](https://github.com/korzio/djv)
+
+### Kotlin
+
+* [json-schema-validation-comparison](https://www.creekservice.org/json-schema-validation-comparison/functional) (Comparison site for JVM-based validator implementations)
 
 ### Node.js
 
@@ -327,6 +332,7 @@ Node-specific support is maintained in a [separate repository](https://github.co
 
 ### Scala
 
+* [json-schema-validation-comparison](https://www.creekservice.org/json-schema-validation-comparison/functional) (Comparison site for JVM-based validator implementations)
 * [typed-json](https://github.com/frawa/typed-json)
 
 ### Swift

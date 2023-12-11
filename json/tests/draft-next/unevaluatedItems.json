@@ -465,9 +465,9 @@
         "description": "unevaluatedItems with $dynamicRef",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
-            "$id": "https://example.com/derived",
+            "$id": "https://example.com/unevaluated-items-with-dynamic-ref/derived",
 
-            "$ref": "/baseSchema",
+            "$ref": "./baseSchema",
 
             "$defs": {
                 "derived": {
@@ -478,7 +478,7 @@
                     ]
                 },
                 "baseSchema": {
-                    "$id": "/baseSchema",
+                    "$id": "./baseSchema",
 
                     "$comment": "unevaluatedItems comes first so it's more likely to catch bugs with implementations that are sensitive to keyword ordering",
                     "unevaluatedItems": false,

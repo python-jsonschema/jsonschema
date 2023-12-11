@@ -484,11 +484,11 @@
         "description": "unevaluatedItems with $recursiveRef",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
-            "$id": "https://example.com/extended-tree",
+            "$id": "https://example.com/unevaluated-items-with-recursive-ref/extended-tree",
 
             "$recursiveAnchor": true,
 
-            "$ref": "/tree",
+            "$ref": "./tree",
             "items": [
                 true,
                 true,
@@ -497,7 +497,7 @@
 
             "$defs": {
                 "tree": {
-                    "$id": "/tree",
+                    "$id": "./tree",
                     "$recursiveAnchor": true,
 
                     "type": "array",

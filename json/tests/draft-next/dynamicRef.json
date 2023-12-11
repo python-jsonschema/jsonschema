@@ -612,5 +612,35 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "$dynamicRef points to a boolean schema",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$defs": {
+                "true": true,
+                "false": false
+            },
+            "properties": {
+                "true": {
+                    "$dynamicRef": "#/$defs/true"
+                },
+                "false": {
+                    "$dynamicRef": "#/$defs/false"
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "follow $dynamicRef to a true schema",
+                "data": { "true": 1 },
+                "valid": true
+            },
+            {
+                "description": "follow $dynamicRef to a false schema",
+                "data": { "false": 1 },
+                "valid": false
+            }
+        ]
     }
 ]

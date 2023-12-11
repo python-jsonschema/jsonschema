@@ -719,9 +719,9 @@
         "description": "unevaluatedProperties with $dynamicRef",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
-            "$id": "https://example.com/derived",
+            "$id": "https://example.com/unevaluated-properties-with-dynamic-ref/derived",
 
-            "$ref": "/baseSchema",
+            "$ref": "./baseSchema",
 
             "$defs": {
                 "derived": {
@@ -731,7 +731,7 @@
                     }
                 },
                 "baseSchema": {
-                    "$id": "/baseSchema",
+                    "$id": "./baseSchema",
 
                     "$comment": "unevaluatedProperties comes first so it's more likely to catch bugs with implementations that are sensitive to keyword ordering",
                     "unevaluatedProperties": false,
@@ -1409,57 +1409,6 @@
             {
                 "description": "all + a is invalid",
                 "data": { "all": 1, "a": 1 },
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "unevaluatedProperties depends on adjacent contains",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/next/schema",
-            "properties": {
-              "foo": { "type": "number" }
-            },
-            "contains": { "type": "string" },
-            "unevaluatedProperties": false
-        },
-        "tests": [
-            {
-                "description": "bar is evaluated by contains",
-                "data": { "foo": 1, "bar": "foo" },
-                "valid": true
-            },
-            {
-                "description": "contains fails, bar is not evaluated",
-                "data": { "foo": 1, "bar": 2 },
-                "valid": false
-            },
-            {
-                "description": "contains passes, bar is not evaluated",
-                "data": { "foo": 1, "bar": 2, "baz": "foo" },
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "unevaluatedProperties depends on multiple nested contains",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/next/schema",
-            "allOf": [
-                { "contains": { "multipleOf": 2 } },
-                { "contains": { "multipleOf": 3 } }
-            ],
-            "unevaluatedProperties": { "multipleOf": 5 }
-        },
-        "tests": [
-            {
-                "description": "5 not evaluated, passes unevaluatedItems",
-                "data": { "a": 2, "b": 3, "c": 4, "d": 5, "e": 6 },
-                "valid": true
-            },
-            {
-                "description": "7 not evaluated, fails unevaluatedItems",
-                "data": { "a": 2, "b": 3, "c": 4, "d": 7, "e": 8 },
                 "valid": false
             }
         ]
