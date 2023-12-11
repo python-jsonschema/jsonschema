@@ -143,6 +143,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     DRAFT4.format_cases(),
     DRAFT4.optional_cases_of(name="bignum"),
     DRAFT4.optional_cases_of(name="float-overflow"),
+    DRAFT4.optional_cases_of(name="id"),
     DRAFT4.optional_cases_of(name="non-bmp-regex"),
     DRAFT4.optional_cases_of(name="zeroTerminatedFloats"),
     Validator=jsonschema.Draft4Validator,
@@ -161,6 +162,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     DRAFT6.format_cases(),
     DRAFT6.optional_cases_of(name="bignum"),
     DRAFT6.optional_cases_of(name="float-overflow"),
+    DRAFT6.optional_cases_of(name="id"),
     DRAFT6.optional_cases_of(name="non-bmp-regex"),
     Validator=jsonschema.Draft6Validator,
     format_checker=jsonschema.Draft6Validator.FORMAT_CHECKER,
@@ -179,7 +181,9 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     DRAFT7.optional_cases_of(name="bignum"),
     DRAFT7.optional_cases_of(name="cross-draft"),
     DRAFT7.optional_cases_of(name="float-overflow"),
+    DRAFT6.optional_cases_of(name="id"),
     DRAFT7.optional_cases_of(name="non-bmp-regex"),
+    DRAFT7.optional_cases_of(name="unknownKeyword"),
     Validator=jsonschema.Draft7Validator,
     format_checker=jsonschema.Draft7Validator.FORMAT_CHECKER,
     skip=lambda test: (
@@ -193,11 +197,15 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
 
 TestDraft201909 = DRAFT201909.to_unittest_testcase(
     DRAFT201909.cases(),
+    DRAFT201909.optional_cases_of(name="anchor"),
     DRAFT201909.optional_cases_of(name="bignum"),
     DRAFT201909.optional_cases_of(name="cross-draft"),
     DRAFT201909.optional_cases_of(name="float-overflow"),
+    DRAFT201909.optional_cases_of(name="id"),
+    DRAFT201909.optional_cases_of(name="no-schema"),
     DRAFT201909.optional_cases_of(name="non-bmp-regex"),
     DRAFT201909.optional_cases_of(name="refOfUnknownKeyword"),
+    DRAFT201909.optional_cases_of(name="unknownKeyword"),
     Validator=jsonschema.Draft201909Validator,
     skip=skip(
         message="Vocabulary support is still in-progress.",
@@ -226,11 +234,15 @@ TestDraft201909Format = DRAFT201909.to_unittest_testcase(
 
 TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.cases(),
+    DRAFT201909.optional_cases_of(name="anchor"),
     DRAFT202012.optional_cases_of(name="bignum"),
     DRAFT202012.optional_cases_of(name="cross-draft"),
     DRAFT202012.optional_cases_of(name="float-overflow"),
+    DRAFT202012.optional_cases_of(name="id"),
+    DRAFT202012.optional_cases_of(name="no-schema"),
     DRAFT202012.optional_cases_of(name="non-bmp-regex"),
     DRAFT202012.optional_cases_of(name="refOfUnknownKeyword"),
+    DRAFT202012.optional_cases_of(name="unknownKeyword"),
     Validator=jsonschema.Draft202012Validator,
     skip=skip(
         message="Vocabulary support is still in-progress.",
