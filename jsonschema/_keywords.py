@@ -192,12 +192,14 @@ def multipleOf(validator, dB, instance, schema):
 
 def minItems(validator, mI, instance, schema):
     if validator.is_type(instance, "array") and len(instance) < mI:
-        yield ValidationError(f"{instance!r} is too short")
+        message = "should be non-empty" if mI == 1 else "is too short"
+        yield ValidationError(f"{instance!r} {message}")
 
 
 def maxItems(validator, mI, instance, schema):
     if validator.is_type(instance, "array") and len(instance) > mI:
-        yield ValidationError(f"{instance!r} is too long")
+        message = "is expected to be empty" if mI == 0 else "is too long"
+        yield ValidationError(f"{instance!r} {message}")
 
 
 def uniqueItems(validator, uI, instance, schema):

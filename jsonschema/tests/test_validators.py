@@ -509,6 +509,14 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance=[1, 2, 3], schema={"maxItems": 2})
         self.assertEqual(message, "[1, 2, 3] is too long")
 
+    def test_minItems_1(self):
+        message = self.message_for(instance=[], schema={"minItems": 1})
+        self.assertEqual(message, "[] should be non-empty")
+
+    def test_maxItems_0(self):
+        message = self.message_for(instance=[1, 2, 3], schema={"maxItems": 0})
+        self.assertEqual(message, "[1, 2, 3] is expected to be empty")
+
     def test_prefixItems_with_items(self):
         message = self.message_for(
             instance=[1, 2, "foo"],
