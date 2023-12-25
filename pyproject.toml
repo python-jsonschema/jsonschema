@@ -10,7 +10,13 @@ name = "jsonschema"
 description = "An implementation of JSON Schema validation for Python"
 license = {text = "MIT"}
 requires-python = ">=3.8"
-keywords = ["validation", "data validation", "jsonschema", "json"]
+keywords = [
+    "validation",
+    "data validation",
+    "jsonschema",
+    "json",
+    "json schema",
+]
 authors = [
   {email = "Julian+jsonschema@GrayVines.com"},
   {name = "Julian Berman"},
@@ -32,7 +38,6 @@ classifiers = [
   "Topic :: File Formats :: JSON :: JSON Schema",
 ]
 dynamic = ["version", "readme"]
-
 dependencies = [
   "attrs>=22.2.0",
   "jsonschema-specifications>=2023.03.6",
@@ -125,6 +130,7 @@ skip_covered = true
 
 [tool.doc8]
 ignore = [
+    "D000",  # see PyCQA/doc8#125
     "D001",  # one sentence per line, so max length doesn't make sense
 ]
 
@@ -143,44 +149,57 @@ exclude = ["jsonschema/benchmarks/*"]
 line-length = 79
 select = ["B", "D", "D204", "E", "F", "Q", "RUF", "SIM", "TCH", "UP", "W"]
 ignore = [
-  # Wat, type annotations for self and cls, why is this a thing?
-  "ANN101",
-  "ANN102",
-  # Private annotations are fine to leave out.
-  "ANN202",
-  # It's totally OK to call functions for default arguments.
-  "B008",
-  # raise SomeException(...) is fine.
-  "B904",
-  # There's no need for explicit strict, this is simply zip's default behavior.
-  "B905",
-  # It's fine to not have docstrings for magic methods.
-  "D105",
-  # __init__ especially doesn't need a docstring
-  "D107",
-  # This rule makes diffs uglier when expanding docstrings (and it's uglier)
-  "D200",
-  # No blank lines before docstrings.
-  "D203",
-  # Start docstrings on the second line.
-  "D212",
-  # This rule misses sassy docstrings ending with ! or ?.
-  "D400",
-  # Section headers should end with a colon not a newline
-  "D406",
-  # Underlines aren't needed
-  "D407",
-  # Plz spaces after section headers
-  "D412",
-  # Not sure what heuristic this uses, but it seems easy for it to be wrong.
-  "SIM300",
-  # We support 3.8 + 3.9
-  "UP007",
+  "A001",  # It's fine to shadow builtins
+  "A002",
+  "A003",
+  "ARG",  # This is all wrong whenever an interface is involved
+  "ANN",  # Just let the type checker do this
+  "B006",  # Mutable arguments require care but are OK if you don't abuse them
+  "B008",  # It's totally OK to call functions for default arguments.
+  "B904",  # raise SomeException(...) is fine.
+  "B905",  # No need for explicit strict, this is simply zip's default behavior
+  "C408",  # Calling dict is fine when it saves quoting the keys
+  "C901",  # Not really something to focus on
+  "D105",  # It's fine to not have docstrings for magic methods.
+  "D107",  # __init__ especially doesn't need a docstring
+  "D200",  # This rule makes diffs uglier when expanding docstrings
+  "D203",  # No blank lines before docstrings.
+  "D212",  # Start docstrings on the second line.
+  "D400",  # This rule misses sassy docstrings ending with ! or ?
+  "D401",  # This rule is too flaky.
+  "D406",  # Section headers should end with a colon not a newline
+  "D407",  # Underlines aren't needed
+  "D412",  # Plz spaces after section headers
+  "EM101",  # These don't bother me.
+  "EM102",
+  "FBT",  # It's worth avoiding boolean args but I don't care to enforce it
+  "FIX",  # Yes thanks, if I could it wouldn't be there
+  "N",  # These naming rules are silly
+  "PLR0912",  # These metrics are fine to be aware of but not to enforce
+  "PLR0913",
+  "PLR0915",
+  "PLW2901",  # Shadowing for loop variables is occasionally fine.
+  "PT006",  # pytest parametrize takes strings as well
+  "RET503",  # Returning None implicitly is fine
+  "RET505",  # These push you to use `if` instead of `elif`, but for no reason
+  "RET506",
+  "RSE102",  # Ha, what, who even knew you could leave the parens off. But no.
+  "SIM300", # Not sure what heuristic this uses, but it's easily incorrect
+  "SLF001",  # Private usage within this package itself is fine
+  "TD",  # These TODO style rules are also silly
+  "TRY003",  # Some exception classes are essentially intended for free-form
 ]
 extend-exclude = ["json"]
 
+[tool.ruff.lint.flake8-pytest-style]
+mark-parentheses = false
+
 [tool.ruff.flake8-quotes]
 docstring-quotes = "double"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+from-first = true
 
 [tool.ruff.per-file-ignores]
 "noxfile.py" = ["ANN", "D100"]
