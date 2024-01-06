@@ -853,7 +853,7 @@ class TestParser(TestCase):
 
     def cli_output_for(self, *argv):
         stdout, stderr = StringIO(), StringIO()
-        with redirect_stdout(stdout), redirect_stderr(stderr):
+        with redirect_stdout(stdout), redirect_stderr(stderr):  # noqa: SIM117
             with self.assertRaises(SystemExit):
                 cli.parse_args(argv)
         return stdout.getvalue(), stderr.getvalue()

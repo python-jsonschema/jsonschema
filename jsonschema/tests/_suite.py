@@ -209,7 +209,7 @@ class _Test:
 
     @property
     def fully_qualified_name(self):  # pragma: no cover
-        return " > ".join(
+        return " > ".join(  # noqa: FLY002
             [
                 self.version.name,
                 self.subject,
@@ -251,7 +251,7 @@ class _Test:
             **kwargs,
         )
         if os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":  # pragma: no cover
-            breakpoint()
+            breakpoint()  # noqa: T100
         validator.validate(instance=self.data)
 
     def validate_ignoring_errors(self, Validator):  # pragma: no cover

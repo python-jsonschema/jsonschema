@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from contextlib import suppress
+from datetime import date, datetime
 from uuid import UUID
-import datetime
 import ipaddress
 import re
 import typing
@@ -398,17 +398,14 @@ def is_regex(instance: object) -> bool:
 def is_date(instance: object) -> bool:
     if not isinstance(instance, str):
         return True
-    return bool(
-        _RE_DATE.fullmatch(instance)
-        and datetime.date.fromisoformat(instance)
-    )
+    return bool(_RE_DATE.fullmatch(instance) and date.fromisoformat(instance))
 
 
 @_checks_drafts(draft3="time", raises=ValueError)
 def is_draft3_time(instance: object) -> bool:
     if not isinstance(instance, str):
         return True
-    return bool(datetime.datetime.strptime(instance, "%H:%M:%S"))
+    return bool(datetime.strptime(instance, "%H:%M:%S"))  # noqa: DTZ007
 
 
 with suppress(ImportError):

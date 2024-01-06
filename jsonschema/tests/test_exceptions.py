@@ -613,5 +613,5 @@ class TestErrorInitReprStr(TestCase):
 
 class TestHashable(TestCase):
     def test_hashable(self):
-        set([exceptions.ValidationError("")])
-        set([exceptions.SchemaError("")])
+        {exceptions.ValidationError("")}
+        {exceptions.SchemaError("")}

@@ -414,7 +414,7 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
             ):
                 # FIXME: Include context for each unevaluated property
                 #        indicating why it's invalid under the subschema.
-                unevaluated_keys.append(property)
+                unevaluated_keys.append(property)  # noqa: PERF401
 
     if unevaluated_keys:
         if unevaluatedProperties is False:

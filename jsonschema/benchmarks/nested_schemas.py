@@ -18,7 +18,7 @@ metaschemaish = {
         "https://json-schema.org/draft/2020-12/vocab/validation": True,
         "https://json-schema.org/draft/2020-12/vocab/meta-data": True,
         "https://json-schema.org/draft/2020-12/vocab/format-annotation": True,
-        "https://json-schema.org/draft/2020-12/vocab/content": True
+        "https://json-schema.org/draft/2020-12/vocab/content": True,
     },
     "$dynamicAnchor": "meta",
 

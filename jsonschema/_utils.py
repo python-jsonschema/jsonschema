@@ -60,7 +60,6 @@ def format_as_index(container, indices):
 
             The indices to format.
     """
-
     if not indices:
         return container
     return f"{container}[{']['.join(repr(index) for index in indices)}]"
@@ -75,7 +74,6 @@ def find_additional_properties(instance, schema):
 
     Assumes ``instance`` is dict-like already.
     """
-
     properties = schema.get("properties", {})
     patterns = "|".join(schema.get("patternProperties", {}))
     for property in instance:
@@ -89,7 +87,6 @@ def extras_msg(extras):
     """
     Create an error message for extra items or properties.
     """
-
     verb = "was" if len(extras) == 1 else "were"
     return ", ".join(repr(extra) for extra in extras), verb
 
@@ -100,7 +97,6 @@ def ensure_list(thing):
 
     Otherwise, return it unchanged.
     """
-
     if isinstance(thing, str):
         return [thing]
     return thing
@@ -147,7 +143,6 @@ def unbool(element, true=object(), false=object()):
     """
     A hack to make True and 1 and False and 0 unique for ``uniq``.
     """
-
     if element is True:
         return true
     elif element is False:
@@ -185,7 +180,7 @@ def uniq(container):
 
 def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     """
-    Get all indexes of items that get evaluated under the current schema
+    Get all indexes of items that get evaluated under the current schema.
 
     Covers all keywords related to unevaluatedItems: items, prefixItems, if,
     then, else, contains, unevaluatedItems, allOf, oneOf, anyOf
@@ -195,7 +190,7 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     evaluated_indexes = []
 
     if "items" in schema:
-        return list(range(0, len(instance)))
+        return list(range(len(instance)))
 
     ref = schema.get("$ref")
     if ref is not None:
@@ -226,7 +221,7 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
         )
 
     if "prefixItems" in schema:
-        evaluated_indexes += list(range(0, len(schema["prefixItems"])))
+        evaluated_indexes += list(range(len(schema["prefixItems"])))
 
     if "if" in schema:
         if validator.evolve(schema=schema["if"]).is_valid(instance):
@@ -237,11 +232,10 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
                 evaluated_indexes += find_evaluated_item_indexes_by_schema(
                     validator, instance, schema["then"],
                 )
-        else:
-            if "else" in schema:
-                evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                    validator, instance, schema["else"],
-                )
+        elif "else" in schema:
+            evaluated_indexes += find_evaluated_item_indexes_by_schema(
+                validator, instance, schema["else"],
+            )
 
     for keyword in ["contains", "unevaluatedItems"]:
         if keyword in schema:
@@ -263,7 +257,7 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
 
 def find_evaluated_property_keys_by_schema(validator, instance, schema):
     """
-    Get all keys of items that get evaluated under the current schema
+    Get all keys of items that get evaluated under the current schema.
 
     Covers all keywords related to unevaluatedProperties: properties,
     additionalProperties, unevaluatedProperties, patternProperties,
@@ -346,10 +340,9 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
                 evaluated_keys += find_evaluated_property_keys_by_schema(
                     validator, instance, schema["then"],
                 )
-        else:
-            if "else" in schema:
-                evaluated_keys += find_evaluated_property_keys_by_schema(
-                    validator, instance, schema["else"],
-                )
+        elif "else" in schema:
+            evaluated_keys += find_evaluated_property_keys_by_schema(
+                validator, instance, schema["else"],
+            )
 
     return evaluated_keys

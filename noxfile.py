@@ -18,6 +18,12 @@ INSTALLABLE = [
         ("format-nongpl", f"{ROOT}[format-nongpl]"),
     ]
 ]
+REQUIREMENTS = dict(
+    docs=DOCS / "requirements.txt",
+)
+REQUIREMENTS_IN = [  # this is actually ordered, as files depend on each other
+    path.parent / f"{path.stem}.in" for path in REQUIREMENTS.values()
+]
 
 NONGPL_LICENSES = [
     "Apache Software License",
@@ -29,20 +35,22 @@ NONGPL_LICENSES = [
     "The Unlicense (Unlicense)",
 ]
 
+SUPPORTED = ["3.8", "3.9", "3.10", "pypy3.10", "3.11", "3.12"]
+LATEST = SUPPORTED[-1]
 
 nox.options.sessions = []
 
 
-def session(default=True, **kwargs):  # noqa: D103
+def session(default=True, python=LATEST, **kwargs):  # noqa: D103
     def _session(fn):
         if default:
             nox.options.sessions.append(kwargs.get("name", fn.__name__))
-        return nox.session(**kwargs)(fn)
+        return nox.session(python=python, **kwargs)(fn)
 
     return _session
 
 
-@session(python=["3.8", "3.9", "3.10", "3.11", "3.12", "pypy3"])
+@session(python=SUPPORTED)
 @nox.parametrize("installable", INSTALLABLE)
 def tests(session, installable):
     """
@@ -55,7 +63,7 @@ def tests(session, installable):
     if session.posargs and session.posargs[0] == "coverage":
         if len(session.posargs) > 1 and session.posargs[1] == "github":
             posargs = session.posargs[2:]
-            github = os.environ["GITHUB_STEP_SUMMARY"]
+            github = Path(os.environ["GITHUB_STEP_SUMMARY"])
         else:
             posargs, github = session.posargs[1:], None
 
@@ -73,7 +81,7 @@ def tests(session, installable):
         if github is None:
             session.run("coverage", "report")
         else:
-            with open(github, "a") as summary:
+            with github.open("a") as summary:
                 summary.write("### Coverage\n\n")
                 summary.flush()  # without a flush, output seems out of order.
                 session.run(
@@ -174,7 +182,7 @@ def docs(session, builder):
     """
     Build the documentation using a specific Sphinx builder.
     """
-    session.install("-r", DOCS / "requirements.txt")
+    session.install("-r", REQUIREMENTS["docs"])
     with TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
         argv = ["-n", "-T", "-W"]
@@ -232,11 +240,12 @@ def requirements(session):
     You should commit the result afterwards.
     """
     session.install("pip-tools")
-    for each in [DOCS / "requirements.in"]:
+    for each in REQUIREMENTS_IN:
         session.run(
             "pip-compile",
             "--resolver",
             "backtracking",
+            "--strip-extras",
             "-U",
             each.relative_to(ROOT),
         )

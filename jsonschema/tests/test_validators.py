@@ -293,7 +293,7 @@ class TestCreateAndExtend(TestCase):
         schema = {
             "$defs": {"test": {"type": "number"}},
             "$ref": "#/$defs/test",
-            "maximum": 1
+            "maximum": 1,
         }
 
         draft4 = validators.Draft4Validator(schema)
@@ -524,7 +524,7 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertEqual(
             message,
-            "Expected at most 2 items but found 1 extra: 'foo'"
+            "Expected at most 2 items but found 1 extra: 'foo'",
         )
 
     def test_prefixItems_with_multiple_extra_items(self):
@@ -534,7 +534,7 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertEqual(
             message,
-            "Expected at most 2 items but found 2 extra: ['foo', 5]"
+            "Expected at most 2 items but found 2 extra: ['foo', 5]",
         )
 
     def test_minLength(self):
@@ -743,7 +743,7 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertEqual(
             message,
-            "Additional items are not allowed ('bar', 37 were unexpected)"
+            "Additional items are not allowed ('bar', 37 were unexpected)",
         )
 
     def test_heterogeneous_items_prefixItems(self):
@@ -2301,7 +2301,7 @@ class TestRefResolver(TestCase):
 
     def test_it_does_not_retrieve_schema_urls_from_the_network(self):
         ref = validators.Draft3Validator.META_SCHEMA["id"]
-        with mock.patch.object(self.resolver, "resolve_remote") as patched:
+        with mock.patch.object(self.resolver, "resolve_remote") as patched:  # noqa: SIM117
             with self.resolver.resolving(ref) as resolved:
                 pass
         self.assertEqual(resolved, validators.Draft3Validator.META_SCHEMA)
@@ -2456,7 +2456,7 @@ class TestRefResolver(TestCase):
 
         ref = "foo://bar"
         resolver = validators._RefResolver("", {}, handlers={"foo": handler})
-        with self.assertRaises(exceptions._RefResolutionError) as err:
+        with self.assertRaises(exceptions._RefResolutionError) as err:  # noqa: SIM117
             with resolver.resolving(ref):
                 self.fail("Shouldn't get this far!")  # pragma: no cover
         self.assertEqual(err.exception, exceptions._RefResolutionError(error))

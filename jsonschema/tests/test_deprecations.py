@@ -126,7 +126,7 @@ class TestDeprecations(TestCase):
 
         resolver = validators._RefResolver.from_schema({})
         message = "jsonschema.RefResolver.in_scope is deprecated "
-        with self.assertWarnsRegex(DeprecationWarning, message) as w:
+        with self.assertWarnsRegex(DeprecationWarning, message) as w:  # noqa: SIM117
             with resolver.in_scope("foo"):
                 pass
 
@@ -220,7 +220,7 @@ class TestDeprecations(TestCase):
         expected = referencing.exceptions.Unresolvable(ref="urn:nothing")
         self.assertEqual(
             (e.exception, str(e.exception)),
-            (expected, "Unresolvable: urn:nothing")
+            (expected, "Unresolvable: urn:nothing"),
         )
 
     def test_catching_Unresolvable_via_RefResolutionError(self):
@@ -242,7 +242,7 @@ class TestDeprecations(TestCase):
 
         self.assertEqual(
             (e.exception, str(e.exception)),
-            (u.exception, "Unresolvable: urn:nothing")
+            (u.exception, "Unresolvable: urn:nothing"),
         )
 
     def test_WrappedReferencingError_hashability(self):
@@ -367,7 +367,7 @@ class TestDeprecations(TestCase):
         self.assertEqual(w.filename, __file__)
 
         with self.assertRaises(ImportError):
-            from jsonschema import draft1234_format_checker  # noqa
+            from jsonschema import draft1234_format_checker  # noqa: F401
 
     def test_import_cli(self):
         """
@@ -389,6 +389,7 @@ class TestDeprecations(TestCase):
         process = subprocess.run(
             [sys.executable, "-m", "jsonschema"],
             capture_output=True,
+            check=True,
         )
         self.assertIn(b"The jsonschema CLI is deprecated ", process.stderr)
 

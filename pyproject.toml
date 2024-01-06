@@ -8,8 +8,8 @@ source = "vcs"
 [project]
 name = "jsonschema"
 description = "An implementation of JSON Schema validation for Python"
-license = {text = "MIT"}
 requires-python = ">=3.8"
+license = {text = "MIT"}
 keywords = [
     "validation",
     "data validation",
@@ -74,8 +74,8 @@ format-nongpl = [
 jsonschema = "jsonschema.cli:main"
 
 [project.urls]
-Documentation = "https://python-jsonschema.readthedocs.io/"
 Homepage = "https://github.com/python-jsonschema/jsonschema"
+Documentation = "https://python-jsonschema.readthedocs.io/"
 Issues = "https://github.com/python-jsonschema/jsonschema/issues/"
 Funding = "https://github.com/sponsors/Julian"
 Tidelift = "https://tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-jsonschema&utm_medium=referral&utm_campaign=pypi-link"
@@ -136,6 +136,7 @@ ignore = [
 
 [tool.isort]
 combine_as_imports = true
+ensure_newline_before_comments = true
 from_first = true
 include_trailing_comma = true
 multi_line_output = 3
@@ -147,7 +148,7 @@ exclude = ["jsonschema/benchmarks/*"]
 
 [tool.ruff]
 line-length = 79
-select = ["B", "D", "D204", "E", "F", "Q", "RUF", "SIM", "TCH", "UP", "W"]
+select = ["ALL"]
 ignore = [
   "A001",  # It's fine to shadow builtins
   "A002",
@@ -175,12 +176,17 @@ ignore = [
   "FBT",  # It's worth avoiding boolean args but I don't care to enforce it
   "FIX",  # Yes thanks, if I could it wouldn't be there
   "N",  # These naming rules are silly
-  "PLR0912",  # These metrics are fine to be aware of but not to enforce
+  "PERF203",  # try/excepts in loops are sometimes needed
+  "PLR0911",  # These metrics are fine to be aware of but not to enforce
+  "PLR0912",
   "PLR0913",
   "PLR0915",
+  "PLR1714",  # This makes for uglier comparisons sometimes
   "PLW2901",  # Shadowing for loop variables is occasionally fine.
-  "PT006",  # pytest parametrize takes strings as well
-  "RET503",  # Returning None implicitly is fine
+  "PT",  # We use unittest
+  "PYI025",  # wat, I'm not confused, thanks.
+  "RET502",  # Returning None implicitly is fine
+  "RET503",
   "RET505",  # These push you to use `if` instead of `elif`, but for no reason
   "RET506",
   "RSE102",  # Ha, what, who even knew you could leave the parens off. But no.
@@ -188,6 +194,7 @@ ignore = [
   "SLF001",  # Private usage within this package itself is fine
   "TD",  # These TODO style rules are also silly
   "TRY003",  # Some exception classes are essentially intended for free-form
+  "UP007",  # We support 3.8 + 3.9
 ]
 extend-exclude = ["json"]
 
@@ -202,9 +209,8 @@ combine-as-imports = true
 from-first = true
 
 [tool.ruff.per-file-ignores]
-"noxfile.py" = ["ANN", "D100"]
-"docs/*" = ["ANN", "D"]
-"jsonschema/cli.py" = ["D", "SIM", "UP"]
-"jsonschema/_utils.py" = ["D"]
-"jsonschema/benchmarks/*" = ["D"]
-"jsonschema/tests/*" = ["ANN", "D", "RUF012", "SIM"]
+"noxfile.py" = ["ANN", "D100", "S101", "T201"]
+"docs/*" = ["ANN", "D", "INP001"]
+"jsonschema/tests/*" = ["ANN", "D", "RUF012", "S", "PLR", "PYI024", "TRY"]
+"jsonschema/tests/test_format.py" = ["ERA001"]
+"jsonschema/benchmarks/*" = ["ANN", "D", "INP001"]

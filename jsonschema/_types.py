@@ -166,7 +166,7 @@ class TypeChecker:
             try:
                 type_checkers = type_checkers.remove(each)
             except KeyError:
-                raise UndefinedTypeCheck(each)
+                raise UndefinedTypeCheck(each) from None
         return evolve(self, type_checkers=type_checkers)
 
 

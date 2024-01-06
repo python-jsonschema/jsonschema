@@ -13,7 +13,7 @@ from jsonschema import Draft201909Validator
 
 registry = Registry().with_resource(
     "urn:example:foo",
-    DRAFT201909.create_resource({})
+    DRAFT201909.create_resource({}),
 )
 
 schema = {"$ref": "https://json-schema.org/draft/2019-09/schema"}

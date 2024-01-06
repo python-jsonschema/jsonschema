@@ -161,7 +161,7 @@ class _Error(Exception):
             "message", "cause", "context", "validator", "validator_value",
             "path", "schema_path", "instance", "schema", "parent",
         )
-        return dict((attr, getattr(self, attr)) for attr in attrs)
+        return {attr: getattr(self, attr) for attr in attrs}
 
     def _matches_type(self):
         try:
@@ -464,7 +464,7 @@ def best_match(errors, key=relevance):
         # Calculate the minimum via nsmallest, because we don't recurse if
         # all nested errors have the same relevance (i.e. if min == max == all)
         smallest = heapq.nsmallest(2, best.context, key=key)
-        if len(smallest) == 2 and key(smallest[0]) == key(smallest[1]):
+        if len(smallest) == 2 and key(smallest[0]) == key(smallest[1]):  # noqa: PLR2004
             return best
         best = smallest[0]
     return best

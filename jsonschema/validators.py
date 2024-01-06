@@ -108,8 +108,8 @@ def validates(version):
 def _warn_for_remote_retrieve(uri: str):
     from urllib.request import Request, urlopen
     headers = {"User-Agent": "python-jsonschema (deprecated $ref resolution)"}
-    request = Request(uri, headers=headers)
-    with urlopen(request) as response:
+    request = Request(uri, headers=headers)  # noqa: S310
+    with urlopen(request) as response:  # noqa: S310
         warnings.warn(
             "Automatically retrieving remote references can be a security "
             "vulnerability and is discouraged by the JSON Schema "
@@ -441,14 +441,15 @@ def create(
             try:
                 return self.TYPE_CHECKER.is_type(instance, type)
             except exceptions.UndefinedTypeCheck:
-                raise exceptions.UnknownType(type, instance, self.schema)
+                exc = exceptions.UnknownType(type, instance, self.schema)
+                raise exc from None
 
         def _validate_reference(self, ref, instance):
             if self._ref_resolver is None:
                 try:
                     resolved = self._resolver.lookup(ref)
                 except referencing.exceptions.Unresolvable as err:
-                    raise exceptions._WrappedReferencingError(err)
+                    raise exceptions._WrappedReferencingError(err) from err
 
                 return self.descend(
                     instance,
@@ -991,7 +992,7 @@ class _RefResolver:
                 "Failed to pop the scope from an empty stack. "
                 "`pop_scope()` should only be called once for every "
                 "`push_scope()`",
-            )
+            ) from None
 
     @property
     def resolution_scope(self):
@@ -1102,8 +1103,8 @@ class _RefResolver:
         except KeyError:
             try:
                 document = self.resolve_remote(url)
-            except Exception as exc:
-                raise exceptions._RefResolutionError(exc)
+            except Exception as exc:  # noqa: BLE001
+                raise exceptions._RefResolutionError(exc) from exc
 
         return self.resolve_fragment(document, fragment)
 
@@ -1154,10 +1155,10 @@ class _RefResolver:
                     pass
             try:
                 document = document[part]
-            except (TypeError, LookupError):
+            except (TypeError, LookupError) as err:
                 raise exceptions._RefResolutionError(
                     f"Unresolvable JSON pointer: {fragment!r}",
-                )
+                ) from err
 
         return document
 
@@ -1205,7 +1206,7 @@ class _RefResolver:
             result = requests.get(uri).json()
         else:
             # Otherwise, pass off to urllib and assume utf-8
-            with urlopen(uri) as url:
+            with urlopen(uri) as url:  # noqa: S310
                 result = json.loads(url.read().decode("utf-8"))
 
         if self.cache_remote:
