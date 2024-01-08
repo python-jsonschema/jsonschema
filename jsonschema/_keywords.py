@@ -264,11 +264,7 @@ def dependentSchemas(validator, dependentSchemas, instance, schema):
 
 
 def enum(validator, enums, instance, schema):
-    if instance == 0 or instance == 1:
-        unbooled = unbool(instance)
-        if all(unbooled != unbool(each) for each in enums):
-            yield ValidationError(f"{instance!r} is not one of {enums!r}")
-    elif instance not in enums:
+    if all(not equal(each, instance) for each in enums):
         yield ValidationError(f"{instance!r} is not one of {enums!r}")
 
 
