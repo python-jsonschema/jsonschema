@@ -8,7 +8,6 @@ from jsonschema._utils import (
     find_additional_properties,
     find_evaluated_item_indexes_by_schema,
     find_evaluated_property_keys_by_schema,
-    unbool,
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
