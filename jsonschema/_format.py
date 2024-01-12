@@ -55,7 +55,7 @@ class FormatChecker:
     def __repr__(self):
         return f"<FormatChecker checkers={sorted(self.checkers)}>"
 
-    def checks(  # noqa: D417
+    def checks(
         self, format: str, raises: _RaisesType = (),
     ) -> typing.Callable[[_F], _F]:
         """
@@ -75,7 +75,7 @@ class FormatChecker:
                 The exception object will be accessible as the
                 `jsonschema.exceptions.ValidationError.cause` attribute of the
                 resulting validation error.
-        """  # noqa: D214,D405 (charliermarsh/ruff#3547)
+        """
 
         def _checks(func: _F) -> _F:
             self.checkers[format] = (func, raises)
