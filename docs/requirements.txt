@@ -4,7 +4,7 @@
 #
 #    pip-compile --strip-extras docs/requirements.in
 #
-alabaster==0.7.13
+alabaster==0.7.16
     # via sphinx
 anyascii==0.3.2
     # via sphinx-autoapi
@@ -30,7 +30,7 @@ idna==3.6
     # via requests
 imagesize==1.4.1
     # via sphinx
-jinja2==3.1.2
+jinja2==3.1.3
     # via
     #   sphinx
     #   sphinx-autoapi
@@ -38,7 +38,7 @@ file:.#egg=jsonschema
     # via -r docs/requirements.in
 jsonschema-specifications==2023.12.1
     # via jsonschema
-lxml==5.0.1
+lxml==5.1.0
     # via
     #   -r docs/requirements.in
     #   sphinx-json-schema-spec
