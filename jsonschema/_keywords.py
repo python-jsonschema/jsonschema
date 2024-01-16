@@ -228,12 +228,14 @@ def format(validator, format, instance, schema):
 
 def minLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) < mL:
-        yield ValidationError(f"{instance!r} is too short")
+        message = "should be non-empty" if mL == 1 else "is too short"
+        yield ValidationError(f"{instance!r} {message}")
 
 
 def maxLength(validator, mL, instance, schema):
     if validator.is_type(instance, "string") and len(instance) > mL:
-        yield ValidationError(f"{instance!r} is too long")
+        message = "is expected to be empty" if mL == 0 else "is too long"
+        yield ValidationError(f"{instance!r} {message}")
 
 
 def dependentRequired(validator, dependentRequired, instance, schema):
@@ -307,14 +309,22 @@ def required(validator, required, instance, schema):
 
 def minProperties(validator, mP, instance, schema):
     if validator.is_type(instance, "object") and len(instance) < mP:
-        yield ValidationError(f"{instance!r} does not have enough properties")
+        message = (
+            "should be non-empty" if mP == 1
+            else "does not have enough properties"
+        )
+        yield ValidationError(f"{instance!r} {message}")
 
 
 def maxProperties(validator, mP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     if validator.is_type(instance, "object") and len(instance) > mP:
-        yield ValidationError(f"{instance!r} has too many properties")
+        message = (
+            "is expected to be empty" if mP == 0
+            else "has too many properties"
+        )
+        yield ValidationError(f"{instance!r} {message}")
 
 
 def allOf(validator, allOf, instance, schema):

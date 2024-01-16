@@ -517,6 +517,53 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance=[1, 2, 3], schema={"maxItems": 0})
         self.assertEqual(message, "[1, 2, 3] is expected to be empty")
 
+    def test_minLength(self):
+        message = self.message_for(
+            instance="",
+            schema={"minLength": 2},
+        )
+        self.assertEqual(message, "'' is too short")
+
+    def test_maxLength(self):
+        message = self.message_for(
+            instance="abc",
+            schema={"maxLength": 2},
+        )
+        self.assertEqual(message, "'abc' is too long")
+
+    def test_minLength_1(self):
+        message = self.message_for(instance="", schema={"minLength": 1})
+        self.assertEqual(message, "'' should be non-empty")
+
+    def test_maxLength_0(self):
+        message = self.message_for(instance="abc", schema={"maxLength": 0})
+        self.assertEqual(message, "'abc' is expected to be empty")
+
+    def test_minProperties(self):
+        message = self.message_for(instance={}, schema={"minProperties": 2})
+        self.assertEqual(message, "{} does not have enough properties")
+
+    def test_maxProperties(self):
+        message = self.message_for(
+            instance={"a": {}, "b": {}, "c": {}},
+            schema={"maxProperties": 2},
+        )
+        self.assertEqual(
+            message,
+            "{'a': {}, 'b': {}, 'c': {}} has too many properties",
+        )
+
+    def test_minProperties_1(self):
+        message = self.message_for(instance={}, schema={"minProperties": 1})
+        self.assertEqual(message, "{} should be non-empty")
+
+    def test_maxProperties_0(self):
+        message = self.message_for(
+            instance={1: 2},
+            schema={"maxProperties": 0},
+        )
+        self.assertEqual(message, "{1: 2} is expected to be empty")
+
     def test_prefixItems_with_items(self):
         message = self.message_for(
             instance=[1, 2, "foo"],
@@ -536,20 +583,6 @@ class TestValidationErrorMessages(TestCase):
             message,
             "Expected at most 2 items but found 2 extra: ['foo', 5]",
         )
-
-    def test_minLength(self):
-        message = self.message_for(
-            instance="",
-            schema={"minLength": 2},
-        )
-        self.assertEqual(message, "'' is too short")
-
-    def test_maxLength(self):
-        message = self.message_for(
-            instance="abc",
-            schema={"maxLength": 2},
-        )
-        self.assertEqual(message, "'abc' is too long")
 
     def test_pattern(self):
         message = self.message_for(
@@ -645,20 +678,6 @@ class TestValidationErrorMessages(TestCase):
             schema={"dependentRequired": {"foo": ["bar"]}},
         )
         self.assertEqual(message, "'bar' is a dependency of 'foo'")
-
-    def test_minProperties(self):
-        message = self.message_for(instance={}, schema={"minProperties": 2})
-        self.assertEqual(message, "{} does not have enough properties")
-
-    def test_maxProperties(self):
-        message = self.message_for(
-            instance={"a": {}, "b": {}, "c": {}},
-            schema={"maxProperties": 2},
-        )
-        self.assertEqual(
-            message,
-            "{'a': {}, 'b': {}, 'c': {}} has too many properties",
-        )
 
     def test_oneOf_matches_none(self):
         message = self.message_for(instance={}, schema={"oneOf": [False]})
