@@ -462,6 +462,37 @@
         ]
     },
     {
+        "description": "unevaluatedItems before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "unevaluatedItems": false,
+            "prefixItems": [
+                { "type": "string" }
+            ],
+            "$ref": "#/$defs/bar",
+            "$defs": {
+              "bar": {
+                  "prefixItems": [
+                      true,
+                      { "type": "string" }
+                  ]
+              }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": ["foo", "bar", "baz"],
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedItems with $dynamicRef",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",

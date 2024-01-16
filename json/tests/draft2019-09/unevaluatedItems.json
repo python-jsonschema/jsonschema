@@ -481,6 +481,37 @@
         ]
     },
     {
+        "description": "unevaluatedItems before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "unevaluatedItems": false,
+            "items": [
+                { "type": "string" }
+            ],
+            "$ref": "#/$defs/bar",
+            "$defs": {
+              "bar": {
+                  "items": [
+                      true,
+                      { "type": "string" }
+                  ]
+              }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated items",
+                "data": ["foo", "bar"],
+                "valid": true
+            },
+            {
+                "description": "with unevaluated items",
+                "data": ["foo", "bar", "baz"],
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedItems with $recursiveRef",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",

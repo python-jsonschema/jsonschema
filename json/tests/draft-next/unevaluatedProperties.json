@@ -716,6 +716,44 @@
         ]
     },
     {
+        "description": "unevaluatedProperties before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "type": "object",
+            "unevaluatedProperties": false,
+            "properties": {
+                "foo": { "type": "string" }
+            },
+            "$ref": "#/$defs/bar",
+            "$defs": {
+                "bar": {
+                    "properties": {
+                        "bar": { "type": "string" }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": true
+            },
+            {
+                "description": "with unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedProperties with $dynamicRef",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
