@@ -8,7 +8,6 @@ from jsonschema._utils import (
     find_additional_properties,
     find_evaluated_item_indexes_by_schema,
     find_evaluated_property_keys_by_schema,
-    unbool,
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
@@ -264,11 +263,7 @@ def dependentSchemas(validator, dependentSchemas, instance, schema):
 
 
 def enum(validator, enums, instance, schema):
-    if instance == 0 or instance == 1:
-        unbooled = unbool(instance)
-        if all(unbooled != unbool(each) for each in enums):
-            yield ValidationError(f"{instance!r} is not one of {enums!r}")
-    elif instance not in enums:
+    if all(not equal(each, instance) for each in enums):
         yield ValidationError(f"{instance!r} is not one of {enums!r}")
 
 
