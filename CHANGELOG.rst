@@ -1,3 +1,9 @@
+v4.21.0
+=======
+
+* Fix the behavior of ``enum`` in the presence of ``0`` or ``1`` to properly consider ``True`` and ``False`` unequal (#1208).
+* Special case the error message for ``{min,max}{Items,Length,Properties}`` when they're checking for emptiness rather than true length.
+
 v4.20.0
 =======
 
