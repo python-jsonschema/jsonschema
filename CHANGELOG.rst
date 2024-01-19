@@ -1,3 +1,8 @@
+v4.21.1
+=======
+
+* Slightly speed up the ``contains`` keyword by removing some unnecessary validator (re-)creation.
+
 v4.21.0
 =======
 

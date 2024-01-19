@@ -95,8 +95,10 @@ def contains(validator, contains, instance, schema):
     min_contains = schema.get("minContains", 1)
     max_contains = schema.get("maxContains", len(instance))
 
+    contains_validator = validator.evolve(schema=contains)
+
     for each in instance:
-        if validator.evolve(schema=contains).is_valid(each):
+        if contains_validator.is_valid(each):
             matches += 1
             if matches > max_contains:
                 yield ValidationError(
