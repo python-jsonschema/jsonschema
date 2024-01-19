@@ -222,7 +222,7 @@ def docs_style(session):
         for each in BENCHMARKS.glob("[!_]*.py")
     ],
 )
-def perf(session, benchmark):
+def bench(session, benchmark):
     """
     Run a performance benchmark.
     """
