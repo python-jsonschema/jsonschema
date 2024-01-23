@@ -261,6 +261,7 @@ This suite is being used by:
 * [Justify](https://github.com/leadpony/justify)
 * [Snow](https://github.com/ssilverman/snowy-json)
 * [jsonschemafriend](https://github.com/jimblackler/jsonschemafriend)
+* [OpenAPI JSON Schema Generator](https://github.com/openapi-json-schema-tools/openapi-json-schema-generator)
 
 ### JavaScript
 
