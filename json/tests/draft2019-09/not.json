@@ -97,24 +97,172 @@
         ]
     },
     {
-        "description": "not with boolean schema true",
+        "description": "forbid everything with empty schema",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "not": {}
+        },
+        "tests": [
+            {
+                "description": "number is invalid",
+                "data": 1,
+                "valid": false
+            },
+            {
+                "description": "string is invalid",
+                "data": "foo",
+                "valid": false
+            },
+            {
+                "description": "boolean true is invalid",
+                "data": true,
+                "valid": false
+            },
+            {
+                "description": "boolean false is invalid",
+                "data": false,
+                "valid": false
+            },
+            {
+                "description": "null is invalid",
+                "data": null,
+                "valid": false
+            },
+            {
+                "description": "object is invalid",
+                "data": {"foo": "bar"},
+                "valid": false
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "array is invalid",
+                "data": ["foo"],
+                "valid": false
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "forbid everything with boolean schema true",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
             "not": true
         },
         "tests": [
             {
-                "description": "any value is invalid",
+                "description": "number is invalid",
+                "data": 1,
+                "valid": false
+            },
+            {
+                "description": "string is invalid",
                 "data": "foo",
+                "valid": false
+            },
+            {
+                "description": "boolean true is invalid",
+                "data": true,
+                "valid": false
+            },
+            {
+                "description": "boolean false is invalid",
+                "data": false,
+                "valid": false
+            },
+            {
+                "description": "null is invalid",
+                "data": null,
+                "valid": false
+            },
+            {
+                "description": "object is invalid",
+                "data": {"foo": "bar"},
+                "valid": false
+            },
+            {
+                "description": "empty object is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "array is invalid",
+                "data": ["foo"],
+                "valid": false
+            },
+            {
+                "description": "empty array is invalid",
+                "data": [],
                 "valid": false
             }
         ]
     },
     {
-        "description": "not with boolean schema false",
+        "description": "allow everything with boolean schema false",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
             "not": false
+        },
+        "tests": [
+            {
+                "description": "number is valid",
+                "data": 1,
+                "valid": true
+            },
+            {
+                "description": "string is valid",
+                "data": "foo",
+                "valid": true
+            },
+            {
+                "description": "boolean true is valid",
+                "data": true,
+                "valid": true
+            },
+            {
+                "description": "boolean false is valid",
+                "data": false,
+                "valid": true
+            },
+            {
+                "description": "null is valid",
+                "data": null,
+                "valid": true
+            },
+            {
+                "description": "object is valid",
+                "data": {"foo": "bar"},
+                "valid": true
+            },
+            {
+                "description": "empty object is valid",
+                "data": {},
+                "valid": true
+            },
+            {
+                "description": "array is valid",
+                "data": ["foo"],
+                "valid": true
+            },
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "double negation",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "not": { "not": {} }
         },
         "tests": [
             {
