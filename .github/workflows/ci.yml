@@ -1,4 +1,4 @@
-name: CI
+name: Test Suite Sanity Checking
 
 on:
   push:
@@ -6,121 +6,20 @@ on:
   release:
     types: [published]
   schedule:
-    # Daily at 3:21
-    - cron: "21 3 * * *"
-
-env:
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PIP_NO_PYTHON_VERSION_WARNING: "1"
+    # Daily at 6:42, arbitrarily as a time that's possibly non-busy
+    - cron: '42 6 * * *'
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - uses: pre-commit/action@v3.0.0
-
-  list:
-    runs-on: ubuntu-latest
-    outputs:
-      noxenvs: ${{ steps.noxenvs-matrix.outputs.noxenvs }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up nox
-        uses: wntrblm/nox@2023.04.22
-      - id: noxenvs-matrix
-        run: |
-          echo >>$GITHUB_OUTPUT noxenvs=$(
-            nox --list-sessions --json | jq '[.[].session]'
-          )
-
   ci:
-    needs: list
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        noxenv: ${{ fromJson(needs.list.outputs.noxenvs) }}
-        posargs: [""]
-        include:
-          - os: ubuntu-latest
-            noxenv: "tests-3.11(format)"
-            posargs: coverage github
-          - os: ubuntu-latest
-            noxenv: "tests-3.11(no-extras)"
-            posargs: coverage github
-        exclude:
-          - os: windows-latest
-            noxenv: "docs(dirhtml)"
-          - os: windows-latest
-            noxenv: "docs(doctest)"
-          - os: windows-latest
-            noxenv: "docs(linkcheck)"
-          - os: windows-latest
-            noxenv: "docs(spelling)"
-          - os: windows-latest
-            noxenv: "docs(style)"
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libenchant-2-dev
-        if: runner.os == 'Linux' && startsWith(matrix.noxenv, 'docs')
-      - name: Install dependencies
-        run: brew install enchant
-        if: runner.os == 'macOS' && startsWith(matrix.noxenv, 'docs')
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: |
-            3.8
-            3.9
-            3.10
-            3.11
-            3.12
-            pypy3.10
-          allow-prereleases: true
-      - name: Set up nox
-        uses: wntrblm/nox@2023.04.22
-      - name: Enable UTF-8 on Windows
-        run: echo "PYTHONUTF8=1" >> $env:GITHUB_ENV
-        if: runner.os == 'Windows' && startsWith(matrix.noxenv, 'tests')
-      - name: Run nox
-        run: nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }}
-
-  packaging:
-    needs: ci
     runs-on: ubuntu-latest
-    environment:
-      name: PyPI
-      url: https://pypi.org/p/jsonschema
-    permissions:
-      contents: write
-      id-token: write
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - name: Install dependencies
-        run: python -m pip install build
-      - name: Create packages
-        run: python -m build .
-      - name: Publish to PyPI
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@release/v1
-      - name: Create a Release
-        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            dist/*
-          generate_release_notes: true
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    - name: Install tox
+      run: python -m pip install tox
+    - name: Run the sanity checks
+      run: python -m tox
