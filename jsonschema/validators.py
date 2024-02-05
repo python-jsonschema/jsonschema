@@ -95,6 +95,7 @@ def validates(version):
         collections.abc.Callable:
 
             a class decorator to decorate the validator with the version
+
     """
 
     def _validates(cls):
@@ -209,6 +210,7 @@ def create(
     Returns:
 
         a new `jsonschema.protocols.Validator` class
+
     """
     # preemptively don't shadow the `Validator.format_checker` local
     format_checker_arg = format_checker
@@ -566,6 +568,7 @@ def extend(
         class. Note that no implicit copying is done, so a copy should
         likely be made before modifying it, in order to not affect the
         old validator.
+
     """
     all_validators = dict(validator.VALIDATORS)
     all_validators.update(validators)
@@ -892,6 +895,7 @@ class _RefResolver:
     .. deprecated:: v4.18.0
 
         ``RefResolver`` has been deprecated in favor of `referencing`.
+
     """
 
     _DEPRECATION_MESSAGE = (
@@ -961,6 +965,7 @@ class _RefResolver:
         Returns:
 
             `_RefResolver`
+
         """
         return cls(base_uri=id_of(schema) or "", referrer=schema, *args, **kwargs)  # noqa: B026, E501
 
@@ -1040,6 +1045,7 @@ class _RefResolver:
             ref (str):
 
                 The reference to resolve
+
         """
         url, resolved = self.resolve(ref)
         self.push_scope(url)
@@ -1121,6 +1127,7 @@ class _RefResolver:
             fragment (str):
 
                 a URI fragment to resolve within it
+
         """
         fragment = fragment.lstrip("/")
 
@@ -1190,6 +1197,7 @@ class _RefResolver:
             The retrieved document
 
         .. _requests: https://pypi.org/project/requests/
+
         """
         try:
             import requests
@@ -1301,6 +1309,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):  # noqa: D417
     .. rubric:: Footnotes
     .. [#] known by a validator registered with
         `jsonschema.validators.validates`
+
     """
     if cls is None:
         cls = validator_for(schema)

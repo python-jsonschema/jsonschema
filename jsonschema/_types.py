@@ -76,6 +76,7 @@ class TypeChecker:
         type_checkers:
 
             The initial mapping of types to their checking functions.
+
     """
 
     _type_checkers: HashTrieMap[
@@ -105,6 +106,7 @@ class TypeChecker:
             `jsonschema.exceptions.UndefinedTypeCheck`:
 
                 if ``type`` is unknown to this object.
+
         """
         try:
             fn = self._type_checkers[type]
@@ -129,6 +131,7 @@ class TypeChecker:
                 checker calling the function and the instance to check.
                 The function should return true if instance is of this
                 type and false otherwise.
+
         """
         return self.redefine_many({type: fn})
 
@@ -141,6 +144,7 @@ class TypeChecker:
             definitions (dict):
 
                 A dictionary mapping types to their checking functions.
+
         """
         type_checkers = self._type_checkers.update(definitions)
         return evolve(self, type_checkers=type_checkers)
@@ -160,6 +164,7 @@ class TypeChecker:
             `jsonschema.exceptions.UndefinedTypeCheck`:
 
                 if any given type is unknown to this object
+
         """
         type_checkers = self._type_checkers
         for each in types:
