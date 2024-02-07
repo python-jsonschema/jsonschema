@@ -148,6 +148,9 @@ exclude = ["jsonschema/benchmarks/*"]
 
 [tool.ruff]
 line-length = 79
+extend-exclude = ["json"]
+
+[tool.ruff.lint]
 select = ["ALL"]
 ignore = [
   "A001",  # It's fine to shadow builtins
@@ -196,19 +199,18 @@ ignore = [
   "TRY003",  # Some exception classes are essentially intended for free-form
   "UP007",  # We support 3.8 + 3.9
 ]
-extend-exclude = ["json"]
 
 [tool.ruff.lint.flake8-pytest-style]
 mark-parentheses = false
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
 from-first = true
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "noxfile.py" = ["ANN", "D100", "S101", "T201"]
 "docs/*" = ["ANN", "D", "INP001"]
 "jsonschema/tests/*" = ["ANN", "D", "RUF012", "S", "PLR", "PYI024", "TRY"]

@@ -86,6 +86,7 @@ class Validator(Protocol):
 
         Subclassing validator classes now explicitly warns this is not part of
         their public API.
+
     """
 
     #: An object representing the validator's meta schema (the schema that
@@ -129,6 +130,7 @@ class Validator(Protocol):
             `jsonschema.exceptions.SchemaError`:
 
                 if the schema is invalid
+
         """
 
     def is_type(self, instance: Any, type: str) -> bool:
@@ -154,6 +156,7 @@ class Validator(Protocol):
             `jsonschema.exceptions.UnknownType`:
 
                 if ``type`` is not a known type
+
         """
 
     def is_valid(self, instance: Any) -> bool:
@@ -167,6 +170,7 @@ class Validator(Protocol):
         >>> schema = {"maxItems" : 2}
         >>> Draft202012Validator(schema).is_valid([2, 3, 4])
         False
+
         """
 
     def iter_errors(self, instance: Any) -> Iterable[ValidationError]:
@@ -205,6 +209,7 @@ class Validator(Protocol):
         Traceback (most recent call last):
             ...
         ValidationError: [2, 3, 4] is too long
+
         """
 
     def evolve(self, **kwargs) -> Validator:

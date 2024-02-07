@@ -59,6 +59,7 @@ def format_as_index(container, indices):
         indices (sequence):
 
             The indices to format.
+
     """
     if not indices:
         return container
