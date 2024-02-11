@@ -230,6 +230,7 @@ def create(
         ID_OF = staticmethod(id_of)
 
         _APPLICABLE_VALIDATORS = applicable_validators
+        _validators = field(init=False, repr=False, eq=False)
 
         schema: referencing.jsonschema.Schema = field(repr=reprlib.repr)
         _ref_resolver = field(default=None, repr=False, alias="resolver")
@@ -286,6 +287,15 @@ def create(
                     registry = SPECIFICATIONS.combine(registry)
                 resource = specification.create_resource(self.schema)
                 self._resolver = registry.resolver_with_root(resource)
+
+            if self.schema is True or self.schema is False:
+                self._validators = []
+            else:
+                self._validators = [
+                    (self.VALIDATORS[k], k, v)
+                    for k, v in applicable_validators(self.schema)
+                    if k in self.VALIDATORS
+                ]
 
             # REMOVEME: Legacy ref resolution state management.
             push_scope = getattr(self._ref_resolver, "push_scope", None)
@@ -349,8 +359,13 @@ def create(
                     DeprecationWarning,
                     stacklevel=2,
                 )
+                validators = [
+                    (self.VALIDATORS[k], k, v)
+                    for k, v in applicable_validators(_schema)
+                    if k in self.VALIDATORS
+                ]
             else:
-                _schema = self.schema
+                _schema, validators = self.schema, self._validators
 
             if _schema is True:
                 return
@@ -364,11 +379,7 @@ def create(
                 )
                 return
 
-            for k, v in applicable_validators(_schema):
-                validator = self.VALIDATORS.get(k)
-                if validator is None:
-                    continue
-
+            for validator, k, v in validators:
                 errors = validator(self, v, instance, _schema) or ()
                 for error in errors:
                     # set details if not already set by the called fn
