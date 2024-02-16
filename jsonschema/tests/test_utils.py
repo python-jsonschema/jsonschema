@@ -1,3 +1,4 @@
+from math import nan
 from unittest import TestCase
 
 from jsonschema._utils import equal
@@ -7,11 +8,19 @@ class TestEqual(TestCase):
     def test_none(self):
         self.assertTrue(equal(None, None))
 
+    def test_nan(self):
+        self.assertTrue(equal(nan, nan))
+
 
 class TestDictEqual(TestCase):
     def test_equal_dictionaries(self):
         dict_1 = {"a": "b", "c": "d"}
         dict_2 = {"c": "d", "a": "b"}
+        self.assertTrue(equal(dict_1, dict_2))
+
+    def test_equal_dictionaries_with_nan(self):
+        dict_1 = {"a": nan, "c": "d"}
+        dict_2 = {"c": "d", "a": nan}
         self.assertTrue(equal(dict_1, dict_2))
 
     def test_missing_key(self):
@@ -68,6 +77,11 @@ class TestListEqual(TestCase):
     def test_equal_lists(self):
         list_1 = ["a", "b", "c"]
         list_2 = ["a", "b", "c"]
+        self.assertTrue(equal(list_1, list_2))
+
+    def test_equal_lists_with_nan(self):
+        list_1 = ["a", nan, "c"]
+        list_2 = ["a", nan, "c"]
         self.assertTrue(equal(list_1, list_2))
 
     def test_unsorted_lists(self):
