@@ -131,6 +131,8 @@ def equal(one, two):
     Specifically in JSON Schema, evade `bool` inheriting from `int`,
     recursing into sequences to do the same.
     """
+    if one is two:
+        return True
     if isinstance(one, str) or isinstance(two, str):
         return one == two
     if isinstance(one, Sequence) and isinstance(two, Sequence):
