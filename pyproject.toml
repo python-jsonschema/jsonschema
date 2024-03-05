@@ -214,4 +214,4 @@ from-first = true
 "docs/*" = ["ANN", "D", "INP001"]
 "jsonschema/tests/*" = ["ANN", "D", "RUF012", "S", "PLR", "PYI024", "TRY"]
 "jsonschema/tests/test_format.py" = ["ERA001"]
-"jsonschema/benchmarks/*" = ["ANN", "D", "INP001"]
+"jsonschema/benchmarks/*" = ["ANN", "D", "INP001", "S101"]
