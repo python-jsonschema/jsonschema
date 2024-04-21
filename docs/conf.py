@@ -123,19 +123,23 @@ autoapi_dirs = [PACKAGE_SRC]
 
 autosectionlabel_prefix_document = True
 
-# -- extlinks --
-
-extlinks = {
-    "ujs": ("https://json-schema.org/understanding-json-schema%s", None),
-}
-extlinks_detect_hardcoded_links = True
-
 # -- intersphinx --
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "referencing": ("https://referencing.readthedocs.io/en/stable/", None),
 }
+
+# -- extlinks --
+
+extlinks = {
+    "ujs": ("https://json-schema.org/understanding-json-schema%s", None),
+}
+extlinks_detect_hardcoded_links = True
+# -- sphinx-copybutton --
+
+copybutton_prompt_text = r">>> |\.\.\. |\$"
+copybutton_prompt_is_regexp = True
 
 # -- sphinxcontrib-spelling --
 
