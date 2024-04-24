@@ -1,3 +1,9 @@
+v4.22.0
+=======
+
+* Improve ``best_match`` (and thereby error messages from ``jsonschema.validate``) in cases where there are multiple *sibling* errors from applying ``anyOf`` / ``allOf`` -- i.e. when multiple elements of a JSON array have errors, we now do prefer showing errors from earlier elements rather than simply showing an error for the full array (#1250).
+* (Micro-)optimize equality checks when comparing for JSON Schema equality by first checking for object identity, as ``==`` would.
+
 v4.21.1
 =======
 
