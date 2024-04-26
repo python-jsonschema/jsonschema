@@ -1120,7 +1120,7 @@ class _RefResolver:
         except KeyError:
             try:
                 document = self.resolve_remote(url)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 raise exceptions._RefResolutionError(exc) from exc
 
         return self.resolve_fragment(document, fragment)
