@@ -113,10 +113,10 @@ Its purpose is to convert a piece of "opaque" JSON (or really a Python `dict` co
 Calling it will inspect a :kw:`$schema` keyword present in the given schema and use that to associate the JSON with an appropriate `specification <referencing.Specification>`.
 If your schemas do not contain ``$schema`` dialect identifiers, and you intend for them to be interpreted always under a specific dialect -- say Draft 2020-12 of JSON Schema -- you may instead use e.g.:
 
-.. code:: python
+.. testcode::
 
     from referencing import Registry, Resource
-    from referencing.jsonschema import DRAFT2020212
+    from referencing.jsonschema import DRAFT202012
     schema = DRAFT202012.create_resource({"type": "integer", "minimum": 0})
     registry = Registry().with_resources(
         [
