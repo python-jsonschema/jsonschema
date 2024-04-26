@@ -91,7 +91,7 @@ We may wish to have other schemas we write be able to make use of this schema, a
 
 To do so we make use of APIs from the referencing library to create a `referencing.Registry` which maps the URIs above to this schema:
 
-.. code:: python
+.. testcode::
 
     from referencing import Registry, Resource
     schema = Resource.from_contents(
@@ -130,7 +130,7 @@ which has the same functional effect.
 You can now pass this registry to your `Validator`, which allows a schema passed to it to make use of the aforementioned URIs to refer to our non-negative integer schema.
 Here for instance is an example which validates that instances are JSON objects with non-negative integral values:
 
-.. code:: python
+.. testcode::
 
     from jsonschema import Draft202012Validator
     validator = Draft202012Validator(
@@ -141,7 +141,7 @@ Here for instance is an example which validates that instances are JSON objects 
         registry=registry,  # the critical argument, our registry from above
     )
     validator.validate({"foo": 37})
-    validator.validate({"foo": -37})  # Uh oh!
+    assert not validator.is_valid({"foo": -37})  # Uh oh!
 
 .. _ref-filesystem:
 
@@ -154,7 +154,7 @@ If however you wish to *dynamically* read files off of the file system, perhaps 
 
 Here we resolve any schema beginning with ``http://localhost`` to a directory ``/tmp/schemas`` on the local filesystem (note of course that this will not work if run directly unless you have populated that directory with some schemas):
 
-.. code:: python
+.. testcode::
 
     from pathlib import Path
     import json
@@ -177,7 +177,7 @@ Such a registry can then be used with `Validator` objects in the same way shown 
 
 We can mix the two examples above if we wish for some in-memory schemas to be available in addition to the filesystem schemas, e.g.:
 
-.. code:: python
+.. testcode::
 
     from referencing.jsonschema import DRAFT7
     registry = Registry(retrieve=retrieve_from_filesystem).with_resource(
@@ -194,7 +194,7 @@ As long as you deserialize what you have retrieved into Python objects, you may 
 
 Here for instance we retrieve YAML documents in a way similar to the `above <ref-filesystem>` using PyYAML:
 
-.. code:: python
+.. testcode::
 
     from pathlib import Path
     import yaml
@@ -234,7 +234,7 @@ However, if you as a schema author are in a situation where you indeed do wish t
 
 Here is how one would configure a registry to automatically retrieve schemas from the `JSON Schema Store <https://www.schemastore.org>`_ on the fly using the `httpx <https://www.python-httpx.org/>`_:
 
-.. code:: python
+.. testcode::
 
     from referencing import Registry, Resource
     import httpx
@@ -247,7 +247,24 @@ Here is how one would configure a registry to automatically retrieve schemas fro
 
 Given such a registry, we can now, for instance, validate instances against schemas from the schema store by passing the ``registry`` we configured to our `Validator` as in previous examples:
 
-.. code:: python
+.. testsetup:: *
+
+    import sys
+
+    class FakeResource:
+        def json(self):
+            return {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "not": True,
+            }
+
+    class FakeHTTPX:
+        def get(self, uri):
+            return FakeResource()
+
+    sys.modules["httpx"] = FakeHTTPX()
+
+.. testcode::
 
     from jsonschema import Draft202012Validator
     Draft202012Validator(
@@ -257,14 +274,10 @@ Given such a registry, we can now, for instance, validate instances against sche
 
 which should in this case indicate the example data is invalid:
 
-.. code:: python
+.. testoutput::
 
     Traceback (most recent call last):
-    File "example.py", line 14, in <module>
-        ).validate({"project": {"name": 12}})
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    File "jsonschema/validators.py", line 345, in validate
-        raise error
+        ...
     jsonschema.exceptions.ValidationError: 12 is not of type 'string'
 
     Failed validating 'type' in schema['properties']['project']['properties']['name']:
@@ -315,7 +328,7 @@ The ``store`` argument
 
 If you currently pass a set of schemas via e.g.:
 
-.. code:: python
+.. code-block:: python
 
     from jsonschema import Draft202012Validator, RefResolver
     resolver = RefResolver.from_schema(
@@ -330,7 +343,7 @@ If you currently pass a set of schemas via e.g.:
 
 you should be able to simply move to something like:
 
-.. code:: python
+.. testcode::
 
     from referencing import Registry
     from referencing.jsonschema import DRAFT202012
@@ -345,7 +358,7 @@ you should be able to simply move to something like:
         {"$ref": "http://example.com"},
         registry=registry,
     )
-    validator.validate("foo")
+    assert not validator.is_valid("foo")
 
 Handlers
 ~~~~~~~~
@@ -355,7 +368,7 @@ The ``handlers`` functionality from `_RefResolver` was a way to support addition
 Here you should move to a custom ``retrieve`` function which does whatever you'd like.
 E.g. in pseudocode:
 
-.. code:: python
+.. testcode::
 
     from urllib.parse import urlsplit
 
