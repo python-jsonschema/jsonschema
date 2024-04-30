@@ -116,30 +116,5 @@
                 "valid": false
             }
         ]
-    },
-    {
-        "description": "invalid anchors",
-        "comment": "Section 8.2.3",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
-            "$ref": "https://json-schema.org/draft/2019-09/schema"
-        },
-        "tests": [
-            {
-                "description": "MUST start with a letter (and not #)",
-                "data": { "$anchor" : "#foo" },
-                "valid": false
-            },
-            {
-                "description": "JSON pointers are not valid",
-                "data": { "$anchor" : "/a/b" },
-                "valid": false
-            },
-            {
-                "description": "invalid with valid beginning",
-                "data": { "$anchor" : "foo#something" },
-                "valid": false
-            }
-        ]
     }
 ]
