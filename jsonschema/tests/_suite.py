@@ -19,7 +19,7 @@ from referencing import Registry
 import referencing.jsonschema
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Iterable, Mapping, Sequence
 
     import pyperf
 
@@ -162,6 +162,7 @@ class _Case:
     schema: Mapping[str, Any] | bool
     tests: list[_Test]
     comment: str | None = None
+    specification: Sequence[dict[str, str]] = ()
 
     @classmethod
     def from_dict(cls, data, remotes, **kwargs):
