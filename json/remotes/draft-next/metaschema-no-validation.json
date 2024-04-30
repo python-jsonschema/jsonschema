@@ -5,6 +5,7 @@
         "https://json-schema.org/draft/next/vocab/applicator": true,
         "https://json-schema.org/draft/next/vocab/core": true
     },
+    "$dynamicAnchor": "meta",
     "allOf": [
         { "$ref": "https://json-schema.org/draft/next/meta/applicator" },
         { "$ref": "https://json-schema.org/draft/next/meta/core" }

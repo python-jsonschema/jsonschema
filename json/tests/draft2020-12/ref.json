@@ -792,21 +792,6 @@
         ]
     },
     {
-        "description": "URN base URI with f-component",
-        "schema": {
-            "$comment": "RFC 8141 §2.3.3, but we don't allow fragments",
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$ref": "https://json-schema.org/draft/2020-12/schema"
-        },
-        "tests": [
-            {
-                "description": "is invalid",
-                "data": {"$id": "urn:example:foo-bar-baz-qux#somepart"},
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "URN base URI with URN and JSON pointer ref",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",

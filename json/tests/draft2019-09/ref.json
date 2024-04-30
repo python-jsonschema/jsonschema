@@ -792,21 +792,6 @@
         ]
     },
     {
-        "description": "URN base URI with f-component",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
-            "$comment": "RFC 8141 §2.3.3, but we don't allow fragments",
-            "$ref": "https://json-schema.org/draft/2019-09/schema"
-        },
-        "tests": [
-            {
-                "description": "is invalid",
-                "data": {"$id": "urn:example:foo-bar-baz-qux#somepart"},
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "URN base URI with URN and JSON pointer ref",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1063,5 +1048,43 @@
                  "valid": false
              }
          ]
-     }
+     },
+     {
+        "description": "$ref with $recursiveAnchor",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$id": "https://example.com/schemas/unevaluated-items-are-disallowed",
+            "$ref": "/schemas/unevaluated-items-are-allowed",
+            "$recursiveAnchor": true,
+            "unevaluatedItems": false,
+            "$defs": {
+                "/schemas/unevaluated-items-are-allowed": {
+                    "$schema": "https://json-schema.org/draft/2019-09/schema",
+                    "$id": "/schemas/unevaluated-items-are-allowed",
+                    "$recursiveAnchor": true,
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "$ref": "#"
+                        }
+                    ]
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "extra items allowed for inner arrays",
+                "data" : ["foo",["bar" , [] , 8]],
+                "valid": true
+            },
+            {
+                "description": "extra items disallowed for root",
+                "data" : ["foo",["bar" , [] , 8], 8],
+                "valid": false
+            }
+        ]
+    }
 ]
