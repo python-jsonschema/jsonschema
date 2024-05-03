@@ -46,7 +46,7 @@ class TestCreateAndExtend(TestCase):
         )
 
         self.meta_schema = {"$id": "some://meta/schema"}
-        self.validators = {"fail": fail}
+        self.validators = {"fail": fail, "none": None}
         self.type_checker = TypeChecker()
         self.Validator = validators.create(
             meta_schema=self.meta_schema,
@@ -107,6 +107,13 @@ class TestCreateAndExtend(TestCase):
 
         errors = list(validator.iter_errors("goodbye"))
         self.assertEqual(len(errors), 3)
+
+    def test_none(self):
+        schema = {"none": [{"message": "Whoops!"}]}
+        validator = self.Validator(schema)
+
+        errors = list(validator.iter_errors("hello"))
+        self.assertEqual(errors, [])
 
     def test_if_a_version_is_provided_it_is_registered(self):
         Validator = validators.create(

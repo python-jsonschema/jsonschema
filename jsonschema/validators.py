@@ -295,6 +295,7 @@ def create(
                     (self.VALIDATORS[k], k, v)
                     for k, v in applicable_validators(self.schema)
                     if k in self.VALIDATORS
+                    and self.VALIDATORS[k] is not None
                 ]
 
             # REMOVEME: Legacy ref resolution state management.
@@ -363,6 +364,7 @@ def create(
                     (self.VALIDATORS[k], k, v)
                     for k, v in applicable_validators(_schema)
                     if k in self.VALIDATORS
+                    and self.VALIDATORS[k] is not None
                 ]
             else:
                 _schema, validators = self.schema, self._validators
