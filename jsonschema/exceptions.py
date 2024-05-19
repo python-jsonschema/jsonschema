@@ -397,7 +397,6 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
         validator = error.validator
         return (                        # prefer errors which are ...
             -len(error.path),           # 'deeper' and thereby more specific
-            error.path,                 # earlier (for sibling errors)
             validator not in weak,      # for a non-low-priority keyword
             validator in strong,        # for a high priority keyword
             not error._matches_type(),  # at least match the instance's type
@@ -427,7 +426,8 @@ def best_match(errors, key=relevance):
     since they indicate "more" is wrong with the instance.
 
     If the resulting match is either :kw:`oneOf` or :kw:`anyOf`, the
-    *opposite* assumption is made -- i.e. the deepest error is picked,
+    *opposite* assumption is made -- i.e. the deepest error is picked
+    among the most relevant errors in each separate subschema,
     since these keywords only need to match once, and any other errors
     may not be relevant.
 
@@ -464,9 +464,19 @@ def best_match(errors, key=relevance):
     best = max(itertools.chain([best], errors), key=key)
 
     while best.context:
+        # Calculate the most relevant error in each separate subschema
+        best_in_subschemas = [None] * len(best.validator_value)
+        for error in best.context:
+            index = error.schema_path[0]
+            prev = best_in_subschemas[index]
+            if prev is None:
+                best_in_subschemas[index] = error
+            else:
+                best_in_subschemas[index] = max(prev, error, key=key)
+
         # Calculate the minimum via nsmallest, because we don't recurse if
         # all nested errors have the same relevance (i.e. if min == max == all)
-        smallest = heapq.nsmallest(2, best.context, key=key)
+        smallest = heapq.nsmallest(2, best_in_subschemas, key=key)
         if len(smallest) == 2 and key(smallest[0]) == key(smallest[1]):  # noqa: PLR2004
             return best
         best = smallest[0]
