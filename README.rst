@@ -2,7 +2,7 @@
 jsonschema
 ==========
 
-|PyPI| |Pythons| |CI| |ReadTheDocs| |Precommit| |Zenodo|
+|PyPI| |Pythons| |CI| |ReadTheDocs| |Precommit| |Zenodo| |Monthly Downloads|
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/jsonschema.svg
    :alt: PyPI version
@@ -28,6 +28,9 @@ jsonschema
    :alt: Zenodo DOI
    :target: https://zenodo.org/badge/latestdoi/3072629
 
+.. |Monthly Downloads| image:: https://assets.piptrends.com/get-last-month-downloads-badge/jsonschema.svg
+    :alt: jsonschema Downloads Last Month by pip Trends
+    :target: https://piptrends.com/package/jsonschema
 
 ``jsonschema`` is an implementation of the `JSON Schema <https://json-schema.org>`_ specification for Python.
 
