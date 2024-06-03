@@ -2,12 +2,17 @@ name: CI
 
 on:
   push:
+    branches-ignore:
+      - "wip*"
+    tags:
+      - "v*"
   pull_request:
   release:
     types: [published]
   schedule:
     # Daily at 3:21
     - cron: "21 3 * * *"
+  workflow_dispatch:
 
 env:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
