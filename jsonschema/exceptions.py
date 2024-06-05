@@ -46,16 +46,16 @@ class _Error(Exception):
     def __init__(
         self,
         message: str,
-        validator: str | _utils.Unset = _unset,
+        validator: str = _unset,  # type: ignore[assignment]
         path: Iterable[str | int] = (),
         cause: Exception | None = None,
         context=(),
         validator_value: Any = _unset,
         instance: Any = _unset,
-        schema: Mapping[str, Any] | bool | _utils.Unset = _unset,
+        schema: Mapping[str, Any] | bool = _unset,  # type: ignore[assignment]
         schema_path: Iterable[str | int] = (),
         parent: _Error | None = None,
-        type_checker: _types.TypeChecker | _utils.Unset = _unset,
+        type_checker: _types.TypeChecker = _unset,  # type: ignore[assignment]
     ) -> None:
         super().__init__(
             message,
@@ -174,9 +174,6 @@ class _Error(Exception):
             # We ignore this as we want to simply crash if this happens
             expected = self.schema["type"]  # type: ignore[index]
         except (KeyError, TypeError):
-            return False
-
-        if isinstance(self._type_checker, _utils.Unset):
             return False
 
         if isinstance(expected, str):
