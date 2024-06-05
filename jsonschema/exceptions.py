@@ -17,7 +17,7 @@ from referencing.exceptions import Unresolvable as _Unresolvable
 from jsonschema import _utils
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping, MutableMapping
+    from collections.abc import Iterable, Mapping, MutableMapping, Sequence
 
     from jsonschema import _types
 
@@ -121,7 +121,7 @@ class _Error(Exception):
         return cls(**other._contents())
 
     @property
-    def absolute_path(self) -> deque[str | int]:
+    def absolute_path(self) -> Sequence[str | int]:
         parent = self.parent
         if parent is None:
             return self.relative_path
@@ -131,7 +131,7 @@ class _Error(Exception):
         return path
 
     @property
-    def absolute_schema_path(self) -> deque[str | int]:
+    def absolute_schema_path(self) -> Sequence[str | int]:
         parent = self.parent
         if parent is None:
             return self.relative_schema_path
