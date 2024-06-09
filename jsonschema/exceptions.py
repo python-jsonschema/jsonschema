@@ -27,6 +27,13 @@ STRONG_MATCHES: frozenset[str] = frozenset()
 _unset = _utils.Unset()
 
 
+def _pretty(thing: Any, prefix: str):
+    """
+    Format something for an error message as prettily as we currently can.
+    """
+    return indent(pformat(thing, width=72, sort_dicts=False), prefix).lstrip()
+
+
 def __getattr__(name):
     if name == "RefResolutionError":
         warnings.warn(
@@ -109,10 +116,10 @@ class _Error(Exception):
             {self.message}
 
             Failed validating {self.validator!r} in {schema_path}:
-                {indent(pformat(self.schema, width=72), prefix).lstrip()}
+                {_pretty(self.schema, prefix=prefix)}
 
             On {instance_path}:
-                {indent(pformat(self.instance, width=72), prefix).lstrip()}
+                {_pretty(self.instance, prefix=prefix)}
             """.rstrip(),
         )
 
@@ -278,10 +285,10 @@ class UnknownType(Exception):
         return dedent(
             f"""\
             Unknown type {self.type!r} for validator with schema:
-                {indent(pformat(self.schema, width=72), prefix).lstrip()}
+                {_pretty(self.schema, prefix=prefix)}
 
             While checking instance:
-                {indent(pformat(self.instance, width=72), prefix).lstrip()}
+                {_pretty(self.instance, prefix=prefix)}
             """.rstrip(),
         )
 
