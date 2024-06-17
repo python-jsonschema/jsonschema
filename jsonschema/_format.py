@@ -413,20 +413,16 @@ def is_draft3_time(instance: object) -> bool:
 
 
 with suppress(ImportError):
-    from webcolors import CSS21_NAMES_TO_HEX
     import webcolors
-
-    def is_css_color_code(instance: object) -> bool:
-        return webcolors.normalize_hex(instance)
 
     @_checks_drafts(draft3="color", raises=(ValueError, TypeError))
     def is_css21_color(instance: object) -> bool:
-        if (
-            not isinstance(instance, str)
-            or instance.lower() in CSS21_NAMES_TO_HEX
-        ):
-            return True
-        return is_css_color_code(instance)
+        if isinstance(instance, str):
+            try:
+                webcolors.name_to_hex(instance)
+            except ValueError:
+                webcolors.normalize_hex(instance.lower())
+        return True
 
 
 with suppress(ImportError):
