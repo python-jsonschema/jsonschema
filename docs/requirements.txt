@@ -16,7 +16,7 @@ babel==2.15.0
     # via sphinx
 beautifulsoup4==4.12.3
     # via furo
-certifi==2024.6.2
+certifi==2024.7.4
     # via requests
 charset-normalizer==3.3.2
     # via requests
@@ -60,7 +60,7 @@ referencing==0.35.1
     #   jsonschema-specifications
 requests==2.32.3
     # via sphinx
-rpds-py==0.18.1
+rpds-py==0.19.0
     # via
     #   jsonschema
     #   referencing
@@ -79,9 +79,9 @@ sphinx==7.3.7
     #   sphinx-json-schema-spec
     #   sphinxcontrib-spelling
     #   sphinxext-opengraph
-sphinx-autoapi==3.1.1
+sphinx-autoapi==3.1.2
     # via -r docs/requirements.in
-sphinx-autodoc-typehints==2.1.1
+sphinx-autodoc-typehints==2.2.2
     # via -r docs/requirements.in
 sphinx-basic-ng==1.0.0b2
     # via furo
