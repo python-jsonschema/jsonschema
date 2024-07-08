@@ -1,6 +1,7 @@
-v4.22.1
+v4.23.0
 =======
 
+* Do not reorder dictionaries (schemas, instances) that are printed as part of validation errors.
 * Declare support for Py3.13
 
 v4.22.0
