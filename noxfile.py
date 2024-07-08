@@ -35,13 +35,13 @@ NONGPL_LICENSES = [
     "The Unlicense (Unlicense)",
 ]
 
-SUPPORTED = ["3.8", "3.9", "3.10", "pypy3.10", "3.11", "3.12"]
-LATEST = SUPPORTED[-1]
+SUPPORTED = ["3.8", "3.9", "3.10", "pypy3.10", "3.11", "3.12", "3.13"]
+LATEST_STABLE = "3.12"
 
 nox.options.sessions = []
 
 
-def session(default=True, python=LATEST, **kwargs):  # noqa: D103
+def session(default=True, python=LATEST_STABLE, **kwargs):  # noqa: D103
     def _session(fn):
         if default:
             nox.options.sessions.append(kwargs.get("name", fn.__name__))
