@@ -183,7 +183,7 @@ class TestDeprecations(TestCase):
         self.assertEqual(w.filename, __file__)
 
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            from jsonschema.validators import RefResolver  # noqa: F401, F811
+            from jsonschema.validators import RefResolver  # noqa: F401
         self.assertEqual(w.filename, __file__)
 
     def test_RefResolutionError(self):
