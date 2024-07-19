@@ -8,7 +8,6 @@ from pprint import pformat
 from textwrap import dedent, indent
 from typing import TYPE_CHECKING, Any, ClassVar
 import heapq
-import itertools
 import warnings
 
 from attrs import define
@@ -471,11 +470,9 @@ def best_match(errors, key=relevance):
         set of inputs from version to version if better heuristics are added.
 
     """
-    errors = iter(errors)
-    best = next(errors, None)
+    best = max(errors, key=key, default=None)
     if best is None:
         return
-    best = max(itertools.chain([best], errors), key=key)
 
     while best.context:
         # Calculate the minimum via nsmallest, because we don't recurse if
