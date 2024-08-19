@@ -185,6 +185,7 @@ ignore = [
   "PLR0913",
   "PLR0915",
   "PLR1714",  # This makes for uglier comparisons sometimes
+  "PLW0642",  # Shadowing self also isn't a big deal.
   "PLW2901",  # Shadowing for loop variables is occasionally fine.
   "PT",  # We use unittest
   "PYI025",  # wat, I'm not confused, thanks.
