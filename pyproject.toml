@@ -9,6 +9,7 @@ source = "vcs"
 name = "jsonschema"
 description = "An implementation of JSON Schema validation for Python"
 requires-python = ">=3.8"
+license = {text = "MIT"}
 keywords = [
     "validation",
     "data validation",
