@@ -8,7 +8,7 @@ source = "vcs"
 [project]
 name = "jsonschema"
 description = "An implementation of JSON Schema validation for Python"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 keywords = [
     "validation",
@@ -26,7 +26,6 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -198,7 +197,7 @@ ignore = [
   "SLF001",  # Private usage within this package itself is fine
   "TD",  # These TODO style rules are also silly
   "TRY003",  # Some exception classes are essentially intended for free-form
-  "UP007",  # We support 3.8 + 3.9
+  "UP007",  # We support 3.9
 ]
 
 [tool.ruff.lint.flake8-pytest-style]

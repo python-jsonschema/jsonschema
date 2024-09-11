@@ -1,12 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Mapping
+from typing import TYPE_CHECKING
 import numbers
 
 from attrs import evolve, field, frozen
 from rpds import HashTrieMap
 
 from jsonschema.exceptions import UndefinedTypeCheck
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+    from typing import Any, Callable
 
 
 # unfortunately, the type of HashTrieMap is generic, and if used as an attrs

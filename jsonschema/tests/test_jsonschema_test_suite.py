@@ -6,7 +6,6 @@ Tests comprehensive correctness of each draft's validator.
 See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 """
 
-import sys
 
 from jsonschema.tests._suite import Suite
 import jsonschema
@@ -64,18 +63,6 @@ def complex_email_validation(test):
         message=message,
         description="two subsequent dots inside local part are not valid",
     )(test)
-
-
-if sys.version_info < (3, 9):  # pragma: no cover
-    message = "Rejecting leading zeros is 3.9+"
-    allowed_leading_zeros = skip(
-        message=message,
-        subject="ipv4",
-        description="invalid leading zeroes, as they are treated as octals",
-    )
-else:
-    def allowed_leading_zeros(test):  # pragma: no cover
-        return
 
 
 def leap_second(test):
@@ -149,8 +136,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     Validator=jsonschema.Draft4Validator,
     format_checker=jsonschema.Draft4Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        allowed_leading_zeros(test)
-        or leap_second(test)
+        leap_second(test)
         or missing_format(jsonschema.Draft4Validator)(test)
         or complex_email_validation(test)
     ),
@@ -167,8 +153,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     Validator=jsonschema.Draft6Validator,
     format_checker=jsonschema.Draft6Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        allowed_leading_zeros(test)
-        or leap_second(test)
+        leap_second(test)
         or missing_format(jsonschema.Draft6Validator)(test)
         or complex_email_validation(test)
     ),
@@ -187,8 +172,7 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     Validator=jsonschema.Draft7Validator,
     format_checker=jsonschema.Draft7Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        allowed_leading_zeros(test)
-        or leap_second(test)
+        leap_second(test)
         or missing_format(jsonschema.Draft7Validator)(test)
         or complex_email_validation(test)
     ),
@@ -224,7 +208,6 @@ TestDraft201909Format = DRAFT201909.to_unittest_testcase(
     format_checker=jsonschema.Draft201909Validator.FORMAT_CHECKER,
     skip=lambda test: (
         complex_email_validation(test)
-        or allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft201909Validator)(test)
         or complex_email_validation(test)
@@ -261,7 +244,6 @@ TestDraft202012Format = DRAFT202012.to_unittest_testcase(
     format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER,
     skip=lambda test: (
         complex_email_validation(test)
-        or allowed_leading_zeros(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft202012Validator)(test)
         or complex_email_validation(test)

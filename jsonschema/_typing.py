@@ -1,7 +1,8 @@
 """
 Some (initially private) typing helpers for jsonschema's types.
 """
-from typing import Any, Callable, Iterable, Protocol, Tuple, Union
+from collections.abc import Iterable
+from typing import Any, Callable, Protocol, Union
 
 import referencing.jsonschema
 
@@ -24,5 +25,5 @@ id_of = Callable[[referencing.jsonschema.Schema], Union[str, None]]
 
 ApplicableValidators = Callable[
     [referencing.jsonschema.Schema],
-    Iterable[Tuple[str, Any]],
+    Iterable[tuple[str, Any]],
 ]

@@ -1,3 +1,8 @@
+v4.24.0
+=======
+
+* Support for Python 3.8 has been dropped, as it is nearing end-of-life.
+
 v4.23.0
 =======
 
