@@ -495,7 +495,7 @@ def create(
                     DeprecationWarning,
                     stacklevel=2,
                 )
-                self = self.evolve(schema=_schema)  # noqa: PLW0642
+                self = self.evolve(schema=_schema)
 
             error = next(self.iter_errors(instance), None)
             return error is None
