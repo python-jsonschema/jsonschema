@@ -857,7 +857,7 @@ Draft202012Validator = create(
     version="draft2020-12",
 )
 
-_LATEST_VERSION = Draft202012Validator
+_LATEST_VERSION: type[Validator] = Draft202012Validator
 
 
 class _RefResolver:
@@ -1334,7 +1334,7 @@ def validate(instance, schema, cls=None, *args, **kwargs):  # noqa: D417
 
 def validator_for(
     schema,
-    default: Validator | _utils.Unset = _UNSET,
+    default: type[Validator] | _utils.Unset = _UNSET,
 ) -> type[Validator]:
     """
     Retrieve the validator class appropriate for validating the given schema.
@@ -1396,7 +1396,7 @@ def validator_for(
     DefaultValidator = _LATEST_VERSION if default is _UNSET else default
 
     if schema is True or schema is False or "$schema" not in schema:
-        return DefaultValidator
+        return DefaultValidator  # type: ignore[return-value]
     if schema["$schema"] not in _META_SCHEMAS and default is _UNSET:
         warn(
             (
