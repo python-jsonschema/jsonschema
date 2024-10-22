@@ -690,7 +690,7 @@ class TestCLI(TestCase):
         )
 
     def test_successful_validation_via_explicit_base_uri(self):
-        ref_schema_file = tempfile.NamedTemporaryFile(delete=False)
+        ref_schema_file = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
         ref_schema_file.close()
         self.addCleanup(os.remove, ref_schema_file.name)
 
@@ -711,7 +711,7 @@ class TestCLI(TestCase):
         )
 
     def test_unsuccessful_validation_via_explicit_base_uri(self):
-        ref_schema_file = tempfile.NamedTemporaryFile(delete=False)
+        ref_schema_file = tempfile.NamedTemporaryFile(delete=False)  # noqa: SIM115
         ref_schema_file.close()
         self.addCleanup(os.remove, ref_schema_file.name)
 
