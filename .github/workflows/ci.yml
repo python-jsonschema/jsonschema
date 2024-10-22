@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up nox
-        uses: wntrblm/nox@2024.04.15
+        uses: wntrblm/nox@2024.10.09
       - id: noxenvs-matrix
         run: |
           echo >>$GITHUB_OUTPUT noxenvs=$(
@@ -90,7 +90,7 @@ jobs:
             pypy3.10
           allow-prereleases: true
       - name: Set up nox
-        uses: wntrblm/nox@2024.04.15
+        uses: wntrblm/nox@2024.10.09
       - name: Enable UTF-8 on Windows
         run: echo "PYTHONUTF8=1" >> $env:GITHUB_ENV
         if: runner.os == 'Windows' && startsWith(matrix.noxenv, 'tests')
