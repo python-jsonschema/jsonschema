@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
 # therefore, only import at type-checking time (to avoid circular references),
 # but use `jsonschema` for any types which will otherwise not be resolvable
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Iterable, Mapping, Sequence
 
     import referencing.jsonschema
 
@@ -101,6 +101,8 @@ class Validator(Protocol):
 
     #: A function which given a schema returns its ID.
     ID_OF: _typing.id_of
+
+    VALIDATE_HOOKS: ClassVar[Sequence]
 
     #: The schema that will be used to validate instances
     schema: Mapping | bool

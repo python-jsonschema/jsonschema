@@ -27,3 +27,12 @@ ApplicableValidators = Callable[
     [referencing.jsonschema.Schema],
     Iterable[tuple[str, Any]],
 ]
+
+class ValidateHook(Protocol):
+    def __call__(
+        self,
+        is_valid: bool,
+        instance: Any,
+        schema: referencing.jsonschema.Schema,
+    ) -> None:
+        ...
