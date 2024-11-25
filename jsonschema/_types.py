@@ -196,7 +196,7 @@ draft6_type_checker = draft4_type_checker.redefine(
     "integer",
     lambda checker, instance: (
         is_integer(checker, instance)
-        or isinstance(instance, float) and instance.is_integer()
+        or (isinstance(instance, float) and instance.is_integer())
     ),
 )
 draft7_type_checker = draft6_type_checker

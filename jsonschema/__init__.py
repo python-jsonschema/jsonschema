@@ -106,12 +106,12 @@ def __getattr__(name):
 
 
 __all__ = [
-    "Draft201909Validator",
-    "Draft202012Validator",
     "Draft3Validator",
     "Draft4Validator",
     "Draft6Validator",
     "Draft7Validator",
+    "Draft201909Validator",
+    "Draft202012Validator",
     "FormatChecker",
     "SchemaError",
     "TypeChecker",
