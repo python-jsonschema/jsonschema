@@ -9,7 +9,8 @@ source = "vcs"
 name = "jsonschema"
 description = "An implementation of JSON Schema validation for Python"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["COPYING"]
 keywords = [
     "validation",
     "data validation",
@@ -23,7 +24,6 @@ authors = [
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.9",
