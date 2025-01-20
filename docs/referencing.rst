@@ -220,6 +220,7 @@ Here for instance we retrieve YAML documents in a way similar to the `above <ref
     JSON Schema is defined specifically for JSON, and has well-defined behavior strictly for Python objects which could have possibly existed as JSON.
 
     If you stick to the subset of YAML for which this is the case then you shouldn't have issue, but if you pass schemas (or instances) around whose structure could never have possibly existed as JSON (e.g. a mapping whose keys are not strings), all bets are off.
+    For an example on how to handle that, have a look at the `parsers/yaml.py <https://github.com/python-jsonschema/check-jsonschema/blob/main/src/check_jsonschema/parsers/yaml.py>`_ file in the check-jsonschema repository.
 
 One could similarly imagine a retrieval function which switches on whether to call ``yaml.safe_load`` or ``json.loads`` by file extension (or some more reliable mechanism) and thereby support retrieving references of various different file formats.
 
