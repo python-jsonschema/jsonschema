@@ -254,7 +254,7 @@
             {
                 "description": "Arabic-Indic digits mixed with Extended Arabic-Indic digits",
                 "comment": "https://tools.ietf.org/html/rfc5891#section-4.2.3.3 https://tools.ietf.org/html/rfc5892#appendix-A.8",
-                "data": "\u0660\u06f0",
+                "data": "\u0628\u0660\u06f0",
                 "valid": false
             },
             {
@@ -318,6 +318,11 @@
                 "description": "single label ending with digit",
                 "data": "hostnam3",
                 "valid": true
+            },
+            {
+                "description": "empty string",
+                "data": "",
+                "valid": false
             }
         ]
     }

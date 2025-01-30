@@ -120,6 +120,11 @@
                 "description": "single label ending with digit",
                 "data": "hostnam3",
                 "valid": true
+            },
+            {
+                "description": "empty string",
+                "data": "",
+                "valid": false
             }
         ]
     }

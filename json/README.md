@@ -293,7 +293,7 @@ Node-specific support is maintained in a [separate repository](https://github.co
 
 ### .NET
 
-* [JsonSchema.Net](https://github.com/gregsdennis/json-everything)
+* [JsonSchema.Net](https://github.com/json-everything/json-everything)
 * [Newtonsoft.Json.Schema](https://github.com/JamesNK/Newtonsoft.Json.Schema)
 
 ### Perl
@@ -339,6 +339,7 @@ Node-specific support is maintained in a [separate repository](https://github.co
 ### Swift
 
 * [JSONSchema](https://github.com/kylef/JSONSchema.swift)
+* [swift-json-schema](https://github.com/ajevans99/swift-json-schema)
 
 If you use it as well, please fork and send a pull request adding yourself to
 the list :).

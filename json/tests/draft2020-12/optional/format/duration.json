@@ -47,6 +47,11 @@
                 "valid": false
             },
             {
+                "description": "must start with P",
+                "data": "4DT12H30M5S",
+                "valid": false
+            },
+            {
                 "description": "no elements present",
                 "data": "P",
                 "valid": false

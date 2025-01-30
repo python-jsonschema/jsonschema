@@ -406,20 +406,6 @@
         ]
     },
     {
-        "description": "\\a is not an ECMA 262 control escape",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/next/schema",
-            "$ref": "https://json-schema.org/draft/next/schema"
-        },
-        "tests": [
-            {
-                "description": "when used as a pattern",
-                "data": { "pattern": "\\a" },
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "pattern with non-ASCII digits",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
