@@ -1,4 +1,4 @@
-file:.#egg=jsonschema
+file:.
 furo
 lxml
 sphinx!=7.2.5
@@ -8,6 +8,3 @@ sphinx-copybutton
 sphinx-json-schema-spec
 sphinxcontrib-spelling
 sphinxext-opengraph
-
-# Until pyenchant/pyenchant#302 is released...
-pyenchant>=3.3.0rc1
