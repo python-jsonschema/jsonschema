@@ -1,5 +1,5 @@
 {
-    "$id": "http://localhost:1234/ref-and-definitions.json",
+    "$id": "http://localhost:1234/draft6/ref-and-definitions.json",
     "definitions": {
         "inner": {
             "properties": {
