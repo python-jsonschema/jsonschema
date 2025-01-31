@@ -47,6 +47,18 @@ jobs:
             noxenv: "tests-3.13(no-extras)"
             posargs: coverage github
         exclude:
+          - os: macos-latest
+            noxenv: "docs(dirhtml)"
+          - os: macos-latest
+            noxenv: "docs(doctest)"
+          - os: macos-latest
+            noxenv: "docs(linkcheck)"
+          - os: macos-latest
+            noxenv: "docs(man)"
+          - os: macos-latest
+            noxenv: "docs(spelling)"
+          - os: macos-latest
+            noxenv: "docs(style)"
           - os: windows-latest
             noxenv: "docs(dirhtml)"
           - os: windows-latest
