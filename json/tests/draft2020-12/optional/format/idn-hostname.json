@@ -331,6 +331,11 @@
                 "description": "empty string",
                 "data": "",
                 "valid": false
+            },
+            {
+                "description": "single dot",
+                "data": ".",
+                "valid": false
             }
         ]
     }
