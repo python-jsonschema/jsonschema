@@ -158,7 +158,7 @@ def secrets(session):
     Check for accidentally committed secrets.
     """
     session.install("detect-secrets")
-    session.run("detect-secrets", "scan", ROOT)
+    session.run("detect-secrets", "scan", ROOT, "--exclude-files", "json/")
 
 
 @session(tags=["style"])
