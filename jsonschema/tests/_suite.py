@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any
 import json
 import os
 import re
-import subprocess
 import sys
 import unittest
 
@@ -21,10 +20,13 @@ import referencing.jsonschema
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
 
+    from referencing.jsonschema import Schema
     import pyperf
 
 from jsonschema.validators import _VALIDATORS
 import jsonschema
+
+MAGIC_REMOTE_URL = "http://localhost:1234"
 
 _DELIMITERS = re.compile(r"[\W\- ]+")
 
@@ -51,38 +53,7 @@ def _find_suite():
 class Suite:
 
     _root: Path = field(factory=_find_suite)
-    _remotes: referencing.jsonschema.SchemaRegistry = field(init=False)
 
-    def __attrs_post_init__(self):
-        jsonschema_suite = self._root.joinpath("bin", "jsonschema_suite")
-        argv = [sys.executable, str(jsonschema_suite), "remotes"]
-        remotes = subprocess.check_output(argv).decode("utf-8")
-
-        resources = json.loads(remotes)
-
-        li = "http://localhost:1234/locationIndependentIdentifierPre2019.json"
-        li4 = "http://localhost:1234/locationIndependentIdentifierDraft4.json"
-
-        registry = Registry().with_resources(
-            [
-                (
-                    li,
-                    referencing.jsonschema.DRAFT7.create_resource(
-                        contents=resources.pop(li),
-                    ),
-                ),
-                (
-                    li4,
-                    referencing.jsonschema.DRAFT4.create_resource(
-                        contents=resources.pop(li4),
-                    ),
-                ),
-            ],
-        ).with_contents(
-            resources.items(),
-            default_specification=referencing.jsonschema.DRAFT202012,
-        )
-        object.__setattr__(self, "_remotes", registry)
 
     def benchmark(self, runner: pyperf.Runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
@@ -92,10 +63,18 @@ class Suite:
             )
 
     def version(self, name) -> Version:
+        Validator = _VALIDATORS[name]
+        uri: str = Validator.ID_OF(Validator.META_SCHEMA)  # type: ignore[assignment]
+        specification = referencing.jsonschema.specification_with(uri)
+
+        registry = Registry().with_contents(
+            remotes_in(root=self._root / "remotes", name=name, uri=uri),
+            default_specification=specification,
+        )
         return Version(
             name=name,
             path=self._root / "tests" / name,
-            remotes=self._remotes,
+            remotes=registry,
         )
 
 
@@ -185,6 +164,36 @@ class _Case:
                 test.fully_qualified_name,
                 partial(test.validate_ignoring_errors, **kwargs),
             )
+
+
+def remotes_in(
+    root: Path,
+    name: str,
+    uri: str,
+) -> Iterable[tuple[str, Schema]]:
+    # This messy logic is because the test suite is terrible at indicating
+    # what remotes are needed for what drafts, and mixes in schemas which
+    # have no $schema and which are invalid under earlier versions, in with
+    # other schemas which are needed for tests.
+
+    for each in root.rglob("*.json"):
+        schema = json.loads(each.read_text())
+
+        relative = str(each.relative_to(root)).replace("\\", "/")
+
+        if (
+            ( # invalid boolean schema
+                name in {"draft3", "draft4"}
+                and each.stem == "tree"
+            ) or
+            (  # draft<NotThisDialect>/*.json
+                "$schema" not in schema
+                and relative.startswith("draft")
+                and not relative.startswith(name)
+            )
+        ):
+            continue
+        yield f"{MAGIC_REMOTE_URL}/{relative}", schema
 
 
 @frozen(repr=False)
