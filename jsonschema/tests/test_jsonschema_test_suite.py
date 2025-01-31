@@ -26,6 +26,11 @@ def skip(message, **kwargs):
     return skipper
 
 
+def ecmascript_regex(test):
+    if test.subject == "ecmascript-regex":
+        return "ECMA regex support will be added in #1142."
+
+
 def missing_format(Validator):
     def missing_format(test):  # pragma: no cover
         schema = test.schema
@@ -119,7 +124,8 @@ TestDraft3 = DRAFT3.to_unittest_testcase(
     Validator=jsonschema.Draft3Validator,
     format_checker=jsonschema.Draft3Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        missing_format(jsonschema.Draft3Validator)(test)
+        ecmascript_regex(test)
+        or missing_format(jsonschema.Draft3Validator)(test)
         or complex_email_validation(test)
     ),
 )
@@ -136,7 +142,8 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
     Validator=jsonschema.Draft4Validator,
     format_checker=jsonschema.Draft4Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        leap_second(test)
+        ecmascript_regex(test)
+        or leap_second(test)
         or missing_format(jsonschema.Draft4Validator)(test)
         or complex_email_validation(test)
     ),
@@ -153,7 +160,8 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
     Validator=jsonschema.Draft6Validator,
     format_checker=jsonschema.Draft6Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        leap_second(test)
+        ecmascript_regex(test)
+        or leap_second(test)
         or missing_format(jsonschema.Draft6Validator)(test)
         or complex_email_validation(test)
     ),
@@ -172,7 +180,8 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
     Validator=jsonschema.Draft7Validator,
     format_checker=jsonschema.Draft7Validator.FORMAT_CHECKER,
     skip=lambda test: (
-        leap_second(test)
+        ecmascript_regex(test)
+        or leap_second(test)
         or missing_format(jsonschema.Draft7Validator)(test)
         or complex_email_validation(test)
     ),
@@ -208,6 +217,7 @@ TestDraft201909Format = DRAFT201909.to_unittest_testcase(
     format_checker=jsonschema.Draft201909Validator.FORMAT_CHECKER,
     skip=lambda test: (
         complex_email_validation(test)
+        or ecmascript_regex(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft201909Validator)(test)
         or complex_email_validation(test)
@@ -244,6 +254,7 @@ TestDraft202012Format = DRAFT202012.to_unittest_testcase(
     format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER,
     skip=lambda test: (
         complex_email_validation(test)
+        or ecmascript_regex(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft202012Validator)(test)
         or complex_email_validation(test)
