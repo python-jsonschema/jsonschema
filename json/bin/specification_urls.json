@@ -28,7 +28,7 @@
   "external": {
     "ecma262": "https://262.ecma-international.org/{section}",
     "perl5": "https://perldoc.perl.org/perlre#{section}",
-    "rfc": "https://www.rfc-editor.org/rfc/{spec}.txt#{section}",
+    "rfc": "https://www.rfc-editor.org/rfc/rfc{spec}.html#section-{section}",
     "iso": "https://www.iso.org/obp/ui"
   }
 }
