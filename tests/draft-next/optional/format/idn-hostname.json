@@ -331,11 +331,58 @@
                 "description": "empty string",
                 "data": "",
                 "valid": false
-            },
+            }
+        ]
+    },
+    {
+        "description": "validation of separators in internationalized host names",
+        "specification": [
+            {"rfc3490": "3.1", "quote": "Whenever dots are used as label separators, the following characters MUST be recognized as dots: U+002E (full stop), U+3002 (ideographic full stop), U+FF0E (fullwidth full stop), U+FF61(halfwidth ideographic full stop)"}
+        ],
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "format": "idn-hostname"
+        },
+        "tests": [
             {
                 "description": "single dot",
                 "data": ".",
                 "valid": false
+            },
+            {
+                "description": "single ideographic full stop",
+                "data": "\u3002",
+                "valid": false
+            },
+            {
+                "description": "single fullwidth full stop",
+                "data": "\uff0e",
+                "valid": false
+            },
+            {
+                "description": "single halfwidth ideographic full stop",
+                "data": "\uff61",
+                "valid": false
+            },
+            {
+                "description": "dot as label separator",
+                "data": "a.b",
+                "valid": true
+            },
+            {
+                "description": "ideographic full stop as label separator",
+                "data": "a\u3002b",
+                "valid": true
+            },
+            {
+                "description": "fullwidth full stop as label separator",
+                "data": "a\uff0eb",
+                "valid": true
+            },
+            {
+                "description": "halfwidth ideographic full stop as label separator",
+                "data": "a\uff61b",
+                "valid": true
             }
         ]
     }

@@ -61,6 +61,18 @@ def line_number_of(path: Path, case: dict[str, Any]) -> int:
             1,
         )
 
+def extract_kind_and_spec(key: str) -> (str, str):
+    """
+    Extracts specification number and kind from the defined key
+    """
+    can_have_spec = ["rfc", "iso"]
+    if not any(key.startswith(el) for el in can_have_spec):
+        return key, ""
+    number = re.search(r"\d+", key)
+    spec = "" if number is None else number.group(0)
+    kind = key.removesuffix(spec)
+    return kind, spec
+
 
 def main():
     # Clear annotations which may have been emitted by a previous run.
@@ -82,20 +94,33 @@ def main():
                     line=error.lineno,
                     col=error.pos + 1,
                     title=str(error),
+                    message=f"cannot load {path}"
                 )
                 sys.stdout.write(error)
+                continue
 
             for test_case in contents:
                 specifications = test_case.get("specification")
                 if specifications is not None:
                     for each in specifications:
                         quote = each.pop("quote", "")
-                        (kind, section), = each.items()
+                        (key, section), = each.items()
 
-                        number = re.search(r"\d+", kind)
-                        spec = "" if number is None else number.group(0)
+                        (kind, spec) = extract_kind_and_spec(key)
 
-                        url = version_urls[kind].expand(
+                        url_template = version_urls[kind]
+                        if url_template is None:
+                            error = annotation(
+                                level="error",
+                                path=path,
+                                line=line_number_of(path, test_case),
+                                title=f"unsupported template '{kind}'",
+                                message=f"cannot find a URL template for '{kind}'"
+                            )
+                            sys.stdout.write(error)
+                            continue
+
+                        url = url_template.expand(
                             spec=spec,
                             section=section,
                         )
