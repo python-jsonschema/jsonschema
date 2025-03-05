@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Iterable, Mapping, Sequence
-import copy
 from functools import lru_cache
 from operator import methodcaller
 from typing import TYPE_CHECKING
@@ -13,6 +12,7 @@ from urllib.parse import unquote, urldefrag, urljoin, urlsplit
 from urllib.request import urlopen
 from warnings import warn
 import contextlib
+import copy
 import json
 import reprlib
 import warnings

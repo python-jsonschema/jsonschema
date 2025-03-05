@@ -296,6 +296,7 @@ class MutatingValidator(Exception):
     """
     A validator mutated the instance.
     """
+
     def __init__(self, validator: Any) -> None:
         self.validator = validator
 
