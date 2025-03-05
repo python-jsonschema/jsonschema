@@ -292,6 +292,20 @@ class UnknownType(Exception):
         )
 
 
+class MutatingValidator(Exception):
+    """
+    A validator mutated the instance.
+    """
+    def __init__(self, validator: Any) -> None:
+        self.validator = validator
+
+    def __str__(self) -> str:
+        return (
+            f"Validator {self.validator!r} mutated the instance. "
+            f"This can cause failures for later validators."
+        )
+
+
 class FormatError(Exception):
     """
     Validating a format failed.
