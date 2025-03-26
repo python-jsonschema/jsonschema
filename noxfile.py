@@ -29,6 +29,7 @@ NONGPL_LICENSES = [
     "Apache Software License",
     "BSD License",
     "ISC License (ISCL)",
+    "MIT",
     "MIT License",
     "Mozilla Public License 2.0 (MPL 2.0)",
     "Python Software Foundation License",
