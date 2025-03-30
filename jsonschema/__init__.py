@@ -22,6 +22,10 @@ from jsonschema.validators import (
     Draft202012Validator,
     validate,
 )
+from jsonschema.custom_validators import (
+    CustomValidator,
+    custom_validate,
+)
 
 
 def __getattr__(name):
@@ -117,4 +121,6 @@ __all__ = [
     "TypeChecker",
     "ValidationError",
     "validate",
+    "CustomValidator",
+    "custom_validate",
 ]
