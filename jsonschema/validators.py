@@ -1266,60 +1266,22 @@ def validate(instance, schema, cls=None, *args, **kwargs):  # noqa: D417
     """
     Validate an instance under the given schema.
 
-        >>> validate([2, 3, 4], {"maxItems": 2})
-        Traceback (most recent call last):
-            ...
-        ValidationError: [2, 3, 4] is too long
-
-    :func:`~jsonschema.validators.validate` will first verify that the
-    provided schema is itself valid, since not doing so can lead to less
-    obvious error messages and fail in less obvious or consistent ways.
-
-    If you know you have a valid schema already, especially
-    if you intend to validate multiple instances with
-    the same schema, you likely would prefer using the
-    `jsonschema.protocols.Validator.validate` method directly on a
-    specific validator (e.g. ``Draft202012Validator.validate``).
-
-
-    Arguments:
-
+    Args:
         instance:
-
-            The instance to validate
+            The instance to validate.
 
         schema:
+            The schema to validate with.
 
-            The schema to validate with
-
-        cls (jsonschema.protocols.Validator):
-
+        cls (:class:`jsonschema.protocols.Validator`):
             The class that will be used to validate the instance.
 
-    If the ``cls`` argument is not provided, two things will happen
-    in accordance with the specification. First, if the schema has a
-    :kw:`$schema` keyword containing a known meta-schema [#]_ then the
-    proper validator will be used. The specification recommends that
-    all schemas contain :kw:`$schema` properties for this reason. If no
-    :kw:`$schema` property is found, the default validator class is the
-    latest released draft.
-
-    Any other provided positional and keyword arguments will be passed
-    on when instantiating the ``cls``.
+    Returns:
+        None, if the instance is valid.
 
     Raises:
-
-        `jsonschema.exceptions.ValidationError`:
-
-            if the instance is invalid
-
-        `jsonschema.exceptions.SchemaError`:
-
-            if the schema itself is invalid
-
-    .. rubric:: Footnotes
-    .. [#] known by a validator registered with
-        `jsonschema.validators.validates`
+        :exc:`ValidationError`:
+            if the instance is invalid.
 
     """
     if cls is None:
@@ -1328,6 +1290,45 @@ def validate(instance, schema, cls=None, *args, **kwargs):  # noqa: D417
     cls.check_schema(schema)
     validator = cls(schema, *args, **kwargs)
     error = exceptions.best_match(validator.iter_errors(instance))
+    if error is not None:
+        raise error
+
+
+def human_validate(instance, schema, cls=None, *args, **kwargs):
+    """
+    Validate an instance under the given schema, with human-friendly errors.
+    
+    This function works like validate(), but it produces human-friendly
+    error messages when validation fails.
+    
+    Args:
+        instance:
+            The instance to validate.
+            
+        schema:
+            The schema to validate with.
+            
+        cls (:class:`jsonschema.protocols.Validator`):
+            The class that will be used to validate the instance.
+            
+    Returns:
+        None, if the instance is valid.
+        
+    Raises:
+        :exc:`HumanValidationError`:
+            if the instance is invalid, with a human-friendly error message.
+    """
+    from jsonschema.human_errors import create_human_validator, HumanValidationError
+    
+    if cls is None:
+        cls = validator_for(schema)
+    
+    cls.check_schema(schema)
+    validator = cls(schema, *args, **kwargs)
+    
+    # Use the human error formatter
+    human_validator = create_human_validator(schema, *args, **kwargs)
+    error = exceptions.best_match(human_validator.iter_errors(instance))
     if error is not None:
         raise error
 

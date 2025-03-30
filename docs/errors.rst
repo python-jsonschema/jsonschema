@@ -405,3 +405,69 @@ to guess the most relevant error in a given bunch.
 
 .. autofunction:: by_relevance
     :noindex:
+
+Human-Friendly Error Messages
+----------------------------
+
+Sometimes the default validation error messages can be too technical for end users. 
+To help with this, jsonschema provides a way to convert validation errors into more 
+human-friendly messages.
+
+.. testcode::
+
+    from jsonschema import human_validate
+    
+    try:
+        human_validate({"age": "twenty"}, {"properties": {"age": {"type": "integer"}}})
+    except Exception as e:
+        print(e)
+
+outputs:
+
+.. testoutput::
+
+    Expected whole number, but got "twenty" at '$.age'
+
+You can use these functions to work with human-friendly validation errors:
+
+.. function:: human_validate(instance, schema, cls=None, *args, **kwargs)
+
+    Like :func:`jsonschema.validate`, but with human-friendly error messages.
+
+.. function:: humanize_error(error)
+
+    Convert a ValidationError into a user-friendly message.
+
+.. function:: enable_human_errors(validator_class)
+
+    Modify a validator class to use human-friendly error messages.
+
+.. function:: create_human_validator(schema, *args, **kwargs)
+
+    Create a validator that uses human-friendly error messages.
+
+.. function:: apply_to_all_validators()
+
+    Patch all validator classes to use human-friendly error messages.
+
+For example, you could convert a technical error into a user-friendly one:
+
+.. testcode::
+
+    from jsonschema import validate, humanize_error
+    
+    schema = {"type": "object", "required": ["name", "email"]}
+    data = {"name": "John"}
+    
+    try:
+        validate(data, schema)
+    except Exception as e:
+        print("Technical error:", e)
+        print("User-friendly error:", humanize_error(e))
+
+outputs:
+
+.. testoutput::
+
+    Technical error: 'email' is a required property
+    User-friendly error: Missing required field: 'email'

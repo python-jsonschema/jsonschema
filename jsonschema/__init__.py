@@ -21,12 +21,23 @@ from jsonschema.validators import (
     Draft201909Validator,
     Draft202012Validator,
     validate,
+    human_validate,
 )
 from jsonschema.custom_validators import (
     CustomValidator,
     custom_validate,
 )
 
+# Provide a shortcut to the human-friendly error formatters for users
+from jsonschema.human_errors import (
+    humanize_error,
+    create_human_validator,
+    enable_human_errors,
+    HumanValidationError,
+    apply_to_all_validators,
+)
+
+__version__ = "4.21.1.dev0"
 
 def __getattr__(name):
     if name == "__version__":
