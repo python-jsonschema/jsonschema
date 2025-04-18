@@ -1,3 +1,4 @@
+from decimal import Decimal
 from fractions import Fraction
 import re
 
@@ -169,7 +170,7 @@ def multipleOf(validator, dB, instance, schema):
         return
 
     if isinstance(dB, float):
-        quotient = instance / dB
+        quotient = Decimal(str(instance)) / Decimal(str(dB))
         try:
             failed = int(quotient) != quotient
         except OverflowError:
