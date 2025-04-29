@@ -126,6 +126,7 @@ def license_check(session):
         # because pip-licenses doesn't yet support PEP 639 :/
         "attrs",
         "jsonschema",
+        "jsonschema-specifications",
         "referencing",
 
         "--allow-only",
