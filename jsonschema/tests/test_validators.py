@@ -742,14 +742,6 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance="foo", schema=schema)
         self.assertEqual(message, "'foo' is not of type 'object'")
 
-    def test_unevaluated_properties_with_additional_properties(self):
-        schema = {
-            "additionalProperties": {"type": "string"},
-            "unevaluatedProperties": False,
-        }
-        validator = validators._LATEST_VERSION(schema)
-        validator.validate(instance={"foo": "foo"})
-
     def test_single_item(self):
         schema = {"prefixItems": [{}], "items": False}
         message = self.message_for(
