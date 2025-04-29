@@ -302,18 +302,18 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
             ),
         )
 
-    for keyword in [
-        "properties", "additionalProperties", "unevaluatedProperties",
-    ]:
-        if keyword in schema:
-            schema_value = schema[keyword]
-            if validator.is_type(schema_value, "boolean") and schema_value:
-                evaluated_keys += instance.keys()
+    properties = schema.get("properties")
+    if validator.is_type(properties, "object"):
+        evaluated_keys += properties.keys() & instance.keys()
 
-            elif validator.is_type(schema_value, "object"):
-                for property in schema_value:
-                    if property in instance:
-                        evaluated_keys.append(property)
+    for keyword in ["additionalProperties", "unevaluatedProperties"]:
+        if (subschema := schema.get(keyword)) is None:
+            continue
+        evaluated_keys += (
+            key
+            for key, value in instance.items()
+            if is_valid(validator.descend(value, subschema))
+        )
 
     if "patternProperties" in schema:
         for property in instance:
