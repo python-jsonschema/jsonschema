@@ -1,10 +1,10 @@
 {
-    "definitions": {
+    "$defs": {
         "integer": {
             "type": "integer"
         },
         "refToInteger": {
-            "$ref": "#/definitions/integer"
+            "$ref": "#/$defs/integer"
         }
     }
 }

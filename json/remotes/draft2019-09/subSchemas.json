@@ -1,11 +1,9 @@
 {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "$defs": {
-        "integer": {
-            "type": "integer"
-        },
-        "refToInteger": {
-            "$ref": "#/$defs/integer"
-        }
+    "integer": {
+        "type": "integer"
+    },
+    "refToInteger": {
+        "$ref": "#/integer"
     }
 }
