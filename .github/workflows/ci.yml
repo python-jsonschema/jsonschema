@@ -93,7 +93,7 @@ jobs:
             3.11
             3.12
             3.13
-            pypy3.10
+            pypy3.11
           allow-prereleases: true
       - name: Enable UTF-8 on Windows
         run: echo "PYTHONUTF8=1" >> $env:GITHUB_ENV
