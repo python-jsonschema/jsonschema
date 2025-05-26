@@ -716,6 +716,102 @@
         ]
     },
     {
+        "description": "unevaluatedProperties before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "type": "object",
+            "unevaluatedProperties": false,
+            "properties": {
+                "foo": { "type": "string" }
+            },
+            "$ref": "#/$defs/bar",
+            "$defs": {
+                "bar": {
+                    "properties": {
+                        "bar": { "type": "string" }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": true
+            },
+            {
+                "description": "with unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties with $recursiveRef",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$id": "https://example.com/unevaluated-properties-with-recursive-ref/extended-tree",
+
+            "$recursiveAnchor": true,
+
+            "$ref": "./tree",
+            "properties": {
+                "name": { "type": "string" }
+            },
+
+            "$defs": {
+                "tree": {
+                    "$id": "./tree",
+                    "$recursiveAnchor": true,
+
+                    "type": "object",
+                    "properties": {
+                        "node": true,
+                        "branches": {
+                            "$comment": "unevaluatedProperties comes first so it's more likely to bugs errors with implementations that are sensitive to keyword ordering",
+                            "unevaluatedProperties": false,
+                            "$recursiveRef": "#"
+                        }
+                    },
+                    "required": ["node"]
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated properties",
+                "data": {
+                    "name": "a",
+                    "node": 1,
+                    "branches": {
+                      "name": "b",
+                      "node": 2
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "with unevaluated properties",
+                "data": {
+                    "name": "a",
+                    "node": 1,
+                    "branches": {
+                      "foo": "b",
+                      "node": 2
+                    }
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedProperties can't see inside cousins",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -1469,6 +1565,39 @@
                     "bar": "a"
                 },
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "dependentSchemas with unevaluatedProperties",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "properties": {"foo2": {}},
+            "dependentSchemas": {
+                "foo" : {},
+                "foo2": {
+                    "properties": {
+                        "bar":{}
+                    }
+                }
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "unevaluatedProperties doesn't consider dependentSchemas",
+                "data": {"foo": ""},
+                "valid": false
+            },
+            {
+                "description": "unevaluatedProperties doesn't see bar when foo2 is absent",
+                "data": {"bar": ""},
+                "valid": false
+            },
+            {
+                "description": "unevaluatedProperties sees bar when foo2 is present",
+                "data": { "foo2": "", "bar": ""},
+                "valid": true
             }
         ]
     }

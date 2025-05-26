@@ -257,7 +257,7 @@
             {
                 "description": "Arabic-Indic digits mixed with Extended Arabic-Indic digits",
                 "comment": "https://tools.ietf.org/html/rfc5891#section-4.2.3.3 https://tools.ietf.org/html/rfc5892#appendix-A.8",
-                "data": "\u0660\u06f0",
+                "data": "\u0628\u0660\u06f0",
                 "valid": false
             },
             {
@@ -300,6 +300,88 @@
                 "description": "ZERO WIDTH NON-JOINER not preceded by Virama but matches regexp",
                 "comment": "https://tools.ietf.org/html/rfc5891#section-4.2.3.3 https://tools.ietf.org/html/rfc5892#appendix-A.1 https://www.w3.org/TR/alreq/#h_disjoining_enforcement",
                 "data": "\u0628\u064a\u200c\u0628\u064a",
+                "valid": true
+            },
+            {
+                "description": "single label",
+                "data": "hostname",
+                "valid": true
+            },
+            {
+                "description": "single label with hyphen",
+                "data": "host-name",
+                "valid": true
+            },
+            {
+                "description": "single label with digits",
+                "data": "h0stn4me",
+                "valid": true
+            },
+            {
+                "description": "single label starting with digit",
+                "data": "1host",
+                "valid": true
+            },
+            {
+                "description": "single label ending with digit",
+                "data": "hostnam3",
+                "valid": true
+            },
+            {
+                "description": "empty string",
+                "data": "",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "validation of separators in internationalized host names",
+        "specification": [
+            {"rfc3490": "3.1", "quote": "Whenever dots are used as label separators, the following characters MUST be recognized as dots: U+002E (full stop), U+3002 (ideographic full stop), U+FF0E (fullwidth full stop), U+FF61(halfwidth ideographic full stop)"}
+        ],
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "format": "idn-hostname"
+        },
+        "tests": [
+            {
+                "description": "single dot",
+                "data": ".",
+                "valid": false
+            },
+            {
+                "description": "single ideographic full stop",
+                "data": "\u3002",
+                "valid": false
+            },
+            {
+                "description": "single fullwidth full stop",
+                "data": "\uff0e",
+                "valid": false
+            },
+            {
+                "description": "single halfwidth ideographic full stop",
+                "data": "\uff61",
+                "valid": false
+            },
+            {
+                "description": "dot as label separator",
+                "data": "a.b",
+                "valid": true
+            },
+            {
+                "description": "ideographic full stop as label separator",
+                "data": "a\u3002b",
+                "valid": true
+            },
+            {
+                "description": "fullwidth full stop as label separator",
+                "data": "a\uff0eb",
+                "valid": true
+            },
+            {
+                "description": "halfwidth ideographic full stop as label separator",
+                "data": "a\uff61b",
                 "valid": true
             }
         ]

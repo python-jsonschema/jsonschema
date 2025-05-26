@@ -1,0 +1,34 @@
+{
+  "json-schema": {
+    "draft2020-12": {
+      "core": "https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01#section-{section}",
+      "validation": "https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-01#section-{section}"
+    },
+    "draft2019-09": {
+      "core": "https://json-schema.org/draft/2019-09/draft-handrews-json-schema-02#rfc.section.{section}",
+      "validation": "https://json-schema.org/draft/2019-09/draft-handrews-json-schema-validation-02#rfc.section.{section}"
+    },
+    "draft7": {
+      "core": "https://json-schema.org/draft-07/draft-handrews-json-schema-01#rfc.section.{section}",
+      "validation": "https://json-schema.org/draft-07/draft-handrews-json-schema-validation-01#rfc.section.{section}"
+    },
+    "draft6": {
+      "core": "https://json-schema.org/draft-06/draft-wright-json-schema-01#rfc.section.{section}",
+      "validation": "https://json-schema.org/draft-06/draft-wright-json-schema-validation-01#rfc.section.{section}"
+    },
+    "draft4": {
+      "core": "https://json-schema.org/draft-04/draft-zyp-json-schema-04#rfc.section.{section}",
+      "validation": "https://json-schema.org/draft-04/draft-fge-json-schema-validation-00#rfc.section.{section}"
+    },
+    "draft3": {
+      "core": "https://json-schema.org/draft-03/draft-zyp-json-schema-03.pdf"
+    }
+  },
+
+  "external": {
+    "ecma262": "https://262.ecma-international.org/{section}",
+    "perl5": "https://perldoc.perl.org/perlre#{section}",
+    "rfc": "https://www.rfc-editor.org/rfc/rfc{spec}.html#section-{section}",
+    "iso": "https://www.iso.org/obp/ui"
+  }
+}

@@ -17,7 +17,7 @@
     },
     {
         "description": "fragment within remote ref",
-        "schema": {"$ref": "http://localhost:1234/subSchemas.json#/integer"},
+        "schema": {"$ref": "http://localhost:1234/draft4/subSchemas.json#/definitions/integer"},
         "tests": [
             {
                 "description": "remote fragment valid",
@@ -34,7 +34,7 @@
     {
         "description": "ref within remote ref",
         "schema": {
-            "$ref": "http://localhost:1234/subSchemas.json#/refToInteger"
+            "$ref": "http://localhost:1234/draft4/subSchemas.json#/definitions/refToInteger"
         },
         "tests": [
             {
@@ -139,7 +139,7 @@
             "id": "http://localhost:1234/object",
             "type": "object",
             "properties": {
-                "name": {"$ref": "name.json#/definitions/orNull"}
+                "name": {"$ref": "draft4/name.json#/definitions/orNull"}
             }
         },
         "tests": [
@@ -171,7 +171,7 @@
     {
         "description": "Location-independent identifier in remote ref",
         "schema": {
-            "$ref": "http://localhost:1234/locationIndependentIdentifierDraft4.json#/definitions/refToInteger"
+            "$ref": "http://localhost:1234/draft4/locationIndependentIdentifier.json#/definitions/refToInteger"
         },
         "tests": [
             {

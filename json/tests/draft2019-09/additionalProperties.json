@@ -152,5 +152,62 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "additionalProperties with propertyNames",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "propertyNames": {
+                "maxLength": 5
+            },
+            "additionalProperties": {
+                "type": "number"
+            }
+        },
+        "tests": [
+            {
+                "description": "Valid against both keywords",
+                "data": { "apple": 4 },
+                "valid": true
+            },
+            {
+                "description": "Valid against propertyNames, but not additionalProperties",
+                "data": { "fig": 2, "pear": "available" },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "dependentSchemas with additionalProperties",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "properties": {"foo2": {}},
+            "dependentSchemas": {
+                "foo" : {},
+                "foo2": {
+                    "properties": {
+                        "bar":{}
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "tests": [
+            {
+                "description": "additionalProperties doesn't consider dependentSchemas",
+                "data": {"foo": ""},
+                "valid": false
+            },
+            {
+                "description": "additionalProperties can't see bar",
+                "data": {"bar": ""},
+                "valid": false
+            },
+            {
+                "description": "additionalProperties can't see bar even when foo2 is present",
+                "data": { "foo2": "", "bar": ""},
+                "valid": false
+            }
+        ]
     }
 ]
