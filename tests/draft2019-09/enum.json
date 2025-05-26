@@ -169,6 +169,30 @@
         ]
     },
     {
+        "description": "enum with [false] does not match [0]",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "enum": [[false]]
+        },
+        "tests": [
+            {
+                "description": "[false] is valid",
+                "data": [false],
+                "valid": true
+            },
+            {
+                "description": "[0] is invalid",
+                "data": [0],
+                "valid": false
+            },
+            {
+                "description": "[0.0] is invalid",
+                "data": [0.0],
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "enum with true does not match 1",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -188,6 +212,30 @@
             {
                 "description": "float one is invalid",
                 "data": 1.0,
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "enum with [true] does not match [1]",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "enum": [[true]]
+        },
+        "tests": [
+            {
+                "description": "[true] is valid",
+                "data": [true],
+                "valid": true
+            },
+            {
+                "description": "[1] is invalid",
+                "data": [1],
+                "valid": false
+            },
+            {
+                "description": "[1.0] is invalid",
+                "data": [1.0],
                 "valid": false
             }
         ]
@@ -217,6 +265,30 @@
         ]
     },
     {
+        "description": "enum with [0] does not match [false]",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "enum": [[0]]
+        },
+        "tests": [
+            {
+                "description": "[false] is invalid",
+                "data": [false],
+                "valid": false
+            },
+            {
+                "description": "[0] is valid",
+                "data": [0],
+                "valid": true
+            },
+            {
+                "description": "[0.0] is valid",
+                "data": [0.0],
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "enum with 1 does not match true",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",
@@ -236,6 +308,30 @@
             {
                 "description": "float one is valid",
                 "data": 1.0,
+                "valid": true
+            }
+        ]
+    },
+    {
+        "description": "enum with [1] does not match [true]",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "enum": [[1]]
+        },
+        "tests": [
+            {
+                "description": "[true] is invalid",
+                "data": [true],
+                "valid": false
+            },
+            {
+                "description": "[1] is valid",
+                "data": [1],
+                "valid": true
+            },
+            {
+                "description": "[1.0] is valid",
+                "data": [1.0],
                 "valid": true
             }
         ]

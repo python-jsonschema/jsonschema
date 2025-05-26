@@ -6,6 +6,7 @@
         "https://json-schema.org/draft/next/vocab/core": true,
         "http://localhost:1234/draft/next/vocab/custom": false
     },
+    "$dynamicAnchor": "meta",
     "allOf": [
         { "$ref": "https://json-schema.org/draft/next/meta/validation" },
         { "$ref": "https://json-schema.org/draft/next/meta/core" }

@@ -15,16 +15,6 @@
                 "description": "two items still valid against lone maxContains",
                 "data": [1, 2],
                 "valid": true
-            },
-            {
-                "description": "one property valid against lone maxContains",
-                "data": { "a": 1 },
-                "valid": true
-            },
-            {
-                "description": "two properties still valid against lone maxContains",
-                "data": { "a": 1, "b": 2 },
-                "valid": true
             }
         ]
     },
@@ -59,31 +49,6 @@
             {
                 "description": "some elements match, invalid maxContains",
                 "data": [1, 2, 1],
-                "valid": false
-            },
-            {
-                "description": "empty object",
-                "data": {},
-                "valid": false
-            },
-            {
-                "description": "all properties match, valid maxContains",
-                "data": { "a": 1 },
-                "valid": true
-            },
-            {
-                "description": "all properties match, invalid maxContains",
-                "data": { "a": 1, "b": 1 },
-                "valid": false
-            },
-            {
-                "description": "some properties match, valid maxContains",
-                "data": { "a": 1, "b": 2 },
-                "valid": true
-            },
-            {
-                "description": "some properties match, invalid maxContains",
-                "data": { "a": 1, "b": 2, "c": 1 },
                 "valid": false
             }
         ]
@@ -130,21 +95,6 @@
             {
                 "description": "array with minContains < maxContains < actual",
                 "data": [1, 1, 1, 1],
-                "valid": false
-            },
-            {
-                "description": "object with actual < minContains < maxContains",
-                "data": {},
-                "valid": false
-            },
-            {
-                "description": "object with minContains < actual < maxContains",
-                "data": { "a": 1, "b": 1 },
-                "valid": true
-            },
-            {
-                "description": "object with minContains < maxContains < actual",
-                "data": { "a": 1, "b": 1, "c": 1, "d": 1 },
                 "valid": false
             }
         ]

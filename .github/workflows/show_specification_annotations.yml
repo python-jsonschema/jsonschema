@@ -1,0 +1,21 @@
+name: Show Specification Annotations
+
+on:
+  pull_request:
+    paths:
+      - 'tests/**'
+
+jobs:
+  annotate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate Annotations
+        run: pip install uritemplate && bin/annotate-specification-links

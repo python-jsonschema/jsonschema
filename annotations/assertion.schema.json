@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+
+  "type": "object",
+  "properties": {
+    "location": {
+      "markdownDescription": "The instance location.",
+      "type": "string",
+      "format": "json-pointer"
+    },
+    "keyword": {
+      "markdownDescription": "The annotation keyword.",
+      "type": "string"
+    },
+    "expected": {
+      "markdownDescription": "An object of schemaLocation/annotations pairs for `keyword` annotations expected on the instance at `location`.",
+      "type": "object",
+      "propertyNames": {
+        "format": "uri"
+      }
+    }
+  },
+  "required": ["location", "keyword", "expected"]
+}

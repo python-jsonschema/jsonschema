@@ -57,6 +57,11 @@
                 "description": "exceeds maximum label length",
                 "data": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijkl.com",
                 "valid": false
+            },
+            {
+                "description": "empty string",
+                "data": "",
+                "valid": false
             }
         ]
     }

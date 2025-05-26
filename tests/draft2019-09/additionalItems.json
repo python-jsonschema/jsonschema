@@ -183,6 +183,26 @@
         ]
     },
     {
+        "description": "additionalItems with heterogeneous array",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "items": [{}],
+            "additionalItems": false
+        },
+        "tests": [
+            {
+                "description": "heterogeneous invalid instance",
+                "data": [ "foo", "bar", 37 ],
+                "valid": false
+            },
+            {
+                "description": "valid instance",
+                "data": [ null ],
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "additionalItems with null instance elements",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",

@@ -1,0 +1,150 @@
+{
+  "$schema": "../test-suite.schema.json",
+  "description": "The meta-data vocabulary",
+  "suite": [
+    {
+      "description": "`title` is an annotation",
+      "schema": {
+        "title": "Foo"
+      },
+      "tests": [
+        {
+          "instance": 42,
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "title",
+              "expected": {
+                "#": "Foo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`description` is an annotation",
+      "schema": {
+        "description": "Foo"
+      },
+      "tests": [
+        {
+          "instance": 42,
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "description",
+              "expected": {
+                "#": "Foo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`default` is an annotation",
+      "schema": {
+        "default": "Foo"
+      },
+      "tests": [
+        {
+          "instance": 42,
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "default",
+              "expected": {
+                "#": "Foo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`deprecated` is an annotation",
+      "compatibility": "2019",
+      "schema": {
+        "deprecated": true
+      },
+      "tests": [
+        {
+          "instance": 42,
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "deprecated",
+              "expected": {
+                "#": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`readOnly` is an annotation",
+      "compatibility": "7",
+      "schema": {
+        "readOnly": true
+      },
+      "tests": [
+        {
+          "instance": 42,
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "readOnly",
+              "expected": {
+                "#": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`writeOnly` is an annotation",
+      "compatibility": "7",
+      "schema": {
+        "writeOnly": true
+      },
+      "tests": [
+        {
+          "instance": 42,
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "writeOnly",
+              "expected": {
+                "#": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`examples` is an annotation",
+      "compatibility": "6",
+      "schema": {
+        "examples": ["Foo", "Bar"]
+      },
+      "tests": [
+        {
+          "instance": "Foo",
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "examples",
+              "expected": {
+                "#": ["Foo", "Bar"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

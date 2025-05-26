@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+
+  "type": "object",
+  "properties": {
+    "description": {
+      "markdownDescription": "A short description of what behavior the Test Case is covering.",
+      "type": "string"
+    },
+    "compatibility": {
+      "markdownDescription": "Set which dialects the Test Case is compatible with. Examples:\n- `\"7\"` -- draft-07 and above\n- `\"<=2019\"` -- 2019-09 and previous\n- `\"6,<=2019\"` -- Between draft-06 and 2019-09\n- `\"=2020\"` -- 2020-12 only",
+      "type": "string",
+      "pattern": "^(<=|=)?([123467]|2019|2020)(,(<=|=)?([123467]|2019|2020))*$"
+    },
+    "schema": {
+      "markdownDescription": "This schema shouldn't include `$schema` or `id`/`$id` unless necesary for the test because Test Cases should be designed to work with as many releases as possible.",
+      "type": ["boolean", "object"]
+    },
+    "externalSchemas": {
+      "markdownDescription": "The keys are retrieval URIs and values are schemas.",
+      "type": "object",
+      "patternProperties": {
+        "": {
+          "type": ["boolean", "object"]
+        }
+      },
+      "propertyNames": {
+        "format": "uri"
+      }
+    },
+    "tests": {
+      "markdownDescription": "A collection of Tests to run to verify the Test Case.",
+      "type": "array",
+      "items": { "$ref": "./test.schema.json" }
+    }
+  },
+  "required": ["description", "schema", "tests"]
+}

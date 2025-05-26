@@ -1,0 +1,27 @@
+{
+  "$schema": "../test-suite.schema.json",
+  "description": "Unknown keywords",
+  "suite": [
+    {
+      "description": "`unknownKeyword` is an annotation",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "x-unknownKeyword": "Foo"
+      },
+      "tests": [
+        {
+          "instance": 42,
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "x-unknownKeyword",
+              "expected": {
+                "#": "Foo"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

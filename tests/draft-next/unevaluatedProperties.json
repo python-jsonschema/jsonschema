@@ -716,6 +716,92 @@
         ]
     },
     {
+        "description": "unevaluatedProperties before $ref",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "type": "object",
+            "unevaluatedProperties": false,
+            "properties": {
+                "foo": { "type": "string" }
+            },
+            "$ref": "#/$defs/bar",
+            "$defs": {
+                "bar": {
+                    "properties": {
+                        "bar": { "type": "string" }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": true
+            },
+            {
+                "description": "with unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties with $dynamicRef",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "$id": "https://example.com/unevaluated-properties-with-dynamic-ref/derived",
+
+            "$ref": "./baseSchema",
+
+            "$defs": {
+                "derived": {
+                    "$dynamicAnchor": "addons",
+                    "properties": {
+                        "bar": { "type": "string" }
+                    }
+                },
+                "baseSchema": {
+                    "$id": "./baseSchema",
+
+                    "$comment": "unevaluatedProperties comes first so it's more likely to catch bugs with implementations that are sensitive to keyword ordering",
+                    "unevaluatedProperties": false,
+                    "type": "object",
+                    "properties": {
+                        "foo": { "type": "string" }
+                    },
+                    "$dynamicRef": "#addons"
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "with no unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar"
+                },
+                "valid": true
+            },
+            {
+                "description": "with unevaluated properties",
+                "data": {
+                    "foo": "foo",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedProperties can't see inside cousins",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
@@ -1366,57 +1452,6 @@
         ]
     },
     {
-        "description": "unevaluatedProperties depends on adjacent contains",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/next/schema",
-            "properties": {
-              "foo": { "type": "number" }
-            },
-            "contains": { "type": "string" },
-            "unevaluatedProperties": false
-        },
-        "tests": [
-            {
-                "description": "bar is evaluated by contains",
-                "data": { "foo": 1, "bar": "foo" },
-                "valid": true
-            },
-            {
-                "description": "contains fails, bar is not evaluated",
-                "data": { "foo": 1, "bar": 2 },
-                "valid": false
-            },
-            {
-                "description": "contains passes, bar is not evaluated",
-                "data": { "foo": 1, "bar": 2, "baz": "foo" },
-                "valid": false
-            }
-        ]
-    },
-    {
-        "description": "unevaluatedProperties depends on multiple nested contains",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/next/schema",
-            "allOf": [
-                { "contains": { "multipleOf": 2 } },
-                { "contains": { "multipleOf": 3 } }
-            ],
-            "unevaluatedProperties": { "multipleOf": 5 }
-        },
-        "tests": [
-            {
-                "description": "5 not evaluated, passes unevaluatedItems",
-                "data": { "a": 2, "b": 3, "c": 4, "d": 5, "e": 6 },
-                "valid": true
-            },
-            {
-                "description": "7 not evaluated, fails unevaluatedItems",
-                "data": { "a": 2, "b": 3, "c": 4, "d": 7, "e": 8 },
-                "valid": false
-            }
-        ]
-    },
-    {
         "description": "non-object instances are valid",
         "schema": {
             "$schema": "https://json-schema.org/draft/next/schema",
@@ -1566,6 +1601,75 @@
                     "bar": "a"
                 },
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "propertyDependencies with unevaluatedProperties" ,
+        "schema" : {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "properties" : {"foo2" : {}},
+            "propertyDependencies": {
+                "foo" : {},
+                "foo2": {
+                    "bar": {
+                        "properties": {
+                            "buz": {}
+                        }
+                    }
+                }
+            },
+            "unevaluatedProperties": false
+        },
+
+        "tests": [
+            {
+                "description": "unevaluatedProperties doesn't consider propertyDependencies" , 
+                "data": {"foo": "bar"},
+                "valid": false
+            },
+            {
+                "description": "unevaluatedProperties sees buz when foo2 is present",
+                "data": {"foo2": "bar", "buz": ""},
+                "valid": true
+            },
+            {
+                "description": "unevaluatedProperties doesn't see buz when foo2 is absent",
+                "data": {"buz": ""},
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "dependentSchemas with unevaluatedProperties",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/next/schema",
+            "properties": {"foo2": {}},
+            "dependentSchemas": {
+                "foo" : {},
+                "foo2": {
+                    "properties": {
+                        "bar":{}
+                    }
+                }
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "unevaluatedProperties doesn't consider dependentSchemas",
+                "data": {"foo": ""},
+                "valid": false
+            },
+            {
+                "description": "unevaluatedProperties doesn't see bar when foo2 is absent",
+                "data": {"bar": ""},
+                "valid": false
+            },
+            {
+                "description": "unevaluatedProperties sees bar when foo2 is present",
+                "data": {"foo2": "", "bar": ""},
+                "valid": true
             }
         ]
     }

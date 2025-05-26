@@ -22,7 +22,7 @@
         "description": "fragment within remote ref",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$ref": "http://localhost:1234/draft2020-12/subSchemas-defs.json#/$defs/integer"
+            "$ref": "http://localhost:1234/draft2020-12/subSchemas.json#/$defs/integer"
         },
         "tests": [
             {
@@ -60,7 +60,7 @@
         "description": "ref within remote ref",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$ref": "http://localhost:1234/draft2020-12/subSchemas-defs.json#/$defs/refToInteger"
+            "$ref": "http://localhost:1234/draft2020-12/subSchemas.json#/$defs/refToInteger"
         },
         "tests": [
             {
@@ -265,7 +265,10 @@
     },
     {
         "description": "remote HTTP ref with different $id",
-        "schema": {"$ref": "http://localhost:1234/different-id-ref-string.json"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$ref": "http://localhost:1234/different-id-ref-string.json"
+        },
         "tests": [
             {
                 "description": "number is invalid",
@@ -281,7 +284,10 @@
     },
     {
         "description": "remote HTTP ref with different URN $id",
-        "schema": {"$ref": "http://localhost:1234/urn-ref-string.json"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$ref": "http://localhost:1234/urn-ref-string.json"
+        },
         "tests": [
             {
                 "description": "number is invalid",
@@ -297,7 +303,10 @@
     },
     {
         "description": "remote HTTP ref with nested absolute ref",
-        "schema": {"$ref": "http://localhost:1234/nested-absolute-ref-to-string.json"},
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$ref": "http://localhost:1234/nested-absolute-ref-to-string.json"
+        },
         "tests": [
             {
                 "description": "number is invalid",
@@ -314,6 +323,7 @@
     {
         "description": "$ref to $ref finds detached $anchor",
         "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$ref": "http://localhost:1234/draft2020-12/detached-ref.json#/$defs/foo"
         },
         "tests": [
