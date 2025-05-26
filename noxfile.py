@@ -128,6 +128,7 @@ def license_check(session):
         "jsonschema",
         "jsonschema-specifications",
         "referencing",
+        "types-python-dateutil",
 
         "--allow-only",
         ";".join(NONGPL_LICENSES),
