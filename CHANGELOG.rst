@@ -1,7 +1,8 @@
 v4.24.0
 =======
 
-* Support for Python 3.8 has been dropped, as it is nearing end-of-life.
+* Fix improper handling of ``unevaluatedProperties`` in the presence of ``additionalProperties`` (#1351).
+* Support for Python 3.8 has been dropped, as it is end-of-life.
 
 v4.23.0
 =======
