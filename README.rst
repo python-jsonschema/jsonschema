@@ -134,8 +134,6 @@ I'm Julian Berman.
 
 Get in touch, via GitHub or otherwise, if you've got something to contribute, it'd be most welcome!
 
-You can also generally find me on Libera (nick: ``Julian``) in various channels, including ``#python``.
-
 If you feel overwhelmingly grateful, you can also `sponsor me <https://github.com/sponsors/Julian/>`_.
 
 And for companies who appreciate ``jsonschema`` and its continued support and growth, ``jsonschema`` is also now supportable via `TideLift <https://tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pypi-jsonschema&utm_medium=referral&utm_campaign=readme>`_.
