@@ -270,10 +270,6 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
         return []
     evaluated_keys = []
 
-    def is_valid(errs_it):
-        """Whether there are no errors in the given iterator."""
-        return next(errs_it, None) is None
-
     ref = schema.get("$ref")
     if ref is not None:
         resolved = validator._resolver.lookup(ref)
@@ -352,3 +348,8 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
             )
 
     return evaluated_keys
+
+
+def is_valid(errs_it):
+    """Whether there are no errors in the given iterator."""
+    return next(errs_it, None) is None
