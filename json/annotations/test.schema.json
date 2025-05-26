@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+
+  "type": "object",
+  "properties": {
+    "instance": {
+      "markdownDescription": "The JSON instance to be annotated."
+    },
+    "assertions": {
+      "markdownDescription": "A collection of assertions that must be true for the test to pass.",
+      "type": "array",
+      "items": { "$ref": "./assertion.schema.json" }
+    }
+  },
+  "required": ["instance", "assertions"]
+}

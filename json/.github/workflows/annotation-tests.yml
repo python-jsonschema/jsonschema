@@ -1,0 +1,21 @@
+name: Validate annotation tests
+
+on:
+  pull_request:
+    paths:
+      - "annotations/**"
+
+jobs:
+  annotate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: "2.x"
+
+      - name: Validate annotation tests
+        run: deno --node-modules-dir=auto --allow-read --no-prompt bin/annotation-tests.ts

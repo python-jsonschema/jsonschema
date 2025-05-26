@@ -227,6 +227,7 @@ This suite is being used by:
 
 ### C++
 
+* [Blaze](https://github.com/sourcemeta/blaze)
 * [Modern C++ JSON schema validator](https://github.com/pboettch/json-schema-validator)
 * [Valijson](https://github.com/tristanpenman/valijson)
 

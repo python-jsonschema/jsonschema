@@ -1,0 +1,30 @@
+{
+  "$schema": "../test-suite.schema.json",
+  "description": "The core vocabulary",
+  "suite": [
+    {
+      "description": "`$ref` and `$defs`",
+      "compatibility": "2019",
+      "schema": {
+        "$ref": "#/$defs/foo",
+        "$defs": {
+          "foo": { "title": "Foo" }
+        }
+      },
+      "tests": [
+        {
+          "instance": "foo",
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "title",
+              "expected": {
+                "#/$defs/foo": "Foo"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
