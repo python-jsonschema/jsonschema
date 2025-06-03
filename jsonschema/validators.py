@@ -380,12 +380,12 @@ def create(
                 return
 
             todo = {k for _, k, _ in validators}
-            while validators:
-                dependant = []
+            while todo:
+                dependent = []
                 for validator, k, v in validators:
                     if isinstance(validator, _keywords.Keyword) \
                             and todo.intersection(validator.needs):
-                        dependant.append([validator, k, v])
+                        dependent.append([validator, k, v])
                         continue
                     errors = validator(self, v, instance, _schema) or ()
                     for error in errors:
@@ -401,9 +401,9 @@ def create(
                             error.schema_path.appendleft(k)
                         yield error
                     todo.discard(k)
-                if dependant == validators:
+                if dependent == validators:
                     raise ValueError("Circular dependency between keywords")
-                validators = dependant
+                validators = dependent
 
         def descend(
             self,
