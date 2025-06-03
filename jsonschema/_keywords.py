@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from fractions import Fraction
 import re
+import typing
 
 from jsonschema._utils import (
     ensure_list,
@@ -11,6 +14,58 @@ from jsonschema._utils import (
     uniq,
 )
 from jsonschema.exceptions import FormatError, ValidationError
+
+
+class Keyword:
+    """
+    The Keyword wraps a function to maintain full back-compatibility.
+
+    The class adds the ability to annotate the keyword implementation while
+    behaving like a function, i.e. `Keyword(func)` behaves like `func` itself
+    in most cases, and allows a more formal description of the behavior and
+    dependencies.
+    """
+
+    def __init__(
+            self,
+            func: typing.Optional[callable] = None, /,
+            needs: typing.Optional[typing.Iterable[str]] = (),
+    ):
+        self.func = func
+        self.needs = needs
+
+    def __call__(self, validator, property, instance, schema):
+        if self.func is None:
+            raise NotImplementedError(f"{self} has no validation method.")
+        return self.func(validator, property, instance, schema)
+
+
+def keyword(func: typing.Optional[callable] = None, /, **kwargs):
+    """
+    Syntactic sugar to decorate a function as a keyword.
+
+    The function is not modified, but wrapped by a Keyword object. This allows
+    the same function to be reused as by multiple validators with different
+    annotations.
+
+    Examples
+    --------
+    Functionally equivalent to the un-decorated function.
+    >>> @keyword
+    ... def myKeyword(validator, property, instance, schema):
+    ...     ...
+
+    Mark the keyword "else" to be evaluated after "if"
+    >>> @keyword(needs=["if"])
+    ... def else_(validator, property, instance, schema):
+    ...     ...
+
+    >>> kw = keyword(else_, needs="if")
+
+    """
+    if func is None:
+        return lambda fun: Keyword(fun, **kwargs)
+    return Keyword(func, **kwargs)
 
 
 def patternProperties(validator, patternProperties, instance, schema):
@@ -389,6 +444,21 @@ def if_(validator, if_schema, instance, schema):
         yield from validator.descend(instance, else_, schema_path="else")
 
 
+@keyword(
+    needs=[
+        "prefixItems",
+        "items",
+        "contains",
+        "allOf",
+        "anyOf",
+        "oneOf",
+        "not",
+        "if",
+        "then",
+        "else",
+        "dependentSchemas",
+    ],
+)
 def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
@@ -404,6 +474,21 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
         yield ValidationError(error % extras_msg(unevaluated_items))
 
 
+@keyword(
+    needs=[
+        "properties",
+        "patternProperties",
+        "additionalProperties",
+        "allOf",
+        "anyOf",
+        "oneOf",
+        "not",
+        "if",
+        "then",
+        "else",
+        "dependentSchemas",
+    ],
+)
 def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return

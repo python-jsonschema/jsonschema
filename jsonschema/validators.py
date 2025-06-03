@@ -379,20 +379,31 @@ def create(
                 )
                 return
 
-            for validator, k, v in validators:
-                errors = validator(self, v, instance, _schema) or ()
-                for error in errors:
-                    # set details if not already set by the called fn
-                    error._set(
-                        validator=k,
-                        validator_value=v,
-                        instance=instance,
-                        schema=_schema,
-                        type_checker=self.TYPE_CHECKER,
-                    )
-                    if k not in {"if", "$ref"}:
-                        error.schema_path.appendleft(k)
-                    yield error
+            todo = {k for _, k, _ in validators}
+            while validators:
+                dependant = []
+                for validator, k, v in validators:
+                    if isinstance(validator, _keywords.Keyword) \
+                            and todo.intersection(validator.needs):
+                        dependant.append([validator, k, v])
+                        continue
+                    errors = validator(self, v, instance, _schema) or ()
+                    for error in errors:
+                        # set details if not already set by the called fn
+                        error._set(
+                            validator=k,
+                            validator_value=v,
+                            instance=instance,
+                            schema=_schema,
+                            type_checker=self.TYPE_CHECKER,
+                        )
+                        if k not in {"if", "$ref"}:
+                            error.schema_path.appendleft(k)
+                        yield error
+                    todo.discard(k)
+                if dependant == validators:
+                    raise ValueError("Circular dependency between keywords")
+                validators = dependant
 
         def descend(
             self,
