@@ -742,6 +742,35 @@ class TestValidationErrorMessages(TestCase):
         message = self.message_for(instance="foo", schema=schema)
         self.assertEqual(message, "'foo' is not of type 'object'")
 
+    def test_unevaluated_properties_on_invalid_inplace_applicators(self):
+        """Ensure that Draft 2020-12 11.3 is followed, per #1365."""
+        schema = {
+            "unevaluatedProperties": False,
+            "allOf": [
+                {"properties": {"foo": {"type": "string"}}},
+            ],
+        }
+        instance = {"foo": 1}
+
+        # cannot use `self.message_for`, which expects exactly one error
+        validators.Draft202012Validator.check_schema(schema)
+        validator = validators.Draft202012Validator(schema)
+        errors = list(validator.iter_errors(instance))
+        self.assertTrue(errors, msg=f"No errors were raised for {instance!r}")
+        self.assertEqual(
+            len(errors),
+            2,
+            msg=f"Expected exactly two errors, found {errors!r}",
+        )
+
+        messages = [error.message for error in errors]
+        expected = [
+            "1 is not of type 'string'",
+            "Unevaluated properties are not allowed ('foo' was unexpected)",
+        ]
+        self.assertEqual(set(messages), set(expected), "Unexpected messages")
+        self.assertEqual(messages, expected, "Keywords not evaluated in order")
+
     def test_single_item(self):
         schema = {"prefixItems": [{}], "items": False}
         message = self.message_for(
