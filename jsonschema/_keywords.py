@@ -28,7 +28,7 @@ class Keyword:
 
     def __init__(
             self,
-            func: typing.Optional[callable] = None, /,
+            func: typing.Optional[typing.Callable] = None, /,
             needs: typing.Optional[typing.Iterable[str]] = (),
     ):
         self.func = func
@@ -40,7 +40,7 @@ class Keyword:
         return self.func(validator, property, instance, schema)
 
 
-def keyword(func: typing.Optional[callable] = None, /, **kwargs):
+def keyword(func: typing.Optional[typing.Callable] = None, /, **kwargs):
     """
     Syntactic sugar to decorate a function as a keyword.
 
