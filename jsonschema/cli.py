@@ -4,17 +4,13 @@ The ``jsonschema`` command line.
 
 from importlib import metadata
 from json import JSONDecodeError
+from pkgutil import resolve_name
 from textwrap import dedent
 import argparse
 import json
 import sys
 import traceback
 import warnings
-
-try:
-    from pkgutil import resolve_name
-except ImportError:
-    from pkgutil_resolve_name import resolve_name  # type: ignore[no-redef]
 
 from attrs import define, field
 
