@@ -170,6 +170,7 @@ ignore = [
   "FIX",     # Yes thanks, if I could it wouldn't be there
   "N",       # These naming rules are silly
   "PERF203", # try/excepts in loops are sometimes needed
+  "PLC0415", # too noisy, there are too many cases this is fine
   "PLR0911", # These metrics are fine to be aware of but not to enforce
   "PLR0912",
   "PLR0913",
@@ -204,6 +205,15 @@ from-first = true
 [tool.ruff.lint.per-file-ignores]
 "noxfile.py" = ["ANN", "D100", "S101", "T201"]
 "docs/*" = ["ANN", "D", "INP001"]
-"jsonschema/tests/*" = ["ANN", "D", "RUF012", "S", "PLR", "PYI024", "TRY"]
+"jsonschema/tests/*" = [
+  "ANN",
+  "D",
+  "RUF012",
+  "S",
+  "PLR",
+  "PLW1641",
+  "PYI024",
+  "TRY",
+]
 "jsonschema/tests/test_format.py" = ["ERA001"]
 "jsonschema/benchmarks/*" = ["ANN", "D", "INP001", "S101"]

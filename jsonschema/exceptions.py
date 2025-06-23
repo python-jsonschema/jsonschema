@@ -210,7 +210,7 @@ class SchemaError(_Error):
 
 
 @define(slots=False)
-class _RefResolutionError(Exception):
+class _RefResolutionError(Exception):  # noqa: PLW1641
     """
     A ref could not be resolved.
     """
