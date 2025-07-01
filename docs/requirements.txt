@@ -32,7 +32,7 @@ jsonschema @ file:.
     # via -r docs/requirements.in
 jsonschema-specifications==2025.4.1
     # via jsonschema
-lxml==5.4.0
+lxml==6.0.0
     # via
     #   -r docs/requirements.in
     #   sphinx-json-schema-spec
