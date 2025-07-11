@@ -516,6 +516,9 @@ with suppress(ImportError):
 )
 def is_uuid(instance: object) -> bool:
     if not isinstance(instance, str):
-        return True
-    UUID(instance)
+        return False
+    try:
+        UUID(instance)
+    except:
+        return False
     return all(instance[position] == "-" for position in (8, 13, 18, 23))
