@@ -700,3 +700,122 @@ class TestHashable(TestCase):
     def test_hashable(self):
         {exceptions.ValidationError("")}
         {exceptions.SchemaError("")}
+
+
+class TestJsonPathRendering(TestCase):
+    def test_str(self):
+        e = exceptions.ValidationError(
+            path=["x"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$.x")
+
+    def test_empty_str(self):
+        e = exceptions.ValidationError(
+            path=[""],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$['']")
+
+    def test_numeric_str(self):
+        e = exceptions.ValidationError(
+            path=["1"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$['1']")
+
+    def test_period_str(self):
+        e = exceptions.ValidationError(
+            path=["."],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$['.']")
+
+    def test_single_quote_str(self):
+        e = exceptions.ValidationError(
+            path=["'"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, r"$['\'']")
+
+    def test_space_str(self):
+        e = exceptions.ValidationError(
+            path=[" "],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$[' ']")
+
+    def test_backslash_str(self):
+        e = exceptions.ValidationError(
+            path=["\\"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, r"$['\\']")
+
+    def test_backslash_single_quote(self):
+        e = exceptions.ValidationError(
+            path=[r"\'"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, r"$['\\\'']")
+
+    def test_underscore(self):
+        e = exceptions.ValidationError(
+            path=["_"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, r"$['_']")
+
+    def test_double_quote(self):
+        e = exceptions.ValidationError(
+            path=['"'],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, """$['"']""")
+
+    def test_hyphen(self):
+        e = exceptions.ValidationError(
+            path=["-"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$['-']")
+
+    def test_json_path_injection(self):
+        e = exceptions.ValidationError(
+            path=["a[0]"],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$['a[0]']")
+
+    def test_open_bracket(self):
+        e = exceptions.ValidationError(
+            path=["["],
+            message="1",
+            validator="foo",
+            instance="i1",
+        )
+        self.assertEqual(e.json_path, "$['[']")
