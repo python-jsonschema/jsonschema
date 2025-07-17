@@ -129,7 +129,7 @@ jobs:
           enable-cache: true
 
       - name: Build our distributions
-        run: uv run --with 'build[uv]' -m build --installer=uv
+        run: uv run --frozen --with 'build[uv]' -m build --installer=uv
 
       - name: Publish to PyPI
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
