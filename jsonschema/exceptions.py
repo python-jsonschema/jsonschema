@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 WEAK_MATCHES: frozenset[str] = frozenset(["anyOf", "oneOf"])
 STRONG_MATCHES: frozenset[str] = frozenset()
 
-JSON_PATH_COMPATIBLE_PROPERTY_PATTERN = re.compile("^[a-zA-Z][a-zA-Z0-9_]*$")
+_JSON_PATH_COMPATIBLE_PROPERTY_PATTERN = re.compile("^[a-zA-Z][a-zA-Z0-9_]*$")
 
 _unset = _utils.Unset()
 
@@ -155,7 +155,7 @@ class _Error(Exception):
         for elem in self.absolute_path:
             if isinstance(elem, int):
                 path += "[" + str(elem) + "]"
-            elif JSON_PATH_COMPATIBLE_PROPERTY_PATTERN.match(elem):
+            elif _JSON_PATH_COMPATIBLE_PROPERTY_PATTERN.match(elem):
                 path += "." + elem
             else:
                 escaped_elem = elem.replace("\\", "\\\\").replace("'", r"\'")
