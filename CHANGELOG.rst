@@ -1,3 +1,8 @@
+v4.24.1
+=======
+
+* Properly escape segments in ``ValidationError.json_path`` (#139).
+
 v4.24.0
 =======
 
