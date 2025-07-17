@@ -1,6 +1,8 @@
 from unittest import TestCase
 import textwrap
 
+import jsonpath_ng
+
 from jsonschema import exceptions
 from jsonschema.validators import _LATEST_VERSION
 
@@ -703,119 +705,55 @@ class TestHashable(TestCase):
 
 
 class TestJsonPathRendering(TestCase):
-    def test_str(self):
-        e = exceptions.ValidationError(
-            path=["x"],
+    def validate_json_path_rendering(self, property_name, expected_path):
+        error = exceptions.ValidationError(
+            path=[property_name],
             message="1",
             validator="foo",
             instance="i1",
         )
-        self.assertEqual(e.json_path, "$.x")
 
-    def test_empty_str(self):
-        e = exceptions.ValidationError(
-            path=[""],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, "$['']")
+        rendered_json_path = error.json_path
+        self.assertEqual(rendered_json_path, expected_path)
 
-    def test_numeric_str(self):
-        e = exceptions.ValidationError(
-            path=["1"],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, "$['1']")
+        re_parsed_name = jsonpath_ng.parse(rendered_json_path).right.fields[0]
+        self.assertEqual(re_parsed_name, property_name)
 
-    def test_period_str(self):
-        e = exceptions.ValidationError(
-            path=["."],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, "$['.']")
+    def test_basic(self):
+        self.validate_json_path_rendering("x", "$.x")
 
-    def test_single_quote_str(self):
-        e = exceptions.ValidationError(
-            path=["'"],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, r"$['\'']")
+    def test_empty(self):
+        self.validate_json_path_rendering("", "$['']")
 
-    def test_space_str(self):
-        e = exceptions.ValidationError(
-            path=[" "],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, "$[' ']")
+    def test_number(self):
+        self.validate_json_path_rendering("1", "$['1']")
 
-    def test_backslash_str(self):
-        e = exceptions.ValidationError(
-            path=["\\"],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, r"$['\\']")
+    def test_period(self):
+        self.validate_json_path_rendering(".", "$['.']")
+
+    def test_single_quote(self):
+        self.validate_json_path_rendering("'", r"$['\'']")
+
+    def test_space(self):
+        self.validate_json_path_rendering(" ", "$[' ']")
+
+    def test_backslash(self):
+        self.validate_json_path_rendering("\\", r"$['\\']")
 
     def test_backslash_single_quote(self):
-        e = exceptions.ValidationError(
-            path=[r"\'"],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, r"$['\\\'']")
+        self.validate_json_path_rendering(r"\'", r"$['\\\'']")
 
     def test_underscore(self):
-        e = exceptions.ValidationError(
-            path=["_"],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, r"$['_']")
+        self.validate_json_path_rendering("_", r"$['_']")
 
     def test_double_quote(self):
-        e = exceptions.ValidationError(
-            path=['"'],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, """$['"']""")
+        self.validate_json_path_rendering('"', """$['"']""")
 
     def test_hyphen(self):
-        e = exceptions.ValidationError(
-            path=["-"],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, "$['-']")
+        self.validate_json_path_rendering("-", "$['-']")
 
     def test_json_path_injection(self):
-        e = exceptions.ValidationError(
-            path=["a[0]"],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, "$['a[0]']")
+        self.validate_json_path_rendering("a[0]", "$['a[0]']")
 
     def test_open_bracket(self):
-        e = exceptions.ValidationError(
-            path=["["],
-            message="1",
-            validator="foo",
-            instance="i1",
-        )
-        self.assertEqual(e.json_path, "$['[']")
+        self.validate_json_path_rendering("[", "$['[']")
