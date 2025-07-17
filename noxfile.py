@@ -60,8 +60,7 @@ def tests(session, installable):
     """
     env = dict(JSON_SCHEMA_TEST_SUITE=str(ROOT / "json"))
 
-    session.install("virtue", installable)
-    session.install("jsonpath-ng", installable)
+    session.install("--group=test", installable)
 
     if session.posargs and session.posargs[0] == "coverage":
         if len(session.posargs) > 1 and session.posargs[1] == "github":

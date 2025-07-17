@@ -78,6 +78,9 @@ Tidelift = "https://tidelift.com/subscription/pkg/pypi-jsonschema?utm_source=pyp
 Changelog = "https://github.com/python-jsonschema/jsonschema/blob/main/CHANGELOG.rst"
 Source = "https://github.com/python-jsonschema/jsonschema"
 
+[dependency-groups]
+test = ["virtue", "jsonpath-ng"]
+
 [tool.hatch.metadata.hooks.fancy-pypi-readme]
 content-type = "text/x-rst"
 
