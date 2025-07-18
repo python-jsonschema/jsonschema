@@ -206,8 +206,6 @@ Or if you want to avoid GPL dependencies, a second extra is available:
 
     $ pip install jsonschema[format-nongpl]
 
-At the moment, it supports all the available checkers except for ``iri`` and ``iri-reference``.
-
 .. warning::
 
     It is your own responsibility ultimately to ensure you are license-compliant, so you should be double checking your own dependencies if you rely on this extra.
@@ -230,8 +228,8 @@ Checker                    Notes
 ``idn-hostname``           requires idna_
 ``ipv4``
 ``ipv6``                   OS must have `socket.inet_pton` function
-``iri``                    requires rfc3987_
-``iri-reference``          requires rfc3987_
+``iri``                    requires rfc3987_ or rfc3987-syntax_
+``iri-reference``          requires rfc3987_ or rfc3987-syntax_
 ``json-pointer``           requires jsonpointer_
 ``regex``
 ``relative-json-pointer``  requires jsonpointer_
@@ -249,6 +247,7 @@ Checker                    Notes
 .. _rfc3339-validator: https://pypi.org/project/rfc3339-validator/
 .. _rfc3986-validator: https://pypi.org/project/rfc3986-validator/
 .. _rfc3987: https://pypi.org/pypi/rfc3987/
+.. _rfc3987-syntax: https://pypi.org/pypi/rfc3987-syntax/
 .. _uri-template: https://pypi.org/pypi/uri-template/
 .. _webcolors: https://pypi.org/pypi/webcolors/
 

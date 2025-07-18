@@ -324,6 +324,31 @@ except ImportError:
                 return True
             return validate_rfc3986(instance, rule="URI_reference")
 
+    with suppress(ImportError):
+        from rfc3987_syntax import is_valid_syntax as _rfc3987_is_valid_syntax
+
+        @_checks_drafts(
+            draft7="iri",
+            draft201909="iri",
+            draft202012="iri",
+            raises=ValueError,
+        )
+        def is_iri(instance: object) -> bool:
+            if not isinstance(instance, str):
+                return True
+            return _rfc3987_is_valid_syntax("iri", instance)
+
+        @_checks_drafts(
+            draft7="iri-reference",
+            draft201909="iri-reference",
+            draft202012="iri-reference",
+            raises=ValueError,
+        )
+        def is_iri_reference(instance: object) -> bool:
+            if not isinstance(instance, str):
+                return True
+            return _rfc3987_is_valid_syntax("iri_reference", instance)
+
 else:
 
     @_checks_drafts(
