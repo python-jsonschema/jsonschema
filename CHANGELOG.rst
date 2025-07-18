@@ -1,3 +1,9 @@
+v4.25.0
+=======
+
+* Add support for the ``iri`` and ``iri-reference`` formats to the ``format-nongpl`` extra via the MIT-licensed ``rfc3987-syntax``.
+  They were alread supported by the ``format`` extra. (#1388).
+
 v4.24.1
 =======
 
