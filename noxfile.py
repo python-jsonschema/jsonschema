@@ -128,6 +128,7 @@ def license_check(session):
         "jsonschema",
         "jsonschema-specifications",
         "referencing",
+        "rpds-py",
         "types-python-dateutil",
 
         "--allow-only",
