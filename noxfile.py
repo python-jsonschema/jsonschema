@@ -6,6 +6,7 @@ import nox
 
 ROOT = Path(__file__).parent
 PACKAGE = ROOT / "jsonschema"
+TYPING_TESTS= ROOT / "jsonschema" / "tests" / "typing"
 BENCHMARKS = PACKAGE / "benchmarks"
 PYPROJECT = ROOT / "pyproject.toml"
 CHANGELOG = ROOT / "CHANGELOG.rst"
@@ -181,6 +182,9 @@ def typing(session):
     """
     session.install("mypy", "types-requests", ROOT)
     session.run("mypy", "--config", PYPROJECT, PACKAGE)
+    session.run(
+        "mypy", "--config", PYPROJECT, "--warn-unused-ignores", TYPING_TESTS
+    )
 
 
 @session(tags=["docs"])
