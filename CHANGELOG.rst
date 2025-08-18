@@ -1,3 +1,8 @@
+v4.25.1
+=======
+
+* Fix an incorrect required argument in the ``Validator`` protocol's type annotations (#1396).
+
 v4.25.0
 =======
 
