@@ -108,10 +108,11 @@ class Validator(Protocol):
     def __init__(
         self,
         schema: Mapping | bool,
-        registry: referencing.jsonschema.SchemaRegistry,
+        resolver: Any = None,  # deprecated
         format_checker: jsonschema.FormatChecker | None = None,
-    ) -> None:
-        ...
+        *,
+        registry: referencing.jsonschema.SchemaRegistry = ...,
+    ) -> None: ...
 
     @classmethod
     def check_schema(cls, schema: Mapping | bool) -> None:

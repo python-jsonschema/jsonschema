@@ -147,7 +147,7 @@ def create(
     applicable_validators: _typing.ApplicableValidators = methodcaller(
         "items",
     ),
-):
+) -> type[Validator]:
     """
     Create a new validator class.
 
@@ -511,7 +511,7 @@ def create(
         Validator.__name__ = Validator.__qualname__ = f"{safe}Validator"
         Validator = validates(version)(Validator)  # type: ignore[misc]
 
-    return Validator
+    return Validator  # type: ignore[return-value]
 
 
 def extend(
