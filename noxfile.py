@@ -183,7 +183,7 @@ def typing(session):
     session.install("mypy", "types-requests", ROOT)
     session.run("mypy", "--config", PYPROJECT, PACKAGE)
     session.run(
-        "mypy", "--config", PYPROJECT, "--warn-unused-ignores", TYPING_TESTS
+        "mypy", "--config", PYPROJECT, "--warn-unused-ignores", TYPING_TESTS,
     )
 
 
