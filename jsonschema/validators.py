@@ -9,7 +9,6 @@ from functools import lru_cache
 from operator import methodcaller
 from typing import TYPE_CHECKING
 from urllib.parse import unquote, urldefrag, urljoin, urlsplit
-from urllib.request import urlopen
 from warnings import warn
 import contextlib
 import json
@@ -1225,6 +1224,7 @@ class _RefResolver:
             result = requests.get(uri).json()
         else:
             # Otherwise, pass off to urllib and assume utf-8
+            from urllib.request import urlopen
             with urlopen(uri) as url:  # noqa: S310
                 result = json.loads(url.read().decode("utf-8"))
 
