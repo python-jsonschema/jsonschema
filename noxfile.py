@@ -104,7 +104,14 @@ def audit(session, installable):
     Audit dependencies for vulnerabilities.
     """
     session.install("pip-audit", installable)
-    session.run("python", "-m", "pip_audit")
+    session.run(
+        "python",
+        "-m",
+        "pip_audit",
+        "--ignore-vuln",
+        "GHSA-4xh5-x5gv-qwph",  # pip vuln, not relevant, but we need to figure
+                                # out how to properly run pip-audit
+    )
 
 
 @session()
