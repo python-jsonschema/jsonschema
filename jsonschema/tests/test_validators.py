@@ -2379,11 +2379,9 @@ class TestRefResolver(TestCase):
             self.assertEqual(url, "http://bar")
             yield BytesIO(json.dumps(schema).encode("utf8"))
 
-        self.addCleanup(setattr, validators, "urlopen", validators.urlopen)
-        validators.urlopen = fake_urlopen
-
-        with self.resolver.resolving(ref) as resolved:
-            pass
+        with mock.patch("urllib.request.urlopen", new=fake_urlopen):  # noqa: SIM117
+            with self.resolver.resolving(ref) as resolved:
+                pass
         self.assertEqual(resolved, 12)
 
     def test_it_retrieves_local_refs_via_urlopen(self):
