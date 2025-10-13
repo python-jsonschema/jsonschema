@@ -24,7 +24,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d
         with:
           enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
       - id: noxenvs-matrix
@@ -100,7 +100,7 @@ jobs:
         if: runner.os == 'Windows' && startsWith(matrix.noxenv, 'tests')
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d
         with:
           enable-cache: true
 
@@ -124,7 +124,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Set up uv
-        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d
         with:
           enable-cache: true
 
