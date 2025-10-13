@@ -133,6 +133,7 @@ def license_check(session):
 
         # because pip-licenses doesn't yet support PEP 639 :/
         "attrs",
+        "idna",
         "jsonschema",
         "jsonschema-specifications",
         "referencing",
