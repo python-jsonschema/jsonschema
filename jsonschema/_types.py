@@ -9,8 +9,8 @@ from rpds import HashTrieMap
 from jsonschema.exceptions import UndefinedTypeCheck
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-    from typing import Any, Callable
+    from collections.abc import Callable, Mapping
+    from typing import Any
 
 
 # unfortunately, the type of HashTrieMap is generic, and if used as an attrs

@@ -37,7 +37,7 @@ NONGPL_LICENSES = [
     "The Unlicense (Unlicense)",
 ]
 
-SUPPORTED = ["3.9", "3.10", "pypy3.11", "3.11", "3.12", "3.13"]
+SUPPORTED = ["3.10", "pypy3.11", "3.11", "3.12", "3.13", "3.14t", "3.14"]
 LATEST_STABLE = SUPPORTED[-1]
 
 nox.options.default_venv_backend = "uv|virtualenv"

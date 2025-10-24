@@ -13,7 +13,7 @@ from jsonschema.exceptions import FormatError
 _FormatCheckCallable = typing.Callable[[object], bool]
 #: A format checker callable.
 _F = typing.TypeVar("_F", bound=_FormatCheckCallable)
-_RaisesType = typing.Union[type[Exception], tuple[type[Exception], ...]]
+_RaisesType = type[Exception] | tuple[type[Exception], ...]
 
 _RE_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$", re.ASCII)
 

@@ -45,10 +45,10 @@ jobs:
         posargs: [""]
         include:
           - os: ubuntu-latest
-            noxenv: "tests-3.13(format)"
+            noxenv: "tests-3.14(format)"
             posargs: coverage github
           - os: ubuntu-latest
-            noxenv: "tests-3.13(no-extras)"
+            noxenv: "tests-3.14(no-extras)"
             posargs: coverage github
         exclude:
           - os: macos-latest
@@ -88,11 +88,12 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: |
-            3.9
             3.10
             3.11
             3.12
             3.13
+            3.14
+            3.14t
             pypy3.11
           allow-prereleases: true
       - name: Enable UTF-8 on Windows
