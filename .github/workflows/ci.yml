@@ -73,6 +73,18 @@ jobs:
             noxenv: "docs(spelling)"
           - os: windows-latest
             noxenv: "docs(style)"
+          - os: windows-latest
+            noxenv: "tests-3.14(no-extras)"
+          - os: windows-latest
+            noxenv: "tests-3.14(format)"
+          - os: windows-latest
+            noxenv: "tests-3.14(format-nongpl)"
+          - os: windows-latest
+            noxenv: "tests-3.14t(no-extras)"
+          - os: windows-latest
+            noxenv: "tests-3.14t(format)"
+          - os: windows-latest
+            noxenv: "tests-3.14t(format-nongpl)"
 
     steps:
       - uses: actions/checkout@v5
