@@ -115,7 +115,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@2ddd2b9cb38ad8efd50337e8ab201519a34c9f24
         with:
-          enable-cache: true
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
 
       - name: Run nox
         run: uvx nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }} # zizmor: ignore[template-injection]
@@ -139,7 +139,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@2ddd2b9cb38ad8efd50337e8ab201519a34c9f24
         with:
-          enable-cache: true
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
 
       - name: Build our distributions
         run: uv run --frozen --with 'build[uv]' -m build --installer=uv
