@@ -229,6 +229,7 @@ def docs_style(session):
 
 
 @session(default=False)
+@nox.parametrize("installable", INSTALLABLE)
 @nox.parametrize(
     "benchmark",
     [
@@ -236,11 +237,11 @@ def docs_style(session):
         for each in BENCHMARKS.glob("[!_]*.py")
     ],
 )
-def bench(session, benchmark):
+def bench(session, installable, benchmark):
     """
     Run a performance benchmark.
     """
-    session.install("pyperf", f"{ROOT}[format]")
+    session.install("pyperf", installable)
     tmpdir = Path(session.create_tmp())
     output = tmpdir / f"bench-{benchmark}.json"
     session.run("python", BENCHMARKS / f"{benchmark}.py", "--output", output)
