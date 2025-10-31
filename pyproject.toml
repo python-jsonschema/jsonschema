@@ -41,7 +41,7 @@ dependencies = [
   "attrs>=22.2.0",
   "jsonschema-specifications>=2023.03.6",
   "referencing>=0.28.4",
-  "rpds-py>=0.7.1",
+  "rpds-py>=0.25.0",
 ]
 
 [project.optional-dependencies]
