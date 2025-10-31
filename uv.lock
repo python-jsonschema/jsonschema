@@ -196,7 +196,7 @@ requires-dist = [
     { name = "rfc3986-validator", marker = "extra == 'format-nongpl'", specifier = ">0.1.0" },
     { name = "rfc3987", marker = "extra == 'format'" },
     { name = "rfc3987-syntax", marker = "extra == 'format-nongpl'", specifier = ">=1.1.0" },
-    { name = "rpds-py", specifier = ">=0.7.1" },
+    { name = "rpds-py", specifier = ">=0.25.0" },
     { name = "uri-template", marker = "extra == 'format'" },
     { name = "uri-template", marker = "extra == 'format-nongpl'" },
     { name = "webcolors", marker = "extra == 'format'", specifier = ">=1.11" },
