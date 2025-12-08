@@ -149,7 +149,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
       - name: Create a GitHub Release
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         with:
           files: |
             dist/*
