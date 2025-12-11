@@ -237,6 +237,7 @@ Checker                    Notes
 ``uri``                    requires rfc3987_ or rfc3986-validator_
 ``uri-reference``          requires rfc3987_ or rfc3986-validator_
 ``uri-template``           requires uri-template_
+``uuid``
 =========================  ====================
 
 
