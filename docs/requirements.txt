@@ -20,7 +20,7 @@ charset-normalizer==3.4.4
     # via requests
 docutils==0.21.2
     # via sphinx
-furo==2025.9.25
+furo==2025.12.19
     # via -r docs/requirements.in
 idna==3.11
     # via requests
@@ -59,15 +59,15 @@ requests==2.32.5
     # via
     #   sphinx
     #   sphinxcontrib-spelling
-roman-numerals-py==3.1.0
+roman-numerals==4.1.0
     # via sphinx
-rpds-py==0.29.0
+rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
 snowballstemmer==3.0.1
     # via sphinx
-soupsieve==2.8
+soupsieve==2.8.1
     # via beautifulsoup4
 sphinx==8.2.3
     # via
@@ -108,5 +108,5 @@ sphinxext-opengraph==0.13.0
     # via -r docs/requirements.in
 typing-extensions==4.15.0
     # via beautifulsoup4
-urllib3==2.5.0
+urllib3==2.6.2
     # via requests
