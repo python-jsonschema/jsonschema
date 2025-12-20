@@ -28,6 +28,7 @@ REQUIREMENTS_IN = [  # this is actually ordered, as files depend on each other
 
 NONGPL_LICENSES = [
     "Apache Software License",
+    "Apache-2.0",
     "BSD License",
     "ISC License (ISCL)",
     "MIT",
