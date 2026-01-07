@@ -1,3 +1,8 @@
+v4.26.0
+=======
+
+* Decrease import time by delaying importing of ``urllib.request`` (#1416).
+
 v4.25.1
 =======
 
