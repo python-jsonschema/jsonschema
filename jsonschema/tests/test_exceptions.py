@@ -72,6 +72,53 @@ class TestBestMatch(TestCase):
         best = self.best_match_of(instance={"foo": {"bar": 12}}, schema=schema)
         self.assertEqual(best.validator_value, "array")
 
+    def test_anyOf_traversal_for_single_shallower_errors_better_match(self):
+        """
+        Traverse the context of an anyOf error with the only subschema,
+        and select the most relevant error.
+        """
+
+        schema = {
+            "anyOf": [
+                {
+                    "properties": {
+                        "foo": {
+                            "minProperties": 2,
+                            "properties": {"bar": {"type": "object"}},
+                        },
+                    },
+                },
+            ],
+        }
+        best = self.best_match_of(instance={"foo": {"bar": []}}, schema=schema)
+        self.assertEqual(best.validator, "minProperties")
+
+    def test_anyOf_traversal_least_relevant_among_most_relevant_errors(self):
+        """
+        Traverse the context of an anyOf error, and select
+        the *least* relevant error among the most relevant errors
+        in each separate subschema.
+
+        I.e. since only one of the schemas must match, we look for the most
+        specific one, and choose the most relevant error produced by it.
+        """
+
+        schema = {
+            "anyOf": [
+                {"type": "string"},
+                {
+                    "properties": {
+                        "foo": {
+                            "minProperties": 2,
+                            "properties": {"bar": {"type": "object"}},
+                        },
+                    },
+                },
+            ],
+        }
+        best = self.best_match_of(instance={"foo": {"bar": []}}, schema=schema)
+        self.assertEqual(best.validator, "minProperties")
+
     def test_no_anyOf_traversal_for_equally_relevant_errors(self):
         """
         We don't traverse into an anyOf (as above) if all of its context errors
@@ -88,6 +135,53 @@ class TestBestMatch(TestCase):
         best = self.best_match_of(instance=[], schema=schema)
         self.assertEqual(best.validator, "anyOf")
 
+    def test_no_anyOf_traversal_for_two_properties_sibling_errors(self):
+        """
+        We don't traverse into an anyOf if all of its context errors
+        seem to be equally "wrong" against the instance.
+        """
+
+        schema = {
+            "anyOf": [
+                {"properties": {"foo": {"type": "string"}}},
+                {"properties": {"bar": {"type": "string"}}},
+            ],
+        }
+        best = self.best_match_of(instance={"foo": 1, "bar": 1}, schema=schema)
+        self.assertEqual(best.validator, "anyOf")
+
+    def test_no_anyOf_traversal_for_two_items_sibling_errors(self):
+        """
+        We don't traverse into an anyOf if all of its context errors
+        seem to be equally "wrong" against the instance.
+        """
+
+        schema = {
+            "anyOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/int_array",
+                    },
+                },
+                {
+                    "$ref": "#/$defs/int_array",
+                },
+            ],
+            "$defs": {
+                "int_array": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer",
+                    },
+                },
+            },
+        }
+        best = self.best_match_of(instance=["not an int", 0], schema=schema)
+        self.assertEqual(best.validator, "anyOf")
+        best = self.best_match_of(instance=[0, "not an int"], schema=schema)
+        self.assertEqual(best.validator, "anyOf")
+
     def test_anyOf_traversal_for_single_equally_relevant_error(self):
         """
         We *do* traverse anyOf with a single nested error, even though it is
@@ -102,7 +196,7 @@ class TestBestMatch(TestCase):
         best = self.best_match_of(instance=[], schema=schema)
         self.assertEqual(best.validator, "type")
 
-    def test_anyOf_traversal_for_single_sibling_errors(self):
+    def test_anyOf_traversal_for_single_sibling_errors_choose_first(self):
         """
         We *do* traverse anyOf with a single subschema that fails multiple
         times (e.g. on multiple items).
@@ -113,8 +207,9 @@ class TestBestMatch(TestCase):
                 {"items": {"const": 37}},
             ],
         }
-        best = self.best_match_of(instance=[12, 12], schema=schema)
+        best = self.best_match_of(instance=[12, 13], schema=schema)
         self.assertEqual(best.validator, "const")
+        self.assertEqual(best.instance, 12)
 
     def test_anyOf_traversal_for_non_type_matching_sibling_errors(self):
         """
@@ -154,6 +249,53 @@ class TestBestMatch(TestCase):
         best = self.best_match_of(instance={"foo": {"bar": 12}}, schema=schema)
         self.assertEqual(best.validator_value, "array")
 
+    def test_oneOf_traversal_for_single_shallower_errors_better_match(self):
+        """
+        Traverse the context of an oneOf error with the only subschema,
+        and select the most relevant error.
+        """
+
+        schema = {
+            "oneOf": [
+                {
+                    "properties": {
+                        "foo": {
+                            "minProperties": 2,
+                            "properties": {"bar": {"type": "object"}},
+                        },
+                    },
+                },
+            ],
+        }
+        best = self.best_match_of(instance={"foo": {"bar": []}}, schema=schema)
+        self.assertEqual(best.validator, "minProperties")
+
+    def test_oneOf_traversal_least_relevant_among_most_relevant_errors(self):
+        """
+        Traverse the context of an oneOf error, and select
+        the *least* relevant error among the most relevant errors
+        in each separate subschema.
+
+        I.e. since only one of the schemas must match, we look for the most
+        specific one, and choose the most relevant error produced by it.
+        """
+
+        schema = {
+            "oneOf": [
+                {"type": "string"},
+                {
+                    "properties": {
+                        "foo": {
+                            "minProperties": 2,
+                            "properties": {"bar": {"type": "object"}},
+                        },
+                    },
+                },
+            ],
+        }
+        best = self.best_match_of(instance={"foo": {"bar": []}}, schema=schema)
+        self.assertEqual(best.validator, "minProperties")
+
     def test_no_oneOf_traversal_for_equally_relevant_errors(self):
         """
         We don't traverse into an oneOf (as above) if all of its context errors
@@ -170,6 +312,53 @@ class TestBestMatch(TestCase):
         best = self.best_match_of(instance=[], schema=schema)
         self.assertEqual(best.validator, "oneOf")
 
+    def test_no_oneOf_traversal_for_two_properties_sibling_errors(self):
+        """
+        We don't traverse into an oneOf if all of its context errors
+        seem to be equally "wrong" against the instance.
+        """
+
+        schema = {
+            "oneOf": [
+                {"properties": {"foo": {"type": "string"}}},
+                {"properties": {"bar": {"type": "string"}}},
+            ],
+        }
+        best = self.best_match_of(instance={"foo": 1, "bar": 1}, schema=schema)
+        self.assertEqual(best.validator, "oneOf")
+
+    def test_no_oneOf_traversal_for_two_items_sibling_errors(self):
+        """
+        We don't traverse into an anyOf if all of its context errors
+        seem to be equally "wrong" against the instance.
+        """
+
+        schema = {
+            "oneOf": [
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/int_array",
+                    },
+                },
+                {
+                    "$ref": "#/$defs/int_array",
+                },
+            ],
+            "$defs": {
+                "int_array": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer",
+                    },
+                },
+            },
+        }
+        best = self.best_match_of(instance=["not an int", 0], schema=schema)
+        self.assertEqual(best.validator, "oneOf")
+        best = self.best_match_of(instance=[0, "not an int"], schema=schema)
+        self.assertEqual(best.validator, "oneOf")
+
     def test_oneOf_traversal_for_single_equally_relevant_error(self):
         """
         We *do* traverse oneOf with a single nested error, even though it is
@@ -184,7 +373,7 @@ class TestBestMatch(TestCase):
         best = self.best_match_of(instance=[], schema=schema)
         self.assertEqual(best.validator, "type")
 
-    def test_oneOf_traversal_for_single_sibling_errors(self):
+    def test_oneOf_traversal_for_single_sibling_errors_choose_first(self):
         """
         We *do* traverse oneOf with a single subschema that fails multiple
         times (e.g. on multiple items).
@@ -195,8 +384,9 @@ class TestBestMatch(TestCase):
                 {"items": {"const": 37}},
             ],
         }
-        best = self.best_match_of(instance=[12, 12], schema=schema)
+        best = self.best_match_of(instance=[12, 13], schema=schema)
         self.assertEqual(best.validator, "const")
+        self.assertEqual(best.instance, 12)
 
     def test_oneOf_traversal_for_non_type_matching_sibling_errors(self):
         """
