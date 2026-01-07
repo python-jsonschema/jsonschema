@@ -415,7 +415,7 @@ def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):
     def relevance(error):
         validator = error.validator
         return (                        # prefer errors which are ...
-            -len(error.path),           # 'deeper' and thereby more specific
+            -len(error.path),           # 'higher up' (shorter path) and thereby more general
             error.path,                 # earlier (for sibling errors)
             validator not in weak,      # for a non-low-priority keyword
             validator in strong,        # for a high priority keyword
