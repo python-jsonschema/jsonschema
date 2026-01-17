@@ -4,7 +4,7 @@ accessible-pygments==0.0.5
     # via furo
 alabaster==1.0.0
     # via sphinx
-astroid==4.0.2
+astroid==4.0.3
     # via sphinx-autoapi
 attrs==25.4.0
     # via
@@ -14,11 +14,11 @@ babel==2.17.0
     # via sphinx
 beautifulsoup4==4.14.3
     # via furo
-certifi==2025.11.12
+certifi==2026.1.4
     # via requests
 charset-normalizer==3.4.4
     # via requests
-docutils==0.21.2
+docutils==0.22.4
     # via sphinx
 furo==2025.12.19
     # via -r docs/requirements.in
@@ -69,7 +69,7 @@ snowballstemmer==3.0.1
     # via sphinx
 soupsieve==2.8.1
     # via beautifulsoup4
-sphinx==8.2.3
+sphinx==9.1.0
     # via
     #   -r docs/requirements.in
     #   furo
@@ -82,7 +82,7 @@ sphinx==8.2.3
     #   sphinxext-opengraph
 sphinx-autoapi==3.6.1
     # via -r docs/requirements.in
-sphinx-autodoc-typehints==3.5.2
+sphinx-autodoc-typehints==3.6.2
     # via -r docs/requirements.in
 sphinx-basic-ng==1.0.0b2
     # via furo
@@ -108,5 +108,5 @@ sphinxext-opengraph==0.13.0
     # via -r docs/requirements.in
 typing-extensions==4.15.0
     # via beautifulsoup4
-urllib3==2.6.2
+urllib3==2.6.3
     # via requests
