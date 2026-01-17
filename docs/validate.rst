@@ -11,15 +11,18 @@ Schema Validation
 
    If you aren't already comfortable with writing schemas and need an introduction which teaches about JSON Schema the specification, you may find :ujs:`Understanding JSON Schema </>` to be a good read!
 
-
 The Basics
 ----------
 
-The simplest way to validate an instance under a given schema is to use the
-`validate <jsonschema.validators.validate>` function.
+The simplest way to validate an instance under a given schema is to use the `validate <jsonschema.validators.validate>` function.
 
 .. autofunction:: validate
     :noindex:
+
+.. warning::
+
+   Accepting untrusted schemas as input, especially when combined with untrusted data to validate, can lead to vulnerabilities even when restricting to official JSON Schema dialects and vocabularies.
+   Never validate data against schemas from untrusted sources without proper sandboxing or input validation.
 
 .. _validator-protocol:
 

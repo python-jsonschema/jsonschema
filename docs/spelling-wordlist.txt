@@ -37,6 +37,7 @@ recurses
 regex
 repr
 runtime
+sandboxing
 sensical
 subclassing
 submodule
