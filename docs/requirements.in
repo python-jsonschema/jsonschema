@@ -1,7 +1,7 @@
 file:.
 furo
 lxml
-sphinx!=7.2.5
+sphinx<9  # sphinx 9 appears to have issues I haven't diagnosed
 sphinx-autoapi
 sphinx-autodoc-typehints
 sphinx-copybutton
