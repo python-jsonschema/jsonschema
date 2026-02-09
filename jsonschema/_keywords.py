@@ -209,7 +209,28 @@ def uniqueItems(validator, uI, instance, schema):
         and validator.is_type(instance, "array")
         and not uniq(instance)
     ):
-        yield ValidationError(f"{instance!r} has non-unique elements")
+        # Find the first pair of duplicate items and their indices
+        seen = []
+        indices = None
+        for i, item in enumerate(instance):
+            for j, seen_item in enumerate(seen):
+                if equal(item, seen_item):
+                    indices = (j, i)
+                    break
+            if indices is not None:
+                break
+            seen.append(item)
+
+        if indices is not None:
+            first, second = indices
+            msg = (
+                f"{instance!r} has non-unique elements"
+                f" (items at index {first} and {second}"
+                f" are equal: {instance[first]!r})"
+            )
+        else:
+            msg = f"{instance!r} has non-unique elements"
+        yield ValidationError(msg)
 
 
 def pattern(validator, patrn, instance, schema):
