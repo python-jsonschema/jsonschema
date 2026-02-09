@@ -839,9 +839,9 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e.schema, schema)
         self.assertIsNone(e.parent)
 
-        self.assertEqual(e.path, deque([]))
-        self.assertEqual(e.relative_path, deque([]))
-        self.assertEqual(e.absolute_path, deque([]))
+        self.assertEqual(e.path, deque())
+        self.assertEqual(e.relative_path, deque())
+        self.assertEqual(e.absolute_path, deque())
         self.assertEqual(e.json_path, "$")
 
         self.assertEqual(e.schema_path, deque(["anyOf"]))
@@ -858,9 +858,9 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.schema, schema["anyOf"][0])
         self.assertIs(e1.parent, e)
 
-        self.assertEqual(e1.path, deque([]))
-        self.assertEqual(e1.absolute_path, deque([]))
-        self.assertEqual(e1.relative_path, deque([]))
+        self.assertEqual(e1.path, deque())
+        self.assertEqual(e1.absolute_path, deque())
+        self.assertEqual(e1.relative_path, deque())
         self.assertEqual(e1.json_path, "$")
 
         self.assertEqual(e1.schema_path, deque([0, "minimum"]))
@@ -877,9 +877,9 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e2.schema, schema["anyOf"][1])
         self.assertIs(e2.parent, e)
 
-        self.assertEqual(e2.path, deque([]))
-        self.assertEqual(e2.relative_path, deque([]))
-        self.assertEqual(e2.absolute_path, deque([]))
+        self.assertEqual(e2.path, deque())
+        self.assertEqual(e2.relative_path, deque())
+        self.assertEqual(e2.absolute_path, deque())
         self.assertEqual(e2.json_path, "$")
 
         self.assertEqual(e2.schema_path, deque([1, "type"]))
@@ -911,9 +911,9 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e.schema, schema)
         self.assertIsNone(e.parent)
 
-        self.assertEqual(e.path, deque([]))
-        self.assertEqual(e.relative_path, deque([]))
-        self.assertEqual(e.absolute_path, deque([]))
+        self.assertEqual(e.path, deque())
+        self.assertEqual(e.relative_path, deque())
+        self.assertEqual(e.absolute_path, deque())
         self.assertEqual(e.json_path, "$")
 
         self.assertEqual(e.schema_path, deque(["type"]))
@@ -930,9 +930,9 @@ class TestValidationErrorDetails(TestCase):
         self.assertEqual(e1.schema, schema["type"][0])
         self.assertIs(e1.parent, e)
 
-        self.assertEqual(e1.path, deque([]))
-        self.assertEqual(e1.relative_path, deque([]))
-        self.assertEqual(e1.absolute_path, deque([]))
+        self.assertEqual(e1.path, deque())
+        self.assertEqual(e1.relative_path, deque())
+        self.assertEqual(e1.absolute_path, deque())
         self.assertEqual(e1.json_path, "$")
 
         self.assertEqual(e1.schema_path, deque([0, "type"]))
@@ -1027,7 +1027,7 @@ class TestValidationErrorDetails(TestCase):
         errors = validator.iter_errors(instance)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
-        self.assertEqual(e1.path, deque([]))
+        self.assertEqual(e1.path, deque())
         self.assertEqual(e2.path, deque([0]))
         self.assertEqual(e3.path, deque([1, "bar"]))
         self.assertEqual(e4.path, deque([1, "bar", "bar"]))
@@ -1257,7 +1257,7 @@ class TestValidationErrorDetails(TestCase):
             error.message,
             "'foo' should not be valid under {'const': 'foo'}",
         )
-        self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.path, deque())
         self.assertEqual(error.json_path, "$")
         self.assertEqual(error.schema_path, deque(["propertyNames", "not"]))
 
@@ -1272,7 +1272,7 @@ class TestValidationErrorDetails(TestCase):
 
         self.assertEqual(error.validator, "const")
         self.assertEqual(error.message, "13 was expected")
-        self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.path, deque())
         self.assertEqual(error.json_path, "$")
         self.assertEqual(error.schema_path, deque(["then", "const"]))
 
@@ -1287,7 +1287,7 @@ class TestValidationErrorDetails(TestCase):
 
         self.assertEqual(error.validator, "const")
         self.assertEqual(error.message, "13 was expected")
-        self.assertEqual(error.path, deque([]))
+        self.assertEqual(error.path, deque())
         self.assertEqual(error.json_path, "$")
         self.assertEqual(error.schema_path, deque(["else", "const"]))
 
@@ -1311,7 +1311,7 @@ class TestValidationErrorDetails(TestCase):
                 None,
                 12,
                 False,
-                deque([]),
+                deque(),
                 "$",
             ),
         )
@@ -1472,7 +1472,7 @@ class TestValidationErrorDetails(TestCase):
                 "maxContains",
                 2,
                 ["foo", 2, "bar", 4, "baz", "quux"],
-                deque([]),
+                deque(),
                 {"contains": {"type": "string"}, "maxContains": 2},
                 deque(["contains"]),
                 "$",
@@ -1502,7 +1502,7 @@ class TestValidationErrorDetails(TestCase):
                 "minContains",
                 2,
                 ["foo", 2, 4],
-                deque([]),
+                deque(),
                 {"contains": {"type": "string"}, "minContains": 2},
                 deque(["contains"]),
                 "$",
@@ -1529,7 +1529,7 @@ class TestValidationErrorDetails(TestCase):
                 "contains",
                 {"type": "string"},
                 [2, 4],
-                deque([]),
+                deque(),
                 {"contains": {"type": "string"}, "minContains": 2},
                 deque(["contains"]),
                 "$",
