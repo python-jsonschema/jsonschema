@@ -1,0 +1,10 @@
+Fix ErrorTree polluting contents on index access
+
+ErrorTree used a defaultdict for _contents, which meant accessing
+a non-existent index via __getitem__ would silently create an empty
+entry. This caused __iter__ and __contains__ to return incorrect
+results after accessing an index with no errors.
+
+Replaced defaultdict with a regular dict and changed __init__ to
+explicitly create subtrees. __getitem__ now returns a new empty
+ErrorTree for valid indices without storing it in _contents.
