@@ -326,7 +326,13 @@ class ErrorTree:
         for error in errors:
             container = self
             for element in error.path:
-                container = container[element]
+                if element in container._contents:
+                    container = container._contents[element]
+                else:
+                    # Create a new child tree and add it to _contents
+                    child = self.__class__()
+                    container._contents[element] = child
+                    container = child
             container.errors[error.validator] = error
 
             container._instance = error.instance
@@ -346,9 +352,13 @@ class ErrorTree:
         by ``instance.__getitem__`` will be propagated (usually this is
         some subclass of `LookupError`.
         """
-        if self._instance is not _unset and index not in self:
+        if index in self._contents:
+            return self._contents[index]
+        if self._instance is not _unset:
+            # Validate the index exists in the instance
             self._instance[index]
-        return self._contents[index]
+        # Return an empty tree without mutating _contents
+        return self.__class__()
 
     def __setitem__(self, index: str | int, value: ErrorTree):
         """

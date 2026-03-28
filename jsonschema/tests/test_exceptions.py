@@ -506,6 +506,81 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree([])
         self.assertEqual(repr(tree), "<ErrorTree (0 total errors)>")
 
+    def test_index_access_does_not_mutate_tree(self):
+        """
+        Accessing an index that exists in the instance but has no error
+        should not add that index to the tree's iteration.
+
+        This is a regression test for issue #1328.
+        """
+        error = exceptions.ValidationError(
+            "a message",
+            validator="foo",
+            instance={"foo": "bar", "baz": "qux"},
+            path=["foo"],
+        )
+        tree = exceptions.ErrorTree([error])
+
+        # Before access, only "foo" should be in the tree
+        self.assertEqual(set(tree), {"foo"})
+        self.assertIn("foo", tree)
+        self.assertNotIn("baz", tree)
+
+        # Access "baz" which exists in instance but has no error
+        child = tree["baz"]
+        self.assertIsInstance(child, exceptions.ErrorTree)
+
+        # After access, iteration should still only show "foo"
+        self.assertEqual(set(tree), {"foo"})
+        self.assertNotIn("baz", tree)
+
+        # Multiple accesses should also not mutate
+        tree["baz"]
+        tree["baz"]
+        self.assertEqual(set(tree), {"foo"})
+        self.assertNotIn("baz", tree)
+
+    def test_nested_index_access_does_not_mutate_tree(self):
+        """
+        Accessing nested indices that have no error should not mutate
+        any level of the tree.
+        """
+        e1 = exceptions.ValidationError(
+            "err1", validator="a", path=["bar", 0], instance={"bar": [1, 2, 3]}
+        )
+        e2 = exceptions.ValidationError(
+            "err2", validator="b", path=["bar", 1], instance={"bar": [1, 2, 3]}
+        )
+        tree = exceptions.ErrorTree([e1, e2])
+
+        # Before access
+        self.assertEqual(set(tree), {"bar"})
+        self.assertEqual(set(tree["bar"]), {0, 1})
+
+        # Access nested index that has no error
+        child = tree["bar"][2]
+        self.assertIsInstance(child, exceptions.ErrorTree)
+
+        # After access, neither level should be mutated
+        self.assertEqual(set(tree), {"bar"})
+        self.assertEqual(set(tree["bar"]), {0, 1})
+        self.assertNotIn(2, tree["bar"])
+
+    def test_index_access_on_empty_tree_returns_empty_tree(self):
+        """
+        Accessing any index on an empty tree should return an empty tree
+        without mutating the original tree.
+        """
+        tree = exceptions.ErrorTree([])
+
+        # Access an index (tree has no _instance, so no validation)
+        child = tree["anything"]
+        self.assertIsInstance(child, exceptions.ErrorTree)
+        self.assertEqual(len(child), 0)
+
+        # Tree should still be empty
+        self.assertEqual(set(tree), set())
+
 
 class TestErrorInitReprStr(TestCase):
     def make_error(self, **kwargs):
