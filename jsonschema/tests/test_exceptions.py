@@ -546,10 +546,10 @@ class TestErrorTree(TestCase):
         any level of the tree.
         """
         e1 = exceptions.ValidationError(
-            "err1", validator="a", path=["bar", 0], instance={"bar": [1, 2, 3]},
+            "err1", validator="a", path=["bar", 0], instance={"bar": []},
         )
         e2 = exceptions.ValidationError(
-            "err2", validator="b", path=["bar", 1], instance={"bar": [1, 2, 3]},
+            "err2", validator="b", path=["bar", 1], instance={"bar": []},
         )
         tree = exceptions.ErrorTree([e1, e2])
 
