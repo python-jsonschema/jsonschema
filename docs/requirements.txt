@@ -4,19 +4,19 @@ accessible-pygments==0.0.5
     # via furo
 alabaster==1.0.0
     # via sphinx
-astroid==4.0.3
+astroid==4.1.2
     # via sphinx-autoapi
-attrs==25.4.0
+attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
-babel==2.17.0
+babel==2.18.0
     # via sphinx
 beautifulsoup4==4.14.3
     # via furo
-certifi==2026.1.4
+certifi==2026.2.25
     # via requests
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
     # via requests
 docutils==0.21.2
     # via sphinx
@@ -24,7 +24,7 @@ furo==2025.12.19
     # via -r docs/requirements.in
 idna==3.11
     # via requests
-imagesize==1.4.1
+imagesize==2.0.0
     # via sphinx
 jinja2==3.1.6
     # via
@@ -40,7 +40,7 @@ lxml==6.0.2
     #   sphinx-json-schema-spec
 markupsafe==3.0.3
     # via jinja2
-packaging==25.0
+packaging==26.0
     # via sphinx
 pyenchant==3.3.0
     # via sphinxcontrib-spelling
@@ -55,7 +55,7 @@ referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
-requests==2.32.5
+requests==2.33.0
     # via
     #   sphinx
     #   sphinxcontrib-spelling
@@ -69,7 +69,7 @@ rpds-py==0.30.0
     #   referencing
 snowballstemmer==3.0.1
     # via sphinx
-soupsieve==2.8.1
+soupsieve==2.8.3
     # via beautifulsoup4
 sphinx==8.2.3
     # via
@@ -82,7 +82,7 @@ sphinx==8.2.3
     #   sphinx-json-schema-spec
     #   sphinxcontrib-spelling
     #   sphinxext-opengraph
-sphinx-autoapi==3.6.1
+sphinx-autoapi==3.8.0
     # via -r docs/requirements.in
 sphinx-autodoc-typehints==3.5.2
     # via -r docs/requirements.in
