@@ -9,7 +9,7 @@ import sys
 def import_time(loops):
     total_us = 0
     for _ in range(loops):
-        p = subprocess.run(  # noqa: S603 (arguments are static)
+        p = subprocess.run(
             [sys.executable, "-X", "importtime", "-c", "import jsonschema"],
             stderr=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
