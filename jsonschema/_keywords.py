@@ -168,6 +168,12 @@ def multipleOf(validator, dB, instance, schema):
     if not validator.is_type(instance, "number"):
         return
 
+    # JSON Schema: numbers with zero fractional parts are integers.
+    # Convert integer-valued floats (e.g. 11.0) to int to avoid
+    # floating-point precision loss with large instances.
+    if isinstance(dB, float) and dB.is_integer():
+        dB = int(dB)
+
     if isinstance(dB, float):
         quotient = instance / dB
         try:
