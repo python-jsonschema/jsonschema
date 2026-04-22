@@ -321,6 +321,7 @@ class ErrorTree:
 
     def __init__(self, errors: Iterable[ValidationError] = ()):
         self.errors: MutableMapping[str, ValidationError] = {}
+        self._all_errors: list[ValidationError] = []
         self._contents: Mapping[str, ErrorTree] = defaultdict(self.__class__)
 
         for error in errors:
@@ -328,6 +329,7 @@ class ErrorTree:
             for element in error.path:
                 container = container[element]
             container.errors[error.validator] = error
+            container._all_errors.append(error)
 
             container._instance = error.instance
 
@@ -390,7 +392,7 @@ class ErrorTree:
         The total number of errors in the entire tree, including children.
         """
         child_errors = sum(len(tree) for _, tree in self._contents.items())
-        return len(self.errors) + child_errors
+        return len(self._all_errors) + child_errors
 
 
 def by_relevance(weak=WEAK_MATCHES, strong=STRONG_MATCHES):

@@ -394,6 +394,17 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree(errors)
         self.assertEqual(tree.total_errors, 8)
 
+    def test_total_errors_counts_duplicate_validators(self):
+        # Regression test for #442: multiple errors at the same path
+        # sharing the same validator keyword should all be counted.
+        errors = [
+            exceptions.ValidationError("first", validator="type"),
+            exceptions.ValidationError("second", validator="type"),
+            exceptions.ValidationError("third", validator="type"),
+        ]
+        tree = exceptions.ErrorTree(errors)
+        self.assertEqual(tree.total_errors, 3)
+
     def test_it_contains_an_item_if_the_item_had_an_error(self):
         errors = [exceptions.ValidationError("a message", path=["bar"])]
         tree = exceptions.ErrorTree(errors)
