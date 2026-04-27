@@ -1667,6 +1667,11 @@ class ValidatorTestMixin(MetaSchemaTestsMixin):
         schema, instance = self.invalid
         self.assertFalse(self.Validator(schema).is_valid(instance))
 
+    def test_large_integer_multiple_of_integer_valued_float(self):
+        schema = {"type": "integer", "multipleOf": 11.0}
+        instance = 9007199254740995
+        self.assertTrue(self.Validator(schema).is_valid(instance))
+
     def test_non_existent_properties_are_ignored(self):
         self.Validator({object(): object()}).validate(instance=object())
 
