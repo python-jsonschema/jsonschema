@@ -5,7 +5,7 @@ on which values of an instance. These tests are agnostic of any output format.
 
 ## Supported Dialects
 
-Although the annotation terminology of didn't appear in the spec until 2019-09,
+Although annotation terminology didn't appear in the spec until 2019-09,
 the concept is compatible with every version of JSON Schema. Test Cases in this
 Test Suite are designed to be compatible with as many releases of JSON Schema as
 possible. They do not include `$schema` or `$id`/`id` keywords so
@@ -25,7 +25,7 @@ A short description of what behavior the Test Case is covering.
 
 The `compatibility` option allows you to set which dialects the Test Case is
 compatible with. Test Runners can use this value to filter out Test Cases that
-don't apply the to dialect currently under test. The terminology for annotations
+don't apply to the dialect currently under test. The terminology for annotations
 didn't appear in the spec until 2019-09, but the concept is compatible with
 older releases as well. When setting `compatibility`, test authors should take
 into account dialects before 2019-09 for implementations that chose to support
@@ -42,7 +42,7 @@ Case is compatible with draft-07 and up.
 **Example**: `"compatibility": "7"`
 
 You can use a `<=` operator to indicate that the Test Case is compatible with
-releases less then or equal to the given release. This example indicates that
+releases less than or equal to the given release. This example indicates that
 the Test Case is compatible with 2019-09 and under.
 
 **Example**: `"compatibility": "<=2019"`
@@ -111,6 +111,6 @@ could contribute annotations for a single keyword.
 An empty object is an assertion that the annotation must not appear at the
 `location` for the `keyword`.
 
-As a convention for this Test Suite, the `expected` array should be sorted such
+As a convention for this Test Suite, the `expected` object should be sorted such
 that the most recently encountered value for an annotation given top-down
 evaluation of the schema comes before previously encountered values.

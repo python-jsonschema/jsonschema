@@ -811,5 +811,63 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "$dynamicRef avoids the root of each schema, but scopes are still registered",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "https://test.json-schema.org/dynamic-ref-avoids-root-of-each-schema/base",
+            "$ref": "first#/$defs/stuff",
+            "$defs": {
+                "first": {
+                    "$id": "first",
+                    "$defs": {
+                        "stuff": {
+                            "$ref": "second#/$defs/stuff"
+                        },
+                        "length": {
+                            "$comment": "unused, because there is no $dynamicAnchor here",
+                            "maxLength": 1
+                        }
+                    }
+                },
+                "second": {
+                    "$id": "second",
+                    "$defs": {
+                        "stuff": {
+                            "$ref": "third#/$defs/stuff"
+                        },
+                        "length": {
+                            "$dynamicAnchor": "length",
+                            "maxLength": 2
+                        }
+                    }
+                },
+                "third": {
+                    "$id": "third",
+                    "$defs": {
+                        "stuff": {
+                            "$dynamicRef": "#length"
+                        },
+                        "length": {
+                            "$dynamicAnchor": "length",
+                            "maxLength": 3
+                        }
+                    }
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "data is sufficient for schema at second#/$defs/length",
+                "data": "hi",
+                "valid": true
+            },
+            {
+                "description": "data is not sufficient for schema at second#/$defs/length",
+                "data": "hey",
+                "valid": false
+            }
+        ]
     }
 ]

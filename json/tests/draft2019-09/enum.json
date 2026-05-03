@@ -354,5 +354,44 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "empty enum",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "enum": []
+        },
+        "tests": [
+            {
+                "description": "string is invalid",
+                "data": "foo",
+                "valid": false
+            },
+            {
+                "description": "number is invalid",
+                "data": 42,
+                "valid": false
+            },
+            {
+                "description": "null is invalid",
+                "data": null,
+                "valid": false
+            },
+            {
+                "description": "object is invalid",
+                "data": {},
+                "valid": false
+            },
+            {
+                "description": "array is invalid",
+                "data": [],
+                "valid": false
+            },
+            {
+                "description": "boolean is invalid",
+                "data": false,
+                "valid": false
+            }
+        ]
     }
 ]

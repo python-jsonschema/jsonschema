@@ -79,7 +79,7 @@ def main():
     sys.stdout.write("::remove-matcher owner=me::\n")
 
     for version in TESTS.iterdir():
-        if version.name in {"draft-next", "latest"}:
+        if version.name in {"v1", "latest"}:
             continue
 
         version_urls = urls(version.name)

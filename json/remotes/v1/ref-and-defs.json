@@ -1,0 +1,12 @@
+{
+    "$schema": "https://json-schema.org/v1",
+    "$id": "http://localhost:1234/v1/ref-and-defs.json",
+    "$defs": {
+        "inner": {
+            "properties": {
+                "bar": { "type": "string" }
+            }
+        }
+    },
+    "$ref": "#/$defs/inner"
+}

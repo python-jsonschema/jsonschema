@@ -8,7 +8,7 @@ _**NOTE** Although the formats didn't change much between 2019-09 and 2020-12, t
 
 The tests are organized by specification release and then into two categories: content and structure.
 
-Content tests verify that the keywords are producing the correct annotations and/or error messages.  Since there are no requirements on the content of error messages, there's not much that can be verified for them, but it is possible to identify when a error message _could_ be present.  Primarily, these tests need to extensively cover the annotation behaviors of each keyword.  The only output format needed for these tests is `basic` for 2019-09/2020-12 and `list` for later versions.
+Content tests verify that the keywords are producing the correct annotations and/or error messages.  Since there are no requirements on the content of error messages, there's not much that can be verified for them, but it is possible to identify when an error message _could_ be present.  Primarily, these tests need to extensively cover the annotation behaviors of each keyword.  The only output format needed for these tests is `basic` for 2019-09/2020-12 and `list` for later versions.
 
 Structure tests verify that the structures of the various formats (i.e. `flag`, `basic`, `detailed`, `verbose` for 2019-09/2020-12 and `flag`, `list`, `hierarchical` for later versions) are correct.  These tests don't need to cover each keyword; rather they need to sufficiently cover the various aspects of building the output structures by using whatever keywords are necessary to do so.
 
@@ -22,7 +22,7 @@ The `output` property itself has a property for each of the output formats where
 
 ## Other notes
 
-### Ambiguity around 2020-09/2020-12 `basic`
+### Ambiguity around 2019-09/2020-12 `basic`
 
 The 2019-09/2020-12 specs don't define the structure of `basic` very thoroughly.  Specifically there is a nuance where if the list contains a single output node, there are two possible structures, given the text:
 

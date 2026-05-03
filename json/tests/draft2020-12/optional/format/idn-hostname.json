@@ -383,6 +383,66 @@
                 "description": "halfwidth ideographic full stop as label separator",
                 "data": "a\uff61b",
                 "valid": true
+            },
+            {
+                "description": "leading dot",
+                "data": ".example",
+                "valid": false
+            },
+            {
+                "description": "leading ideographic full stop",
+                "data": "\u3002example",
+                "valid": false
+            },
+            {
+                "description": "leading fullwidth full stop",
+                "data": "\uff0eexample",
+                "valid": false
+            },
+            {
+                "description": "leading halfwidth ideographic full stop",
+                "data": "\uff61example",
+                "valid": false
+            },
+            {
+                "description": "trailing dot",
+                "data": "example.",
+                "valid": false
+            },
+            {
+                "description": "trailing ideographic full stop",
+                "data": "example\u3002",
+                "valid": false
+            },
+            {
+                "description": "trailing fullwidth full stop",
+                "data": "example\uff0e",
+                "valid": false
+            },
+            {
+                "description": "trailing halfwidth ideographic full stop",
+                "data": "example\uff61",
+                "valid": false
+            },
+            {
+                "description": "label too long if separator ignored (full stop)",
+                "data": "παράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπα.com",
+                "valid": true
+            },
+            {
+                "description": "label too long if separator ignored (ideographic full stop)",
+                "data": "παράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπα\u3002com",
+                "valid": true
+            },
+            {
+                "description": "label too long if separator ignored (fullwidth full stop)",
+                "data": "παράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπα\uff0ecom",
+                "valid": true
+            },
+            {
+                "description": "label too long if separator ignored (halfwidth ideographic full stop)",
+                "data": "παράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπαράδειγμαπα\uff61com",
+                "valid": true
             }
         ]
     }

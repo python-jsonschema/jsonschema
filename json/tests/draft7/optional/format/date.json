@@ -237,6 +237,11 @@
                 "description": "ISO8601 / non-RFC3339: week number rollover to next year (2023-01-01)",
                 "data": "2022W527",
                 "valid": false
+            },
+            {
+                "description": "an invalid time string in date-time format",
+                "data": "2020-11-28T23:55:45Z",
+                "valid": false
             }
         ]
     }

@@ -192,6 +192,16 @@
                 "description": "not a valid JSON-pointer (isn't empty nor starts with /) #3",
                 "data": "a/a",
                 "valid": false
+            },
+            {
+                "description": "valid JSON-pointer (Unicode characters allowed by RFC 6901)",
+                "data": "/foo/bar/😎",
+                "valid": true
+            },
+            {
+                "description": "valid JSON-pointer (control characters allowed after JSON unescaping)",
+                "data": "/foo\u0000bar\n\tbaz",
+                "valid": true
             }
         ]
     }

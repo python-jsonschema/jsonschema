@@ -664,6 +664,39 @@
         ]
     },
     {
+        "description": "order of evaluation: $id and $ref on nested schema",
+        "schema": {
+            "$comment": "$id must be evaluated before $ref to get the proper $ref destination",
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "$id": "https://example.com/draft2019-09/ref-and-id3/base.json",
+            "$ref": "nested/foo.json",
+            "$defs": {
+                "foo": {
+                    "$comment": "canonical uri: https://example.com/draft2019-09/ref-and-id3/nested/foo.json",
+                    "$id": "nested/foo.json",
+                    "$ref": "./bar.json"
+                },
+                "bar": {
+                    "$comment": "canonical uri: https://example.com/draft2019-09/ref-and-id3/nested/bar.json",
+                    "$id": "nested/bar.json",
+                    "type": "number"
+                }
+            }
+        },
+        "tests": [
+            {
+                "description": "data is valid against nested sibling",
+                "data": 5,
+                "valid": true
+            },
+            {
+                "description": "data is invalid against nested sibling",
+                "data": "a",
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "simple URN base URI with $ref via the URN",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",

@@ -1,0 +1,7 @@
+{
+    "$schema": "https://json-schema.org/v1",
+    "type": "object",
+    "properties": {
+        "foo": {"$ref": "string.json"}
+    }
+}

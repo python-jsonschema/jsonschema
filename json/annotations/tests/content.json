@@ -68,7 +68,6 @@
       "description": "`contentSchema` is an annotation for string instances",
       "compatibility": "2019",
       "schema": {
-        "$id": "https://annotations.json-schema.org/test/contentSchema-is-an-annotation",
         "contentMediaType": "application/json",
         "contentSchema": { "type": "number" }
       },
@@ -101,7 +100,6 @@
       "description": "`contentSchema` requires `contentMediaType`",
       "compatibility": "2019",
       "schema": {
-        "$id": "https://annotations.json-schema.org/test/contentSchema-is-an-annotation",
         "contentSchema": { "type": "number" }
       },
       "tests": [
