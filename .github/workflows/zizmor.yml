@@ -6,30 +6,36 @@ on:
   pull_request:
     branches: ["**"]
 
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   zizmor:
     name: Run zizmor
     runs-on: ubuntu-latest
     permissions:
-      security-events: write
+      security-events: write  # for uploading SARIF results to GitHub code scanning
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run zizmor 🌈
-        run: uvx zizmor --format=sarif .github > results.sarif
+        run: uvx zizmor --pedantic --format=sarif .github > results.sarif
 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v4.35.2
+        uses: github/codeql-action/upload-sarif@7fc6561ed893d15cec696e062df840b21db27eb0 # v4.35.2
         with:
           sarif_file: results.sarif
           category: zizmor

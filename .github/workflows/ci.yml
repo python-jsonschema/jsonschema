@@ -14,13 +14,18 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   list:
+    name: List nox sessions
     runs-on: ubuntu-latest
     outputs:
       noxenvs: ${{ steps.noxenvs-matrix.outputs.noxenvs }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
       - name: Set up uv
@@ -34,6 +39,7 @@ jobs:
           )
 
   ci:
+    name: Test
     needs: list
     runs-on: ${{ matrix.os }}
 
@@ -87,7 +93,7 @@ jobs:
             noxenv: "tests-3.14t(format-nongpl)"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
       - name: Install dependencies
@@ -97,7 +103,7 @@ jobs:
         run: brew install enchant
         if: runner.os == 'macOS' && startsWith(matrix.noxenv, 'docs')
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: |
             3.10
@@ -121,6 +127,7 @@ jobs:
         run: uvx nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }} # zizmor: ignore[template-injection]
 
   packaging:
+    name: Build and publish
     needs: ci
     runs-on: ubuntu-latest
     environment:
@@ -128,11 +135,11 @@ jobs:
       url: https://pypi.org/p/jsonschema
 
     permissions:
-      contents: write
-      id-token: write
+      contents: write  # for creating GitHub releases via `gh release create`
+      id-token: write  # for trusted publishing to PyPI
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
           persist-credentials: false
