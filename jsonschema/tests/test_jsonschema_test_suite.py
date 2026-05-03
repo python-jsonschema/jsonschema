@@ -31,6 +31,11 @@ def ecmascript_regex(test):
         return "ECMA regex support will be added in #1142."
 
 
+def unicode_property_escape(test):
+    if "Unicode property escape" in test.case_description:
+        return "Unicode property escapes requires ECMA-like regexes."
+
+
 def missing_format(Validator):
     def missing_format(test):  # pragma: no cover
         schema = test.schema
@@ -237,12 +242,15 @@ TestDraft202012 = DRAFT202012.to_unittest_testcase(
     DRAFT202012.optional_cases_of(name="refOfUnknownKeyword"),
     DRAFT202012.optional_cases_of(name="unknownKeyword"),
     Validator=jsonschema.Draft202012Validator,
-    skip=skip(
-        message="Vocabulary support is still in-progress.",
-        subject="vocabulary",
-        description=(
-            "no validation: invalid number, but it still validates"
-        ),
+    skip=lambda test: (
+        skip(
+            message="Vocabulary support is still in-progress.",
+            subject="vocabulary",
+            description=(
+                "no validation: invalid number, but it still validates"
+            ),
+        )(test)
+        or unicode_property_escape(test)
     ),
 )
 
