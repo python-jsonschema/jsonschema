@@ -72,6 +72,80 @@ def complex_email_validation(test):
     )(test) or skip(
         message=message,
         description="two subsequent dots inside local part are not valid",
+    )(test) or skip(
+        message=message,
+        description="domain is required",
+    )(test) or skip(
+        message=message,
+        description="local part is required",
+    )(test) or skip(
+        message=message,
+        description="two email addresses is not valid",
+    )(test) or skip(
+        message=message,
+        description='full "From" header is invalid',
+    )(test) or skip(
+        message=message,
+        description="unquoted space in local part is invalid",
+    )(test)
+
+
+def hostname_validation(test):
+    if test.subject != "hostname":
+        return
+
+    message = "Full hostname validation is not yet supported."
+    if test.case_description == "validation of A-label (punycode) host names":
+        return message
+    return skip(
+        message=message,
+        case_description="validation of host names",
+        description="trailing dot",
+    )(test) or skip(
+        message=message,
+        case_description="validation of host names",
+        description='contains "--" in the 3rd and 4th position',
+    )(test)
+
+
+def idn_hostname_validation(test):
+    if test.subject != "idn-hostname":
+        return
+    if test.case_description != (
+        "validation of separators in internationalized host names"
+    ):
+        return
+
+    message = "Full idn-hostname validation is not yet supported."
+    return skip(
+        message=message,
+        description="trailing dot",
+    )(test) or skip(
+        message=message,
+        description="trailing ideographic full stop",
+    )(test) or skip(
+        message=message,
+        description="trailing fullwidth full stop",
+    )(test) or skip(
+        message=message,
+        description="trailing halfwidth ideographic full stop",
+    )(test)
+
+
+def duration_validation(test):
+    if test.subject != "duration":
+        return
+
+    message = "Strict RFC 3339 duration validation is not yet supported."
+    return skip(
+        message=message,
+        description="fractional duration is not allowed by RFC 3339 ABNF",
+    )(test) or skip(
+        message=message,
+        description="hours and seconds cannot appear without minutes",
+    )(test) or skip(
+        message=message,
+        description="years and days cannot appear without months",
     )(test)
 
 
@@ -151,6 +225,7 @@ TestDraft4 = DRAFT4.to_unittest_testcase(
         or leap_second(test)
         or missing_format(jsonschema.Draft4Validator)(test)
         or complex_email_validation(test)
+        or hostname_validation(test)
     ),
 )
 
@@ -169,6 +244,7 @@ TestDraft6 = DRAFT6.to_unittest_testcase(
         or leap_second(test)
         or missing_format(jsonschema.Draft6Validator)(test)
         or complex_email_validation(test)
+        or hostname_validation(test)
     ),
 )
 
@@ -189,6 +265,8 @@ TestDraft7 = DRAFT7.to_unittest_testcase(
         or leap_second(test)
         or missing_format(jsonschema.Draft7Validator)(test)
         or complex_email_validation(test)
+        or hostname_validation(test)
+        or idn_hostname_validation(test)
     ),
 )
 
@@ -222,10 +300,12 @@ TestDraft201909Format = DRAFT201909.to_unittest_testcase(
     format_checker=jsonschema.Draft201909Validator.FORMAT_CHECKER,
     skip=lambda test: (
         complex_email_validation(test)
+        or hostname_validation(test)
+        or idn_hostname_validation(test)
         or ecmascript_regex(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft201909Validator)(test)
-        or complex_email_validation(test)
+        or duration_validation(test)
     ),
 )
 
@@ -262,9 +342,11 @@ TestDraft202012Format = DRAFT202012.to_unittest_testcase(
     format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER,
     skip=lambda test: (
         complex_email_validation(test)
+        or hostname_validation(test)
+        or idn_hostname_validation(test)
         or ecmascript_regex(test)
         or leap_second(test)
         or missing_format(jsonschema.Draft202012Validator)(test)
-        or complex_email_validation(test)
+        or duration_validation(test)
     ),
 )
