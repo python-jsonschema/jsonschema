@@ -1,0 +1,13 @@
+{
+  "$id": "http://localhost:1234/v1/detached-dynamicref.json",
+  "$schema": "https://json-schema.org/v1",
+  "$defs": {
+    "foo": {
+      "$dynamicRef": "#detached"
+    },
+    "detached": {
+      "$dynamicAnchor": "detached",
+      "type": "integer"
+    }
+  }
+}

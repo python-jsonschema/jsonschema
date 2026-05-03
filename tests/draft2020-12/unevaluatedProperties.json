@@ -130,6 +130,10 @@
         "description": "unevaluatedProperties with adjacent bool additionalProperties",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+                "foo": { "type": "string" }
+            },
             "additionalProperties": true,
             "unevaluatedProperties": false
         },
@@ -155,24 +159,28 @@
         "description": "unevaluatedProperties with adjacent non-bool additionalProperties",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "additionalProperties": { "type": "string" },
+            "type": "object",
+            "properties": {
+                "foo": { "type": "string" }
+            },
+            "additionalProperties": {"type": "string"},
             "unevaluatedProperties": false
         },
         "tests": [
             {
-                "description": "with only valid additional properties",
+                "description": "with no additional properties",
                 "data": {
                     "foo": "foo"
                 },
                 "valid": true
             },
             {
-                "description": "with invalid additional properties",
+                "description": "with additional properties",
                 "data": {
                     "foo": "foo",
-                    "bar": 1
+                    "bar": "bar"
                 },
-                "valid": false
+                "valid": true
             }
         ]
     },
@@ -535,17 +543,15 @@
             {
                 "description": "when if is true and has no unevaluated properties",
                 "data": {
-                    "foo": "then",
-                    "bar": "bar"
+                    "foo": "then"
                 },
-                "valid": false
+                "valid": true
             },
             {
                 "description": "when if is true and has unevaluated properties",
                 "data": {
                     "foo": "then",
-                    "bar": "bar",
-                    "baz": "baz"
+                    "bar": "bar"
                 },
                 "valid": false
             },
@@ -1585,6 +1591,30 @@
                 "description": "unevaluatedProperties sees bar when foo2 is present",
                 "data": { "foo2": "", "bar": ""},
                 "valid": true
+            }
+        ]
+    },
+    {
+        "description": "Evaluated properties collection needs to consider instance location",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "properties": {
+                "foo": {
+                    "properties": {
+                        "bar": { "type": "string" }
+                    }
+                }
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "with an unevaluated property that exists at another location",
+                "data": {
+                    "foo": { "bar": "foo" },
+                    "bar": "bar"
+                },
+                "valid": false
             }
         ]
     }

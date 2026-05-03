@@ -1,0 +1,13 @@
+{
+  "$id": "http://localhost:1234/v1/detached-ref.json",
+  "$schema": "https://json-schema.org/v1",
+  "$defs": {
+    "foo": {
+      "$ref": "#detached"
+    },
+    "detached": {
+      "$anchor": "detached",
+      "type": "integer"
+    }
+  }
+}

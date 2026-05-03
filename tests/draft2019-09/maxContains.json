@@ -98,5 +98,26 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "maxContains = 0 with minContains = 0",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2019-09/schema",
+            "contains": {"const": 1},
+            "minContains": 0,
+            "maxContains": 0
+        },
+        "tests": [
+            {
+                "description": "empty array",
+                "data": [ ],
+                "valid": true
+            },
+            {
+                "description": "one matching item",
+                "data": [ 1 ],
+                "valid": false
+            }
+        ]
     }
 ]

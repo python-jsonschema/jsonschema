@@ -32,6 +32,11 @@
                 "description": "invalid non-padded day dates",
                 "data": "1963-06-1T08:30:06.283185Z",
                 "valid": false
+            },
+            {
+                "description": "invalid extended year",
+                "data": "+11963-06-19T08:30:06.283185Z",
+                "valid": false
             }
         ]
     }

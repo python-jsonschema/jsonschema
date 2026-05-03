@@ -719,6 +719,37 @@
         ]
     },
     {
+        "description" : "unevaluatedItems with minContains = 0",
+        "schema" : {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "contains": {"type": "string"},
+            "minContains": 0,
+            "unevaluatedItems": false
+        },
+        "tests" : [
+            {
+                "description": "empty array is valid",
+                "data": [],
+                "valid": true
+            },
+            {
+                "description": "no items evaluated by contains",
+                "data": [0],
+                "valid": false
+            },
+            {
+                "description": "some but not all items evaluated by contains",
+                "data": ["foo", 0],
+                "valid": false
+            },
+            {
+                "description": "all items evaluated by contains",
+                "data": ["foo", "bar"],
+                "valid": true
+            }
+        ]
+    },
+    {
         "description": "non-array instances are valid",
         "schema": {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -791,6 +822,31 @@
             {
                 "description": "invalid in case if is evaluated",
                 "data": [ "b" ],
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "Evaluated items collection needs to consider instance location",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "prefixItems": [
+                {
+                    "prefixItems": [
+                        true,
+                        { "type": "string" }
+                    ]
+                }
+            ],
+            "unevaluatedItems": false
+        },
+        "tests": [
+            {
+                "description": "with an unevaluated item that exists at another location",
+                "data": [
+                    ["foo", "bar"],
+                    "bar"
+                ],
                 "valid": false
             }
         ]

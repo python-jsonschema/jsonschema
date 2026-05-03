@@ -338,5 +338,47 @@
                 "valid": false
             }
         ]
+    },
+    {
+        "description": "characters with the same visual representation but different codepoint",
+        "schema": {
+            "const": "μ",
+            "$comment": "U+03BC"
+        },
+        "tests": [
+            {
+                "description": "character uses the same codepoint",
+                "data": "μ",
+                "comment": "U+03BC",
+                "valid": true
+            },
+            {
+                "description": "character looks the same but uses a different codepoint",
+                "data": "µ",
+                "comment": "U+00B5",
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "characters with the same visual representation, but different number of codepoints",
+        "schema": {
+            "const": "ä",
+            "$comment": "U+00E4"
+        },
+        "tests": [
+            {
+                "description": "character uses the same codepoint",
+                "data": "ä",
+                "comment": "U+00E4",
+                "valid": true
+            },
+            {
+                "description": "character looks the same but uses combining marks",
+                "data": "ä",
+                "comment": "a, U+0308",
+                "valid": false
+            }
+        ]
     }
 ]

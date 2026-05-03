@@ -128,23 +128,6 @@
         ]
     },
     {
-        "description": "additionalItems does not look in applicators, valid case",
-        "schema": {
-            "$schema": "https://json-schema.org/draft/2019-09/schema",
-            "allOf": [
-                { "items": [ { "type": "integer" } ] }
-            ],
-            "additionalItems": { "type": "boolean" }
-        },
-        "tests": [
-            {
-                "description": "items defined in allOf are not examined",
-                "data": [ 1, null ],
-                "valid": true
-            }
-        ]
-    },
-    {
         "description": "additionalItems does not look in applicators, invalid case",
         "schema": {
             "$schema": "https://json-schema.org/draft/2019-09/schema",

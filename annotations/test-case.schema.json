@@ -13,7 +13,7 @@
       "pattern": "^(<=|=)?([123467]|2019|2020)(,(<=|=)?([123467]|2019|2020))*$"
     },
     "schema": {
-      "markdownDescription": "This schema shouldn't include `$schema` or `id`/`$id` unless necesary for the test because Test Cases should be designed to work with as many releases as possible.",
+      "markdownDescription": "This schema shouldn't include `$schema` or `id`/`$id` unless necessary for the test because Test Cases should be designed to work with as many releases as possible.",
       "type": ["boolean", "object"]
     },
     "externalSchemas": {
