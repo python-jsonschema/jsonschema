@@ -1,7 +1,14 @@
 from collections.abc import Mapping, MutableMapping, Sequence
+from operator import ne
+from re import search
 from urllib.parse import urlsplit
-import itertools
-import re
+
+# Module-level sentinels so recursive `_uniq_key` calls produce comparable
+# keys for nested True/False (function-default sentinels would also work, but
+# this makes the intent explicit).
+_TRUE = object()
+_FALSE = object()
+_UNSUPPORTED = object()
 
 
 class URIDict(MutableMapping):
@@ -79,7 +86,7 @@ def find_additional_properties(instance, schema):
     patterns = "|".join(schema.get("patternProperties", {}))
     for property in instance:
         if property not in properties:
-            if patterns and re.search(patterns, property):
+            if patterns and search(patterns, property):
                 continue
             yield property
 
@@ -153,31 +160,81 @@ def unbool(element, true=object(), false=object()):
     return element
 
 
+def _uniq_key(element):
+    """
+    Convert an element into a hashable key compatible with `equal`.
+
+    Returns `_UNSUPPORTED` when an element cannot be canonically hashed.
+    """
+    # NaN never equals itself, so it can't be deduplicated via hashing.
+    # Some custom container equality implementations can also raise here
+    # (e.g. mappings containing unhashable keys), in which case we fall back
+    # to brute force as well.
+    try:
+        if ne(element, element):
+            return _UNSUPPORTED
+    except TypeError:
+        return _UNSUPPORTED
+
+    element = unbool(element, true=_TRUE, false=_FALSE)
+
+    # Tagged tuples ("scalar"/"sequence"/"mapping", ...) prevent hash
+    # collisions between values of different shapes.
+    if isinstance(element, Sequence) and not isinstance(element, str):
+        values = []
+        for each in element:
+            key = _uniq_key(each)
+            if key is _UNSUPPORTED:
+                return _UNSUPPORTED
+            values.append(key)
+        return "sequence", tuple(values)
+
+    if isinstance(element, Mapping):
+        items = []
+        for key, value in element.items():
+            value_key = _uniq_key(value)
+            if value_key is _UNSUPPORTED:
+                return _UNSUPPORTED
+            items.append((key, value_key))
+        try:
+            return "mapping", frozenset(items)
+        except TypeError:
+            # Unhashable mapping key — fall back to brute force.
+            return _UNSUPPORTED
+
+    try:
+        hash(element)
+    except TypeError:
+        return _UNSUPPORTED
+
+    return "scalar", element
+
+
 def uniq(container):
     """
     Check if all of a container's elements are unique.
 
-    Tries to rely on the container being recursively sortable, or otherwise
-    falls back on (slow) brute force.
+    Tries to use a structural hash compatible with `equal`, falling back to
+    brute force when necessary.
     """
-    try:
-        sort = sorted(unbool(i) for i in container)
-        sliced = itertools.islice(sort, 1, None)
+    seen_keys = set()
+    unsupported = []
 
-        for i, j in zip(sort, sliced):
-            if equal(i, j):
-                return False
+    for element in container:
+        key = _uniq_key(element)
 
-    except (NotImplementedError, TypeError):
-        seen = []
-        for e in container:
-            e = unbool(e)
-
-            for i in seen:
-                if equal(i, e):
+        if key is _UNSUPPORTED:
+            for previous in unsupported:
+                if equal(previous, element):
                     return False
+            unsupported.append(element)
+            continue
 
-            seen.append(e)
+        if key in seen_keys:
+            return False
+
+        seen_keys.add(key)
+
     return True
 
 
@@ -314,7 +371,7 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
     if "patternProperties" in schema:
         for property in instance:
             for pattern in schema["patternProperties"]:
-                if re.search(pattern, property):
+                if search(pattern, property):
                     evaluated_keys.append(property)
 
     if "dependentSchemas" in schema:
