@@ -174,14 +174,17 @@ class TestUniq(TestCase):
         self.assertFalse(uniq([Unhashable(1), Unhashable(1)]))
         self.assertTrue(uniq([Unhashable(1), Unhashable(2)]))
 
-    def test_nan_is_not_uniquely_hashable(self):
+    def test_nan_falls_back(self):
         self.assertFalse(uniq([nan, nan]))
+        self.assertTrue(uniq([nan, float("nan")]))
 
     def test_sequence_with_nan_falls_back(self):
         self.assertFalse(uniq([[nan], [nan]]))
+        self.assertTrue(uniq([[nan], [float("nan")]]))
 
     def test_mapping_with_nan_falls_back(self):
         self.assertFalse(uniq([{"x": nan}, {"x": nan}]))
+        self.assertTrue(uniq([{"x": nan}, {"x": float("nan")}]))
 
     def test_nested_bool_and_int_differ(self):
         # Exercises the _TRUE/_FALSE sentinels through recursion.

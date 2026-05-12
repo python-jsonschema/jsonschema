@@ -1,7 +1,6 @@
 from collections.abc import Mapping, MutableMapping, Sequence
-from operator import ne
-from re import search
 from urllib.parse import urlsplit
+import re
 
 # Module-level sentinels so recursive `_uniq_key` calls produce comparable
 # keys for nested True/False (function-default sentinels would also work, but
@@ -86,7 +85,7 @@ def find_additional_properties(instance, schema):
     patterns = "|".join(schema.get("patternProperties", {}))
     for property in instance:
         if property not in properties:
-            if patterns and search(patterns, property):
+            if patterns and re.search(patterns, property):
                 continue
             yield property
 
@@ -171,7 +170,7 @@ def _uniq_key(element):
     # (e.g. mappings containing unhashable keys), in which case we fall back
     # to brute force as well.
     try:
-        if ne(element, element):
+        if element != element:  # noqa: PLR0124 -- NaN detection
             return _UNSUPPORTED
     except TypeError:
         return _UNSUPPORTED
@@ -371,7 +370,7 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
     if "patternProperties" in schema:
         for property in instance:
             for pattern in schema["patternProperties"]:
-                if search(pattern, property):
+                if re.search(pattern, property):
                     evaluated_keys.append(property)
 
     if "dependentSchemas" in schema:
