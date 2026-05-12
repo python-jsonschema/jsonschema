@@ -176,15 +176,15 @@ class TestUniq(TestCase):
 
     def test_nan_falls_back(self):
         self.assertFalse(uniq([nan, nan]))
-        self.assertTrue(uniq([nan, float("nan")]))
+        self.assertTrue(uniq([nan, -nan]))
 
     def test_sequence_with_nan_falls_back(self):
         self.assertFalse(uniq([[nan], [nan]]))
-        self.assertTrue(uniq([[nan], [float("nan")]]))
+        self.assertTrue(uniq([[nan], [-nan]]))
 
     def test_mapping_with_nan_falls_back(self):
         self.assertFalse(uniq([{"x": nan}, {"x": nan}]))
-        self.assertTrue(uniq([{"x": nan}, {"x": float("nan")}]))
+        self.assertTrue(uniq([{"x": nan}, {"x": -nan}]))
 
     def test_nested_bool_and_int_differ(self):
         # Exercises the _TRUE/_FALSE sentinels through recursion.
