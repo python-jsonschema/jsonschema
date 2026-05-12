@@ -1,7 +1,18 @@
+from collections.abc import Mapping
 from math import nan
 from unittest import TestCase
 
-from jsonschema._utils import equal
+from jsonschema._utils import equal, uniq
+
+
+class Unhashable:
+    __hash__ = None  # type: ignore[assignment]
+
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        return isinstance(other, Unhashable) and self.value == other.value
 
 
 class TestEqual(TestCase):
@@ -136,3 +147,79 @@ class TestListEqual(TestCase):
         list_1 = ["a", ["b", "c"], "d"]
         list_2 = ["a", [], "c"]
         self.assertFalse(equal(list_1, list_2))
+
+
+class TestUniq(TestCase):
+    def test_scalars(self):
+        self.assertTrue(uniq([1, 2, 3]))
+        self.assertFalse(uniq([1, 2, 1]))
+
+    def test_bool_and_int_differ(self):
+        self.assertTrue(uniq([True, 1]))
+        self.assertTrue(uniq([False, 0]))
+        self.assertFalse(uniq([True, True]))
+        self.assertFalse(uniq([False, False]))
+
+    def test_sequence_types_compare_structurally(self):
+        self.assertFalse(uniq([[1, 2], (1, 2)]))
+        self.assertTrue(uniq([[1, 2], (2, 1)]))
+
+    def test_mappings_ignore_key_order(self):
+        self.assertFalse(uniq([
+            {"a": [1, 2], "b": {"c": 3}},
+            {"b": {"c": 3}, "a": (1, 2)},
+        ]))
+
+    def test_falls_back_for_unhashable_scalars(self):
+        self.assertFalse(uniq([Unhashable(1), Unhashable(1)]))
+        self.assertTrue(uniq([Unhashable(1), Unhashable(2)]))
+
+    def test_nan_falls_back(self):
+        self.assertFalse(uniq([nan, nan]))
+        self.assertTrue(uniq([nan, -nan]))
+
+    def test_sequence_with_nan_falls_back(self):
+        self.assertFalse(uniq([[nan], [nan]]))
+        self.assertTrue(uniq([[nan], [-nan]]))
+
+    def test_mapping_with_nan_falls_back(self):
+        self.assertFalse(uniq([{"x": nan}, {"x": nan}]))
+        self.assertTrue(uniq([{"x": nan}, {"x": -nan}]))
+
+    def test_nested_bool_and_int_differ(self):
+        # Exercises the _TRUE/_FALSE sentinels through recursion.
+        self.assertTrue(uniq([[True], [1]]))
+        self.assertTrue(uniq([{"k": True}, {"k": 1}]))
+
+    def test_falls_back_for_unhashable_mapping_key(self):
+        class FrozenDict(Mapping):
+            def __init__(self, items):
+                self._items = list(items)
+
+            def __getitem__(self, key):
+                for k, v in self._items:
+                    if k == key:
+                        return v
+                raise KeyError(key)
+
+            def __iter__(self):
+                return (k for k, _ in self._items)
+
+            def __len__(self):
+                return len(self._items)
+
+        a = FrozenDict([([1, 2], "x")])
+        b = FrozenDict([([1, 2], "x")])
+        self.assertFalse(uniq([a, b]))
+
+    def test_unhashable_inside_sequence_falls_back(self):
+        self.assertFalse(uniq([[Unhashable(1)], [Unhashable(1)]]))
+        self.assertTrue(uniq([[Unhashable(1)], [Unhashable(2)]]))
+
+    def test_unhashable_inside_mapping_falls_back(self):
+        self.assertFalse(
+            uniq([{"k": Unhashable(1)}, {"k": Unhashable(1)}]),
+        )
+        self.assertTrue(
+            uniq([{"k": Unhashable(1)}, {"k": Unhashable(2)}]),
+        )
