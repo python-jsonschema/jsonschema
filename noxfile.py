@@ -26,18 +26,6 @@ REQUIREMENTS_IN = [  # this is actually ordered, as files depend on each other
     (path.parent / f"{path.stem}.in", path) for path in REQUIREMENTS.values()
 ]
 
-NONGPL_LICENSES = [
-    "Apache Software License",
-    "Apache-2.0",
-    "BSD License",
-    "ISC License (ISCL)",
-    "MIT",
-    "MIT License",
-    "Mozilla Public License 2.0 (MPL 2.0)",
-    "Python Software Foundation License",
-    "The Unlicense (Unlicense)",
-]
-
 SUPPORTED = ["3.10", "pypy3.11", "3.11", "3.12", "3.13", "3.14t", "3.14"]
 LATEST_STABLE = SUPPORTED[-1]
 
@@ -101,32 +89,10 @@ def tests(session, installable):
 @session()
 def license_check(session):
     """
-    Check that the non-GPL extra does not allow arbitrary licenses.
+    Check that the non-GPL extra does not contain any copyleft licenses.
     """
-    session.install("pip-licenses", f"{ROOT}[format-nongpl]")
-    session.run(
-        "python",
-        "-m",
-        "piplicenses",
-        "--ignore-packages",
-
-        # because they're not our deps
-        "pip-requirements-parser",
-        "pip_audit",
-        "pip-api",
-
-        # because pip-licenses doesn't yet support PEP 639 :/
-        "attrs",
-        "idna",
-        "jsonschema",
-        "jsonschema-specifications",
-        "referencing",
-        "rpds-py",
-        "types-python-dateutil",
-
-        "--allow-only",
-        ";".join(NONGPL_LICENSES),
-    )
+    session.install("amigpl", f"{ROOT}[format-nongpl]")
+    session.run("amigpl", "check")
 
 
 @session(tags=["build"])
