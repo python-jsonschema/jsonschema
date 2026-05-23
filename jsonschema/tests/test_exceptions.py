@@ -1,5 +1,7 @@
 from unittest import TestCase
+import sys
 import textwrap
+import unittest
 
 import jsonpath_ng
 
@@ -593,6 +595,10 @@ class TestErrorInitReprStr(TestCase):
             schema_path=["items", 0, 1],
         )
 
+    @unittest.skipIf(
+        sys.version_info >= (3, 15),
+        "pprint dict format changed in 3.15, see test_uses_pprint_py315",
+    )
     def test_uses_pprint(self):
         self.assertShows(
             """
@@ -644,6 +650,71 @@ class TestErrorInitReprStr(TestCase):
                  22,
                  23,
                  24]
+            """,
+            instance=list(range(25)),
+            schema=dict(zip(range(20), range(20))),
+            validator="maxLength",
+        )
+
+    @unittest.skipIf(
+        sys.version_info < (3, 15),
+        "pprint dict format pre-3.15, see test_uses_pprint",
+    )
+    def test_uses_pprint_py315(self):
+        self.assertShows(
+            """
+            Failed validating 'maxLength' in schema:
+                {
+                    0: 0,
+                    1: 1,
+                    2: 2,
+                    3: 3,
+                    4: 4,
+                    5: 5,
+                    6: 6,
+                    7: 7,
+                    8: 8,
+                    9: 9,
+                    10: 10,
+                    11: 11,
+                    12: 12,
+                    13: 13,
+                    14: 14,
+                    15: 15,
+                    16: 16,
+                    17: 17,
+                    18: 18,
+                    19: 19,
+                }
+
+            On instance:
+                [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                ]
             """,
             instance=list(range(25)),
             schema=dict(zip(range(20), range(20))),
