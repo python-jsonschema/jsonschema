@@ -3,7 +3,7 @@ Validation errors, and some surrounding helpers.
 """
 from __future__ import annotations
 
-from collections import defaultdict, deque
+from collections import deque
 from pprint import pformat
 from textwrap import dedent, indent
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -321,12 +321,15 @@ class ErrorTree:
 
     def __init__(self, errors: Iterable[ValidationError] = ()):
         self.errors: MutableMapping[str, ValidationError] = {}
-        self._contents: Mapping[str, ErrorTree] = defaultdict(self.__class__)
+        self._contents: MutableMapping[str | int, ErrorTree] = {}
 
         for error in errors:
             container = self
             for element in error.path:
-                container = container[element]
+                container = container._contents.setdefault(
+                    element,
+                    self.__class__(),
+                )
             container.errors[error.validator] = error
 
             container._instance = error.instance
@@ -346,9 +349,15 @@ class ErrorTree:
         by ``instance.__getitem__`` will be propagated (usually this is
         some subclass of `LookupError`.
         """
-        if self._instance is not _unset and index not in self:
+        try:
+            return self._contents[index]
+        except KeyError:
+            pass
+
+        if self._instance is not _unset:
             self._instance[index]
-        return self._contents[index]
+
+        return self.__class__()
 
     def __setitem__(self, index: str | int, value: ErrorTree):
         """

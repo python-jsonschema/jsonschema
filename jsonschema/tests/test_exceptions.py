@@ -404,6 +404,23 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree(errors)
         self.assertNotIn("foo", tree)
 
+    def test_getting_item_without_errors_does_not_create_a_subtree(self):
+        schema = {
+            "type": "array",
+            "items": {"type": "number", "enum": [1, 2, 3]},
+            "minItems": 3,
+        }
+        instance = ["spam", 2]
+        tree = exceptions.ErrorTree(
+            _LATEST_VERSION(schema).iter_errors(instance),
+        )
+
+        self.assertEqual(list(tree), [0])
+        self.assertNotIn(1, tree)
+        self.assertIsInstance(tree[1], exceptions.ErrorTree)
+        self.assertEqual(list(tree), [0])
+        self.assertNotIn(1, tree)
+
     def test_keywords_that_failed_appear_in_errors_dict(self):
         error = exceptions.ValidationError("a message", validator="foo")
         tree = exceptions.ErrorTree([error])
