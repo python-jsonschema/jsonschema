@@ -13,12 +13,6 @@ from collections.abc import Mapping, Sequence
 import re
 
 # Re-export from new modules for backward compatibility
-from jsonschema._uri import URIDict
-from jsonschema._evaluated import (
-    find_evaluated_item_indexes_by_schema,
-    find_evaluated_property_keys_by_schema,
-    is_valid,
-)
 
 # Module-level sentinels so recursive `_uniq_key` calls produce comparable
 # keys for nested True/False (function-default sentinels would also work, but

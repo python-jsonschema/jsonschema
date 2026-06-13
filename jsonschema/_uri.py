@@ -4,8 +4,8 @@ URI-related utility classes.
 Extracted from _utils.py for single responsibility:
 one module = one concern (URI normalization and lookup).
 """
-from urllib.parse import urlsplit
 from collections.abc import MutableMapping
+from urllib.parse import urlsplit
 
 
 class URIDict(MutableMapping):
