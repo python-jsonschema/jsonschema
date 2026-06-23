@@ -80,6 +80,25 @@ class TestFormatChecker(TestCase):
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
 
+    def test_relative_json_pointer_allows_multidigit_integers(self):
+        checker = FormatChecker()
+        if "relative-json-pointer" not in checker.checkers:
+            self.skipTest("jsonpointer is not available")
+
+        # Only a *leading* zero is disallowed; a multi-digit integer with an
+        # internal or trailing zero is valid.
+        valids = ("0", "1", "120", "100", "205", "1000", "100/foo", "100#")
+        for valid in valids:
+            self.assertTrue(
+                checker.conforms(valid, "relative-json-pointer"),
+                msg=f"{valid!r} should be a valid relative-json-pointer",
+            )
+        for invalid in ("01", "00", "007", "01/a", "01#"):
+            self.assertFalse(
+                checker.conforms(invalid, "relative-json-pointer"),
+                msg=f"{invalid!r} should not be a valid relative-json-pointer",
+            )
+
     def test_repr(self):
         checker = FormatChecker(formats=())
         checker.checks("foo")(lambda thing: True)  # pragma: no cover

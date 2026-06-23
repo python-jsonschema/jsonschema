@@ -488,8 +488,11 @@ with suppress(ImportError):
         non_negative_integer, rest = [], ""
         for i, character in enumerate(instance):
             if character.isdigit():
-                # digits with a leading "0" are not allowed
-                if i > 0 and int(instance[i - 1]) == 0:
+                # a leading "0" is not allowed: "0" by itself is valid, but a
+                # multi-digit integer may not start with "0" (e.g. "01"). Only
+                # the single accumulated "0" followed by another digit is a
+                # leading zero -- "100"/"205" are fine.
+                if non_negative_integer == ["0"]:
                     return False
 
                 non_negative_integer.append(character)
