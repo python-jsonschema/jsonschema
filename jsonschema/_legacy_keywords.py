@@ -112,7 +112,7 @@ def items_draft3_draft4(validator, items, instance, schema):
 
 def additionalItems(validator, aI, instance, schema):
     if not validator.is_type(instance, "array") or validator.is_type(
-        schema.get("items", {}), "object"
+        schema.get("items", {}), "object",
     ):
         return
 

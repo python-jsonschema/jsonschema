@@ -843,7 +843,7 @@ class TestValidationErrorMessages(TestCase):
         from math import nan
 
         message = self.message_for(
-            instance=nan, schema={"exclusiveMinimum": 0}
+            instance=nan, schema={"exclusiveMinimum": 0},
         )
         self.assertEqual(
             message,
@@ -854,7 +854,7 @@ class TestValidationErrorMessages(TestCase):
         from math import nan
 
         message = self.message_for(
-            instance=nan, schema={"exclusiveMaximum": 0}
+            instance=nan, schema={"exclusiveMaximum": 0},
         )
         self.assertEqual(
             message,
@@ -1137,7 +1137,7 @@ class TestValidationErrorDetails(TestCase):
                                     },
                                 },
                             },
-                        }
+                        },
                     ],
                 },
             },
