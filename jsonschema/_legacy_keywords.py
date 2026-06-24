@@ -31,7 +31,9 @@ def dependencies_draft3(validator, dependencies, instance, schema):
 
         if validator.is_type(dependency, "object"):
             yield from validator.descend(
-                instance, dependency, schema_path=property,
+                instance,
+                dependency,
+                schema_path=property,
             )
         elif validator.is_type(dependency, "string"):
             if dependency not in instance:
@@ -70,7 +72,9 @@ def dependencies_draft4_draft6_draft7(
                     yield ValidationError(message)
         else:
             yield from validator.descend(
-                instance, dependency, schema_path=property,
+                instance,
+                dependency,
+                schema_path=property,
             )
 
 
@@ -99,14 +103,16 @@ def items_draft3_draft4(validator, items, instance, schema):
     else:
         for (index, item), subschema in zip(enumerate(instance), items):
             yield from validator.descend(
-                item, subschema, path=index, schema_path=index,
+                item,
+                subschema,
+                path=index,
+                schema_path=index,
             )
 
 
 def additionalItems(validator, aI, instance, schema):
-    if (
-        not validator.is_type(instance, "array")
-        or validator.is_type(schema.get("items", {}), "object")
+    if not validator.is_type(instance, "array") or validator.is_type(
+        schema.get("items", {}), "object",
     ):
         return
 
@@ -117,7 +123,8 @@ def additionalItems(validator, aI, instance, schema):
     elif not aI and len(instance) > len(schema.get("items", [])):
         error = "Additional items are not allowed (%s %s unexpected)"
         yield ValidationError(
-            error % _utils.extras_msg(instance[len(schema.get("items", [])):]),
+            error
+            % _utils.extras_msg(instance[len(schema.get("items", [])) :]),
         )
 
 
@@ -128,7 +135,10 @@ def items_draft6_draft7_draft201909(validator, items, instance, schema):
     if validator.is_type(items, "array"):
         for (index, item), subschema in zip(enumerate(instance), items):
             yield from validator.descend(
-                item, subschema, path=index, schema_path=index,
+                item,
+                subschema,
+                path=index,
+                schema_path=index,
             )
     else:
         for index, item in enumerate(instance):
@@ -140,10 +150,10 @@ def minimum_draft3_draft4(validator, minimum, instance, schema):
         return
 
     if schema.get("exclusiveMinimum", False):
-        failed = instance <= minimum
+        failed = not (instance > minimum)
         cmp = "less than or equal to"
     else:
-        failed = instance < minimum
+        failed = not (instance >= minimum)
         cmp = "less than"
 
     if failed:
@@ -156,10 +166,10 @@ def maximum_draft3_draft4(validator, maximum, instance, schema):
         return
 
     if schema.get("exclusiveMaximum", False):
-        failed = instance >= maximum
+        failed = not (instance < maximum)
         cmp = "greater than or equal to"
     else:
-        failed = instance > maximum
+        failed = not (instance <= maximum)
         cmp = "greater than"
 
     if failed:
@@ -203,7 +213,7 @@ def type_draft3(validator, types, instance, schema):
                 return
             all_errors.extend(errors)
         elif validator.is_type(instance, type):
-                return
+            return
 
     reprs = []
     for type in types:
@@ -288,15 +298,21 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     if "if" in schema:
         if validator.evolve(schema=schema["if"]).is_valid(instance):
             evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                validator, instance, schema["if"],
+                validator,
+                instance,
+                schema["if"],
             )
             if "then" in schema:
                 evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                    validator, instance, schema["then"],
+                    validator,
+                    instance,
+                    schema["then"],
                 )
         elif "else" in schema:
             evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                validator, instance, schema["else"],
+                validator,
+                instance,
+                schema["else"],
             )
 
     for keyword in ["contains", "unevaluatedItems"]:
@@ -311,7 +327,9 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
                 errs = next(validator.descend(instance, subschema), None)
                 if errs is None:
                     evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                        validator, instance, subschema,
+                        validator,
+                        instance,
+                        subschema,
                     )
 
     return evaluated_indexes
@@ -321,10 +339,13 @@ def unevaluatedItems_draft2019(validator, unevaluatedItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
     evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
-        validator, instance, schema,
+        validator,
+        instance,
+        schema,
     )
     unevaluated_items = [
-        item for index, item in enumerate(instance)
+        item
+        for index, item in enumerate(instance)
         if index not in evaluated_item_indexes
     ]
     if unevaluated_items:
@@ -388,7 +409,9 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
             if property not in instance:
                 continue
             evaluated_keys += find_evaluated_property_keys_by_schema(
-                validator, instance, subschema,
+                validator,
+                instance,
+                subschema,
             )
 
     for keyword in ["allOf", "oneOf", "anyOf"]:
@@ -397,21 +420,29 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
                 errs = next(validator.descend(instance, subschema), None)
                 if errs is None:
                     evaluated_keys += find_evaluated_property_keys_by_schema(
-                        validator, instance, subschema,
+                        validator,
+                        instance,
+                        subschema,
                     )
 
     if "if" in schema:
         if validator.evolve(schema=schema["if"]).is_valid(instance):
             evaluated_keys += find_evaluated_property_keys_by_schema(
-                validator, instance, schema["if"],
+                validator,
+                instance,
+                schema["if"],
             )
             if "then" in schema:
                 evaluated_keys += find_evaluated_property_keys_by_schema(
-                    validator, instance, schema["then"],
+                    validator,
+                    instance,
+                    schema["then"],
                 )
         elif "else" in schema:
             evaluated_keys += find_evaluated_property_keys_by_schema(
-                validator, instance, schema["else"],
+                validator,
+                instance,
+                schema["else"],
             )
 
     return evaluated_keys
@@ -421,7 +452,9 @@ def unevaluatedProperties_draft2019(validator, uP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     evaluated_keys = find_evaluated_property_keys_by_schema(
-        validator, instance, schema,
+        validator,
+        instance,
+        schema,
     )
     unevaluated_keys = []
     for property in instance:
