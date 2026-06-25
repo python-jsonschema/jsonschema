@@ -326,7 +326,7 @@ class ErrorTree:
         for error in errors:
             container = self
             for element in error.path:
-                container = container[element]
+                container = container._contents[element]
             container.errors[error.validator] = error
 
             container._instance = error.instance
@@ -348,6 +348,8 @@ class ErrorTree:
         """
         if self._instance is not _unset and index not in self:
             self._instance[index]
+        if index not in self._contents:
+            return self.__class__()
         return self._contents[index]
 
     def __setitem__(self, index: str | int, value: ErrorTree):
