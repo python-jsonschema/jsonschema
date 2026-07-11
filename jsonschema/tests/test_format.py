@@ -89,3 +89,15 @@ class TestFormatChecker(TestCase):
             repr(checker),
             "<FormatChecker checkers=['bar', 'baz', 'foo']>",
         )
+
+    def test_duration_with_overflowing_exponent_is_invalid(self):
+        # A duration whose exponent overflows decimal used to raise an uncaught
+        # decimal.Overflow instead of reporting the instance as invalid.
+        # See https://github.com/python-jsonschema/jsonschema/issues/1511
+        try:
+            import isoduration  # noqa: F401
+        except ImportError:
+            self.skipTest("isoduration is not installed")
+        checker = FormatChecker()
+        with self.assertRaises(FormatError):
+            checker.check(instance="P1E1000000D", format="duration")

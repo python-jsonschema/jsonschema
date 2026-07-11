@@ -3,6 +3,7 @@ from __future__ import annotations
 from contextlib import suppress
 from datetime import date, datetime
 from uuid import UUID
+import decimal
 import ipaddress
 import re
 import typing
@@ -524,7 +525,13 @@ with suppress(ImportError):
     @_checks_drafts(
         draft201909="duration",
         draft202012="duration",
-        raises=isoduration.DurationParsingException,
+        # isoduration parses components with decimal.Decimal, which raises a
+        # decimal.DecimalException (e.g. Overflow) rather than a
+        # DurationParsingException on extreme values such as "P1E1000000D".
+        raises=(
+            isoduration.DurationParsingException,
+            decimal.DecimalException,
+        ),
     )
     def is_duration(instance: object) -> bool:
         if not isinstance(instance, str):
