@@ -5,6 +5,7 @@ from datetime import date, datetime
 from uuid import UUID
 import ipaddress
 import re
+import string
 import typing
 import warnings
 
@@ -485,21 +486,14 @@ with suppress(ImportError):
         if not instance:
             return False
 
-        non_negative_integer, rest = [], ""
-        for i, character in enumerate(instance):
-            if character.isdigit():
-                # digits with a leading "0" are not allowed
-                if i > 0 and int(instance[i - 1]) == 0:
-                    return False
-
-                non_negative_integer.append(character)
-                continue
-
-            if not non_negative_integer:
-                return False
-
-            rest = instance[i:]
-            break
+        # A non-negative-integer prefix of ASCII digits (%x30-39), which is
+        # either "0" or has no leading "0".
+        rest = instance.lstrip(string.digits)
+        prefix = instance[:len(instance) - len(rest)]
+        if not prefix:
+            return False
+        if len(prefix) > 1 and prefix[0] == "0":
+            return False
         return (rest == "#") or bool(jsonpointer.JsonPointer(rest))
 
 
