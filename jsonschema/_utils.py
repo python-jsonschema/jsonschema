@@ -217,13 +217,14 @@ def uniq(container):
     brute force when necessary.
     """
     seen_keys = set()
+    supported = []
     unsupported = []
 
     for element in container:
         key = _uniq_key(element)
 
         if key is _UNSUPPORTED:
-            for previous in unsupported:
+            for previous in [*supported, *unsupported]:
                 if equal(previous, element):
                     return False
             unsupported.append(element)
@@ -231,8 +232,11 @@ def uniq(container):
 
         if key in seen_keys:
             return False
+        if any(equal(previous, element) for previous in unsupported):
+            return False
 
         seen_keys.add(key)
+        supported.append(element)
 
     return True
 

@@ -223,3 +223,7 @@ class TestUniq(TestCase):
         self.assertTrue(
             uniq([{"k": Unhashable(1)}, {"k": Unhashable(2)}]),
         )
+
+    def test_equal_hashable_and_unhashable_values_are_not_unique(self):
+        self.assertFalse(uniq([{1}, frozenset({1})]))
+        self.assertFalse(uniq([frozenset({1}), {1}]))
