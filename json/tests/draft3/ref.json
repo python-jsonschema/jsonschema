@@ -127,7 +127,9 @@
                 "b": {"$ref": "#/definitions/a"},
                 "c": {"$ref": "#/definitions/b"}
             },
-            "$ref": "#/definitions/c"
+            "extends": {
+                "$ref": "#/definitions/c"
+            }    
         },
         "tests": [
             {

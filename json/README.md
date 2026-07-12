@@ -282,6 +282,7 @@ This suite is being used by:
 * [ajv](https://github.com/epoberezkin/ajv)
 * [djv](https://github.com/korzio/djv)
 * [M3](https://github.com/JulesGosnell/m3) (all drafts, pure Clojure — also usable from Java, Kotlin, and Scala)
+* [TypeBox](https://github.com/sinclairzx81/typebox)
 
 ### Kotlin
 
