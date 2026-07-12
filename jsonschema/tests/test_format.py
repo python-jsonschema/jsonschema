@@ -4,9 +4,11 @@ Tests for the parts of jsonschema related to the :kw:`format` keyword.
 
 from unittest import TestCase
 
+from decimal import Overflow
+
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
-from jsonschema.validators import Draft4Validator
+from jsonschema.validators import Draft202012Validator, Draft4Validator
 
 BOOM = ValueError("Boom!")
 BANG = ZeroDivisionError("Bang!")
@@ -89,3 +91,22 @@ class TestFormatChecker(TestCase):
             repr(checker),
             "<FormatChecker checkers=['bar', 'baz', 'foo']>",
         )
+
+    def test_duration_with_large_exponent_is_invalid(self):
+        # isoduration.parse_duration can raise decimal.Overflow for
+        # values with very large exponents, which is not a subclass of
+        # DurationParsingException and would otherwise escape the
+        # format checker uncaught.
+        try:
+            import isoduration  # noqa: F401
+        except ImportError:
+            self.skipTest("isoduration not installed")
+
+        from jsonschema.validators import Draft202012Validator
+
+        validator = Draft202012Validator(
+            {"format": "duration"}, format_checker=FormatChecker(),
+        )
+        errors = list(validator.iter_errors("P1E1000000D"))
+        self.assertEqual(len(errors), 1)
+        self.assertIsInstance(errors[0].cause, Overflow)
