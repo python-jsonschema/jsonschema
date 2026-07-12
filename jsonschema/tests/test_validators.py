@@ -832,7 +832,7 @@ class TestMultipleOf(TestCase):
 
         # The Fraction fallback still rejects genuine non-multiples.
         self.assertFalse(
-            Validator({"multipleOf": 3.3}).is_valid(Decimal("10")),
+            Validator({"multipleOf": 3.3}).is_valid(Decimal(10)),
         )
         self.assertFalse(
             Validator({"multipleOf": 0.3}).is_valid(10**400),
