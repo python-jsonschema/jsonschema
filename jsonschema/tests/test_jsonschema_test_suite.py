@@ -53,7 +53,7 @@ def missing_format(Validator):
 
 
 def complex_email_validation(test):
-    if test.subject != "email":
+    if test.subject != "email" and test.subject != "idn-email":
         return
 
     message = "Complex email validation is (intentionally) unsupported."
@@ -87,6 +87,9 @@ def complex_email_validation(test):
     )(test) or skip(
         message=message,
         description="unquoted space in local part is invalid",
+    )(test) or skip(
+        message=message,
+        description="a local part with a lone UTF-16 surrogate is invalid",
     )(test)
 
 
@@ -111,24 +114,37 @@ def hostname_validation(test):
 def idn_hostname_validation(test):
     if test.subject != "idn-hostname":
         return
-    if test.case_description != (
-        "validation of separators in internationalized host names"
-    ):
-        return
 
     message = "Full idn-hostname validation is not yet supported."
+    separators = "validation of separators in internationalized host names"
+    names = "validation of internationalized host names"
     return skip(
         message=message,
+        case_description=separators,
         description="trailing dot",
     )(test) or skip(
         message=message,
+        case_description=separators,
         description="trailing ideographic full stop",
     )(test) or skip(
         message=message,
+        case_description=separators,
         description="trailing fullwidth full stop",
     )(test) or skip(
         message=message,
+        case_description=separators,
         description="trailing halfwidth ideographic full stop",
+    )(test) or skip(
+        message=message,
+        case_description=names,
+        description="Bidi domain name with a digit-first label is invalid",
+    )(test) or skip(
+        message=message,
+        case_description=names,
+        description=(
+            "non-canonical Punycode that does not re-encode to itself "
+            "is invalid"
+        ),
     )(test)
 
 
