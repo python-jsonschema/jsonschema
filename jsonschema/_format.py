@@ -518,11 +518,18 @@ with suppress(ImportError):
     @_checks_drafts(
         draft201909="duration",
         draft202012="duration",
-        # isoduration parses each component amount with Decimal, which raises
-        # (an ArithmeticError) rather than DurationParsingException when the
-        # amount exceeds the decimal context, e.g. "P1E1000000D" or a digit run
-        # longer than Emax. Such an instance is invalid, not un-checkable.
-        raises=(isoduration.DurationParsingException, ArithmeticError),
+        # isoduration parses each amount with Decimal, which rejects one it
+        # cannot represent without raising DurationParsingException. How it
+        # rejects depends on the implementation: the C one raises
+        # decimal.Overflow (an ArithmeticError), whereas the pure Python one
+        # builds an int first, so it raises ValueError once the digits exceed
+        # the interpreter's integer string conversion limit. Either way, the
+        # instance is invalid rather than un-checkable.
+        raises=(
+            isoduration.DurationParsingException,
+            ArithmeticError,
+            ValueError,
+        ),
     )
     def is_duration(instance: object) -> bool:
         if not isinstance(instance, str):
