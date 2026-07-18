@@ -3,7 +3,7 @@ Validation errors, and some surrounding helpers.
 """
 from __future__ import annotations
 
-from collections import defaultdict, deque
+from collections import deque
 from pprint import pformat
 from textwrap import dedent, indent
 from typing import TYPE_CHECKING, Any, ClassVar
@@ -321,12 +321,18 @@ class ErrorTree:
 
     def __init__(self, errors: Iterable[ValidationError] = ()):
         self.errors: MutableMapping[str, ValidationError] = {}
-        self._contents: Mapping[str, ErrorTree] = defaultdict(self.__class__)
+        self._contents: MutableMapping[str, ErrorTree] = {}
 
         for error in errors:
             container = self
             for element in error.path:
-                container = container[element]
+                # Populate (and persist) intermediate nodes directly,
+                # bypassing __getitem__ -- which, for public callers,
+                # must *not* have the side effect of adding an index to
+                # the tree merely by reading it. See GH #1328.
+                container = container._contents.setdefault(
+                    element, self.__class__(),
+                )
             container.errors[error.validator] = error
 
             container._instance = error.instance
@@ -345,10 +351,16 @@ class ErrorTree:
         to and is not known by this tree, whatever error would be raised
         by ``instance.__getitem__`` will be propagated (usually this is
         some subclass of `LookupError`.
+
+        Note that unlike a normal mapping, accessing an index which has
+        no known errors does not add that index to the tree -- it
+        simply returns a new, empty `ErrorTree`. Use `in` (see
+        `ErrorTree.__contains__`) or `iter` (see `ErrorTree.__iter__`)
+        to check which indices are actually known to have errors.
         """
         if self._instance is not _unset and index not in self:
             self._instance[index]
-        return self._contents[index]
+        return self._contents.get(index, self.__class__())
 
     def __setitem__(self, index: str | int, value: ErrorTree):
         """

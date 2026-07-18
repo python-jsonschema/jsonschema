@@ -404,6 +404,26 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree(errors)
         self.assertNotIn("foo", tree)
 
+    def test_accessing_an_index_with_no_error_does_not_add_it(self):
+        """
+        Regression test for
+        https://github.com/python-jsonschema/jsonschema/issues/1328
+
+        Merely reading ``tree[index]`` for an index with no error must
+        not have the side effect of making that index appear to have
+        one on subsequent ``__contains__`` / ``__iter__`` calls.
+        """
+        errors = [exceptions.ValidationError("a message", path=["bar"])]
+        tree = exceptions.ErrorTree(errors)
+
+        self.assertNotIn("foo", tree)
+        self.assertEqual(list(tree), ["bar"])
+
+        tree["foo"]  # merely accessing it should not add it
+
+        self.assertNotIn("foo", tree)
+        self.assertEqual(list(tree), ["bar"])
+
     def test_keywords_that_failed_appear_in_errors_dict(self):
         error = exceptions.ValidationError("a message", validator="foo")
         tree = exceptions.ErrorTree([error])
