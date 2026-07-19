@@ -80,6 +80,14 @@ class TestFormatChecker(TestCase):
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
 
+    def test_duration_overflow_is_invalid(self):
+        checker = FormatChecker()
+        if "duration" not in checker.checkers:
+            self.skipTest("isoduration is not installed")
+
+        with self.assertRaises(FormatError):
+            checker.check(instance="P1E1000000D", format="duration")
+
     def test_repr(self):
         checker = FormatChecker(formats=())
         checker.checks("foo")(lambda thing: True)  # pragma: no cover
