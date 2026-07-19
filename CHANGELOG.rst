@@ -1,3 +1,8 @@
+v4.27.0
+=======
+
+* Report a string as an invalid ``regex`` format rather than crashing when it contains a syntactically valid but oversized repetition count (which makes ``re.compile`` raise ``OverflowError`` instead of ``re.error``).
+
 v4.26.0
 =======
 
