@@ -201,7 +201,7 @@ requires-dist = [
     { name = "rfc3339-validator", marker = "extra == 'format-nongpl'" },
     { name = "rfc3986-validator", marker = "extra == 'format-nongpl'", specifier = ">0.1.0" },
     { name = "rfc3987", marker = "extra == 'format'" },
-    { name = "rfc3987-syntax2", marker = "extra == 'format-nongpl'", specifier = ">=1.2.0" },
+    { name = "rfc3987-syntax2", marker = "extra == 'format-nongpl'", specifier = ">=1.3.0,<2" },
     { name = "rpds-py", specifier = ">=0.25.0" },
     { name = "uri-template", marker = "extra == 'format'" },
     { name = "uri-template", marker = "extra == 'format-nongpl'" },
@@ -332,14 +332,14 @@ wheels = [
 
 [[package]]
 name = "rfc3987-syntax2"
-version = "1.2.0"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lark" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/30/51/376d3bfb8f10961f4813894064e423e64fd5f9a8ddf40d8c7673e84cdfb4/rfc3987_syntax2-1.2.0.tar.gz", hash = "sha256:033254a1ae0e8790a1ec81c4096d7ae6b4dafe1e3af9220cc9fb27fb62e6905a", size = 14442, upload-time = "2026-07-16T12:27:15.589Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/a1/2030da67540b06392d41192902ad540d0c4bb5c6941b48d9b0bc94df74cf/rfc3987_syntax2-1.3.0.tar.gz", hash = "sha256:5df078da42c192e1251ed9c0887ee92f8062375afcf03bf65b5e2d77eaa00f36", size = 25134, upload-time = "2026-07-21T17:04:19.682Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/49/db/f7098dc48ab61ace9d3d113dc2f03f591fb9e8e049182bce5a1311bbff9f/rfc3987_syntax2-1.2.0-py3-none-any.whl", hash = "sha256:5a9bcec814bcb8d718aae723d02048d8750eafeeb0a3df76c2519aba54d2c7b2", size = 7960, upload-time = "2026-07-16T12:27:14.426Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/a4/b420e0ca053c2c14ad7f5eb0af683dee5a26da575e108601e230170bf3fe/rfc3987_syntax2-1.3.0-py3-none-any.whl", hash = "sha256:1ae7c68fc09d20739b6cb6b08e04b40f8c83305fd5f24ba1e5e1e24855d42210", size = 11363, upload-time = "2026-07-21T17:04:18.298Z" },
 ]
 
 [[package]]
