@@ -80,6 +80,40 @@ class TestFormatChecker(TestCase):
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
 
+    def test_duration_with_unrepresentable_amount_is_invalid(self):
+        """
+        An amount past the decimal context is invalid, not un-checkable.
+
+        isoduration parses each component with Decimal, which raises
+        decimal.Overflow rather than DurationParsingException, so this used to
+        escape the format checker instead of being reported.
+        """
+        try:
+            checker = FormatChecker(formats=["duration"])
+        except KeyError:  # pragma: no cover
+            self.skipTest("isoduration is not installed")
+
+        for instance in [
+            "P1E1000000D",  # exponent past the context's Emax
+            "PT1E1000000S",  # ... and in a time component
+            "P" + "9" * 1000001 + "D",  # no exponent, simply too many digits
+        ]:
+            with (
+                self.subTest(instance=instance[:16]),
+                self.assertRaises(FormatError),
+            ):
+                checker.check(instance=instance, format="duration")
+
+    def test_duration_still_accepts_valid_durations(self):
+        try:
+            checker = FormatChecker(formats=["duration"])
+        except KeyError:  # pragma: no cover
+            self.skipTest("isoduration is not installed")
+
+        for instance in ["P1D", "PT1S", "P1Y2M3DT4H5M6S"]:
+            with self.subTest(instance=instance):
+                checker.check(instance=instance, format="duration")
+
     def test_repr(self):
         checker = FormatChecker(formats=())
         checker.checks("foo")(lambda thing: True)  # pragma: no cover
