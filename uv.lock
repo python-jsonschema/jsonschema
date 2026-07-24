@@ -173,7 +173,7 @@ format-nongpl = [
     { name = "jsonpointer" },
     { name = "rfc3339-validator" },
     { name = "rfc3986-validator" },
-    { name = "rfc3987-syntax" },
+    { name = "rfc3987-syntax2" },
     { name = "uri-template" },
     { name = "webcolors" },
 ]
@@ -201,7 +201,7 @@ requires-dist = [
     { name = "rfc3339-validator", marker = "extra == 'format-nongpl'" },
     { name = "rfc3986-validator", marker = "extra == 'format-nongpl'", specifier = ">0.1.0" },
     { name = "rfc3987", marker = "extra == 'format'" },
-    { name = "rfc3987-syntax", marker = "extra == 'format-nongpl'", specifier = ">=1.1.0" },
+    { name = "rfc3987-syntax2", marker = "extra == 'format-nongpl'", specifier = ">=1.3.0,<2" },
     { name = "rpds-py", specifier = ">=0.25.0" },
     { name = "uri-template", marker = "extra == 'format'" },
     { name = "uri-template", marker = "extra == 'format-nongpl'" },
@@ -331,15 +331,15 @@ wheels = [
 ]
 
 [[package]]
-name = "rfc3987-syntax"
-version = "1.1.0"
+name = "rfc3987-syntax2"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lark" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2c/06/37c1a5557acf449e8e406a830a05bf885ac47d33270aec454ef78675008d/rfc3987_syntax-1.1.0.tar.gz", hash = "sha256:717a62cbf33cffdd16dfa3a497d81ce48a660ea691b1ddd7be710c22f00b4a0d", size = 14239, upload-time = "2025-07-18T01:05:05.015Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/a1/2030da67540b06392d41192902ad540d0c4bb5c6941b48d9b0bc94df74cf/rfc3987_syntax2-1.3.0.tar.gz", hash = "sha256:5df078da42c192e1251ed9c0887ee92f8062375afcf03bf65b5e2d77eaa00f36", size = 25134, upload-time = "2026-07-21T17:04:19.682Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/71/44ce230e1b7fadd372515a97e32a83011f906ddded8d03e3c6aafbdedbb7/rfc3987_syntax-1.1.0-py3-none-any.whl", hash = "sha256:6c3d97604e4c5ce9f714898e05401a0445a641cfa276432b0a648c80856f6a3f", size = 8046, upload-time = "2025-07-18T01:05:03.843Z" },
+    { url = "https://files.pythonhosted.org/packages/c5/a4/b420e0ca053c2c14ad7f5eb0af683dee5a26da575e108601e230170bf3fe/rfc3987_syntax2-1.3.0-py3-none-any.whl", hash = "sha256:1ae7c68fc09d20739b6cb6b08e04b40f8c83305fd5f24ba1e5e1e24855d42210", size = 11363, upload-time = "2026-07-21T17:04:18.298Z" },
 ]
 
 [[package]]
