@@ -2,11 +2,16 @@
 Tests for the parts of jsonschema related to the :kw:`format` keyword.
 """
 
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
 from jsonschema.validators import Draft4Validator
+
+try:
+    import isoduration
+except ImportError:
+    isoduration = None
 
 BOOM = ValueError("Boom!")
 BANG = ZeroDivisionError("Bang!")
@@ -79,6 +84,24 @@ class TestFormatChecker(TestCase):
         checker = FormatChecker()
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
+
+    @skipUnless(isoduration is not None, "isoduration not installed")
+    def test_duration_with_a_huge_exponent_is_invalid_not_an_error(self):
+        # A duration amount whose magnitude exceeds the decimal context's
+        # ``Emax`` makes isoduration's ``Decimal(...)`` raise
+        # ``decimal.Overflow`` rather than ``DurationParsingException``.  Such
+        # a string is not a valid RFC 3339 Appendix A duration and should be
+        # reported as invalid, not propagate an uncaught exception.
+        checker = FormatChecker()
+        with self.assertRaises(FormatError):
+            checker.check(instance="P1E1000000D", format="duration")
+
+    @skipUnless(isoduration is not None, "isoduration not installed")
+    def test_duration_with_a_huge_digit_run_is_invalid_not_an_error(self):
+        checker = FormatChecker()
+        instance = "P" + "1" * 1000001 + "D"
+        with self.assertRaises(FormatError):
+            checker.check(instance=instance, format="duration")
 
     def test_repr(self):
         checker = FormatChecker(formats=())
