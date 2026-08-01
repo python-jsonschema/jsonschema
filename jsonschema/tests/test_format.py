@@ -80,6 +80,11 @@ class TestFormatChecker(TestCase):
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
 
+    def test_regex_recursion_error_is_caught(self):
+        checker = FormatChecker()
+        with self.assertRaises(FormatError):
+            checker.check(instance="(" * 500, format="regex")
+
     def test_repr(self):
         checker = FormatChecker(formats=())
         checker.checks("foo")(lambda thing: True)  # pragma: no cover
