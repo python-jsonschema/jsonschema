@@ -80,6 +80,14 @@ class TestFormatChecker(TestCase):
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
 
+    def test_regex_format_rejects_deeply_nested_pattern(self):
+        # A deeply nested pattern makes re.compile raise RecursionError,
+        # which is not an re.error, so it must be declared alongside it
+        # or it escapes uncaught instead of being reported as invalid.
+        checker = FormatChecker()
+        with self.assertRaises(FormatError):
+            checker.check(instance="(" * 500, format="regex")
+
     def test_repr(self):
         checker = FormatChecker(formats=())
         checker.checks("foo")(lambda thing: True)  # pragma: no cover
