@@ -2,7 +2,8 @@
 Tests for the parts of jsonschema related to the :kw:`format` keyword.
 """
 
-from unittest import TestCase
+from importlib.util import find_spec
+from unittest import TestCase, skipIf
 
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
@@ -79,6 +80,23 @@ class TestFormatChecker(TestCase):
         checker = FormatChecker()
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
+
+    @skipIf(
+        find_spec("isoduration") is None,
+        "The isoduration dependency is not installed",
+    )
+    def test_it_rejects_durations_that_overflow_decimal(self):
+        # Decimal parsing in isoduration raises decimal.Overflow (an
+        # ArithmeticError, not a DurationParsingException) for amounts
+        # past the context's Emax, e.g. an exponent of 1E1000000 or a
+        # plain digit run longer than 999999. Those must be reported as
+        # invalid durations rather than escaping the checker.
+        checker = FormatChecker()
+        for instance in ("P1E1000000D", "P" + "9" * 1000000 + "D"):
+            with self.assertRaises(FormatError):
+                checker.check(instance=instance, format="duration")
+        # A well-formed duration is still accepted.
+        self.assertTrue(checker.conforms("P1Y2M3DT4H5M6S", "duration"))
 
     def test_repr(self):
         checker = FormatChecker(formats=())

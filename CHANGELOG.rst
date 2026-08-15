@@ -2,6 +2,7 @@ v4.26.0
 =======
 
 * Decrease import time by delaying importing of ``urllib.request`` (#1416).
+* Report durations whose amounts overflow ``Decimal`` (e.g. ``P1E1000000D``) as invalid instead of raising an uncaught ``decimal.Overflow`` from the ``duration`` format checker (#1511).
 
 v4.25.1
 =======

@@ -518,7 +518,7 @@ with suppress(ImportError):
     @_checks_drafts(
         draft201909="duration",
         draft202012="duration",
-        raises=isoduration.DurationParsingException,
+        raises=(isoduration.DurationParsingException, ArithmeticError),
     )
     def is_duration(instance: object) -> bool:
         if not isinstance(instance, str):
