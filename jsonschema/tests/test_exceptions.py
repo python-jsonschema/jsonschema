@@ -476,6 +476,33 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree([e1, e2])
         self.assertEqual(set(tree), {"bar", "foobar"})
 
+    def test_getitem_of_an_error_free_index_does_not_mutate_the_tree(self):
+        """
+        Accessing a valid index that has no errors of its own returns
+        an (empty) subtree, but must not cause that index to start
+        being reported by `__contains__` / `__iter__` / `total_errors`,
+        since it never actually had any errors.
+
+        See https://github.com/python-jsonschema/jsonschema/issues/1328
+        """
+        error = exceptions.ValidationError(
+            "a bar message", validator="foo", instance=["spam", "eggs"],
+            path=["bar", 0],
+        )
+        tree = exceptions.ErrorTree([error])["bar"]
+
+        self.assertEqual(list(tree), [0])
+        self.assertIn(0, tree)
+        self.assertNotIn(1, tree)
+        self.assertEqual(tree.total_errors, 1)
+
+        subtree = tree[1]
+
+        self.assertIsInstance(subtree, exceptions.ErrorTree)
+        self.assertEqual(list(tree), [0])
+        self.assertNotIn(1, tree)
+        self.assertEqual(tree.total_errors, 1)
+
     def test_repr_single(self):
         error = exceptions.ValidationError(
             "1",

@@ -321,12 +321,17 @@ class ErrorTree:
 
     def __init__(self, errors: Iterable[ValidationError] = ()):
         self.errors: MutableMapping[str, ValidationError] = {}
-        self._contents: Mapping[str, ErrorTree] = defaultdict(self.__class__)
+        self._contents: MutableMapping[str, ErrorTree] = defaultdict(
+            self.__class__,
+        )
 
         for error in errors:
             container = self
             for element in error.path:
-                container = container[element]
+                # Populate `_contents` directly (bypassing `__getitem__`)
+                # so that constructing the tree is the only thing allowed
+                # to auto-vivify entries in it.
+                container = container._contents[element]
             container.errors[error.validator] = error
 
             container._instance = error.instance
@@ -346,9 +351,14 @@ class ErrorTree:
         by ``instance.__getitem__`` will be propagated (usually this is
         some subclass of `LookupError`.
         """
-        if self._instance is not _unset and index not in self:
+        if index in self._contents:
+            return self._contents[index]
+        if self._instance is not _unset:
             self._instance[index]
-        return self._contents[index]
+        # `index` has no errors of its own -- return an empty tree for
+        # it without recording it in `_contents`, so that querying an
+        # error-free index does not change `__contains__`/`__iter__`.
+        return self.__class__()
 
     def __setitem__(self, index: str | int, value: ErrorTree):
         """
