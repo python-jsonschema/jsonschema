@@ -506,6 +506,23 @@ class TestErrorTree(TestCase):
         tree = exceptions.ErrorTree([])
         self.assertEqual(repr(tree), "<ErrorTree (0 total errors)>")
 
+    def test_accessing_index_without_error_does_not_pollute_contents(self):
+        error = exceptions.ValidationError(
+            "not a number",
+            validator="type",
+            path=[0],
+            instance=["spam", 2],
+        )
+        tree = exceptions.ErrorTree([error])
+        self.assertEqual(list(tree), [0])
+        self.assertNotIn(1, tree)
+
+        # accessing an index with no error should not add it to the tree
+        tree[1]
+
+        self.assertEqual(list(tree), [0])
+        self.assertNotIn(1, tree)
+
 
 class TestErrorInitReprStr(TestCase):
     def make_error(self, **kwargs):
