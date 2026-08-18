@@ -1,0 +1,161 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - "wip*"
+    tags:
+      - "v*"
+  pull_request:
+  schedule:
+    # Daily at 3:21
+    - cron: "21 3 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  list:
+    name: List nox sessions
+    runs-on: ubuntu-latest
+    outputs:
+      noxenvs: ${{ steps.noxenvs-matrix.outputs.noxenvs }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
+      - id: noxenvs-matrix
+        run: |
+          echo >>$GITHUB_OUTPUT noxenvs=$(
+            uvx nox --list-sessions --json | jq '[.[].session]'
+          )
+
+  ci:
+    name: Test
+    needs: list
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        noxenv: ${{ fromJson(needs.list.outputs.noxenvs) }}
+        posargs: [""]
+        include:
+          - os: ubuntu-latest
+            noxenv: "tests-3.14(format)"
+            posargs: coverage github
+          - os: ubuntu-latest
+            noxenv: "tests-3.14(no-extras)"
+            posargs: coverage github
+        exclude:
+          - os: macos-latest
+            noxenv: "docs(dirhtml)"
+          - os: macos-latest
+            noxenv: "docs(doctest)"
+          - os: macos-latest
+            noxenv: "docs(linkcheck)"
+          - os: macos-latest
+            noxenv: "docs(man)"
+          - os: macos-latest
+            noxenv: "docs(spelling)"
+          - os: macos-latest
+            noxenv: "docs(style)"
+          - os: windows-latest
+            noxenv: "docs(dirhtml)"
+          - os: windows-latest
+            noxenv: "docs(doctest)"
+          - os: windows-latest
+            noxenv: "docs(linkcheck)"
+          - os: windows-latest
+            noxenv: "docs(spelling)"
+          - os: windows-latest
+            noxenv: "docs(style)"
+          - os: windows-latest
+            noxenv: "tests-3.14(no-extras)"
+          - os: windows-latest
+            noxenv: "tests-3.14(format)"
+          - os: windows-latest
+            noxenv: "tests-3.14(format-nongpl)"
+          - os: windows-latest
+            noxenv: "tests-3.14t(no-extras)"
+          - os: windows-latest
+            noxenv: "tests-3.14t(format)"
+          - os: windows-latest
+            noxenv: "tests-3.14t(format-nongpl)"
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libenchant-2-dev
+        if: runner.os == 'Linux' && startsWith(matrix.noxenv, 'docs')
+      - name: Install dependencies
+        run: brew install enchant
+        if: runner.os == 'macOS' && startsWith(matrix.noxenv, 'docs')
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: |
+            3.10
+            3.11
+            3.12
+            3.13
+            3.14
+            3.14t
+            pypy-3.11-v7.3.22
+          allow-prereleases: true
+      - name: Enable UTF-8 on Windows
+        run: echo "PYTHONUTF8=1" >> $env:GITHUB_ENV
+        if: runner.os == 'Windows' && startsWith(matrix.noxenv, 'tests')
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
+
+      - name: Run nox
+        run: uvx nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }} # zizmor: ignore[template-injection]
+
+  packaging:
+    name: Build and publish
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: PyPI
+      url: https://pypi.org/p/jsonschema
+
+    permissions:
+      contents: write  # for creating GitHub releases via `gh release create`
+      id-token: write  # for trusted publishing to PyPI
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
+
+      - name: Build our distributions
+        run: uv run --frozen --with 'build[uv]' -m build --installer=uv
+
+      - name: Publish to PyPI
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247
+      - name: Create a GitHub Release
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --generate-notes

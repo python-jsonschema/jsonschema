@@ -1,0 +1,124 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://json-schema.org/tests/test-schema",
+    "description": "A schema for files contained within this suite",
+
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "description": "An individual test case, containing multiple tests of a single schema's behavior",
+
+        "type": "object",
+        "required": [ "description", "schema", "tests" ],
+        "properties": {
+            "description": {
+                "description": "The test case description",
+                "type": "string"
+            },
+            "comment": {
+                "description": "Any additional comments about the test case",
+                "type": "string"
+            },
+            "schema": {
+                "description": "A valid JSON Schema (one written for the corresponding version directory that the file sits within)."
+            },
+            "tests": {
+                "description": "A set of related tests all using the same schema",
+                "type": "array",
+                "items": { "$ref": "#/$defs/test" },
+                "minItems": 1
+            },
+            "specification":{
+                "description": "A reference to a specification document which defines the behavior tested by this test case. Typically this should be a JSON Schema specification document, though in cases where the JSON Schema specification points to another RFC it should contain *both* the portion of the JSON Schema specification which indicates what RFC (and section) to follow as *well* as information on where in that specification the behavior is specified.",
+
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items":{
+                    "properties": {
+                        "core": { 
+                            "description": "A section in official JSON Schema core drafts",
+                            "url": "https://json-schema.org/specification-links",
+                            "pattern": "^[0-9a-zA-Z]+(\\.[0-9a-zA-Z]+)*$", 
+                            "type":"string"
+                        },
+                        "validation": {
+                            "description": "A section in official JSON Schema validation drafts",
+                            "url": "https://json-schema.org/specification-links",
+                            "pattern": "^[0-9a-zA-Z]+(\\.[0-9a-zA-Z]+)*$", 
+                            "type":"string" 
+                        },
+                        "ecma262": { 
+                            "description": "A section in official ECMA 262 specification for defining regular expressions",
+                            "url": "https://262.ecma-international.org/",
+                            "pattern": "^[0-9a-zA-Z]+(\\.[0-9a-zA-Z]+)*$", 
+                            "type":"string" 
+                        },
+                        "perl5": { 
+                            "description": "A section name in Perl documentation for defining regular expressions",
+                            "url": "https://perldoc.perl.org/perlre",
+                            "type":"string" 
+                        },
+                        "quote": { 
+                            "description": "Quote describing the test case",
+                            "type":"string" 
+                        }
+                    },
+                    "patternProperties": {
+                        "^rfc\\d+$": { 
+                            "description": "A section in official RFC for the given rfc number",
+                            "url": "https://www.rfc-editor.org/",
+                            "pattern": "^[0-9a-zA-Z]+(\\.[0-9a-zA-Z]+)*$", 
+                            "type":"string" 
+                        },
+                        "^iso\\d+$": { 
+                            "description": "A section in official ISO for the given iso number",
+                            "pattern": "^[0-9a-zA-Z]+(\\.[0-9a-zA-Z]+)*$", 
+                            "type": "string" 
+                        }
+                    },
+                    "additionalProperties": { "type": "string" },
+                    "minProperties": 1,
+                    "propertyNames": {
+                        "oneOf": [
+                            {
+                                "pattern": "^((iso)|(rfc))[0-9]+$"
+                            },
+                            {
+                                "enum": [ "core", "validation", "ecma262", "perl5", "quote" ]
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "additionalProperties": false
+    },
+
+    "$defs": {
+        "test": {
+            "description": "A single test",
+
+            "type": "object",
+            "required": [ "description", "data", "valid" ],
+            "properties": {
+                "description": {
+                    "description": "The test description, briefly explaining which behavior it exercises",
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Any additional comments about the test",
+                    "type": "string"
+                },
+                "data": {
+                    "description": "The instance which should be validated against the schema in \"schema\"."
+                },
+                "valid": {
+                    "description": "Whether the validation process of this instance should consider the instance valid or not",
+                    "type": "boolean"
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

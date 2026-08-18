@@ -1,0 +1,13 @@
+{
+  "$id": "http://localhost:1234/draft6/detached-ref.json",
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "definitions": {
+    "foo": {
+      "$ref": "#detached"
+    },
+    "detached": {
+      "$id": "#detached",
+      "type": "integer"
+    }
+  }
+}

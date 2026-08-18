@@ -1,0 +1,12 @@
+{
+    "$schema": "https://json-schema.org/v1",
+    "$defs": {
+        "refToInteger": {
+            "$ref": "#foo"
+        },
+        "A": {
+            "$anchor": "foo",
+            "type": "integer"
+        }
+    }
+}

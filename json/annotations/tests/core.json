@@ -1,0 +1,132 @@
+{
+  "$schema": "../test-suite.schema.json",
+  "description": "The core vocabulary",
+  "suite": [
+    {
+      "description": "`$ref` and `$defs`",
+      "compatibility": "2019",
+      "schema": {
+        "$ref": "#/$defs/foo",
+        "$defs": {
+          "foo": { "title": "Foo" }
+        }
+      },
+      "tests": [
+        {
+          "instance": "foo",
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "title",
+              "expected": {
+                "#/$defs/foo": "Foo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`$dynamicRef` resolves to `$dynamicAnchor`",
+      "compatibility": "2020",
+      "schema": {
+        "$dynamicRef": "#foo",
+        "$defs": {
+          "foo": {
+            "$dynamicAnchor": "foo",
+            "title": "Foo"
+          }
+        }
+      },
+      "tests": [
+        {
+          "instance": "bar",
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "title",
+              "expected": {
+                "#/$defs/foo": "Foo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "`$dynamicRef` resolves to different `$dynamicAnchor`s depending on dynamic path",
+      "compatibility": "2020",
+      "schema": {
+        "$id": "https://test.json-schema.org/dynamic-ref-annotation/main",
+        "if": {
+          "properties": { "kindOfList": { "const": "numbers" } },
+          "required": ["kindOfList"]
+        },
+        "then": { "$ref": "numberList" },
+        "else": { "$ref": "stringList" },
+        "$defs": {
+          "genericList": {
+            "$id": "genericList",
+            "properties": {
+              "list": {
+                "items": { "$dynamicRef": "#itemType" }
+              }
+            },
+            "$defs": {
+              "defaultItemType": {
+                "$dynamicAnchor": "itemType"
+              }
+            }
+          },
+          "numberList": {
+            "$id": "numberList",
+            "$defs": {
+              "itemType": {
+                "$dynamicAnchor": "itemType",
+                "title": "Number Item"
+              }
+            },
+            "$ref": "genericList"
+          },
+          "stringList": {
+            "$id": "stringList",
+            "$defs": {
+              "itemType": {
+                "$dynamicAnchor": "itemType",
+                "title": "String Item"
+              }
+            },
+            "$ref": "genericList"
+          }
+        }
+      },
+      "tests": [
+        {
+          "instance": { "kindOfList": "numbers", "list": [1] },
+          "assertions": [
+            {
+              "location": "/list/0",
+              "keyword": "title",
+              "expected": {
+                "#/$defs/numberList/$defs/itemType": "Number Item"
+              }
+            }
+          ]
+        },
+        {
+          "instance": { "kindOfList": "strings", "list": ["foo"] },
+          "assertions": [
+            {
+              "location": "/list/0",
+              "keyword": "title",
+              "expected": {
+                "#/$defs/stringList/$defs/itemType": "String Item"
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+} 

@@ -1,0 +1,37 @@
+[
+    {
+        "description": "readOnly generates its value as an annotation",
+        "schema": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "https://json-schema.org/tests/content/draft2020-12/readOnly/0",
+            "readOnly": true
+        },
+        "tests": [
+            {
+                "description": "readOnly is true",
+                "data": 1,
+                "output": {
+                    "basic": {
+                        "$id": "https://json-schema.org/tests/content/draft2020-12/readOnly/0/tests/0/basic",
+                        "$ref": "/draft/2020-12/output/schema",
+                        "properties": {
+                            "annotations": {
+                                "contains": {
+                                    "properties": {
+                                        "keywordLocation": {"const": "/readOnly"},
+                                        "absoluteKeywordLocation": {"const": "https://json-schema.org/tests/content/draft2020-12/readOnly/0#/readOnly"},
+                                        "instanceLocation": {"const": ""},
+                                        "annotation": {"const": true}
+                                    },
+                                    "required": ["keywordLocation", "instanceLocation", "annotation"]
+                                }
+                            },
+                            "errors": false
+                        },
+                        "required": ["annotations"]
+                    }
+                }
+            }
+        ]
+    }
+]

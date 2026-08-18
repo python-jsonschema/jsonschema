@@ -1,0 +1,26 @@
+{
+  "$schema": "../test-suite.schema.json",
+  "description": "The format vocabulary",
+  "suite": [
+    {
+      "description": "`format` is an annotation",
+      "schema": {
+        "format": "email"
+      },
+      "tests": [
+        {
+          "instance": "foo@bar.com",
+          "assertions": [
+            {
+              "location": "",
+              "keyword": "format",
+              "expected": {
+                "#": "email"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

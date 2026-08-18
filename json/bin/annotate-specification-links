@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""
+Annotate pull requests to the GitHub repository with links to specifications.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+import json
+import re
+import sys
+
+from uritemplate import URITemplate
+
+
+BIN_DIR = Path(__file__).parent
+TESTS = BIN_DIR.parent / "tests"
+URLS = json.loads(BIN_DIR.joinpath("specification_urls.json").read_text())
+
+
+def urls(version: str) -> dict[str, URITemplate]:
+    """
+    Retrieve the version-specific URLs for specifications.
+    """
+    for_version = {**URLS["json-schema"][version], **URLS["external"]}
+    return {k: URITemplate(v) for k, v in for_version.items()}
+
+
+def annotation(
+    path: Path,
+    message: str,
+    line: int = 1,
+    level: str = "notice",
+    **kwargs: Any,
+) -> str:
+    """
+    Format a GitHub annotation.
+
+    See https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+    for full syntax.
+    """
+
+    if kwargs:
+        additional = "," + ",".join(f"{k}={v}" for k, v in kwargs.items())
+    else:
+        additional = ""
+
+    relative = path.relative_to(TESTS.parent)
+    return f"::{level} file={relative},line={line}{additional}::{message}\n"
+
+
+def line_number_of(path: Path, case: dict[str, Any]) -> int:
+    """
+    Crudely find the line number of a test case.
+    """
+    with path.open() as file:
+        description = case["description"]
+        return next(
+            (i + 1 for i, line in enumerate(file, 1) if description in line),
+            1,
+        )
+
+def extract_kind_and_spec(key: str) -> (str, str):
+    """
+    Extracts specification number and kind from the defined key
+    """
+    can_have_spec = ["rfc", "iso"]
+    if not any(key.startswith(el) for el in can_have_spec):
+        return key, ""
+    number = re.search(r"\d+", key)
+    spec = "" if number is None else number.group(0)
+    kind = key.removesuffix(spec)
+    return kind, spec
+
+
+def main():
+    # Clear annotations which may have been emitted by a previous run.
+    sys.stdout.write("::remove-matcher owner=me::\n")
+
+    for version in TESTS.iterdir():
+        if version.name in {"v1", "latest"}:
+            continue
+
+        version_urls = urls(version.name)
+
+        for path in version.rglob("*.json"):
+            try:
+                contents = json.loads(path.read_text())
+            except json.JSONDecodeError as error:
+                error = annotation(
+                    level="error",
+                    path=path,
+                    line=error.lineno,
+                    col=error.pos + 1,
+                    title=str(error),
+                    message=f"cannot load {path}"
+                )
+                sys.stdout.write(error)
+                continue
+
+            for test_case in contents:
+                specifications = test_case.get("specification")
+                if specifications is not None:
+                    for each in specifications:
+                        quote = each.pop("quote", "")
+                        (key, section), = each.items()
+
+                        (kind, spec) = extract_kind_and_spec(key)
+
+                        url_template = version_urls[kind]
+                        if url_template is None:
+                            error = annotation(
+                                level="error",
+                                path=path,
+                                line=line_number_of(path, test_case),
+                                title=f"unsupported template '{kind}'",
+                                message=f"cannot find a URL template for '{kind}'"
+                            )
+                            sys.stdout.write(error)
+                            continue
+
+                        url = url_template.expand(
+                            spec=spec,
+                            section=section,
+                        )
+
+                        message = f"{url}\n\n{quote}" if quote else url
+                        sys.stdout.write(
+                            annotation(
+                                path=path,
+                                line=line_number_of(path, test_case),
+                                title="Specification Link",
+                                message=message,
+                            ),
+                        )
+
+
+if __name__ == "__main__":
+    main()

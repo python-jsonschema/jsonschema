@@ -1,0 +1,70 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://json-schema.org/tests/output-test-schema",
+    "description": "A schema for files contained within this suite",
+
+    "type": "array",
+    "minItems": 1,
+    "items": {
+        "description": "An individual test case, containing multiple tests of a single schema's behavior",
+
+        "type": "object",
+        "required": [ "description", "schema", "tests" ],
+        "properties": {
+            "description": {
+                "description": "The test case description",
+                "type": "string"
+            },
+            "comment": {
+                "description": "Any additional comments about the test case",
+                "type": "string"
+            },
+            "schema": {
+                "description": "A valid JSON Schema (one written for the corresponding version directory that the file sits within)."
+            },
+            "tests": {
+                "description": "A set of related tests all using the same schema",
+                "type": "array",
+                "items": { "$ref": "#/$defs/test" },
+                "minItems": 1
+            }
+        },
+        "additionalProperties": false
+    },
+
+    "$defs": {
+        "test": {
+            "description": "A single output test",
+
+            "type": "object",
+            "required": [ "description", "data", "output" ],
+            "properties": {
+                "description": {
+                    "description": "The test description, briefly explaining which behavior it exercises",
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Any additional comments about the test",
+                    "type": "string"
+                },
+                "data": {
+                    "description": "The instance which should be validated against the schema in \"schema\"."
+                },
+                "output": {
+                    "description": "schemas that are used to verify output",
+                    "type": "object",
+                    "properties": {
+                        "flag": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "basic": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "detailed": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "verbose": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "list": { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+                        "hierarchy": { "$ref": "https://json-schema.org/draft/2020-12/schema" }
+                    },
+                    "minProperties": 1,
+                    "additionalProperties": false
+                }
+            }
+        }
+    }
+}
