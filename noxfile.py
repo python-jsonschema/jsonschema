@@ -1,5 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 import os
 
 import nox
@@ -48,7 +49,10 @@ def tests(session, installable):
     """
     Run the test suite with a corresponding Python version.
     """
-    env = dict(JSON_SCHEMA_TEST_SUITE=str(ROOT / "json"))
+    env = dict(
+        JSON_SCHEMA_TEST_SUITE=str(ROOT / "json"),
+        PYTHONPATH=str(ROOT),
+    )
 
     session.install("--group=test", installable)
 
@@ -109,6 +113,16 @@ def build(session):
             "--outdir",
             tmpdir,
         )
+        wheel, = Path(tmpdir).glob("*.whl")
+        with ZipFile(wheel) as archive:
+            bundled = [
+                path for path in archive.namelist()
+                if path.startswith(
+                    ("jsonschema/benchmarks/", "jsonschema/tests/"),
+                )
+            ]
+        if bundled:
+            session.error(f"Wheel contains test or benchmark files: {bundled}")
         session.run("twine", "check", "--strict", tmpdir + "/*")
         session.run(
             "python", "-m", "docutils", "--strict", CHANGELOG, os.devnull,
