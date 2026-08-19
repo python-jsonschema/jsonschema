@@ -1,3 +1,10 @@
+v4.27.0
+=======
+
+* Catch ``ValueError`` from ``re.compile`` in the ``regex`` format checker so
+  incompatible inline flags (e.g. ``(?u)(?a)``) are reported as invalid rather
+  than crashing (#1558).
+
 v4.26.0
 =======
 

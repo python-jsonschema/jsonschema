@@ -71,6 +71,20 @@ class TestFormatChecker(TestCase):
         self.assertIs(cm.exception.cause, BOOM)
         self.assertIs(cm.exception.__cause__, BOOM)
 
+    def test_regex_format_incompatible_inline_flags_are_invalid(self):
+        """
+        ``re.compile`` raises ``ValueError`` (not ``re.error``) when a
+        pattern sets incompatible inline flags in separate groups, e.g.
+        ``(?u)(?a)``. That must be reported as an invalid regex rather
+        than escaping as an uncaught exception.
+        """
+        checker = FormatChecker()
+        self.assertFalse(checker.conforms("(?u)(?a)", "regex"))
+        self.assertFalse(checker.conforms("(?a)(?u)", "regex"))
+        with self.assertRaises(FormatError) as cm:
+            checker.check("(?u)(?a)", "regex")
+        self.assertIsInstance(cm.exception.cause, ValueError)
+
     def test_format_checkers_come_with_defaults(self):
         # This is bad :/ but relied upon.
         # The docs for quite awhile recommended people do things like
