@@ -80,6 +80,28 @@ class TestFormatChecker(TestCase):
         with self.assertRaises(FormatError):
             checker.check(instance="not-an-ipv4", format="ipv4")
 
+    def test_regex_format_rejects_incompatible_inline_flags(self):
+        # re.compile raises ValueError (not re.error) for two incompatible
+        # inline flag groups, e.g. re.compile("(?u)(?a)"). Previously this
+        # propagated uncaught since the "regex" checker only declared
+        # raises=re.error. See GH #1558.
+        checker = FormatChecker()
+        self.assertFalse(checker.conforms("(?u)(?a)", "regex"))
+        self.assertFalse(checker.conforms("(?a)(?u)", "regex"))
+
+    def test_regex_format_rejects_deeply_nested_patterns(self):
+        # re.compile raises RecursionError (not re.error) for patterns
+        # whose nesting exceeds the C stack limit while parsing, e.g. many
+        # unclosed groups. Previously this propagated uncaught. See GH
+        # #1538.
+        checker = FormatChecker()
+        self.assertFalse(checker.conforms("(" * 2000, "regex"))
+
+    def test_regex_format_still_accepts_valid_and_rejects_invalid(self):
+        checker = FormatChecker()
+        self.assertTrue(checker.conforms("valid.*regex", "regex"))
+        self.assertFalse(checker.conforms("[unterminated", "regex"))
+
     def test_repr(self):
         checker = FormatChecker(formats=())
         checker.checks("foo")(lambda thing: True)  # pragma: no cover
