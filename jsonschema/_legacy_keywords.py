@@ -1,5 +1,3 @@
-import re
-
 from referencing.jsonschema import lookup_recursive_ref
 
 from jsonschema import _utils
@@ -380,7 +378,7 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
     if "patternProperties" in schema:
         for property in instance:
             for pattern in schema["patternProperties"]:
-                if re.search(pattern, property):
+                if validator.regex_provider.search(pattern, property):
                     evaluated_keys.append(property)
 
     if "dependentSchemas" in schema:

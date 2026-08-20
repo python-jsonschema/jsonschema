@@ -1,6 +1,5 @@
 from collections.abc import Mapping, MutableMapping, Sequence
 from urllib.parse import urlsplit
-import re
 
 # Module-level sentinels so recursive `_uniq_key` calls produce comparable
 # keys for nested True/False (function-default sentinels would also work, but
@@ -72,7 +71,7 @@ def format_as_index(container, indices):
     return f"{container}[{']['.join(repr(index) for index in indices)}]"
 
 
-def find_additional_properties(instance, schema):
+def find_additional_properties(validator, instance, schema):
     """
     Return the set of additional properties for the given ``instance``.
 
@@ -83,9 +82,10 @@ def find_additional_properties(instance, schema):
     """
     properties = schema.get("properties", {})
     patterns = "|".join(schema.get("patternProperties", {}))
+    _search = validator.regex_provider.search
     for property in instance:
         if property not in properties:
-            if patterns and re.search(patterns, property):
+            if patterns and _search(patterns, property):
                 continue
             yield property
 
@@ -370,7 +370,7 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
     if "patternProperties" in schema:
         for property in instance:
             for pattern in schema["patternProperties"]:
-                if re.search(pattern, property):
+                if validator.regex_provider.search(pattern, property):
                     evaluated_keys.append(property)
 
     if "dependentSchemas" in schema:
