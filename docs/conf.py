@@ -89,6 +89,7 @@ def entire_domain(host):
 linkcheck_ignore = [
     entire_domain("zenodo.org"),
     entire_domain("img.shields.io"),
+    entire_domain("json-schema.slack.com"),
     "https://github.com/python-jsonschema/jsonschema/actions",
     "https://github.com/python-jsonschema/jsonschema/workflows/CI/badge.svg",
 ]
