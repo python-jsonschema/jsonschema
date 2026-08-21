@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
-from jsonschema.validators import Draft202012Validator, Draft4Validator
+from jsonschema.validators import Draft4Validator, Draft202012Validator
 
 BOOM = ValueError("Boom!")
 BANG = ZeroDivisionError("Bang!")
