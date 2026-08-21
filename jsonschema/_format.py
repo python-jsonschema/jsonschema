@@ -326,7 +326,7 @@ except ImportError:
             return validate_rfc3986(instance, rule="URI_reference")
 
     with suppress(ImportError):
-        from rfc3987_syntax import is_valid_syntax as _rfc3987_is_valid_syntax
+        from rfc3987_syntax2 import is_valid_syntax as _rfc3987_is_valid_syntax
 
         @_checks_drafts(
             draft7="iri",

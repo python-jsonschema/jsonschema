@@ -231,8 +231,8 @@ Checker                    Notes
 ``idn-hostname``           requires idna_
 ``ipv4``
 ``ipv6``                   OS must have `socket.inet_pton` function
-``iri``                    requires rfc3987_ or rfc3987-syntax_
-``iri-reference``          requires rfc3987_ or rfc3987-syntax_
+``iri``                    requires rfc3987_ or rfc3987-syntax2_
+``iri-reference``          requires rfc3987_ or rfc3987-syntax2_
 ``json-pointer``           requires jsonpointer_
 ``regex``
 ``relative-json-pointer``  requires jsonpointer_
@@ -251,7 +251,7 @@ Checker                    Notes
 .. _rfc3339-validator: https://pypi.org/project/rfc3339-validator/
 .. _rfc3986-validator: https://pypi.org/project/rfc3986-validator/
 .. _rfc3987: https://pypi.org/pypi/rfc3987/
-.. _rfc3987-syntax: https://pypi.org/pypi/rfc3987-syntax/
+.. _rfc3987-syntax2: https://pypi.org/pypi/rfc3987-syntax2/
 .. _uri-template: https://pypi.org/pypi/uri-template/
 .. _webcolors: https://pypi.org/pypi/webcolors/
 
