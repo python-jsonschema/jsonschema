@@ -25,6 +25,7 @@ from jsonschema import (
     _format,
     _keywords,
     _legacy_keywords,
+    _regex_provider,
     _types,
     _typing,
     _utils,
@@ -32,7 +33,7 @@ from jsonschema import (
 )
 
 if TYPE_CHECKING:
-    from jsonschema.protocols import Validator
+    from jsonschema.protocols import RegexProvider, Validator
 
 _UNSET = _utils.Unset()
 
@@ -146,6 +147,7 @@ def create(
     applicable_validators: _typing.ApplicableValidators = methodcaller(
         "items",
     ),
+    regex_provider: RegexProvider = _regex_provider.PythonRegexProvider(),
 ) -> type[Validator]:
     """
     Create a new validator class.
@@ -206,6 +208,15 @@ def create(
             implement similar behavior, you can typically ignore this argument
             and leave it at its default.
 
+        regex_provider:
+
+            The regular expression provider to use.
+
+            By default, this is backed by the Python ``re`` module,
+            but it is possible to replace this with an alternate engine.
+            For example, it may be desirable to use a regex engine
+            that isn't subject to pathological backtracking.
+
     Returns:
 
         a new `jsonschema.protocols.Validator` class
@@ -213,6 +224,8 @@ def create(
     """
     # preemptively don't shadow the `Validator.format_checker` local
     format_checker_arg = format_checker
+    # preemptively don't shadow the `Validator.regex_provider` local
+    regex_provider_arg = regex_provider
 
     specification = referencing.jsonschema.specification_with(
         dialect_id=id_of(meta_schema) or "urn:unknown-dialect",
@@ -227,6 +240,7 @@ def create(
         TYPE_CHECKER = type_checker
         FORMAT_CHECKER = format_checker_arg
         ID_OF = staticmethod(id_of)
+        REGEX_PROVIDER = regex_provider_arg
 
         _APPLICABLE_VALIDATORS = applicable_validators
         _validators = field(init=False, repr=False, eq=False)
@@ -234,6 +248,10 @@ def create(
         schema: referencing.jsonschema.Schema = field(repr=reprlib.repr)
         _ref_resolver = field(default=None, repr=False, alias="resolver")
         format_checker: _format.FormatChecker | None = field(default=None)
+        regex_provider: RegexProvider = field(
+            default=regex_provider_arg,
+            repr=False,
+        )
         # TODO: include new meta-schemas added at runtime
         _registry: referencing.jsonschema.SchemaRegistry = field(
             default=_REMOTE_WARNING_REGISTRY,
@@ -519,6 +537,7 @@ def extend(
     version=None,
     type_checker=None,
     format_checker=None,
+    regex_provider: RegexProvider | None = None,
 ):
     """
     Create a new validator class by extending an existing one.
@@ -564,6 +583,13 @@ def extend(
             If unprovided, the format checker of the extended
             `jsonschema.protocols.Validator` will be carried along.
 
+        regex_provider:
+
+            A regular expression provider.
+
+            If not provided, the regex provider of the extended
+            `jsonschema.protocols.Validator` will be carried along.
+
     Returns:
 
         a new `jsonschema.protocols.Validator` class extending the one
@@ -587,6 +613,8 @@ def extend(
         type_checker = validator.TYPE_CHECKER
     if format_checker is None:
         format_checker = validator.FORMAT_CHECKER
+    if regex_provider is None:
+        regex_provider = validator.REGEX_PROVIDER
     return create(
         meta_schema=validator.META_SCHEMA,
         validators=all_validators,
@@ -595,6 +623,7 @@ def extend(
         format_checker=format_checker,
         id_of=validator.ID_OF,
         applicable_validators=validator._APPLICABLE_VALIDATORS,
+        regex_provider=regex_provider,
     )
 
 

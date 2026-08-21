@@ -299,6 +299,15 @@ The JSON Schema specification `recommends (but does not require) <https://json-s
 
 Given that there is no current library in Python capable of supporting the ECMA 262 dialect, the ``regex`` format will instead validate *Python* regular expressions, which are the ones used by this implementation for other keywords like :kw:`pattern` or :kw:`patternProperties`.
 
+.. note::
+
+    The ``regex`` format checker currently uses Python's :mod:`re` module
+    regardless of any custom `regex provider <regex-providers>` that may be
+    in use.  A pattern accepted by Python's :mod:`re` but rejected by a
+    custom engine — such as a backreference when using RE2 — will pass the
+    format check but fail at match time.  See :ref:`regex-providers` for
+    details.
+
 email
 ^^^^^
 
@@ -307,3 +316,140 @@ Since in most cases "validating" an email address is an attempt instead to confi
 The same applies to the ``idn-email`` format.
 
 If you indeed want a particular well-specified set of emails to be considered valid, you can use `FormatChecker.checks` to provide your specific definition.
+
+
+.. _regex-providers:
+
+Regex Providers
+---------------
+
+``jsonschema`` uses regular expressions when validating schemas.
+By default, these operations use Python's built-in :mod:`re` module.
+
+Python's :mod:`re` engine is vulnerable to catastrophic (or "pathological") backtracking,
+which occurs when a regular expression and an input
+cause the :mod:`re` module to run for exponentially long periods of time.
+If you are validating user-submitted input against user-supplied schemas,
+you may want to use a regular expression engine that isn't vulnerable.
+
+
+The ``RegexProvider`` Protocol
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A regex provider is any class that satisfies the
+`jsonschema.protocols.RegexProvider` protocol.
+
+Two methods are required, as well as a class attribute named ``raises``:
+
+``raises: tuple[type[Exception], ...]``
+    A tuple of exception classes that might be raised
+    when interacting with the regex provider.
+
+``compile(pattern: str)``
+    Compile ``pattern`` and return the result.
+
+    This is expected to be equivalent to the behavior of
+    the builtin ``re.compile()`` function.
+
+``search(pattern, text: str)``
+    Search for ``text`` in the ``pattern``.
+
+    ``pattern`` may be a string, or the result returned by ``compile()``, above.
+
+    This is expected to be equivalent to the behavior of
+    the builtin ``re.search()`` function.
+
+Depending on your use case and the features or drawbacks of the regex engine you're using,
+it may be beneficial to use caching.
+
+
+Installing a Provider at the Class Level
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pass a regex provider instance to `jsonschema.validators.extend`
+to derive a validator class that uses your regex provider:
+
+..  code-block:: python
+
+    from jsonschema import validators
+
+    SafeValidator = validators.extend(
+        validators.Draft202012Validator,
+        regex_provider=MyProvider(),
+    )
+
+All instances of ``SafeValidator`` will use ``MyProvider`` by default.
+The same argument is accepted by `jsonschema.validators.create`
+when building a validator class from scratch.
+
+
+Per-Instance Override
+~~~~~~~~~~~~~~~~~~~~~
+
+Pass a provider instance to the validator constructor
+to override the default for a single validator instance:
+
+.. code-block:: python
+
+    validator = Draft202012Validator(schema, regex_provider=MyProvider())
+
+
+Critical pitfalls
+~~~~~~~~~~~~~~~~~
+
+The ``{"format": "regex"}`` format checker in ``jsonschema``
+is hard-coded to use Python's :mod:`re` module
+to determine whether a string is a valid regular expression.
+It currently cannot access the regex provider you designate,
+so its validity check may not align with what your regex engine supports.
+
+At the current time, the only solution is to override
+the default ``"regex"`` format checker with a custom function.
+
+You cannot use the ``extend`` function's ``format_checker`` argument
+because when ``Validator.check_schema`` is called
+``jsonschema`` creates a new validator class
+that will not honor that argument ``format_checker``.
+Therefore, always override the class attribute ``FORMAT_CHECKER`` directly:
+
+.. code-block:: python
+
+    def is_regex(instance: str) -> bool:
+        if not isinstance(instance, str):
+            return True
+        return bool(re2.compile(_instance))
+
+    MyValidator.FORMAT_CHECKER.checkers["regex"] = (is_regex, (MyException,))
+
+
+Example: ``google-re2``
+~~~~~~~~~~~~~~~~~~~~~~~
+
+`Google RE2 <https://github.com/google/re2>`_ is a regex engine
+that is not vulnerable to catastrophic backtracking
+(it simply doesn't support features that require backtracking,
+like backreferences or lookahead assertions).
+It is available as the ``google-re2`` package on PyPI
+and exposes a :mod:`re`-compatible Python API.
+
+.. code-block:: python
+
+    import jsonschema
+    import re2
+
+    class Re2Provider(jsonschema.protocols.RegexProvider):
+        raises = (re2.error,)
+        compile = staticmethod(re2.compile)
+        search = staticmethod(re2.search)
+
+    SafeValidator = jsonschema.validators.extend(
+        jsonschema.validators.Draft202012Validator,
+        regex_provider=Re2Provider(),
+    )
+
+    def is_regex(instance: str) -> bool:
+        if not isinstance(instance, str):
+            return True
+        return bool(re2.compile(instance))
+
+    SafeValidator.FORMAT_CHECKER.checkers["regex"] = (is_regex, Re2Provider.raises)

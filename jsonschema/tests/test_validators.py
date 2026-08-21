@@ -9,6 +9,7 @@ from unittest import TestCase, mock
 from urllib.request import pathname2url
 import json
 import os
+import re
 import sys
 import tempfile
 import warnings
@@ -24,6 +25,7 @@ from jsonschema import (
     protocols,
     validators,
 )
+import jsonschema.protocols
 
 
 def fail(validator, errors, instance, schema):
@@ -301,6 +303,140 @@ class TestCreateAndExtend(TestCase):
 
         Derived = validators.extend(validators.Draft4Validator)
         self.assertTrue(Derived(schema).is_valid(37))
+
+
+class TestRegexProvider(TestCase):
+    """
+    Test regex_provider customization.
+
+    These tests exercise the regex provider code
+    and the code locations that use regular expressions.
+    """
+
+    class MatchNothingProvider(jsonschema.protocols.RegexProvider):
+        """A provider whose search() never matches."""
+
+        def compile(self, pattern):
+            raise NotImplementedError
+
+        def search(self, pattern, text):
+            return None
+
+    class MatchEverythingProvider(jsonschema.protocols.RegexProvider):
+        """A provider whose search() always matches."""
+
+        def compile(self, pattern):
+            raise NotImplementedError
+
+        def search(self, pattern, text):
+            return re.search("", "")
+
+    def test_custom_provider_can_be_set(self):
+        """create() must be able to set a custom regex provider."""
+
+        provider = self.MatchNothingProvider()
+        Validator = validators.create(
+            meta_schema={},
+            regex_provider=provider,
+        )
+        validator = Validator({})
+
+        self.assertIs(Validator.REGEX_PROVIDER, provider)
+        self.assertIs(validator.regex_provider, provider)
+
+    def test_instance_attribute_can_be_overridden_at_construction(self):
+        """
+        regex_provider can be overridden per-instance at construction time.
+        """
+
+        custom = self.MatchEverythingProvider()
+        Validator = validators.create(meta_schema={})
+        validator = Validator({}, regex_provider=custom)
+        self.assertIs(validator.regex_provider, custom)
+
+    def test_pattern_keyword_uses_provider(self):
+        """
+        `pattern` must delegate to the regex provider.
+
+        This is confirmed by using the MatchNothing regex provider
+        and verifying that an exact text match is rejected.
+        """
+        provider = self.MatchNothingProvider()
+        schema = {"pattern": "^abc$"}
+        validator = validators.Draft202012Validator(
+            schema, regex_provider=provider,
+        )
+        errors = list(validator.iter_errors("abc"))
+        self.assertEqual(len(errors), 1)
+
+    def test_pattern_properties_keyword_uses_provider(self):
+        """
+        `patternProperties` must delegate to the regex provider.
+
+        This is confirmed by using the MatchEverything regex provider
+        and verifying that a non-matching field's value type is rejected.
+        """
+        provider = self.MatchEverythingProvider()
+        schema = {"patternProperties": {"^foo$": {"type": "integer"}}}
+        errors = list(
+            validators.Draft202012Validator(
+                schema, regex_provider=provider,
+            ).iter_errors({"not-a-foo": "not-an-integer"}),
+        )
+        self.assertGreater(len(errors), 0)
+
+    def test_additional_properties_uses_provider(self):
+        """
+        `additionalProperties` must use the regex provider
+        to determine which properties are covered by `patternProperties`
+        and therefore not "additional".
+
+        Because the configured regex provider matches everything,
+        the obviously-additional property "bar" is not an additional property,
+        and the schema passes.
+        """
+        provider = self.MatchEverythingProvider()
+        schema = {
+            "patternProperties": {"^foo$": {}},
+            "additionalProperties": False,
+        }
+        validators.Draft202012Validator(
+            schema, regex_provider=provider,
+        ).validate({"bar": "anything"})
+
+    def test_unevaluated_properties_uses_provider(self):
+        """
+        `unevaluatedProperties` must use the regex provider
+        to decide which properties have been evaluated by `patternProperties`.
+
+        Because the configured regex provider matches everything,
+        the obviously-unevaluated property "bar" is not considered unevaluated,
+        and the schema passes.
+        """
+        provider = self.MatchEverythingProvider()
+        schema = {
+            "patternProperties": {"^foo$": {}},
+            "unevaluatedProperties": False,
+        }
+        validators.Draft202012Validator(
+            schema, regex_provider=provider,
+        ).validate({"bar": "anything"})
+
+    def test_legacy_unevaluated_properties_uses_provider(self):
+        """
+        A legacy copy of `find_evaluated_property_keys_by_schema` exists,
+        which is used by at least the draft 2019-09 validator.
+        Like the test above, it must rely on the regex provider.
+        """
+
+        provider = self.MatchEverythingProvider()
+        schema = {
+            "patternProperties": {"^foo$": {}},
+            "unevaluatedProperties": False,
+        }
+        validators.Draft201909Validator(
+            schema, regex_provider=provider,
+        ).validate({"bar": "anything"})
 
 
 class TestValidationErrorMessages(TestCase):
