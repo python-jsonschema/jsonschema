@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
-from jsonschema.validators import Draft4Validator
+from jsonschema.validators import Draft202012Validator, Draft4Validator
 
 BOOM = ValueError("Boom!")
 BANG = ZeroDivisionError("Bang!")
@@ -70,6 +70,27 @@ class TestFormatChecker(TestCase):
 
         self.assertIs(cm.exception.cause, BOOM)
         self.assertIs(cm.exception.__cause__, BOOM)
+
+    def test_oversized_repeat_regex_reports_invalid_not_overflow(self):
+        # re.compile raises OverflowError (not an re.error subclass) when a
+        # repetition count is too large, which must surface as a FormatError
+        # rather than escape the checker (#1526).
+        checker = FormatChecker(formats=["regex"])
+        validator = Draft202012Validator(
+            {"format": "regex"}, format_checker=checker,
+        )
+        pattern = "a{99999999999999}"
+
+        with self.assertRaises(FormatError):
+            checker.check(pattern, "regex")
+
+        self.assertFalse(checker.conforms(pattern, "regex"))
+        errors = list(validator.iter_errors(pattern))
+        self.assertEqual(len(errors), 1)
+        self.assertIsInstance(errors[0].cause, OverflowError)
+
+        # A sane bounded repeat still compiles and conforms.
+        self.assertTrue(checker.conforms("a{2,4}", "regex"))
 
     def test_format_checkers_come_with_defaults(self):
         # This is bad :/ but relied upon.

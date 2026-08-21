@@ -413,7 +413,7 @@ with suppress(ImportError):
         return is_datetime("1970-01-01T" + instance)
 
 
-@_checks_drafts(name="regex", raises=re.error)
+@_checks_drafts(name="regex", raises=(re.error, OverflowError))
 def is_regex(instance: object) -> bool:
     if not isinstance(instance, str):
         return True
