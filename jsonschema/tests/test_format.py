@@ -6,7 +6,12 @@ from unittest import TestCase
 
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
-from jsonschema.validators import Draft4Validator
+from jsonschema.validators import (
+    Draft4Validator,
+    Draft7Validator,
+    Draft201909Validator,
+    Draft202012Validator,
+)
 
 BOOM = ValueError("Boom!")
 BANG = ZeroDivisionError("Bang!")
@@ -89,3 +94,40 @@ class TestFormatChecker(TestCase):
             repr(checker),
             "<FormatChecker checkers=['bar', 'baz', 'foo']>",
         )
+
+
+class TestRelativeJSONPointer(TestCase):
+    def _checker(self):
+        checker = Draft202012Validator.FORMAT_CHECKER
+        if "relative-json-pointer" not in checker.checkers:
+            self.skipTest("requires the format extra")
+        return checker
+
+    def test_draft202012_allows_index_manipulation(self):
+        checker = self._checker()
+
+        for instance in ("0+1", "0+1/foo", "1-2/bar", "0-0", "0-1#"):
+            with self.subTest(instance=instance):
+                checker.check(instance, "relative-json-pointer")
+
+    def test_older_drafts_still_reject_index_manipulation(self):
+        self._checker()
+        for validator in (Draft7Validator, Draft201909Validator):
+            with (
+                self.subTest(validator=validator.__name__),
+                self.assertRaises(FormatError),
+            ):
+                validator.FORMAT_CHECKER.check(
+                    "0+1/foo",
+                    "relative-json-pointer",
+                )
+
+    def test_draft202012_rejects_malformed_index_manipulation(self):
+        checker = self._checker()
+
+        for instance in ("0+", "0-01", "0++1", "0+1not-a-pointer"):
+            with (
+                self.subTest(instance=instance),
+                self.assertRaises(FormatError),
+            ):
+                checker.check(instance, "relative-json-pointer")

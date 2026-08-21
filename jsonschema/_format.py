@@ -475,7 +475,6 @@ with suppress(ImportError):
     @_checks_drafts(
         draft7="relative-json-pointer",
         draft201909="relative-json-pointer",
-        draft202012="relative-json-pointer",
         raises=jsonpointer.JsonPointerException,
     )
     def is_relative_json_pointer(instance: object) -> bool:
@@ -494,6 +493,29 @@ with suppress(ImportError):
             return False
         if len(prefix) > 1 and prefix[0] == "0":
             return False
+        return (rest == "#") or bool(jsonpointer.JsonPointer(rest))
+
+    @_checks_drafts(
+        draft202012="relative-json-pointer",
+        raises=jsonpointer.JsonPointerException,
+    )
+    def is_relative_json_pointer_202012(instance: object) -> bool:
+        # Definition taken from:
+        # https://json-schema.org/draft/2020-12/relative-json-pointer
+        if not isinstance(instance, str):
+            return True
+        if not instance:
+            return False
+
+        prefix = re.match(
+            r"(?:0|[1-9][0-9]*)(?:[+-](?:0|[1-9][0-9]*))?",
+            instance,
+            re.ASCII,
+        )
+        if prefix is None:
+            return False
+
+        rest = instance[prefix.end():]
         return (rest == "#") or bool(jsonpointer.JsonPointer(rest))
 
 
