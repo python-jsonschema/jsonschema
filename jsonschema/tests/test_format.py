@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.exceptions import FormatError
-from jsonschema.validators import Draft4Validator
+from jsonschema.validators import Draft202012Validator, Draft4Validator
 
 BOOM = ValueError("Boom!")
 BANG = ZeroDivisionError("Bang!")
@@ -70,6 +70,24 @@ class TestFormatChecker(TestCase):
 
         self.assertIs(cm.exception.cause, BOOM)
         self.assertIs(cm.exception.__cause__, BOOM)
+
+    def test_deeply_nested_regex_reports_invalid_not_recursion_error(self):
+        # re.compile raises RecursionError (not an re.error subclass) when
+        # pattern nesting exceeds the recursion limit, which must surface
+        # as a FormatError / validation error rather than propagate (#1538).
+        checker = FormatChecker(formats=["regex"])
+        validator = Draft202012Validator(
+            {"format": "regex"}, format_checker=checker,
+        )
+        nested = "(" * 500
+
+        with self.assertRaises(FormatError):
+            checker.check(nested, "regex")
+
+        self.assertFalse(checker.conforms(nested, "regex"))
+        errors = list(validator.iter_errors(nested))
+        self.assertEqual(len(errors), 1)
+        self.assertIsInstance(errors[0].cause, RecursionError)
 
     def test_format_checkers_come_with_defaults(self):
         # This is bad :/ but relied upon.
