@@ -60,6 +60,24 @@ class TestFormatChecker(TestCase):
         with self.assertRaises(type(BANG)):
             checker.check(instance="bang", format="boom")
 
+    def test_regex_conflicting_inline_flags_report_invalid_not_error(self):
+        # re.compile raises ValueError (not an re.error subclass) for
+        # incompatible inline flags in separate groups, which must surface
+        # as a FormatError rather than escape the checker (#1558).
+        checker = FormatChecker(formats=["regex"])
+
+        with self.assertRaises(FormatError):
+            checker.check("(?u)(?a)", "regex")
+
+        self.assertFalse(checker.conforms("(?u)(?a)", "regex"))
+        self.assertFalse(checker.conforms("(?a)(?u)", "regex"))
+
+        # The single-group form was already correctly invalid.
+        self.assertFalse(checker.conforms("(?ua)", "regex"))
+        # And a plain re.error still reports invalid rather than raising.
+        self.assertFalse(checker.conforms("[unterminated", "regex"))
+        self.assertTrue(checker.conforms("a+b?", "regex"))
+
     def test_format_error_causes_become_validation_error_causes(self):
         checker = FormatChecker()
         checker.checks("boom", raises=ValueError)(boom)
