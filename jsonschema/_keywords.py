@@ -169,15 +169,17 @@ def multipleOf(validator, dB, instance, schema):
         return
 
     if isinstance(dB, float):
-        quotient = instance / dB
         try:
+            quotient = instance / dB
             failed = int(quotient) != quotient
-        except OverflowError:
-            # When `instance` is large and `dB` is less than one,
-            # quotient can overflow to infinity; and then casting to int
-            # raises an error.
+        except (OverflowError, TypeError):
+            # When `instance` is large and `dB` is less than one, the
+            # quotient can overflow to infinity (or dividing a huge integer
+            # can overflow outright), and then casting to int raises an
+            # OverflowError; and a `Decimal` instance cannot be divided by a
+            # float `dB` at all, which raises a TypeError.
             #
-            # In this case we fall back to Fraction logic, which is
+            # In either case we fall back to Fraction logic, which is
             # exact and cannot overflow.  The performance is also
             # acceptable: we try the fast all-float option first, and
             # we know that fraction(dB) can have at most a few hundred
