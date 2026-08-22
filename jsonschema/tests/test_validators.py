@@ -501,6 +501,23 @@ class TestValidationErrorMessages(TestCase):
         )
         self.assertEqual(message, "3 is not a multiple of 2")
 
+    def test_multipleOf_integer_valued_float(self):
+        """Integer-valued floats like 11.0 should behave like integers (#1159).
+
+        Large integers beyond 2**53 lose precision in float division,
+        so multipleOf with an integer-valued float must use integer
+        arithmetic to avoid false negatives.
+        """
+        instance = 9007199254740995  # 2**53 + 3, a multiple of 11
+        # With integer divisor this passes
+        validators.Draft202012Validator(
+            {"type": "integer", "multipleOf": 11},
+        ).validate(instance)
+        # With integer-valued float divisor this should also pass
+        validators.Draft202012Validator(
+            {"type": "integer", "multipleOf": 11.0},
+        ).validate(instance)
+
     def test_minItems(self):
         message = self.message_for(instance=[], schema={"minItems": 2})
         self.assertEqual(message, "[] is too short")
