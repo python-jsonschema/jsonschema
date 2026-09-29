@@ -2,7 +2,7 @@ from collections.abc import Mapping
 from math import nan
 from unittest import TestCase
 
-from jsonschema._utils import equal, uniq
+from jsonschema._utils import equal, find_additional_properties, uniq
 
 
 class Unhashable:
@@ -222,4 +222,22 @@ class TestUniq(TestCase):
         )
         self.assertTrue(
             uniq([{"k": Unhashable(1)}, {"k": Unhashable(2)}]),
+        )
+
+
+class TestFindAdditionalProperties(TestCase):
+    def test_empty_pattern_matches_all_properties(self):
+        # An empty-string pattern is a valid regex that matches every property,
+        # so patternProperties covers everything and nothing is additional.
+        schema = {"patternProperties": {"": {"type": "integer"}}}
+        instance = {"foo": 1, "bar": 2}
+        self.assertEqual(
+            list(find_additional_properties(instance, schema)), [],
+        )
+
+    def test_no_pattern_properties_leaves_all_additional(self):
+        schema = {"properties": {"foo": {}}}
+        instance = {"foo": 1, "bar": 2}
+        self.assertEqual(
+            list(find_additional_properties(instance, schema)), ["bar"],
         )
