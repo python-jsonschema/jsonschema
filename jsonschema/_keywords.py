@@ -1,5 +1,4 @@
 from fractions import Fraction
-import re
 
 from jsonschema._utils import (
     ensure_list,
@@ -19,7 +18,7 @@ def patternProperties(validator, patternProperties, instance, schema):
 
     for pattern, subschema in patternProperties.items():
         for k, v in instance.items():
-            if re.search(pattern, k):
+            if validator.regex_provider.search(pattern, k):
                 yield from validator.descend(
                     v, subschema, path=k, schema_path=pattern,
                 )
@@ -37,7 +36,7 @@ def additionalProperties(validator, aP, instance, schema):
     if not validator.is_type(instance, "object"):
         return
 
-    extras = set(find_additional_properties(instance, schema))
+    extras = set(find_additional_properties(validator, instance, schema))
 
     if validator.is_type(aP, "object"):
         for extra in extras:
@@ -215,7 +214,7 @@ def uniqueItems(validator, uI, instance, schema):
 def pattern(validator, patrn, instance, schema):
     if (
         validator.is_type(instance, "string")
-        and not re.search(patrn, instance)
+        and not validator.regex_provider.search(patrn, instance)
     ):
         yield ValidationError(f"{instance!r} does not match {patrn!r}")
 

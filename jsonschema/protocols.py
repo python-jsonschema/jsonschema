@@ -75,6 +75,11 @@ class Validator(Protocol):
             its `extra (optional) dependencies <index:extras>` when
             invoking ``pip``.
 
+        regex_provider:
+
+            if provided, this is the `RegexProvider` that will be used
+            when validating regex-based constructs, like ``patternProperties``.
+
     .. deprecated:: v4.12.0
 
         Subclassing validator classes now explicitly warns this is not part of
@@ -99,6 +104,10 @@ class Validator(Protocol):
     #: :kw:`format` keywords in JSON schemas.
     FORMAT_CHECKER: ClassVar[jsonschema.FormatChecker]
 
+    #: A `jsonschema.protocols.RegexProvider` that will be used
+    #: when handling
+    REGEX_PROVIDER: ClassVar[jsonschema.protocols.RegexProvider]
+
     #: A function which given a schema returns its ID.
     ID_OF: _typing.id_of
 
@@ -112,6 +121,7 @@ class Validator(Protocol):
         format_checker: jsonschema.FormatChecker | None = None,
         *,
         registry: referencing.jsonschema.SchemaRegistry = ...,
+        regex_provider: jsonschema.protocols.RegexProvider = ...,
     ) -> None: ...
 
     @classmethod
@@ -227,4 +237,36 @@ class Validator(Protocol):
         ...     schema={"$schema": Draft7Validator.META_SCHEMA["$id"]}
         ... )
         Draft7Validator(schema=..., format_checker=None)
+        """
+
+
+class Match(Protocol):
+    """Protocol for a regex match result."""
+
+    def __bool__(self) -> bool: ...
+
+
+class Pattern(Protocol):
+    """Protocol for a compiled regex pattern."""
+
+    def __bool__(self) -> bool: ...
+
+
+class RegexProvider(Protocol):
+    """Protocol for a regular expression engine provider."""
+
+    raises: ClassVar[tuple[type[Exception], ...]]
+
+    def compile(self, pattern: str, /) -> Pattern:
+        """
+        Compile the given pattern into a Pattern object.
+
+        Any exception raised must be listed in the *raises* attribute.
+        """
+
+    def search(self, pattern: str | Pattern, text: str, /) -> Match | None:
+        """
+        Find text in the given pattern, or return None.
+
+        Any exception raised must be listed in the *raises* attribute.
         """
