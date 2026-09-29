@@ -816,6 +816,29 @@ class TestValidationErrorMessages(TestCase):
         )
 
 
+class TestMultipleOf(TestCase):
+    def test_it_does_not_crash_on_decimals_or_large_integers(self):
+        # ``multipleOf`` with a float divisor divides the instance by the
+        # divisor. The division used to sit outside the guard that only
+        # caught OverflowError, so a Decimal instance raised TypeError
+        # (Decimal / float) and a very large integer raised OverflowError at
+        # the division itself, instead of validating.
+        Validator = validators.Draft202012Validator
+
+        # Both of these are valid (10.0 is a multiple of 2.5, and every
+        # integer is a multiple of 0.5) and must not raise.
+        Validator({"multipleOf": 2.5}).validate(Decimal("10.0"))
+        Validator({"multipleOf": 0.5}).validate(10**400)
+
+        # The Fraction fallback still rejects genuine non-multiples.
+        self.assertFalse(
+            Validator({"multipleOf": 3.3}).is_valid(Decimal(10)),
+        )
+        self.assertFalse(
+            Validator({"multipleOf": 0.3}).is_valid(10**400),
+        )
+
+
 class TestValidationErrorDetails(TestCase):
     # TODO: These really need unit tests for each individual keyword, rather
     #       than just these higher level tests.
