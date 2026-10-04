@@ -80,6 +80,12 @@ jobs:
           - os: windows-latest
             noxenv: "docs(style)"
           - os: windows-latest
+            noxenv: "tests-pypy3.12(no-extras)"
+          - os: windows-latest
+            noxenv: "tests-pypy3.12(format)"
+          - os: windows-latest
+            noxenv: "tests-pypy3.12(format-nongpl)"
+          - os: windows-latest
             noxenv: "tests-3.14(no-extras)"
           - os: windows-latest
             noxenv: "tests-3.14(format)"
