@@ -7,7 +7,14 @@ typing.Protocol classes for jsonschema interfaces.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Protocol,
+    Self,
+    runtime_checkable,
+)
 
 # in order for Sphinx to resolve references accurately from type annotations,
 # it needs to see names like `jsonschema.TypeChecker`
@@ -206,7 +213,7 @@ class Validator(Protocol):
 
         """
 
-    def evolve(self, **kwargs) -> Validator:
+    def evolve(self, **kwargs) -> Self:
         """
         Create a new validator like this one, but with given changes.
 

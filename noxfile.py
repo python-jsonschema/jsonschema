@@ -26,8 +26,8 @@ REQUIREMENTS_IN = [  # this is actually ordered, as files depend on each other
     (path.parent / f"{path.stem}.in", path) for path in REQUIREMENTS.values()
 ]
 
-SUPPORTED = ["3.10", "pypy3.11", "3.11", "3.12", "3.13", "3.14t", "3.14"]
-LATEST_STABLE = SUPPORTED[-1]
+SUPPORTED = ["pypy3.12", "3.12", "3.13", "3.14t", "3.14", "3.15t", "3.15"]
+LATEST_STABLE = "3.14"
 
 nox.options.default_venv_backend = "uv|virtualenv"
 nox.options.sessions = []

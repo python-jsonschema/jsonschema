@@ -6,7 +6,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from pprint import pformat
 from textwrap import dedent, indent
-from typing import TYPE_CHECKING, Any, ClassVar, TypeVar
+from typing import TYPE_CHECKING, Any, ClassVar
 import re
 import warnings
 
@@ -200,9 +200,6 @@ class _Error(Exception):
             self._type_checker.is_type(self.instance, expected_type)
             for expected_type in expected
         )
-
-
-_E = TypeVar("_E", bound=_Error)
 
 
 class ValidationError(_Error):
@@ -537,10 +534,10 @@ def best_match(errors, key=relevance):
     return best
 
 
-def _most_relevant(
-    errors: Iterable[_E],
-    key: Callable[[_E], Any],
-) -> tuple[Any, _E | None]:
+def _most_relevant[E: _Error](
+    errors: Iterable[E],
+    key: Callable[[E], Any],
+) -> tuple[Any, E | None]:
     """
     Find the most relevant error along with its key, computing each key once.
 

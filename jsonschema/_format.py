@@ -1,19 +1,18 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from contextlib import suppress
 from datetime import date, datetime
 from uuid import UUID
 import ipaddress
 import re
 import string
-import typing
 import warnings
 
 from jsonschema.exceptions import FormatError
 
-_FormatCheckCallable = typing.Callable[[object], bool]
 #: A format checker callable.
-_F = typing.TypeVar("_F", bound=_FormatCheckCallable)
+_FormatCheckCallable = Callable[[object], bool]
 _RaisesType = type[Exception] | tuple[type[Exception], ...]
 
 _RE_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$", re.ASCII)
@@ -47,7 +46,7 @@ class FormatChecker:
         tuple[_FormatCheckCallable, _RaisesType],
     ] = {}  # noqa: RUF012
 
-    def __init__(self, formats: typing.Iterable[str] | None = None):
+    def __init__(self, formats: Iterable[str] | None = None):
         if formats is None:
             formats = self.checkers.keys()
         self.checkers = {k: self.checkers[k] for k in formats}
@@ -55,9 +54,9 @@ class FormatChecker:
     def __repr__(self):
         return f"<FormatChecker checkers={sorted(self.checkers)}>"
 
-    def checks(
+    def checks[F: _FormatCheckCallable](
         self, format: str, raises: _RaisesType = (),
-    ) -> typing.Callable[[_F], _F]:
+    ) -> Callable[[F], F]:
         """
         Register a decorated function as validating a new format.
 
@@ -78,16 +77,16 @@ class FormatChecker:
 
         """
 
-        def _checks(func: _F) -> _F:
+        def _checks(func: F) -> F:
             self.checkers[format] = (func, raises)
             return func
 
         return _checks
 
     @classmethod
-    def cls_checks(
+    def cls_checks[F: _FormatCheckCallable](
         cls, format: str, raises: _RaisesType = (),
-    ) -> typing.Callable[[_F], _F]:
+    ) -> Callable[[F], F]:
         warnings.warn(
             (
                 "FormatChecker.cls_checks is deprecated. Call "
@@ -100,10 +99,10 @@ class FormatChecker:
         return cls._cls_checks(format=format, raises=raises)
 
     @classmethod
-    def _cls_checks(
+    def _cls_checks[F: _FormatCheckCallable](
         cls, format: str, raises: _RaisesType = (),
-    ) -> typing.Callable[[_F], _F]:
-        def _checks(func: _F) -> _F:
+    ) -> Callable[[F], F]:
+        def _checks(func: F) -> F:
             cls.checkers[format] = (func, raises)
             return func
 
@@ -186,7 +185,7 @@ _draft_checkers: dict[str, FormatChecker] = dict(
 )
 
 
-def _checks_drafts(
+def _checks_drafts[F: _FormatCheckCallable](
     name=None,
     draft3=None,
     draft4=None,
@@ -195,7 +194,7 @@ def _checks_drafts(
     draft201909=None,
     draft202012=None,
     raises=(),
-) -> typing.Callable[[_F], _F]:
+) -> Callable[[F], F]:
     draft3 = draft3 or name
     draft4 = draft4 or name
     draft6 = draft6 or name
@@ -203,7 +202,7 @@ def _checks_drafts(
     draft201909 = draft201909 or name
     draft202012 = draft202012 or name
 
-    def wrap(func: _F) -> _F:
+    def wrap(func: F) -> F:
         if draft3:
             func = _draft_checkers["draft3"].checks(draft3, raises)(func)
         if draft4:
