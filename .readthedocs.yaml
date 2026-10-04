@@ -7,13 +7,15 @@ build:
   tools:
     python: "3.13"
 
+  jobs:
+    post_create_environment:
+      - pip install uv
+    post_install:
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH uv sync --active --no-default-groups --group docs
+
 sphinx:
   builder: dirhtml
   configuration: docs/conf.py
   fail_on_warning: true
 
 formats: all
-
-python:
-  install:
-    - requirements: docs/requirements.txt

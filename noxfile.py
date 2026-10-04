@@ -12,25 +12,44 @@ PYPROJECT = ROOT / "pyproject.toml"
 CHANGELOG = ROOT / "CHANGELOG.rst"
 DOCS = ROOT / "docs"
 
-INSTALLABLE = [
+EXTRAS = [
     nox.param(value, id=name) for name, value in [
-        ("no-extras", str(ROOT)),
-        ("format", f"{ROOT}[format]"),
-        ("format-nongpl", f"{ROOT}[format-nongpl]"),
+        ("no-extras", None),
+        ("format", "format"),
+        ("format-nongpl", "format-nongpl"),
     ]
 ]
-REQUIREMENTS = dict(
-    docs=DOCS / "requirements.txt",
-)
-REQUIREMENTS_IN = [  # this is actually ordered, as files depend on each other
-    (path.parent / f"{path.stem}.in", path) for path in REQUIREMENTS.values()
-]
 
-SUPPORTED = ["pypy3.12", "3.12", "3.13", "3.14t", "3.14", "3.15t", "3.15"]
+SUPPORTED = [
+    "pypy3.12",
+    "3.12",
+    "3.13",
+    "3.14t",
+    "3.14",
+    "3.15t",
+    "3.15",
+]
+# 3.15 is still a prerelease, so the non-test sessions run on the latest
+# stable interpreter until it's released.
 LATEST_STABLE = "3.14"
 
-nox.options.default_venv_backend = "uv|virtualenv"
+nox.options.default_venv_backend = "uv"
 nox.options.sessions = []
+
+
+def install(session, *groups, extra=None):
+    """
+    Install the project and the given dependency group(s) via ``uv sync``.
+    """
+    session.run_install(
+        "uv",
+        "sync",
+        *([] if extra is None else [f"--extra={extra}"]),
+        "--no-default-groups",
+        *(arg for group in groups for arg in ("--group", group)),
+        f"--python={session.virtualenv.location}",
+        env={"UV_PROJECT_ENVIRONMENT": session.virtualenv.location},
+    )
 
 
 def session(default=True, python=LATEST_STABLE, **kwargs):  # noqa: D103
@@ -43,14 +62,14 @@ def session(default=True, python=LATEST_STABLE, **kwargs):  # noqa: D103
 
 
 @session(python=SUPPORTED)
-@nox.parametrize("installable", INSTALLABLE)
-def tests(session, installable):
+@nox.parametrize("extra", EXTRAS)
+def tests(session, extra):
     """
     Run the test suite with a corresponding Python version.
     """
     env = dict(JSON_SCHEMA_TEST_SUITE=str(ROOT / "json"))
 
-    session.install("--group=test", installable)
+    install(session, "test", extra=extra)
 
     if session.posargs and session.posargs[0] == "coverage":
         if len(session.posargs) > 1 and session.posargs[1] == "github":
@@ -130,7 +149,7 @@ def style(session):
     Check Python code style.
     """
     session.install("ruff")
-    session.run("ruff", "check", ROOT)
+    session.run("ruff", "check", ROOT, __file__)
 
 
 @session()
@@ -163,7 +182,7 @@ def docs(session, builder):
     """
     Build the documentation using a specific Sphinx builder.
     """
-    session.install("-r", REQUIREMENTS["docs"])
+    install(session, "docs", extra="format")
     with TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
         argv = ["-n", "-T", "-W"]
@@ -196,7 +215,7 @@ def docs_style(session):
 
 
 @session(default=False)
-@nox.parametrize("installable", INSTALLABLE)
+@nox.parametrize("extra", EXTRAS)
 @nox.parametrize(
     "benchmark",
     [
@@ -204,30 +223,11 @@ def docs_style(session):
         for each in BENCHMARKS.glob("[!_]*.py")
     ],
 )
-def bench(session, installable, benchmark):
+def bench(session, extra, benchmark):
     """
     Run a performance benchmark.
     """
-    session.install("pyperf", installable)
+    install("benchmarks", extra=extra)
     tmpdir = Path(session.create_tmp())
     output = tmpdir / f"bench-{benchmark}.json"
     session.run("python", BENCHMARKS / f"{benchmark}.py", "--output", output)
-
-
-@session(default=False)
-def requirements(session):
-    """
-    Update the project's pinned requirements.
-
-    You should commit the result afterwards.
-    """
-    if session.venv_backend == "uv":
-        cmd = ["uv", "pip", "compile"]
-    else:
-        session.install("pip-tools")
-        cmd = ["pip-compile", "--resolver", "backtracking", "--strip-extras"]
-
-    for each, out in REQUIREMENTS_IN:
-        # otherwise output files end up with silly absolute path comments...
-        relative = each.relative_to(ROOT)
-        session.run(*cmd, "--upgrade", "--output-file", out, relative)

@@ -80,6 +80,18 @@ Source = "https://github.com/python-jsonschema/jsonschema"
 
 [dependency-groups]
 test = ["virtue", "jsonpath-ng"]
+benchmarks = ["pyperf"]
+docs = [
+  "furo",
+  "lxml",
+  "sphinx<9",  # sphinx 9 appears to have issues I haven't diagnosed
+  "sphinx-autoapi",
+  "sphinx-autodoc-typehints",
+  "sphinx-copybutton",
+  "sphinx-json-schema-spec",
+  "sphinxcontrib-spelling>5",
+  "sphinxext-opengraph",
+]
 
 [tool.hatch.metadata.hooks.fancy-pypi-readme]
 content-type = "text/x-rst"
