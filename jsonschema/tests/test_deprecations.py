@@ -155,7 +155,7 @@ class TestDeprecations(TestCase):
         validator = validators.Draft7Validator({})
         message = "Passing a schema to Validator.iter_errors is deprecated "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
-            error, = validator.iter_errors("foo", {"type": "number"})
+            (error,) = validator.iter_errors("foo", {"type": "number"})
 
         self.assertEqual(error.validator, "type")
         self.assertEqual(w.filename, __file__)
@@ -277,12 +277,14 @@ class TestDeprecations(TestCase):
 
         message = "Subclassing validator classes is "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
+
             class Subclass(validators.Draft202012Validator):
                 pass
 
         self.assertEqual(w.filename, __file__)
 
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
+
             class AnotherSubclass(validators.create(meta_schema={})):
                 pass
 
@@ -377,6 +379,7 @@ class TestDeprecations(TestCase):
         message = "The jsonschema CLI is deprecated and will be removed "
         with self.assertWarnsRegex(DeprecationWarning, message) as w:
             import jsonschema.cli
+
             importlib.reload(jsonschema.cli)
 
         self.assertEqual(w.filename, importlib.__file__)
@@ -402,7 +405,9 @@ class TestDeprecations(TestCase):
 
         if "requests" in sys.modules:  # pragma: no cover
             self.addCleanup(
-                sys.modules.__setitem__, "requests", sys.modules["requests"],
+                sys.modules.__setitem__,
+                "requests",
+                sys.modules["requests"],
             )
         sys.modules["requests"] = None
 
@@ -413,10 +418,11 @@ class TestDeprecations(TestCase):
 
             # Ha ha urllib.request.Request "normalizes" header names and
             # Request.get_header does not also normalize them...
-            (header, value), = request.header_items()
+            ((header, value),) = request.header_items()
             self.assertEqual(header.lower(), "user-agent")
             self.assertEqual(
-                value, "python-jsonschema (deprecated $ref resolution)",
+                value,
+                "python-jsonschema (deprecated $ref resolution)",
             )
             yield BytesIO(json.dumps(schema).encode("utf8"))
 

@@ -1,6 +1,7 @@
 """
 A benchmark which tries to compare the possible slow subparts of validation.
 """
+
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 from rpds import HashTrieMap, HashTrieSet
@@ -33,6 +34,7 @@ def registry_add():
 
 if __name__ == "__main__":
     from pyperf import Runner
+
     runner = Runner()
 
     runner.bench_func("HashMap/HashSet insertion", registry_data_structures)

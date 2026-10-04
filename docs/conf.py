@@ -53,8 +53,12 @@ def _resolve_broken_refs(app, env, node, contnode):
     if node["reftarget"].startswith("referencing."):  # :( :( :( :( :(
         node["reftype"] = "data"
         from sphinx.ext import intersphinx
+
         return intersphinx.resolve_reference_in_inventory(
-            env, "referencing", node, contnode,
+            env,
+            "referencing",
+            node,
+            contnode,
         )
 
     kind, target = _TYPE_ALIASES.get(node["reftarget"], (None, None))

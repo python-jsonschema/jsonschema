@@ -4,6 +4,7 @@ Fuzzing setup for OSS-Fuzz.
 See https://github.com/google/oss-fuzz/tree/master/projects/jsonschema for the
 other half of the setup here.
 """
+
 import sys
 
 from hypothesis import given, strategies
@@ -47,4 +48,5 @@ def main():
 
 if __name__ == "__main__":
     import atheris
+
     main()

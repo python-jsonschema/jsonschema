@@ -55,7 +55,9 @@ class FormatChecker:
         return f"<FormatChecker checkers={sorted(self.checkers)}>"
 
     def checks[F: _FormatCheckCallable](
-        self, format: str, raises: _RaisesType = (),
+        self,
+        format: str,
+        raises: _RaisesType = (),
     ) -> Callable[[F], F]:
         """
         Register a decorated function as validating a new format.
@@ -85,7 +87,9 @@ class FormatChecker:
 
     @classmethod
     def cls_checks[F: _FormatCheckCallable](
-        cls, format: str, raises: _RaisesType = (),
+        cls,
+        format: str,
+        raises: _RaisesType = (),
     ) -> Callable[[F], F]:
         warnings.warn(
             (
@@ -100,7 +104,9 @@ class FormatChecker:
 
     @classmethod
     def _cls_checks[F: _FormatCheckCallable](
-        cls, format: str, raises: _RaisesType = (),
+        cls,
+        format: str,
+        raises: _RaisesType = (),
     ) -> Callable[[F], F]:
         def _checks(func: F) -> F:
             cls.checkers[format] = (func, raises)
@@ -488,7 +494,7 @@ with suppress(ImportError):
         # A non-negative-integer prefix of ASCII digits (%x30-39), which is
         # either "0" or has no leading "0".
         rest = instance.lstrip(string.digits)
-        prefix = instance[:len(instance) - len(rest)]
+        prefix = instance[: len(instance) - len(rest)]
         if not prefix:
             return False
         if len(prefix) > 1 and prefix[0] == "0":

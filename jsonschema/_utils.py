@@ -116,8 +116,7 @@ def _mapping_equal(one, two):
     if len(one) != len(two):
         return False
     return all(
-        key in two and equal(value, two[key])
-        for key, value in one.items()
+        key in two and equal(value, two[key]) for key, value in one.items()
     )
 
 
@@ -285,15 +284,21 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
     if "if" in schema:
         if validator.evolve(schema=schema["if"]).is_valid(instance):
             evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                validator, instance, schema["if"],
+                validator,
+                instance,
+                schema["if"],
             )
             if "then" in schema:
                 evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                    validator, instance, schema["then"],
+                    validator,
+                    instance,
+                    schema["then"],
                 )
         elif "else" in schema:
             evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                validator, instance, schema["else"],
+                validator,
+                instance,
+                schema["else"],
             )
 
     for keyword in ["contains", "unevaluatedItems"]:
@@ -308,7 +313,9 @@ def find_evaluated_item_indexes_by_schema(validator, instance, schema):
                 errs = next(validator.descend(instance, subschema), None)
                 if errs is None:
                     evaluated_indexes += find_evaluated_item_indexes_by_schema(
-                        validator, instance, subschema,
+                        validator,
+                        instance,
+                        subschema,
                     )
 
     return evaluated_indexes
@@ -378,7 +385,9 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
             if property not in instance:
                 continue
             evaluated_keys += find_evaluated_property_keys_by_schema(
-                validator, instance, subschema,
+                validator,
+                instance,
+                subschema,
             )
 
     for keyword in ["allOf", "oneOf", "anyOf"]:
@@ -386,21 +395,29 @@ def find_evaluated_property_keys_by_schema(validator, instance, schema):
             if not is_valid(validator.descend(instance, subschema)):
                 continue
             evaluated_keys += find_evaluated_property_keys_by_schema(
-                validator, instance, subschema,
+                validator,
+                instance,
+                subschema,
             )
 
     if "if" in schema:
         if validator.evolve(schema=schema["if"]).is_valid(instance):
             evaluated_keys += find_evaluated_property_keys_by_schema(
-                validator, instance, schema["if"],
+                validator,
+                instance,
+                schema["if"],
             )
             if "then" in schema:
                 evaluated_keys += find_evaluated_property_keys_by_schema(
-                    validator, instance, schema["then"],
+                    validator,
+                    instance,
+                    schema["then"],
                 )
         elif "else" in schema:
             evaluated_keys += find_evaluated_property_keys_by_schema(
-                validator, instance, schema["else"],
+                validator,
+                instance,
+                schema["else"],
             )
 
     return evaluated_keys

@@ -10,7 +10,7 @@ from jsonschema.validators import _LATEST_VERSION
 class TestBestMatch(TestCase):
     def best_match_of(self, instance, schema):
         errors = list(_LATEST_VERSION(schema).iter_errors(instance))
-        msg =  f"No errors found for {instance} under {schema!r}!"
+        msg = f"No errors found for {instance} under {schema!r}!"
         self.assertTrue(errors, msg=msg)
 
         best = exceptions.best_match(iter(errors))
@@ -729,12 +729,14 @@ class TestErrorTree(TestCase):
                 "1",
                 validator="foo",
                 path=["bar", "bar2"],
-                instance="i1"),
+                instance="i1",
+            ),
             exceptions.ValidationError(
                 "2",
                 validator="quux",
                 path=["foobar", 2],
-                instance="i2"),
+                instance="i2",
+            ),
         )
         exceptions.ErrorTree([e1, e2])
 
@@ -752,7 +754,10 @@ class TestErrorTree(TestCase):
         """
 
         error = exceptions.ValidationError(
-            "a message", validator="foo", instance={}, path=["foo"],
+            "a message",
+            validator="foo",
+            instance={},
+            path=["foo"],
         )
         tree = exceptions.ErrorTree([error])
         self.assertIsInstance(tree["foo"], exceptions.ErrorTree)
@@ -763,12 +768,14 @@ class TestErrorTree(TestCase):
                 "1",
                 validator="foo",
                 path=["bar", "bar2"],
-                instance="i1"),
+                instance="i1",
+            ),
             exceptions.ValidationError(
                 "2",
                 validator="quux",
                 path=["foobar", 2],
-                instance="i2"),
+                instance="i2",
+            ),
         )
         tree = exceptions.ErrorTree([e1, e2])
         self.assertEqual(set(tree), {"bar", "foobar"})
@@ -781,7 +788,10 @@ class TestErrorTree(TestCase):
         See https://github.com/python-jsonschema/jsonschema/issues/1328
         """
         error = exceptions.ValidationError(
-            "a message", validator="foo", instance=["spam", "eggs"], path=[0],
+            "a message",
+            validator="foo",
+            instance=["spam", "eggs"],
+            path=[0],
         )
         tree = exceptions.ErrorTree([error])
 
@@ -798,7 +808,10 @@ class TestErrorTree(TestCase):
         errors from the instance they correspond to.
         """
         error = exceptions.ValidationError(
-            "a message", validator="foo", instance={"bar": []}, path=["foo"],
+            "a message",
+            validator="foo",
+            instance={"bar": []},
+            path=["foo"],
         )
         tree = exceptions.ErrorTree([error])
 
@@ -833,12 +846,14 @@ class TestErrorTree(TestCase):
                 "1",
                 validator="foo",
                 path=["bar", "bar2"],
-                instance="i1"),
+                instance="i1",
+            ),
             exceptions.ValidationError(
                 "2",
                 validator="quux",
                 path=["foobar", 2],
-                instance="i2"),
+                instance="i2",
+            ),
         )
         tree = exceptions.ErrorTree([e1, e2])
         self.assertEqual(repr(tree), "<ErrorTree (2 total errors)>")

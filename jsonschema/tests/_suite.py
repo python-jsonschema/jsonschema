@@ -1,6 +1,7 @@
 """
 Python representations of the JSON Schema Test Suite tests.
 """
+
 from __future__ import annotations
 
 from contextlib import suppress
@@ -51,9 +52,7 @@ def _find_suite():
 
 @frozen
 class Suite:
-
     _root: Path = field(factory=_find_suite)
-
 
     def benchmark(self, runner: pyperf.Runner):  # pragma: no cover
         for name, Validator in _VALIDATORS.items():
@@ -80,7 +79,6 @@ class Suite:
 
 @frozen
 class Version:
-
     _path: Path
     _remotes: referencing.jsonschema.SchemaRegistry
 
@@ -133,7 +131,6 @@ class Version:
 
 @frozen
 class _Case:
-
     version: Version
 
     subject: str
@@ -154,7 +151,8 @@ class _Case:
                 schema=data["schema"],
                 remotes=remotes,
                 **test,
-            ) for test in data.pop("tests")
+            )
+            for test in data.pop("tests")
         ]
         return cls(tests=tests, **data)
 
@@ -181,16 +179,12 @@ def remotes_in(
 
         relative = str(each.relative_to(root)).replace("\\", "/")
 
-        if (
-            ( # invalid boolean schema
-                name in {"draft3", "draft4"}
-                and each.stem == "tree"
-            ) or
-            (  # draft<NotThisDialect>/*.json
-                "$schema" not in schema
-                and relative.startswith("draft")
-                and not relative.startswith(name)
-            )
+        if (  # invalid boolean schema
+            name in {"draft3", "draft4"} and each.stem == "tree"
+        ) or (  # draft<NotThisDialect>/*.json
+            "$schema" not in schema
+            and relative.startswith("draft")
+            and not relative.startswith(name)
         ):
             continue
         yield f"{MAGIC_REMOTE_URL}/{relative}", schema
@@ -198,7 +192,6 @@ def remotes_in(
 
 @frozen(repr=False)
 class _Test:
-
     version: Version
 
     subject: str
@@ -230,9 +223,11 @@ class _Test:
 
     def to_unittest_method(self, skip=lambda test: None, **kwargs):
         if self.valid:
+
             def fn(this):
                 self.validate(**kwargs)
         else:
+
             def fn(this):
                 with this.assertRaises(jsonschema.ValidationError):
                     self.validate(**kwargs)
@@ -248,7 +243,9 @@ class _Test:
         reason = skip(self)
         if reason is None or os.environ.get("JSON_SCHEMA_DEBUG", "0") != "0":
             return fn
-        elif os.environ.get("JSON_SCHEMA_EXPECTED_FAILURES", "0") != "0":  # pragma: no cover  # noqa: E501
+        elif (
+            os.environ.get("JSON_SCHEMA_EXPECTED_FAILURES", "0") != "0"
+        ):  # pragma: no cover
             return unittest.expectedFailure(fn)
         else:
             return unittest.skip(reason)(fn)

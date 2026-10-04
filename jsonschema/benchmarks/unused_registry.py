@@ -5,6 +5,7 @@ An unused schema registry should not cause slower validation.
 
 See https://github.com/python-jsonschema/jsonschema/issues/1088.
 """
+
 from pyperf import Runner
 from referencing import Registry
 from referencing.jsonschema import DRAFT201909

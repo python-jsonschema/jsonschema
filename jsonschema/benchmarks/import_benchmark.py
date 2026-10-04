@@ -24,8 +24,10 @@ def import_time(loops):
     # pyperf expects seconds
     return total_us / 1_000_000.0
 
+
 if __name__ == "__main__":
     from pyperf import Runner
+
     runner = Runner()
 
     runner.bench_time_func("Import time (cumulative)", import_time)

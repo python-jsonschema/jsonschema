@@ -1,6 +1,7 @@
 """
 Creation and extension of validators, with implementations for existing drafts.
 """
+
 from __future__ import annotations
 
 from collections import deque
@@ -49,6 +50,7 @@ def __getattr__(name):
             stacklevel=2,
         )
         from jsonschema.exceptions import ErrorTree
+
         return ErrorTree
     elif name == "validators":
         warnings.warn(
@@ -102,11 +104,13 @@ def validates(version):
         meta_schema_id = cls.ID_OF(cls.META_SCHEMA)
         _META_SCHEMAS[meta_schema_id] = cls
         return cls
+
     return _validates
 
 
 def _warn_for_remote_retrieve(uri: str):
     from urllib.request import Request, urlopen
+
     headers = {"User-Agent": "python-jsonschema (deprecated $ref resolution)"}
     request = Request(uri, headers=headers)  # noqa: S310
     with urlopen(request) as response:  # noqa: S310
@@ -221,7 +225,6 @@ def create(
 
     @define
     class Validator:
-
         VALIDATORS = dict(validators)  # noqa: RUF012
         META_SCHEMA = dict(meta_schema)  # noqa: RUF012
         TYPE_CHECKER = type_checker
@@ -340,7 +343,7 @@ def create(
             schema = changes.setdefault("schema", self.schema)
             NewValidator = validator_for(schema, default=self.__class__)
 
-            for (attr_name, init_name) in evolve_fields:
+            for attr_name, init_name in evolve_fields:
                 if init_name not in changes:
                     changes[init_name] = getattr(self, attr_name)
 
@@ -502,9 +505,7 @@ def create(
             return error is None
 
     evolve_fields = [
-        (field.name, field.alias)
-        for field in fields(Validator)
-        if field.init
+        (field.name, field.alias) for field in fields(Validator) if field.init
     ]
 
     if version is not None:
@@ -979,7 +980,12 @@ class _RefResolver:
             `_RefResolver`
 
         """
-        return cls(base_uri=id_of(schema) or "", referrer=schema, *args, **kwargs)  # noqa: B026, E501
+        return cls(
+            base_uri=id_of(schema) or "",
+            referrer=schema,
+            *args,  # noqa: B026
+            **kwargs,
+        )
 
     def push_scope(self, scope):
         """
@@ -1073,7 +1079,8 @@ class _RefResolver:
     def _get_subschemas_cache(self):
         cache = {key: [] for key in _SUBSCHEMAS_KEYWORDS}
         for keyword, subschema in _search_schema(
-            self.referrer, _match_subschema_keywords,
+            self.referrer,
+            _match_subschema_keywords,
         ):
             cache[keyword].append(subschema)
         return cache
@@ -1227,6 +1234,7 @@ class _RefResolver:
         else:
             # Otherwise, pass off to urllib and assume utf-8
             from urllib.request import urlopen
+
             with urlopen(uri) as url:  # noqa: S310
                 result = json.loads(url.read().decode("utf-8"))
 

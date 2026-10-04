@@ -6,14 +6,15 @@ import nox
 
 ROOT = Path(__file__).parent
 PACKAGE = ROOT / "jsonschema"
-TYPING_TESTS= ROOT / "jsonschema" / "tests" / "typing"
+TYPING_TESTS = ROOT / "jsonschema" / "tests" / "typing"
 BENCHMARKS = PACKAGE / "benchmarks"
 PYPROJECT = ROOT / "pyproject.toml"
 CHANGELOG = ROOT / "CHANGELOG.rst"
 DOCS = ROOT / "docs"
 
 EXTRAS = [
-    nox.param(value, id=name) for name, value in [
+    nox.param(value, id=name)
+    for name, value in [
         ("no-extras", None),
         ("format", "format"),
         ("format-nongpl", "format-nongpl"),
@@ -130,7 +131,12 @@ def build(session):
         )
         session.run("twine", "check", "--strict", tmpdir + "/*")
         session.run(
-            "python", "-m", "docutils", "--strict", CHANGELOG, os.devnull,
+            "python",
+            "-m",
+            "docutils",
+            "--strict",
+            CHANGELOG,
+            os.devnull,
         )
 
 
@@ -160,7 +166,11 @@ def typing(session):
     session.install("mypy", "types-requests", ROOT)
     session.run("mypy", "--config", PYPROJECT, PACKAGE)
     session.run(
-        "mypy", "--config", PYPROJECT, "--warn-unused-ignores", TYPING_TESTS,
+        "mypy",
+        "--config",
+        PYPROJECT,
+        "--warn-unused-ignores",
+        TYPING_TESTS,
     )
 
 

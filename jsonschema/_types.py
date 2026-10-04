@@ -84,7 +84,8 @@ class TypeChecker:
     """
 
     _type_checkers: HashTrieMap[
-        str, Callable[[TypeChecker, Any], bool],
+        str,
+        Callable[[TypeChecker, Any], bool],
     ] = field(default=HashTrieMap(), converter=_typed_map_converter)
 
     def __repr__(self):

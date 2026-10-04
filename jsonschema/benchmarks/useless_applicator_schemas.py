@@ -1,4 +1,3 @@
-
 """
 A benchmark for validation of applicators containing lots of useless schemas.
 

@@ -165,10 +165,14 @@ class TestUniq(TestCase):
         self.assertTrue(uniq([[1, 2], (2, 1)]))
 
     def test_mappings_ignore_key_order(self):
-        self.assertFalse(uniq([
-            {"a": [1, 2], "b": {"c": 3}},
-            {"b": {"c": 3}, "a": (1, 2)},
-        ]))
+        self.assertFalse(
+            uniq(
+                [
+                    {"a": [1, 2], "b": {"c": 3}},
+                    {"b": {"c": 3}, "a": (1, 2)},
+                ],
+            ),
+        )
 
     def test_falls_back_for_unhashable_scalars(self):
         self.assertFalse(uniq([Unhashable(1), Unhashable(1)]))

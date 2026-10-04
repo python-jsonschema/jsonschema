@@ -8,6 +8,7 @@ Most commonly, `jsonschema.validators.validate` is the quickest way to simply
 validate a given instance under a schema, and will create a validator
 for you.
 """
+
 import warnings
 
 from jsonschema._format import FormatChecker
@@ -35,9 +36,11 @@ def __getattr__(name):
         )
 
         from importlib import metadata
+
         return metadata.version("jsonschema")
     elif name == "RefResolver":
         from jsonschema.validators import _RefResolver
+
         warnings.warn(
             _RefResolver._DEPRECATION_MESSAGE,
             DeprecationWarning,
@@ -53,6 +56,7 @@ def __getattr__(name):
             stacklevel=2,
         )
         from jsonschema.exceptions import ErrorTree
+
         return ErrorTree
     elif name == "FormatError":
         warnings.warn(
@@ -63,6 +67,7 @@ def __getattr__(name):
             stacklevel=2,
         )
         from jsonschema.exceptions import FormatError
+
         return FormatError
     elif name == "Validator":
         warnings.warn(
@@ -73,9 +78,11 @@ def __getattr__(name):
             stacklevel=2,
         )
         from jsonschema.protocols import Validator
+
         return Validator
     elif name == "RefResolutionError":
         from jsonschema.exceptions import _RefResolutionError
+
         warnings.warn(
             _RefResolutionError._DEPRECATION_MESSAGE,
             DeprecationWarning,

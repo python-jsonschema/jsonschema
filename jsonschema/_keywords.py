@@ -21,7 +21,10 @@ def patternProperties(validator, patternProperties, instance, schema):
         for k, v in instance.items():
             if re.search(pattern, k):
                 yield from validator.descend(
-                    v, subschema, path=k, schema_path=pattern,
+                    v,
+                    subschema,
+                    path=k,
+                    schema_path=pattern,
                 )
 
 
@@ -204,18 +207,14 @@ def maxItems(validator, mI, instance, schema):
 
 
 def uniqueItems(validator, uI, instance, schema):
-    if (
-        uI
-        and validator.is_type(instance, "array")
-        and not uniq(instance)
-    ):
+    if uI and validator.is_type(instance, "array") and not uniq(instance):
         yield ValidationError(f"{instance!r} has non-unique elements")
 
 
 def pattern(validator, patrn, instance, schema):
-    if (
-        validator.is_type(instance, "string")
-        and not re.search(patrn, instance)
+    if validator.is_type(instance, "string") and not re.search(
+        patrn,
+        instance,
     ):
         yield ValidationError(f"{instance!r} does not match {patrn!r}")
 
@@ -262,7 +261,9 @@ def dependentSchemas(validator, dependentSchemas, instance, schema):
         if property not in instance:
             continue
         yield from validator.descend(
-            instance, dependency, schema_path=property,
+            instance,
+            dependency,
+            schema_path=property,
         )
 
 
@@ -312,7 +313,8 @@ def required(validator, required, instance, schema):
 def minProperties(validator, mP, instance, schema):
     if validator.is_type(instance, "object") and len(instance) < mP:
         message = (
-            "should be non-empty" if mP == 1
+            "should be non-empty"
+            if mP == 1
             else "does not have enough properties"
         )
         yield ValidationError(f"{instance!r} {message}")
@@ -323,8 +325,7 @@ def maxProperties(validator, mP, instance, schema):
         return
     if validator.is_type(instance, "object") and len(instance) > mP:
         message = (
-            "is expected to be empty" if mP == 0
-            else "has too many properties"
+            "is expected to be empty" if mP == 0 else "has too many properties"
         )
         yield ValidationError(f"{instance!r} {message}")
 
@@ -364,7 +365,8 @@ def oneOf(validator, oneOf, instance, schema):
         )
 
     more_valid = [
-        each for _, each in subschemas
+        each
+        for _, each in subschemas
         if validator.evolve(schema=each).is_valid(instance)
     ]
     if more_valid:
@@ -393,10 +395,13 @@ def unevaluatedItems(validator, unevaluatedItems, instance, schema):
     if not validator.is_type(instance, "array"):
         return
     evaluated_item_indexes = find_evaluated_item_indexes_by_schema(
-        validator, instance, schema,
+        validator,
+        instance,
+        schema,
     )
     unevaluated_items = [
-        item for index, item in enumerate(instance)
+        item
+        for index, item in enumerate(instance)
         if index not in evaluated_item_indexes
     ]
     if unevaluated_items:
@@ -408,7 +413,9 @@ def unevaluatedProperties(validator, unevaluatedProperties, instance, schema):
     if not validator.is_type(instance, "object"):
         return
     evaluated_keys = find_evaluated_property_keys_by_schema(
-        validator, instance, schema,
+        validator,
+        instance,
+        schema,
     )
     unevaluated_keys = []
     for property in instance:

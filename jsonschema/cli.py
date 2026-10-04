@@ -34,7 +34,6 @@ class _CannotLoadFile(Exception):
 
 @define
 class _Outputter:
-
     _formatter = field()
     _stdout = field()
     _stderr = field()
@@ -76,7 +75,6 @@ class _Outputter:
 
 @define
 class _PrettyFormatter:
-
     _ERROR_MSG = dedent(
         """\
         ===[{type}]===({path})===
@@ -118,7 +116,6 @@ class _PrettyFormatter:
 
 @define
 class _PlainFormatter:
-
     _error_format = field()
 
     def filenotfound_error(self, path, exc_info):
@@ -147,7 +144,8 @@ parser = argparse.ArgumentParser(
     description="JSON Schema Validation CLI",
 )
 parser.add_argument(
-    "-i", "--instance",
+    "-i",
+    "--instance",
     action="append",
     dest="instances",
     help="""
@@ -157,7 +155,8 @@ parser.add_argument(
     """,
 )
 parser.add_argument(
-    "-F", "--error-format",
+    "-F",
+    "--error-format",
     help="""
         the format to use for each validation error message, specified
         in a form suitable for str.format. This string will be passed
@@ -168,7 +167,8 @@ parser.add_argument(
     """,
 )
 parser.add_argument(
-    "-o", "--output",
+    "-o",
+    "--output",
     choices=["plain", "pretty"],
     default="plain",
     help="""
@@ -178,7 +178,8 @@ parser.add_argument(
     """,
 )
 parser.add_argument(
-    "-V", "--validator",
+    "-V",
+    "--validator",
     type=_resolve_name_with_default,
     help="""
         the fully qualified object name of a validator to use, or, for
@@ -259,20 +260,27 @@ def run(arguments, stdout=sys.stdout, stderr=sys.stderr, stdin=sys.stdin):  # no
     if arguments["instances"]:
         load, instances = outputter.load, arguments["instances"]
     else:
+
         def load(_):
             try:
                 return json.load(stdin)
             except JSONDecodeError as error:
                 outputter.parsing_error(
-                    path="<stdin>", exc_info=sys.exc_info(),
+                    path="<stdin>",
+                    exc_info=sys.exc_info(),
                 )
                 raise _CannotLoadFile() from error
+
         instances = ["<stdin>"]
 
-    resolver = _RefResolver(
-        base_uri=arguments["base_uri"],
-        referrer=schema,
-    ) if arguments["base_uri"] is not None else None
+    resolver = (
+        _RefResolver(
+            base_uri=arguments["base_uri"],
+            referrer=schema,
+        )
+        if arguments["base_uri"] is not None
+        else None
+    )
 
     validator = Validator(schema, resolver=resolver)
     exit_code = 0

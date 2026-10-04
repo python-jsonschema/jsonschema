@@ -5,6 +5,7 @@ class to be assigned to a variable of type `type[Validator]`
 The assignation is only valid if type checkers recognize each Validator
 implementation as a valid implementer of the protocol.
 """
+
 from jsonschema.protocols import Validator
 from jsonschema.validators import (
     Draft3Validator,

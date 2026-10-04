@@ -1,6 +1,7 @@
 """
 Some (initially private) typing helpers for jsonschema's types.
 """
+
 from collections.abc import Callable, Iterable
 from typing import Any, Protocol
 
@@ -16,8 +17,7 @@ class SchemaKeywordValidator(Protocol):
         value: Any,
         instance: Any,
         schema: referencing.jsonschema.Schema,
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 id_of = Callable[[referencing.jsonschema.Schema], str | None]

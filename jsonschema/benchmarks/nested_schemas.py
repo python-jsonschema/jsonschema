@@ -3,6 +3,7 @@ Validating highly nested schemas shouldn't cause exponential time blowups.
 
 See https://github.com/python-jsonschema/jsonschema/issues/1097.
 """
+
 from itertools import cycle
 
 from jsonschema.validators import validator_for
@@ -10,7 +11,6 @@ from jsonschema.validators import validator_for
 metaschemaish = {
     "$id": "https://example.com/draft/2020-12/schema/strict",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-
     "$vocabulary": {
         "https://json-schema.org/draft/2020-12/vocab/core": True,
         "https://json-schema.org/draft/2020-12/vocab/applicator": True,
@@ -21,7 +21,6 @@ metaschemaish = {
         "https://json-schema.org/draft/2020-12/vocab/content": True,
     },
     "$dynamicAnchor": "meta",
-
     "$ref": "https://json-schema.org/draft/2020-12/schema",
     "unevaluatedProperties": False,
 }
@@ -43,6 +42,7 @@ validator = validator_for(metaschemaish)(metaschemaish)
 
 if __name__ == "__main__":
     from pyperf import Runner
+
     runner = Runner()
 
     not_nested = nested_schema(levels=1)

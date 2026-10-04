@@ -5,6 +5,7 @@ The actual correctness of the type checking is handled in
 `test_jsonschema_test_suite`; these tests check that TypeChecker
 functions correctly at a more granular level.
 """
+
 from collections import namedtuple
 from unittest import TestCase
 
@@ -124,7 +125,8 @@ class TestCustomTypes(TestCase):
         CustomValidator = extend(
             Draft202012Validator,
             type_checker=Draft202012Validator.TYPE_CHECKER.redefine(
-                "integer", int_or_str_int,
+                "integer",
+                int_or_str_int,
             ),
         )
         validator = CustomValidator({"type": "integer"})
@@ -144,7 +146,8 @@ class TestCustomTypes(TestCase):
         Point = namedtuple("Point", ["x", "y"])
 
         type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
-            "object", is_object_or_named_tuple,
+            "object",
+            is_object_or_named_tuple,
         )
 
         CustomValidator = extend(
@@ -159,7 +162,8 @@ class TestCustomTypes(TestCase):
         schema = {"type": "object", "required": ["x"]}
 
         type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
-            "object", is_object_or_named_tuple,
+            "object",
+            is_object_or_named_tuple,
         )
 
         CustomValidator = extend(
@@ -181,7 +185,8 @@ class TestCustomTypes(TestCase):
         }
 
         type_checker = Draft202012Validator.TYPE_CHECKER.redefine(
-            "object", is_object_or_named_tuple,
+            "object",
+            is_object_or_named_tuple,
         )
 
         def coerce_named_tuple(fn):
@@ -189,6 +194,7 @@ class TestCustomTypes(TestCase):
                 if is_namedtuple(instance):
                     instance = instance._asdict()
                 return fn(validator, value, instance, schema)
+
             return coerced
 
         required = coerce_named_tuple(_keywords.required)

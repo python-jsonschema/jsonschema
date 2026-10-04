@@ -6,7 +6,6 @@ Tests comprehensive correctness of each draft's validator.
 See https://github.com/json-schema-org/JSON-Schema-Test-Suite for details.
 """
 
-
 from jsonschema.tests._suite import Suite
 import jsonschema
 
@@ -23,6 +22,7 @@ def skip(message, **kwargs):
     def skipper(test):
         if all(value == getattr(test, attr) for attr, value in kwargs.items()):
             return message
+
     return skipper
 
 
@@ -49,6 +49,7 @@ def missing_format(Validator):
             return
 
         return f"Format checker {schema['format']!r} not found."
+
     return missing_format
 
 
@@ -57,40 +58,52 @@ def complex_email_validation(test):
         return
 
     message = "Complex email validation is (intentionally) unsupported."
-    return skip(
-        message=message,
-        description="an invalid domain",
-    )(test) or skip(
-        message=message,
-        description="an invalid IPv4-address-literal",
-    )(test) or skip(
-        message=message,
-        description="dot after local part is not valid",
-    )(test) or skip(
-        message=message,
-        description="dot before local part is not valid",
-    )(test) or skip(
-        message=message,
-        description="two subsequent dots inside local part are not valid",
-    )(test) or skip(
-        message=message,
-        description="domain is required",
-    )(test) or skip(
-        message=message,
-        description="local part is required",
-    )(test) or skip(
-        message=message,
-        description="two email addresses is not valid",
-    )(test) or skip(
-        message=message,
-        description='full "From" header is invalid',
-    )(test) or skip(
-        message=message,
-        description="unquoted space in local part is invalid",
-    )(test) or skip(
-        message=message,
-        description="a local part with a lone UTF-16 surrogate is invalid",
-    )(test)
+    return (
+        skip(
+            message=message,
+            description="an invalid domain",
+        )(test)
+        or skip(
+            message=message,
+            description="an invalid IPv4-address-literal",
+        )(test)
+        or skip(
+            message=message,
+            description="dot after local part is not valid",
+        )(test)
+        or skip(
+            message=message,
+            description="dot before local part is not valid",
+        )(test)
+        or skip(
+            message=message,
+            description="two subsequent dots inside local part are not valid",
+        )(test)
+        or skip(
+            message=message,
+            description="domain is required",
+        )(test)
+        or skip(
+            message=message,
+            description="local part is required",
+        )(test)
+        or skip(
+            message=message,
+            description="two email addresses is not valid",
+        )(test)
+        or skip(
+            message=message,
+            description='full "From" header is invalid',
+        )(test)
+        or skip(
+            message=message,
+            description="unquoted space in local part is invalid",
+        )(test)
+        or skip(
+            message=message,
+            description="a local part with a lone UTF-16 surrogate is invalid",
+        )(test)
+    )
 
 
 def hostname_validation(test):
@@ -118,34 +131,41 @@ def idn_hostname_validation(test):
     message = "Full idn-hostname validation is not yet supported."
     separators = "validation of separators in internationalized host names"
     names = "validation of internationalized host names"
-    return skip(
-        message=message,
-        case_description=separators,
-        description="trailing dot",
-    )(test) or skip(
-        message=message,
-        case_description=separators,
-        description="trailing ideographic full stop",
-    )(test) or skip(
-        message=message,
-        case_description=separators,
-        description="trailing fullwidth full stop",
-    )(test) or skip(
-        message=message,
-        case_description=separators,
-        description="trailing halfwidth ideographic full stop",
-    )(test) or skip(
-        message=message,
-        case_description=names,
-        description="Bidi domain name with a digit-first label is invalid",
-    )(test) or skip(
-        message=message,
-        case_description=names,
-        description=(
-            "non-canonical Punycode that does not re-encode to itself "
-            "is invalid"
-        ),
-    )(test)
+    return (
+        skip(
+            message=message,
+            case_description=separators,
+            description="trailing dot",
+        )(test)
+        or skip(
+            message=message,
+            case_description=separators,
+            description="trailing ideographic full stop",
+        )(test)
+        or skip(
+            message=message,
+            case_description=separators,
+            description="trailing fullwidth full stop",
+        )(test)
+        or skip(
+            message=message,
+            case_description=separators,
+            description="trailing halfwidth ideographic full stop",
+        )(test)
+        or skip(
+            message=message,
+            case_description=names,
+            description="Bidi domain name with a digit-first label is invalid",
+        )(test)
+        or skip(
+            message=message,
+            case_description=names,
+            description=(
+                "non-canonical Punycode that does not re-encode to itself "
+                "is invalid"
+            ),
+        )(test)
+    )
 
 
 def duration_validation(test):
@@ -153,61 +173,76 @@ def duration_validation(test):
         return
 
     message = "Strict RFC 3339 duration validation is not yet supported."
-    return skip(
-        message=message,
-        description="fractional duration is not allowed by RFC 3339 ABNF",
-    )(test) or skip(
-        message=message,
-        description="hours and seconds cannot appear without minutes",
-    )(test) or skip(
-        message=message,
-        description="years and days cannot appear without months",
-    )(test)
+    return (
+        skip(
+            message=message,
+            description="fractional duration is not allowed by RFC 3339 ABNF",
+        )(test)
+        or skip(
+            message=message,
+            description="hours and seconds cannot appear without minutes",
+        )(test)
+        or skip(
+            message=message,
+            description="years and days cannot appear without months",
+        )(test)
+    )
 
 
 def leap_second(test):
     message = "Leap seconds are unsupported."
-    return skip(
-        message=message,
-        subject="time",
-        description="a valid time string with leap second",
-    )(test) or skip(
-        message=message,
-        subject="time",
-        description="a valid time string with leap second, Zulu",
-    )(test) or skip(
-        message=message,
-        subject="time",
-        description="a valid time string with leap second with offset",
-    )(test) or skip(
-        message=message,
-        subject="time",
-        description="valid leap second, positive time-offset",
-    )(test) or skip(
-        message=message,
-        subject="time",
-        description="valid leap second, negative time-offset",
-    )(test) or skip(
-        message=message,
-        subject="time",
-        description="valid leap second, large positive time-offset",
-    )(test) or skip(
-        message=message,
-        subject="time",
-        description="valid leap second, large negative time-offset",
-    )(test) or skip(
-        message=message,
-        subject="time",
-        description="valid leap second, zero time-offset",
-    )(test) or skip(
-        message=message,
-        subject="date-time",
-        description="a valid date-time with a leap second, UTC",
-    )(test) or skip(
-        message=message,
-        subject="date-time",
-        description="a valid date-time with a leap second, with minus offset",
-    )(test)
+    return (
+        skip(
+            message=message,
+            subject="time",
+            description="a valid time string with leap second",
+        )(test)
+        or skip(
+            message=message,
+            subject="time",
+            description="a valid time string with leap second, Zulu",
+        )(test)
+        or skip(
+            message=message,
+            subject="time",
+            description="a valid time string with leap second with offset",
+        )(test)
+        or skip(
+            message=message,
+            subject="time",
+            description="valid leap second, positive time-offset",
+        )(test)
+        or skip(
+            message=message,
+            subject="time",
+            description="valid leap second, negative time-offset",
+        )(test)
+        or skip(
+            message=message,
+            subject="time",
+            description="valid leap second, large positive time-offset",
+        )(test)
+        or skip(
+            message=message,
+            subject="time",
+            description="valid leap second, large negative time-offset",
+        )(test)
+        or skip(
+            message=message,
+            subject="time",
+            description="valid leap second, zero time-offset",
+        )(test)
+        or skip(
+            message=message,
+            subject="date-time",
+            description="a valid date-time with a leap second, UTC",
+        )(test)
+        or skip(
+            message=message,
+            subject="date-time",
+            description="a valid date-time with a leap second, with minus offset",  # noqa: E501
+        )(test)
+    )
 
 
 TestDraft3 = DRAFT3.to_unittest_testcase(
@@ -302,9 +337,7 @@ TestDraft201909 = DRAFT201909.to_unittest_testcase(
     skip=skip(
         message="Vocabulary support is still in-progress.",
         subject="vocabulary",
-        description=(
-            "no validation: invalid number, but it still validates"
-        ),
+        description=("no validation: invalid number, but it still validates"),
     ),
 )
 
