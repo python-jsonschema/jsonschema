@@ -247,7 +247,9 @@ class _RefResolutionError(Exception):  # noqa: PLW1641
 
     def __eq__(self, other):
         if self.__class__ is not other.__class__:
-            return NotImplemented  # pragma: no cover -- uncovered but deprecated  # noqa: E501
+            return (
+                NotImplemented  # pragma: no cover -- uncovered but deprecated  # noqa: E501
+            )
         return self._cause == other._cause
 
     def __str__(self) -> str:
