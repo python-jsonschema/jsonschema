@@ -358,20 +358,20 @@ wheels = [
 
 [[package]]
 name = "jsonpath-ng"
-version = "1.13.0"
+version = "1.15.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4a/a4/4db8bd69f41fd56bdc0a709137c10a410e5cc148b3760ea206a510128ae6/jsonpath_ng-1.13.0.tar.gz", hash = "sha256:da54eff64eef303b90a8491f50c607e6beb2eb4a6e66828edab948766d40c531", size = 116355, upload-time = "2026-10-23T11:50:31.346Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/30/40/00f1c0fef301f69aae20f9b24ab4072c188afd753096d969e2cdedd09954/jsonpath_ng-1.15.0.tar.gz", hash = "sha256:6857e3817a04555375d68eb5be17562eea6d3a3de2d10dad6f54f259282ee1c9", size = 119781, upload-time = "2026-10-29T14:18:11.098Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5c/03/30db4cd2e778aee7feb29b14ff9c831735e5e1939600dff2bacba38107b1/jsonpath_ng-1.13.0-py3-none-any.whl", hash = "sha256:f58e7f88cdd2eb04a402c0d542e7d6db71909e521f4c23c62f4d2ee73266361e", size = 83987, upload-time = "2026-10-23T11:50:30.012Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/a1/ec64128a063e501bd84b73cfbd2f204f9756c20d9be7eceeea8d997bd6f2/jsonpath_ng-1.15.0-py3-none-any.whl", hash = "sha256:a079a4d1d3e9ecb452437f26c18ec6854bd1beab36f5d5bafc121ea7330ad1b7", size = 84764, upload-time = "2026-10-29T14:18:09.724Z" },
 ]
 
 [[package]]
 name = "jsonpointer"
-version = "3.5"
+version = "3.6"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/21/b8/fe0d28b5a2f14e501a9fd300c49273a05c78920a1925c36c487d539035bc/jsonpointer-3.5.tar.gz", hash = "sha256:81f28618a019cf1b011a6cf757439737972de1ccbeca2e1f86dfb4d661800792", size = 13562, upload-time = "2026-10-24T20:42:20.296Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/54/04/e35b34f4e441473e62d82d6ed9a8f748d93d895f4c05d4e645aa0fde51d7/jsonpointer-3.6.tar.gz", hash = "sha256:82e839a3ba3a9e2b54394fda8b3d276c2459d80408d06ef9a6fbc369d7544ffc", size = 14352, upload-time = "2026-10-26T20:59:26.307Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a2/cc/8800c20eed936746b32ab438a0fbfc8f3bc18278e32f96caf4d5d6686d4c/jsonpointer-3.5-py3-none-any.whl", hash = "sha256:8728c42f6bc07b1436af31600267bdbb1495ac5a61f31d9583ff319ecf7da09c", size = 9121, upload-time = "2026-10-24T20:42:18.941Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/34/cee746fb30473bfaa92f19267fcc102a1118eaec83e7e2b5652a91ead01c/jsonpointer-3.6-py3-none-any.whl", hash = "sha256:a45c858f8a9e171f6b3790ed9446c9382782f6c4cb4589176813c5a553f4cfcd", size = 9333, upload-time = "2026-10-26T20:59:24.947Z" },
 ]
 
 [[package]]
@@ -801,15 +801,14 @@ wheels = [
 
 [[package]]
 name = "python-dateutil"
-version = "3.0.0"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "six" },
     { name = "tzdata" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0e/df/f15f80383f152452d8985b36d95cb8751f901a3e0ff4cd27f7e118f168e2/python_dateutil-3.0.0.tar.gz", hash = "sha256:7ebcb3c29a92f3ceafe79a7a48a5c45677e9e004bbeec5742ac0bbb00560b7a2", size = 271066, upload-time = "2026-10-21T23:41:45.075Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/18/39/b3927f3616f6223832f9b760e4208e8a7c7e1dea2b4d9ad7d32a5d214c3a/python_dateutil-4.0.0.tar.gz", hash = "sha256:d7295ff14fdc0f92f662100bfb6c551d160ca090f2939f1ec5b9794265c03f06", size = 250419, upload-time = "2026-11-01T07:02:42.426Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/17/cebee01d1c0c1441174cf0456ddc91b280d79acb65340c05e41d77866ee8/python_dateutil-3.0.0-py2.py3-none-any.whl", hash = "sha256:3c79630202e4152c6add678446984236efe4f57e84d8e892aab0637bab82e9fd", size = 94659, upload-time = "2026-10-21T23:41:43.431Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/a9/52b89563d154433d79b51ed1eb4842bf7334cb2696891a7fe135618853d7/python_dateutil-4.0.0-py3-none-any.whl", hash = "sha256:a5e246f79eb80475e691bf93862cead98decd8a498cf53ba0516fcdc0f50dc1c", size = 92853, upload-time = "2026-11-01T07:02:40.797Z" },
 ]
 
 [[package]]
@@ -1115,7 +1114,7 @@ wheels = [
 
 [[package]]
 name = "sphinx-autoapi"
-version = "3.8.1"
+version = "3.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "astroid" },
@@ -1123,9 +1122,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "sphinx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/5e/7b42f3f774aa116741b8031b740c854612ed7dd7d616695e934a2b7fb94f/sphinx_autoapi-3.8.1.tar.gz", hash = "sha256:04643fc50485039294ace8b660d0d1b821a1686824a975725a5106e8cf1fb30b", size = 58898, upload-time = "2026-08-23T17:04:25.612Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/e8/12412b8c25b7e22fc6677ce84aceb278e856a688478e0a3c6eb211281c75/sphinx_autoapi-3.9.0.tar.gz", hash = "sha256:0b2a47beac401c5fe437fbcd41c650c6cdc072234e576f56ef04456805bddabf", size = 61311, upload-time = "2026-10-31T03:00:41.075Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/72/4e/e49564ab6f38341921ae855451aed2ba9915f61c43780200d5aebb57ae4d/sphinx_autoapi-3.8.1-py3-none-any.whl", hash = "sha256:9a3bd3ee1ba82d537f1620a3922292d43ee8b9ff9c69bc198965ac4bcd5a6775", size = 35975, upload-time = "2026-08-23T17:04:24.168Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/c4/d08333f57470065ca1e551d907f7cdd7ee873da436f6f352b773276e7720/sphinx_autoapi-3.9.0-py3-none-any.whl", hash = "sha256:8ecba31815322b00e9fb01973c210ba651522d25f92705a4384fd6c429c5a28f", size = 36448, upload-time = "2026-10-31T03:00:39.818Z" },
 ]
 
 [[package]]
@@ -1259,7 +1258,7 @@ wheels = [
 
 [[package]]
 name = "twisted"
-version = "26.4.0"
+version = "26.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -1270,9 +1269,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "zope-interface" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/db/97/6e9beb1e78247ae6dc34114f27d538cf2cb183c4afcd3609dfdf2b0439c8/twisted-26.4.0.tar.gz", hash = "sha256:dbfd0fe1ee409d0243fdd7a6a6ff14f4948cec1fd78e0376291f805e1501fae9", size = 3575095, upload-time = "2026-05-11T11:24:51.861Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fe/31/a5f99ae7f1550914b0702b8f78118d95a79da20525d26fbc1b2ab42bc8ae/twisted-26.10.0.tar.gz", hash = "sha256:5f0355403e507fc23ceea85e9dbb4bc59335aabde41dd324e8b8cea180dd38de", size = 3603405, upload-time = "2026-10-30T09:24:56.871Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a6/57/bcf4e2370dd218c9aa68a9140a65d86729c73f1d529f7e94786c2766fc72/twisted-26.4.0-py3-none-any.whl", hash = "sha256:dc25ea0ebf6511c24f03232ee9f4afa54b291c5d897990e3a39cc4d14a1ef4c0", size = 3230362, upload-time = "2026-05-11T11:24:49.5Z" },
+    { url = "https://files.pythonhosted.org/packages/10/93/fdfa79229fdc19a6542086d46b5c5d424ee62a6408d25657e8690e0a745f/twisted-26.10.0-py3-none-any.whl", hash = "sha256:3732f42af218925a0fe78d6668db55853f7fb532245a89a2669babe7d3000fa8", size = 3251703, upload-time = "2026-10-30T09:24:53.864Z" },
 ]
 
 [[package]]
@@ -1286,11 +1285,11 @@ wheels = [
 
 [[package]]
 name = "tzdata"
-version = "2026.5"
+version = "2026.6"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d9/68/f1b440335057bfce71b6e50a9d09445aa2ecbd08359a337976627b8409e7/tzdata-2026.5.tar.gz", hash = "sha256:8cc73c0a0bfca7dbfa59235d60b2eff82231dee33f53d206db1acd9173cfc0a7", size = 200404, upload-time = "2026-10-03T09:23:14.143Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/29/6a1391d31cd00ff9e927215a224a880e1e84e826b64ba80a499e51c074d8/tzdata-2026.6.tar.gz", hash = "sha256:85d2cd9c09f81f0bb29db27759fc83af4f1e620efb814f8c5bf8b4cc4feece6d", size = 201017, upload-time = "2026-10-28T09:57:09.137Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/21/1e5995a1c920cce14e4bffae20c665ec10e7ed03ab25e006cd741092b718/tzdata-2026.5-py2.py3-none-any.whl", hash = "sha256:b683bd1b6659ddcd810ff02ad09ba821d4bf1065072805063eb35c49617905ac", size = 347996, upload-time = "2026-10-03T09:23:12.535Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/66/9a06c2227fedfd4919f0eaaa8b94377d9730882a7e4f95823c9a331ab5e1/tzdata-2026.6-py2.py3-none-any.whl", hash = "sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec", size = 348210, upload-time = "2026-10-28T09:57:07.276Z" },
 ]
 
 [[package]]
